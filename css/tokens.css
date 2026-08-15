@@ -2,10 +2,9 @@
    Nerv Linux — design tokens
    Palette derived from OneDark, corrected for WCAG AA.
 
-   Light mode: OneDark hues darkened until they clear 4.5:1 on white.
-   Dark mode:  authentic OneDark; only red is nudged (#e06c75 -> #e17079)
-               to clear 4.5:1 on #282c34. Every value below is measured,
-               not eyeballed — see docs/palette.md for the ratios.
+   Dark is the default: the base :root below is the dark theme, and light is
+   applied only when the user asks for it via [data-theme="light"]. Every value
+   is measured, not eyeballed — see docs/palette.md for ratios and method.
    ========================================================================== */
 
 :root {
@@ -22,95 +21,22 @@
   --od-purple:    #c678dd;
   --od-cyan:      #56b6c2;
 
-  /* --- Accents: light-mode variants (>=4.5:1 on #ffffff) ---------------- */
-  --accent-red:    #d63e4a;  /* 4.52 */
-  --accent-blue:   #1579cc;  /* 4.53 */
-  --accent-green:  #58813a;  /* 4.55 */
-  --accent-cyan:   #32818b;  /* 4.52 */
-  --accent-yellow: #9a6f1e;  /* 4.50 */
-  --accent-purple: #b146d1;  /* 4.50 */
-
-  /* Brand red. The logo is pure #ff0000; that clears only 4.00:1 on white,
-     which is fine for a logo (marks are exempt) but not for text or a button
-     fill. --brand is the same hue darkened to the brightest value that still
-     passes 4.5:1, so UI red and logo red read as one colour. */
-  --logo-red:      #ff0000;  /* never altered — the mark itself */
-  --brand:         #ee0000;  /* 4.53 on white */
-  --brand-deep:    #bf0000;  /* 6.53 — hover/pressed */
-
-  /* --- Neutral ramp (Carbon-style, light) ------------------------------- */
-  --bg:            #ffffff;
-  --bg-subtle:     #f4f5f7;
-  --bg-sunken:     #eceef1;
-  --bg-inverse:    #21252b;
-
-  --text:          #1a1d23;  /* 16.88 on white */
-  --text-secondary:#4b525e;  /*  7.87 */
-  --text-tertiary: #6b7280;  /*  4.83 */
-  --text-inverse:  #f4f5f7;
-  --text-on-brand: #ffffff;
-
-  --border:        #d8dbe0;
-  --border-strong: #b6bcc6;
-  --border-inverse:#3a4049;
-
-  --link:          var(--accent-blue);
-  --focus:         var(--accent-blue);
-
-  /* --- Type ------------------------------------------------------------- */
-  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system,
-               "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-mono: "IBM Plex Mono", "JetBrains Mono", ui-monospace, SFMono-Regular,
-               "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
-
-  /* Modular scale, 1.25 ratio off a 16px base, rounded to whole px. */
-  --t-xs:   0.75rem;   /* 12 */
-  --t-sm:   0.875rem;  /* 14 */
-  --t-base: 1rem;      /* 16 */
-  --t-md:   1.125rem;  /* 18 */
-  --t-lg:   1.375rem;  /* 22 */
-  --t-xl:   1.75rem;   /* 28 */
-  --t-2xl:  2.25rem;   /* 36 */
-  --t-3xl:  3rem;      /* 48 */
-  --t-4xl:  4rem;      /* 64 */
-
-  --lh-tight: 1.15;
-  --lh-snug:  1.3;
-  --lh-body:  1.6;
-  --lh-loose: 1.7;
-
-  --tracking-tight: -0.02em;
-  --tracking-wide:   0.06em;
-  --tracking-caps:   0.10em;
-
-  /* --- Space (Carbon 8px base) ------------------------------------------ */
-  --s-1:  0.25rem;  --s-2:  0.5rem;   --s-3: 0.75rem;  --s-4: 1rem;
-  --s-5:  1.5rem;   --s-6:  2rem;     --s-7: 2.5rem;   --s-8: 3rem;
-  --s-9:  4rem;     --s-10: 5rem;     --s-11: 6rem;    --s-12: 8rem;
-
-  /* --- Layout ----------------------------------------------------------- */
-  --max-w:      1312px;   /* Carbon max grid width */
-  --max-w-text: 68ch;     /* measure for long-form prose */
-  --gutter:     var(--s-5);
-
-  /* --- Motion ----------------------------------------------------------- */
-  --ease: cubic-bezier(0.2, 0, 0.38, 0.9);   /* Carbon productive */
-  --dur:  110ms;
-}
-
-/* --- Dark mode ---------------------------------------------------------- */
-:root[data-theme="dark"] {
-  --accent-red:    #e17079;  /* 4.53 on --od-bg */
+  /* --- Accents: authentic OneDark, which clears AA on its own ground ----- */
+  --accent-red:    #e17079;  /* 4.53 on #282c34 — the one value nudged */
   --accent-blue:   #61afef;  /* 5.92 */
   --accent-green:  #98c379;  /* 6.94 */
   --accent-cyan:   #56b6c2;  /* 5.91 */
   --accent-yellow: #e5c07b;  /* 8.10 */
   --accent-purple: #c678dd;  /* 4.75 */
 
+  /* Brand red. The logo is pure #ff0000 and is never altered (marks are
+     exempt from contrast rules). --brand is the same hue moved only as far as
+     it must go to pass against the background it actually sits on. */
   --logo-red:      #ff0000;
-  --brand:         #ff5858;  /* 4.53 on #282c34 — pure red only reaches 3.50 */
+  --brand:         #ff5858;  /* 4.53 on #282c34 — pure red reaches only 3.50 */
   --brand-deep:    #ff8080;
 
+  /* --- Neutrals --------------------------------------------------------- */
   --bg:            #21252b;
   --bg-subtle:     #282c34;
   --bg-sunken:     #1b1f24;
@@ -124,38 +50,81 @@
 
   --border:        #3a4049;
   --border-strong: #4d5561;
-  --border-inverse:#d8dbe0;
 
   --link:          var(--accent-blue);
   --focus:         var(--accent-blue);
+
+  /* Which wordmark to show. Swapped by the light theme below. */
+  --logo-dark-bg:   block;   /* white "LINUX" artwork */
+  --logo-light-bg:  none;    /* black "LINUX" artwork */
+
+  /* --- Type ------------------------------------------------------------- */
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system,
+               "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", "JetBrains Mono", ui-monospace, SFMono-Regular,
+               "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+  --t-xs:   0.75rem;
+  --t-sm:   0.875rem;
+  --t-base: 1rem;
+  --t-md:   1.125rem;
+  --t-lg:   1.375rem;
+  --t-xl:   1.75rem;
+  --t-2xl:  2.25rem;
+  --t-3xl:  3rem;
+  --t-4xl:  4rem;
+
+  --lh-tight: 1.15;
+  --lh-snug:  1.3;
+  --lh-body:  1.6;
+  --lh-loose: 1.7;
+
+  --tracking-tight: -0.02em;
+  --tracking-wide:   0.06em;
+  --tracking-caps:   0.10em;
+
+  /* --- Space (8px base) -------------------------------------------------- */
+  --s-1:  0.25rem;  --s-2:  0.5rem;   --s-3: 0.75rem;  --s-4: 1rem;
+  --s-5:  1.5rem;   --s-6:  2rem;     --s-7: 2.5rem;   --s-8: 3rem;
+  --s-9:  4rem;     --s-10: 5rem;     --s-11: 6rem;    --s-12: 8rem;
+
+  /* --- Layout ----------------------------------------------------------- */
+  --max-w:      1312px;
+  --max-w-text: 68ch;
+  --gutter:     var(--s-5);
+
+  /* --- Motion ----------------------------------------------------------- */
+  --ease: cubic-bezier(0.2, 0, 0.38, 0.9);
+  --dur:  110ms;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --accent-red:    #e17079;
-    --accent-blue:   #61afef;
-    --accent-green:  #98c379;
-    --accent-cyan:   #56b6c2;
-    --accent-yellow: #e5c07b;
-    --accent-purple: #c678dd;
+/* --- Light theme, on request -------------------------------------------- */
+:root[data-theme="light"] {
+  /* OneDark hues darkened until each clears 4.5:1 on white. */
+  --accent-red:    #d63e4a;  /* 4.52 */
+  --accent-blue:   #1579cc;  /* 4.53 */
+  --accent-green:  #58813a;  /* 4.55 */
+  --accent-cyan:   #32818b;  /* 4.52 */
+  --accent-yellow: #9a6f1e;  /* 4.50 */
+  --accent-purple: #b146d1;  /* 4.50 */
 
-    --logo-red:      #ff0000;
-    --brand:         #ff5858;
-    --brand-deep:    #ff8080;
+  --brand:         #ee0000;  /* 4.53 on white, same hue as the logo */
+  --brand-deep:    #bf0000;  /* 6.53 */
 
-    --bg:            #21252b;
-    --bg-subtle:     #282c34;
-    --bg-sunken:     #1b1f24;
-    --bg-inverse:    #f4f5f7;
+  --bg:            #ffffff;
+  --bg-subtle:     #f4f5f7;
+  --bg-sunken:     #eceef1;
+  --bg-inverse:    #21252b;
 
-    --text:          #d7dce3;
-    --text-secondary:#abb2bf;
-    --text-tertiary: #8b93a1;
-    --text-inverse:  #1a1d23;
-    --text-on-brand: #21252b;
+  --text:          #1a1d23;  /* 16.88 */
+  --text-secondary:#4b525e;  /*  7.87 */
+  --text-tertiary: #6b7280;  /*  4.83 */
+  --text-inverse:  #f4f5f7;
+  --text-on-brand: #ffffff;
 
-    --border:        #3a4049;
-    --border-strong: #4d5561;
-    --border-inverse:#d8dbe0;
-  }
+  --border:        #d8dbe0;
+  --border-strong: #b6bcc6;
+
+  --logo-dark-bg:  none;
+  --logo-light-bg: block;
 }

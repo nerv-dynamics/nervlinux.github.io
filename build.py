@@ -31,7 +31,6 @@ NAV = [
     ("userland",  "/userland/",  "Userland"),
     ("platforms", "/platforms/", "Platforms"),
     ("design",    "/design/",    "Design"),
-    ("status",    "/status/",    "Status"),
     ("install",   "/install/",   "Install"),
 ]
 

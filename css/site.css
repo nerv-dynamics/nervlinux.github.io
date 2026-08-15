@@ -70,33 +70,44 @@ img { max-width: 100%; height: auto; display: block; }
 /* --- Masthead ------------------------------------------------------------ */
 .masthead {
   position: sticky; top: 0; z-index: 50;
-  background: var(--bg-inverse); color: var(--text-inverse);
-  border-bottom: 1px solid var(--border-inverse);
+  background: var(--bg-subtle); color: var(--text);
+  border-bottom: 1px solid var(--border);
 }
 .masthead__inner {
   max-width: var(--max-w); margin-inline: auto; padding-inline: var(--gutter);
-  height: 48px; display: flex; align-items: center; gap: var(--s-6);
+  height: 56px; display: flex; align-items: center; gap: var(--s-6);
 }
 .masthead__brand { display: flex; align-items: center; text-decoration: none; }
-.masthead__brand img { height: 30px; width: auto; }
+.masthead__brand .logo { height: 30px; width: auto; }
+
+/* Two artworks, one per theme: the mark carries its own outline colour, so it
+   cannot be recoloured with CSS — the right file is shown instead. */
+.logo--on-dark  { display: var(--logo-dark-bg); }
+.logo--on-light { display: var(--logo-light-bg); }
 
 .masthead__nav { margin-left: auto; display: flex; align-items: center; gap: var(--s-1); }
 .masthead__nav a {
-  color: var(--text-inverse); font-size: var(--t-sm);
-  padding: var(--s-2) var(--s-3); opacity: .75;
+  color: var(--text); font-size: var(--t-sm);
+  padding: var(--s-2) var(--s-3); opacity: .8;
   transition: opacity var(--dur) var(--ease), background var(--dur) var(--ease);
 }
-.masthead__nav a:hover { opacity: 1; background: rgba(127,140,160,.18); text-decoration: none; }
+.masthead__nav a:hover { opacity: 1; background: var(--bg-sunken); text-decoration: none; }
 .masthead__nav a[aria-current="page"] {
-  opacity: 1; box-shadow: inset 0 -2px 0 var(--brand);
+  opacity: 1; font-weight: 600; box-shadow: inset 0 -2px 0 var(--brand);
 }
+
 .theme-toggle {
-  background: none; border: 1px solid transparent; color: var(--text-inverse);
-  font-family: var(--font-mono); font-size: var(--t-xs);
-  letter-spacing: var(--tracking-wide); text-transform: uppercase;
-  padding: var(--s-2) var(--s-3); cursor: pointer; opacity: .75;
+  display: inline-flex; align-items: center; justify-content: center;
+  margin-left: var(--s-2);
+  width: 34px; height: 34px;
+  background: none; border: 1px solid var(--border); color: var(--text);
+  cursor: pointer; opacity: .8;
+  transition: opacity var(--dur) var(--ease), border-color var(--dur) var(--ease);
 }
-.theme-toggle:hover { opacity: 1; border-color: var(--border-inverse); }
+.theme-toggle:hover { opacity: 1; border-color: var(--border-strong); }
+/* Show the icon for the theme you would switch TO. */
+.icon--sun  { display: var(--logo-dark-bg); }
+.icon--moon { display: var(--logo-light-bg); }
 
 /* --- Hero (front page only) ---------------------------------------------- */
 .hero { border-bottom: 1px solid var(--border); background: var(--bg-subtle); }
@@ -189,15 +200,16 @@ table.data td code { font-size: var(--t-xs); background: var(--bg-sunken); paddi
 
 /* --- Footer -------------------------------------------------------------- */
 .footer {
-  background: var(--bg-inverse); color: var(--text-inverse);
+  background: var(--bg-sunken); color: var(--text);
+  border-top: 1px solid var(--border);
   padding-block: var(--s-8) var(--s-7);
 }
-.footer a { color: var(--text-inverse); opacity: .8; }
+.footer a { color: var(--text); opacity: .8; }
 .footer a:hover { opacity: 1; }
 .footer__links {
   display: flex; flex-wrap: wrap; gap: var(--s-3) var(--s-5);
   font-size: var(--t-sm);
-  padding-bottom: var(--s-5); border-bottom: 1px solid var(--border-inverse);
+  padding-bottom: var(--s-5); border-bottom: 1px solid var(--border);
 }
 .footer__base { padding-top: var(--s-5); font-size: var(--t-xs); opacity: .65; max-width: 90ch; }
 .footer__base p { margin-bottom: var(--s-3); line-height: var(--lh-body); }
