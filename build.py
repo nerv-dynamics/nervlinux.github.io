@@ -67,9 +67,14 @@ def main():
         meta, body = parse(page.read_text())
         slug = meta.get("slug", "").strip(" /")
 
+        # The brand leads every title; the page name qualifies it.
+        name = meta.get("title", "").strip()
+        pagetitle = "Nerv Linux" if not slug else f"Nerv Linux \u2014 {name}"
+
         html = layout
         for key, value in {
-            "title": meta.get("title", "Nerv Linux"),
+            "title": name,
+            "pagetitle": pagetitle,
             "desc": meta.get("desc", ""),
             "canonical": "https://nervlinux.org/" + (f"{slug}/" if slug else ""),
             "nav": render_nav(meta.get("nav", "")),

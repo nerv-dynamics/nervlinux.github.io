@@ -67,6 +67,12 @@ img { max-width: 100%; height: auto; display: block; }
   font-size: var(--t-base); color: var(--text-secondary);
   max-width: var(--max-w-text); margin-bottom: var(--s-5);
 }
+.sub-title {
+  font-size: var(--t-lg);
+  margin-top: var(--s-8); margin-bottom: var(--s-4);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--border);
+}
 .crumb {
   font-family: var(--font-mono); font-size: var(--t-xs);
   letter-spacing: var(--tracking-caps); text-transform: uppercase;

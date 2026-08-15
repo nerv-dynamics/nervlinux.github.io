@@ -1,5 +1,5 @@
 <!--
-title: A modern Unix for NVIDIA workstations
+title: Nerv Linux
 desc:  A from-scratch Linux distribution for NVIDIA GB-series workstations. Built with LLVM against musl, boots in under four seconds, and ships CUDA and an inference engine that work on first boot.
 slug:
 nav:   home
@@ -107,87 +107,48 @@ nav:   home
     <h2 class="section-title">What it is</h2>
     <div class="prose">
       <p>
-        A modern Unix that has left the GNU userland behind. The text tools are
-        Rust uutils, the console is kmscon with proper high-DPI rendering and
-        truecolor, privilege escalation is doas, and the interactive shell is
-        assembled from the tools people actually reach for. None of that breaks
-        scripting, because <code>/bin/sh</code> is still a POSIX shell that
-        behaves the way scripts expect.
+        A complete operating system rather than a distribution assembled out of
+        someone else&rsquo;s decisions. Nerv builds its own base from upstream
+        source: the C library, the allocator, the compiler, the init system, the
+        shell, the text tools and the package manager. Nothing underneath it is
+        waiting on another project&rsquo;s roadmap.
       </p>
       <p>
-        Underneath, the whole base system is compiled from source against musl
-        libc patched with mimalloc, using LLVM and clang. That makes the core
-        small, POSIX-clean and consistently hardened. A second glibc userland
-        sits alongside it so that CUDA, Python wheels and vendor binaries run
-        without anyone having to care about the arrangement.
+        What that base feels like is a modern Unix with the GNU userland left
+        behind. The text tools are Rust uutils, the console renders properly at
+        high DPI and in truecolor, privilege escalation is doas, and the
+        interactive shell is put together from the tools people actually reach
+        for. None of it breaks scripting, because <code>/bin/sh</code> is still a
+        POSIX shell that behaves the way scripts expect. Underneath, everything
+        is compiled against musl with mimalloc using LLVM, and a glibc layer sits
+        alongside it so CUDA, Python wheels and vendor binaries run without
+        anyone having to think about the arrangement.
+      </p>
+
+      <h3 class="sub-title">What you are allowed to do with it</h3>
+      <p>
+        Owning the whole base means owning its licensing, and Nerv is built so
+        that <strong>no GPL-3 package is needed to boot a machine</strong>. The
+        core is MIT, 0BSD, BSD and Apache, alongside the GPL-2 kernel and
+        LGPL-2.1 libraries, none of which carry the clause that matters here.
       </p>
       <p>
-        The rest is opinion applied consistently: a kernel stripped of hardware
-        this machine will never have, application defaults chosen for a
-        workstation, and an inference engine and a working Steam setup in the
-        image because those are what the machine is for.
+        The clause that matters is GPL-3 section 6. It obliges anyone shipping
+        object code inside a user product to hand over whatever is needed to
+        install a modified version. Secure Boot with kernel lockdown is precisely
+        the restriction that triggers it, so a signed, locked-down boot chain and
+        a GPL-3 runtime pull against each other. That is a real problem for
+        anyone putting an operating system on hardware they intend to ship, and
+        it is usually discovered late, by a lawyer.
+      </p>
+      <p>
+        Nerv does not manage that tension. It never creates it. A Nerv base can
+        be signed, locked and shipped without the licence review turning into a
+        redesign, and the handful of GPL-3 software people do want, rsync among
+        them, remains one <code>dnf5 install</code> away as an ordinary choice
+        rather than a structural commitment.
       </p>
     </div>
   </div>
 </section>
 
-<section class="section">
-  <div class="wrap">
-    <h2 class="section-title">Sections</h2>
-    <div class="index-list">
-      <div class="index-item">
-        <h3><a href="/design/">Design</a></h3>
-        <p>What an operating system is for, why the accelerator sits outside
-           its jurisdiction, and what follows from that.</p>
-      </div>
-      <div class="index-item">
-        <h3><a href="/system/">System</a></h3>
-        <p>musl and mimalloc, the LLVM toolchain, and the RPM stack built and
-           running with no glibc in its dependency tree.</p>
-      </div>
-      <div class="index-item">
-        <h3><a href="/tools/">Tools</a></h3>
-        <p>The software Nerv ships that exists nowhere else: axon, atfield,
-           cage, S2 and the build toolchain behind them.</p>
-      </div>
-      <div class="index-item">
-        <h3><a href="/userland/">Userland</a></h3>
-        <p>Rust uutils in place of GNU coreutils, and the modern CLI wired in as
-           defaults without breaking scripts.</p>
-      </div>
-      <div class="index-item">
-        <h3><a href="/platforms/">Platforms</a></h3>
-        <p>NVIDIA GB10, GB20 and GB300 &mdash; what each target is and what
-           unified memory changes.</p>
-      </div>
-      <div class="index-item">
-        <h3><a href="/install/">Install</a></h3>
-        <p>Building from source, booting a QEMU image, and installing to a
-           second slot without touching the first.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="section section--subtle">
-  <div class="wrap">
-    <h2 class="section-title">Hardware</h2>
-    <p class="section-lede">
-      Nerv targets NVIDIA GB-series unified-memory parts and nothing else.
-      Knowing the machine is what pays for everything above.
-    </p>
-    <div class="table-scroll">
-      <table class="data">
-        <thead>
-          <tr><th scope="col">Target</th><th scope="col">Arch</th><th scope="col">Machines</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>GB10</code></td><td>aarch64</td><td>NVIDIA DGX Spark, HP ZGX and other GB10 workstations</td></tr>
-          <tr><td><code>GB20</code></td><td>aarch64</td><td>GB20-class laptops, as they ship</td></tr>
-          <tr><td><code>GB300</code></td><td>aarch64</td><td>GB300-class workstations, as they ship</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p class="after-table"><a href="/platforms/">Per-target detail &rarr;</a></p>
-  </div>
-</section>
