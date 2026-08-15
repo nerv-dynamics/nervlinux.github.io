@@ -1,0 +1,116 @@
+<!--
+title: Tools
+desc:  The software Nerv ships that exists nowhere else: axon, atfield, cage and S2 on the running system, and geofront behind them.
+slug:  tools
+nav:   tools
+-->
+
+<section class="section section--head">
+  <div class="wrap">
+    <h1 class="page-title">Tools</h1>
+    <p class="page-lede">
+      Most of what a distribution ships is upstream software it packaged. This
+      page is the other part &mdash; the programs that exist because Nerv exists,
+      and that a general-purpose distribution has no way to provide.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title">On the running system</h2>
+
+    <div class="tool">
+      <h3 class="tool__name"><a href="/design/axon/">axon</a></h3>
+      <p class="tool__what">The accelerator boundary.</p>
+      <p>
+        <code>axond</code> owns the device and hands out pre-authenticated
+        sockets; every process is a client. Because local and remote are the
+        same path, a CUDA program can execute on a GPU in another machine
+        without being rebuilt. <code>axon top</code> answers where a given piece
+        of work actually ran, which is the part a profiler normally cannot tell
+        you.
+      </p>
+    </div>
+
+    <div class="tool">
+      <h3 class="tool__name"><a href="/design/atfield/">atfield</a></h3>
+      <p class="tool__what">Provenance, and a short queue of questions.</p>
+      <p>
+        Measures every byte against the image it was composed from and the
+        packages that own it, then asks about the remainder. Answering is what
+        produces the declaration; there is no manifest to maintain. The output is
+        a patch to the repository, never a mutation of a live slot.
+      </p>
+    </div>
+
+    <div class="tool">
+      <h3 class="tool__name"><a href="/design/cage/">cage</a></h3>
+      <p class="tool__what">Slot transactions.</p>
+      <p>
+        <code>install</code>, <code>seal</code>, <code>boot</code>,
+        <code>promote</code>, <code>rollback</code>. An update composes into the
+        subvolume you are not running and the bootloader default moves only
+        after the new slot has booted.
+      </p>
+    </div>
+
+    <div class="tool">
+      <h3 class="tool__name"><a href="/design/s2/">S2</a></h3>
+      <p class="tool__what">Inference, in the image.</p>
+      <p>
+        One artifact per model, compiled ahead of time into replayable CUDA
+        graphs and an arena layout. The runtime replays them. Residency and
+        speculation depth are the only decisions left to run time, and both
+        query the same ledger.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle">
+  <div class="wrap">
+    <h2 class="section-title">Building the distribution</h2>
+    <p class="section-lede">
+      These are how Nerv is made. They are in the tree because building a
+      musl-first system correctly turned out to need them.
+    </p>
+
+    <div class="table-scroll">
+      <table class="data">
+        <thead><tr><th scope="col">Tool</th><th scope="col">What it does</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>geofront</code></td>
+            <td>Composes a pure-musl chroot from the local repository and builds in it. Building a musl target inside a glibc buildroot bakes glibc-shaped answers into musl binaries; this is the tool that prevents it.</td>
+          </tr>
+          <tr>
+            <td><code>nerv-repo</code></td>
+            <td>Publishes packages and image generations to the artifact host. The signing key stays on the builder and never reaches the host.</td>
+          </tr>
+          <tr>
+            <td><code>nerv-mkimage</code></td>
+            <td>Composes a rootfs image for a target.</td>
+          </tr>
+          <tr>
+            <td><code>nerv-qemu</code></td>
+            <td>Boots an image under QEMU/KVM and runs the smoke test.</td>
+          </tr>
+          <tr>
+            <td><code>nerv-ab-install</code></td>
+            <td>Installs into a second btrfs subvolume, non-destructively, leaving the existing system bootable.</td>
+          </tr>
+          <tr>
+            <td><code>nerv-native-buildroot</code></td>
+            <td>Composes a zero-Fedora chroot and builds the packaging stack inside it. This is what produced rpm and dnf5 running pure-musl.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="doclink">
+      Source: <a href="https://github.com/nerv-dynamics/nerv-linux/tree/main/tools">tools/</a>
+      &middot; <a href="https://github.com/nerv-dynamics/nerv-linux/tree/main/axon">axon/</a>
+    </p>
+  </div>
+</section>

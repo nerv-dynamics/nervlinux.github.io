@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tools — Nerv Linux</title>
+<meta name="description" content="The software Nerv ships that exists nowhere else: axon, atfield, cage and S2 on the running system, and geofront behind them.">
+<link rel="canonical" href="https://nervlinux.org/tools/">
+<meta property="og:title" content="Tools — Nerv Linux">
+<meta property="og:description" content="The software Nerv ships that exists nowhere else: axon, atfield, cage and S2 on the running system, and geofront behind them.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nervlinux.org/tools/">
+<link rel="icon" href="/assets/favicon.png" sizes="32x32">
+<link rel="apple-touch-icon" href="/assets/nerv-square.png">
+<link rel="preload" href="/fonts/plex-sans-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/site.css">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('nerv-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="masthead__inner">
+    <a class="masthead__brand" href="/" aria-label="Nerv Linux — home">
+      <img class="logo logo--on-dark" src="/assets/nerv-wordmark.png" alt="Nerv Linux" width="994" height="335">
+      <img class="logo logo--on-light" src="/assets/nerv-wordmark-inverted.png" alt="Nerv Linux" width="994" height="339">
+    </a>
+    <nav class="masthead__nav" aria-label="Primary">
+      <a href="/design/">Design</a>
+      <a href="/system/">System</a>
+      <a href="/tools/" aria-current="page">Tools</a>
+      <a href="/userland/">Userland</a>
+      <a href="/platforms/">Platforms</a>
+      <a href="/install/">Install</a>
+      <button class="theme-toggle" id="theme-toggle" type="button"
+              aria-label="Switch to light theme" title="Switch theme">
+        <svg class="icon icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path fill="currentColor" d="M20.7 14.6A8.6 8.6 0 0 1 9.4 3.3a8.7 8.7 0 1 0 11.3 11.3Z"/>
+        </svg>
+        <svg class="icon icon--sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2" fill="currentColor"/>
+          <g stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+            <path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4"/>
+            <path d="M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/>
+          </g>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="section section--head">
+  <div class="wrap">
+    <h1 class="page-title">Tools</h1>
+    <p class="page-lede">
+      Most of what a distribution ships is upstream software it packaged. This
+      page is the other part &mdash; the programs that exist because Nerv exists,
+      and that a general-purpose distribution has no way to provide.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title">On the running system</h2>
+
+    <div class="tool">
+      <h3 class="tool__name"><a href="/design/axon/">axon</a></h3>
+      <p class="tool__what">The accelerator boundary.</p>
+      <p>
+        <code>axond</code> owns the device and hands out pre-authenticated
+        sockets; every process is a client. Because local and remote are the
+        same path, a CUDA program can execute on a GPU in another machine
+        without being rebuilt. <code>axon top</code> answers where a given piece
+        of work actually ran, which is the part a profiler normally cannot tell
+        you.
+      </p>
+    </div>
+
+    <div class="tool">
+      <h3 class="tool__name"><a href="/design/atfield/">atfield</a></h3>
+      <p class="tool__what">Provenance, and a short queue of questions.</p>
+      <p>
+        Measures every byte against the image it was composed from and the
+        packages that own it, then asks about the remainder. Answering is what
+        produces the declaration; there is no manifest to maintain. The output is
+        a patch to the repository, never a mutation of a live slot.
+      </p>
+    </div>
+
+    <div class="tool">
+      <h3 class="tool__name"><a href="/design/cage/">cage</a></h3>
+      <p class="tool__what">Slot transactions.</p>
+      <p>
+        <code>install</code>, <code>seal</code>, <code>boot</code>,
+        <code>promote</code>, <code>rollback</code>. An update composes into the
+        subvolume you are not running and the bootloader default moves only
+        after the new slot has booted.
+      </p>
+    </div>
+
+    <div class="tool">
+      <h3 class="tool__name"><a href="/design/s2/">S2</a></h3>
+      <p class="tool__what">Inference, in the image.</p>
+      <p>
+        One artifact per model, compiled ahead of time into replayable CUDA
+        graphs and an arena layout. The runtime replays them. Residency and
+        speculation depth are the only decisions left to run time, and both
+        query the same ledger.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle">
+  <div class="wrap">
+    <h2 class="section-title">Building the distribution</h2>
+    <p class="section-lede">
+      These are how Nerv is made. They are in the tree because building a
+      musl-first system correctly turned out to need them.
+    </p>
+
+    <div class="table-scroll">
+      <table class="data">
+        <thead><tr><th scope="col">Tool</th><th scope="col">What it does</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>geofront</code></td>
+            <td>Composes a pure-musl chroot from the local repository and builds in it. Building a musl target inside a glibc buildroot bakes glibc-shaped answers into musl binaries; this is the tool that prevents it.</td>
+          </tr>
+          <tr>
+            <td><code>nerv-repo</code></td>
+            <td>Publishes packages and image generations to the artifact host. The signing key stays on the builder and never reaches the host.</td>
+          </tr>
+          <tr>
+            <td><code>nerv-mkimage</code></td>
+            <td>Composes a rootfs image for a target.</td>
+          </tr>
+          <tr>
+            <td><code>nerv-qemu</code></td>
+            <td>Boots an image under QEMU/KVM and runs the smoke test.</td>
+          </tr>
+          <tr>
+            <td><code>nerv-ab-install</code></td>
+            <td>Installs into a second btrfs subvolume, non-destructively, leaving the existing system bootable.</td>
+          </tr>
+          <tr>
+            <td><code>nerv-native-buildroot</code></td>
+            <td>Composes a zero-Fedora chroot and builds the packaging stack inside it. This is what produced rpm and dnf5 running pure-musl.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="doclink">
+      Source: <a href="https://github.com/nerv-dynamics/nerv-linux/tree/main/tools">tools/</a>
+      &middot; <a href="https://github.com/nerv-dynamics/nerv-linux/tree/main/axon">axon/</a>
+    </p>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <nav class="footer__links" aria-label="Footer">
+      <a href="/design/">Design</a>
+      <a href="/system/">System</a>
+      <a href="/tools/">Tools</a>
+      <a href="/userland/">Userland</a>
+      <a href="/platforms/">Platforms</a>
+      <a href="/install/">Install</a>
+      <a href="https://github.com/nerv-dynamics/nerv-linux">Source</a>
+      <a href="mailto:robert@nervdynamics.io">robert@nervdynamics.io</a>
+    </nav>
+    <div class="footer__base">
+      <p>Copyright &copy; 2026 Robert. Nerv Linux is free software; each
+         package carries the licence of its upstream source.</p>
+      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell and GB10 are
+         trademarks of NVIDIA Corporation. Linux is a registered trademark of
+         Linus Torvalds. Nerv Linux is not affiliated with, endorsed by, or
+         sponsored by either.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var btn = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    function label() {
+      var dark = root.getAttribute('data-theme') !== 'light';
+      btn.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+    }
+    label();
+    btn.addEventListener('click', function () {
+      // Dark is the default, so anything that isn't explicitly light is dark.
+      var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('nerv-theme', next); } catch (e) {}
+      label();
+    });
+  })();
+</script>
+
+</body>
+</html>

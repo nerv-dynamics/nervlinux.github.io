@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Source-built Linux for GPU workstations — Nerv Linux</title>
-<meta name="description" content="A Linux distribution built entirely from source against musl and LLVM, targeting NVIDIA GB10 and AMD Strix Halo workstations.">
+<title>Source-built Linux for NVIDIA GPU workstations — Nerv Linux</title>
+<meta name="description" content="A Linux distribution built from source against musl and LLVM for NVIDIA GB10, GB20 and GB300, with the GPU behind a system-call boundary and an inference engine in the image.">
 <link rel="canonical" href="https://nervlinux.org/">
-<meta property="og:title" content="Source-built Linux for GPU workstations — Nerv Linux">
-<meta property="og:description" content="A Linux distribution built entirely from source against musl and LLVM, targeting NVIDIA GB10 and AMD Strix Halo workstations.">
+<meta property="og:title" content="Source-built Linux for NVIDIA GPU workstations — Nerv Linux">
+<meta property="og:description" content="A Linux distribution built from source against musl and LLVM for NVIDIA GB10, GB20 and GB300, with the GPU behind a system-call boundary and an inference engine in the image.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://nervlinux.org/">
 <link rel="icon" href="/assets/favicon.png" sizes="32x32">
@@ -36,10 +36,11 @@
       <img class="logo logo--on-light" src="/assets/nerv-wordmark-inverted.png" alt="Nerv Linux" width="994" height="339">
     </a>
     <nav class="masthead__nav" aria-label="Primary">
+      <a href="/design/">Design</a>
       <a href="/system/">System</a>
+      <a href="/tools/">Tools</a>
       <a href="/userland/">Userland</a>
       <a href="/platforms/">Platforms</a>
-      <a href="/design/">Design</a>
       <a href="/install/">Install</a>
       <button class="theme-toggle" id="theme-toggle" type="button"
               aria-label="Switch to light theme" title="Switch theme">
@@ -59,31 +60,70 @@
 </header>
 
 <main id="main">
-<section class="hero">
-  <div class="wrap">
-    <div class="hero__grid">
-      <div>
-        <h1 class="hero__title">Nerv Linux</h1>
-        <p class="hero__lede">
-          A Linux distribution for unified-memory GPU workstations. Every package
-          in the base system is compiled from source against musl and LLVM for
-          one of three hardware targets. The NVIDIA driver, CUDA runtime and
-          toolkit are part of the image and work on first boot.
-        </p>
-        <p class="hero__note">
-          The goal it is built around: an accelerated Wayland desktop on musl
-          with the proprietary NVIDIA driver. No distribution ships one, because
-          a musl process cannot load the vendor's glibc EGL. Nerv puts a
-          boundary there instead.
-        </p>
-      </div>
+<section class="herobig">
+  <div class="wrap herobig__inner">
+    <h1 class="herobig__title">Nerv&nbsp;Linux</h1>
+    <p class="herobig__tag">A Unix built for one machine: the unified-memory GPU workstation.</p>
+    <p class="herobig__lede">
+      Every package in the base system is compiled from source against musl and
+      LLVM. The NVIDIA driver, CUDA runtime and toolkit are part of the image and
+      work on first boot.
+    </p>
+    <div class="actions">
+      <a class="btn btn--primary" href="/install/">Install</a>
+      <a class="btn btn--ghost" href="/design/">Read the design</a>
     </div>
   </div>
 </section>
 
 <section class="section">
   <div class="wrap">
-    <h2 class="section-title">Why</h2>
+    <div class="claims">
+      <div class="claim">
+        <h2 class="claim__head">Your GPU is a system call.</h2>
+        <p>
+          One daemon owns the device. Every process on the machine is a client,
+          and the boundary is mandatory rather than advisory &mdash; there is no
+          vendor library to <code>dlopen</code> around it.
+        </p>
+        <p class="claim__more"><a href="/design/axon/">axon &rarr;</a></p>
+      </div>
+
+      <div class="claim">
+        <h2 class="claim__head">CUDA runs on a GPU this machine doesn&rsquo;t have.</h2>
+        <p>
+          Because local and remote are the same path,
+          <code>dlopen("libcuda.so.1")</code> resolves to axon&rsquo;s shim and the
+          work executes on another box with the program unchanged.
+        </p>
+        <p class="claim__more"><a href="/design/axon/">axon &rarr;</a></p>
+      </div>
+
+      <div class="claim">
+        <h2 class="claim__head">The inference engine ships with the OS.</h2>
+        <p>
+          Not a container and not a Python stack. S2 is in the image, compiled
+          ahead of time against the silicon it runs on, and budgeted in one unit:
+          bytes read per accepted token.
+        </p>
+        <p class="claim__more"><a href="/design/s2/">S2 &rarr;</a></p>
+      </div>
+
+      <div class="claim">
+        <h2 class="claim__head">No glibc in the base. One compiler for all of it.</h2>
+        <p>
+          Every package Nerv builds is musl, compiled with LLVM and ThinLTO
+          &mdash; including rpm and dnf5, which no other musl distribution ships.
+        </p>
+        <p class="claim__more"><a href="/system/">System &rarr;</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle">
+  <div class="wrap">
+    <h2 class="section-title">What it is</h2>
     <div class="prose">
       <p>
         Linux runs on everything, so no general-purpose distribution can assume
@@ -93,13 +133,51 @@
         trade.
       </p>
       <p>
-        Nerv targets three machines. It can assume the accelerator is an NVIDIA
-        GB10 or an AMD Strix Halo part, that the CPU and GPU share memory, and
-        that every binary on disk came out of the same compiler. Those
-        assumptions pay for the rest of the system: a daemon that owns the GPU
-        and can serve it over a network, one toolchain applied uniformly to
-        every package, and a record of where each file on the machine came from.
+        Nerv targets one line of silicon. It can assume the accelerator is an
+        NVIDIA GB-series part, that the CPU and GPU share memory, and that every
+        binary on disk came out of the same compiler. Those assumptions pay for
+        the rest of the system: a daemon that owns the GPU and can serve it over
+        a network, one toolchain applied uniformly to every package, and a record
+        of where each file on the machine came from.
       </p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title">Sections</h2>
+    <div class="index-list">
+      <div class="index-item">
+        <h3><a href="/design/">Design</a></h3>
+        <p>What an operating system is for, what Nerv takes from Plan&nbsp;9,
+           FreeBSD and the rest, and the choices that follow.</p>
+      </div>
+      <div class="index-item">
+        <h3><a href="/system/">System</a></h3>
+        <p>musl and mimalloc, the LLVM toolchain, and the RPM stack built and
+           running with no glibc in its dependency tree.</p>
+      </div>
+      <div class="index-item">
+        <h3><a href="/tools/">Tools</a></h3>
+        <p>The software Nerv ships that exists nowhere else: axon, atfield,
+           cage, S2 and the build toolchain behind them.</p>
+      </div>
+      <div class="index-item">
+        <h3><a href="/userland/">Userland</a></h3>
+        <p>Rust uutils in place of GNU coreutils, and the modern CLI wired in as
+           defaults without breaking scripts.</p>
+      </div>
+      <div class="index-item">
+        <h3><a href="/platforms/">Platforms</a></h3>
+        <p>NVIDIA GB10, GB20 and GB300 &mdash; what each target is and what
+           unified memory changes.</p>
+      </div>
+      <div class="index-item">
+        <h3><a href="/install/">Install</a></h3>
+        <p>Building from source, booting a QEMU image, and installing to a
+           second slot without touching the first.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -107,74 +185,23 @@
 <section class="section section--subtle">
   <div class="wrap">
     <h2 class="section-title">Hardware</h2>
+    <p class="section-lede">
+      Nerv officially targets NVIDIA GB-series unified-memory parts and nothing
+      else. Knowing the machine is what the rest of the design is paid for with.
+    </p>
     <div class="table-scroll">
       <table class="data">
         <thead>
-          <tr><th scope="col">Target</th><th scope="col">Arch</th><th scope="col">Machines</th><th scope="col">Accelerator</th></tr>
+          <tr><th scope="col">Target</th><th scope="col">Arch</th><th scope="col">Machines</th></tr>
         </thead>
         <tbody>
-          <tr>
-            <td><code>gb10</code></td>
-            <td>aarch64</td>
-            <td>NVIDIA DGX Spark; GB300 and GB20 laptops as they arrive</td>
-            <td>NVIDIA GB10</td>
-          </tr>
-          <tr>
-            <td><code>strix-halo</code></td>
-            <td>x86_64</td>
-            <td>HP ZGX, Z2 Mini G1a, Strix Halo laptops</td>
-            <td>AMD Radeon 890M</td>
-          </tr>
-          <tr>
-            <td><code>wsl2</code></td>
-            <td>either</td>
-            <td>any Windows host</td>
-            <td>host driver bridge</td>
-          </tr>
+          <tr><td><code>GB10</code></td><td>aarch64</td><td>NVIDIA DGX Spark and GB10 workstations</td></tr>
+          <tr><td><code>GB20</code></td><td>aarch64</td><td>GB20-class laptops, as they ship</td></tr>
+          <tr><td><code>GB300</code></td><td>aarch64</td><td>GB300-class systems, as they ship</td></tr>
         </tbody>
       </table>
     </div>
     <p class="after-table"><a href="/platforms/">Per-target detail &rarr;</a></p>
-  </div>
-</section>
-
-<section class="section">
-  <div class="wrap">
-    <h2 class="section-title">Subsystems</h2>
-    <div class="index-list">
-      <div class="index-item">
-        <h3><a href="/system/">System</a></h3>
-        <p>musl and mimalloc, LLVM with ThinLTO, systemd on musl, and the whole
-           RPM stack &mdash; rpm, libsolv, librepo, dnf5 &mdash; built and running
-           with no glibc anywhere in its dependency tree.</p>
-      </div>
-      <div class="index-item">
-        <h3><a href="/userland/">Userland</a></h3>
-        <p>Rust uutils in place of GNU coreutils, and the modern CLI tools wired
-           in as defaults. Scripts that expect classic behaviour still run.</p>
-      </div>
-      <div class="index-item">
-        <h3><a href="/design/axon/">axon</a></h3>
-        <p>One daemon owns the GPU and every process is a client, so the local
-           and remote paths are the same path. CUDA workloads run on another
-           machine with the program unchanged.</p>
-      </div>
-      <div class="index-item">
-        <h3><a href="/design/atfield/">atfield</a></h3>
-        <p>Provenance for every byte on the machine, and a queue of yes/no
-           questions about the parts nothing accounts for.</p>
-      </div>
-      <div class="index-item">
-        <h3><a href="/design/s2/">S2</a></h3>
-        <p>An inference engine built for one machine and shipped in the image.
-           Everything is budgeted in bytes read per accepted token.</p>
-      </div>
-      <div class="index-item">
-        <h3><a href="/design/cage/">cage</a></h3>
-        <p>Transactional A/B updates on btrfs subvolumes. An update composes
-           into the slot you are not running.</p>
-      </div>
-    </div>
   </div>
 </section>
 </main>
@@ -182,10 +209,11 @@
 <footer class="footer">
   <div class="wrap">
     <nav class="footer__links" aria-label="Footer">
+      <a href="/design/">Design</a>
       <a href="/system/">System</a>
+      <a href="/tools/">Tools</a>
       <a href="/userland/">Userland</a>
       <a href="/platforms/">Platforms</a>
-      <a href="/design/">Design</a>
       <a href="/install/">Install</a>
       <a href="https://github.com/nerv-dynamics/nerv-linux">Source</a>
       <a href="mailto:robert@nervdynamics.io">robert@nervdynamics.io</a>
@@ -193,12 +221,10 @@
     <div class="footer__base">
       <p>Copyright &copy; 2026 Robert. Nerv Linux is free software; each
          package carries the licence of its upstream source.</p>
-      <p class="footer__tm">NVIDIA, CUDA, DGX and GB10 are trademarks of NVIDIA
-         Corporation. HP and ZGX are trademarks of HP Inc. AMD, Radeon and Strix
-         Halo are trademarks of Advanced Micro Devices, Inc. Windows is a
-         trademark of Microsoft Corporation. Linux is a registered trademark of
+      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell and GB10 are
+         trademarks of NVIDIA Corporation. Linux is a registered trademark of
          Linus Torvalds. Nerv Linux is not affiliated with, endorsed by, or
-         sponsored by any of them.</p>
+         sponsored by either.</p>
     </div>
   </div>
 </footer>

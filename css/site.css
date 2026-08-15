@@ -109,20 +109,66 @@ img { max-width: 100%; height: auto; display: block; }
 .icon--sun  { display: var(--logo-dark-bg); }
 .icon--moon { display: var(--logo-light-bg); }
 
-/* --- Hero (front page only) ---------------------------------------------- */
-.hero { border-bottom: 1px solid var(--border); background: var(--bg-subtle); }
-.hero__grid { padding-block: var(--s-10); }
-.hero__title { font-size: clamp(2.5rem, 6vw, var(--t-4xl)); letter-spacing: -0.03em; margin-bottom: var(--s-5); }
-.hero__lede {
-  font-size: var(--t-md); line-height: var(--lh-loose);
-  color: var(--text-secondary); max-width: 54ch; margin-bottom: var(--s-5);
+/* --- Landing hero -------------------------------------------------------- */
+/* Sits on artwork, so it stays dark in both themes and sets its own colours. */
+.herobig {
+  position: relative;
+  background: #1b1f24 url("/assets/hero-bg.jpg") center/cover no-repeat;
+  border-bottom: 1px solid var(--border);
+  color: #f2f4f7;
 }
-.hero__note {
-  max-width: 54ch; font-size: var(--t-sm); line-height: var(--lh-loose);
-  color: var(--text); border-left: 2px solid var(--brand);
-  padding-left: var(--s-4);
+.herobig::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(100deg, rgba(15,17,20,.86) 0%, rgba(15,17,20,.55) 55%, rgba(15,17,20,.30) 100%);
 }
-.hero__mark { width: clamp(120px, 16vw, 200px); height: auto; }
+.herobig__inner { position: relative; z-index: 1; padding-block: var(--s-11); }
+.herobig__title {
+  font-size: clamp(2.75rem, 7vw, 4.5rem);
+  letter-spacing: -0.035em; color: #fff; margin-bottom: var(--s-4);
+}
+.herobig__tag {
+  font-size: clamp(1.125rem, 2.2vw, var(--t-lg));
+  line-height: var(--lh-snug); color: #fff;
+  max-width: 30ch; margin-bottom: var(--s-5);
+  border-left: 3px solid var(--logo-red); padding-left: var(--s-4);
+}
+.herobig__lede {
+  font-size: var(--t-base); line-height: var(--lh-loose);
+  color: rgba(242,244,247,.82); max-width: 56ch; margin-bottom: var(--s-6);
+}
+
+/* --- Buttons ------------------------------------------------------------- */
+.actions { display: flex; flex-wrap: wrap; gap: var(--s-3); }
+.btn {
+  display: inline-flex; align-items: center;
+  padding: var(--s-3) var(--s-6);
+  font-size: var(--t-sm); font-weight: 600;
+  border: 1px solid transparent; cursor: pointer;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+.btn:hover { text-decoration: none; }
+.btn--primary { background: var(--logo-red); color: #fff; }
+.btn--primary:hover { background: #cc0000; }
+.btn--ghost { border-color: rgba(242,244,247,.45); color: #f2f4f7; }
+.btn--ghost:hover { background: rgba(242,244,247,.12); border-color: #f2f4f7; }
+
+/* --- Claim tiles --------------------------------------------------------- */
+.claims {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+  border-top: 1px solid var(--border); border-left: 1px solid var(--border);
+}
+.claim {
+  padding: var(--s-6);
+  border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  display: flex; flex-direction: column;
+}
+.claim__head {
+  font-size: var(--t-lg); line-height: var(--lh-snug);
+  margin-bottom: var(--s-4); max-width: 24ch;
+}
+.claim p { color: var(--text-secondary); font-size: var(--t-sm); line-height: var(--lh-loose); }
+.claim__more { margin-top: auto; padding-top: var(--s-4); font-weight: 600; }
+.claim__more a { color: var(--brand); }
 
 /* --- Index list (front page + /design/) ---------------------------------- */
 .index-list {
@@ -217,8 +263,7 @@ table.data td code { font-size: var(--t-xs); background: var(--bg-sunken); paddi
 
 /* --- Responsive ---------------------------------------------------------- */
 @media (max-width: 900px) {
-  .hero__grid { grid-template-columns: 1fr; gap: var(--s-6); }
-  .hero__mark { display: none; }
+  .herobig__inner { padding-block: var(--s-9); }
   .section { padding-block: var(--s-8); }
   .page-title { font-size: var(--t-2xl); }
 }

@@ -27,10 +27,11 @@ SRC = ROOT / "src"
 OWNER = "Robert"
 
 NAV = [
+    ("design",    "/design/",    "Design"),
     ("system",    "/system/",    "System"),
+    ("tools",     "/tools/",     "Tools"),
     ("userland",  "/userland/",  "Userland"),
     ("platforms", "/platforms/", "Platforms"),
-    ("design",    "/design/",    "Design"),
     ("install",   "/install/",   "Install"),
 ]
 
