@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Source-built Linux for GPU workstations — Nerv Linux</title>
+<meta name="description" content="A Linux distribution built entirely from source against musl and LLVM, targeting NVIDIA GB10 and AMD Strix Halo workstations.">
+<link rel="canonical" href="https://nervlinux.org/">
+<meta property="og:title" content="Source-built Linux for GPU workstations — Nerv Linux">
+<meta property="og:description" content="A Linux distribution built entirely from source against musl and LLVM, targeting NVIDIA GB10 and AMD Strix Halo workstations.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nervlinux.org/">
+<link rel="icon" href="/assets/favicon.png" sizes="32x32">
+<link rel="apple-touch-icon" href="/assets/nerv-square.png">
+<link rel="preload" href="/fonts/plex-sans-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/site.css">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('nerv-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="masthead__inner">
+    <a class="masthead__brand" href="/" aria-label="Nerv Linux — home">
+      <img src="/assets/nerv-wordmark.png" alt="Nerv Linux" width="994" height="335">
+    </a>
+    <nav class="masthead__nav" aria-label="Primary">
+      <a href="/system/">System</a>
+      <a href="/userland/">Userland</a>
+      <a href="/platforms/">Platforms</a>
+      <a href="/design/">Design</a>
+      <a href="/status/">Status</a>
+      <a href="/install/">Install</a>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle colour theme">Theme</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="hero">
+  <div class="wrap">
+    <div class="hero__grid">
+      <div>
+        <h1 class="hero__title">Nerv Linux</h1>
+        <p class="hero__lede">
+          A Linux distribution for unified-memory GPU workstations. Every package
+          in the base system is compiled from source against musl and LLVM for
+          one of three hardware targets. The NVIDIA driver, CUDA runtime and
+          toolkit are part of the image and work on first boot.
+        </p>
+        <p class="hero__note">
+          The goal it is built around: an accelerated Wayland desktop on musl
+          with the proprietary NVIDIA driver. No distribution ships one, because
+          a musl process cannot load the vendor's glibc EGL. Nerv puts a
+          boundary there instead.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title">Why</h2>
+    <div class="prose">
+      <p>
+        Linux runs on everything, so no general-purpose distribution can assume
+        anything. Options accumulate, old behaviour is preserved indefinitely,
+        and portability wins every argument it has with economy. For a system
+        that has to boot on hardware nobody has built yet, that is the correct
+        trade.
+      </p>
+      <p>
+        Nerv targets three machines. It can assume the accelerator is an NVIDIA
+        GB10 or an AMD Strix Halo part, that the CPU and GPU share memory, and
+        that every binary on disk came out of the same compiler. Those
+        assumptions pay for the rest of the system: a daemon that owns the GPU
+        and can serve it over a network, one toolchain applied uniformly to
+        every package, and a record of where each file on the machine came from.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle">
+  <div class="wrap">
+    <h2 class="section-title">Hardware</h2>
+    <div class="table-scroll">
+      <table class="data">
+        <thead>
+          <tr><th scope="col">Target</th><th scope="col">Arch</th><th scope="col">Machines</th><th scope="col">Accelerator</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>gb10</code></td>
+            <td>aarch64</td>
+            <td>NVIDIA DGX Spark; GB300 and GB20 laptops as they arrive</td>
+            <td>NVIDIA GB10</td>
+          </tr>
+          <tr>
+            <td><code>strix-halo</code></td>
+            <td>x86_64</td>
+            <td>HP ZGX, Z2 Mini G1a, Strix Halo laptops</td>
+            <td>AMD Radeon 890M</td>
+          </tr>
+          <tr>
+            <td><code>wsl2</code></td>
+            <td>either</td>
+            <td>any Windows host</td>
+            <td>host driver bridge</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="after-table"><a href="/platforms/">Per-target detail &rarr;</a></p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title">Subsystems</h2>
+    <div class="index-list">
+      <div class="index-item">
+        <h3><a href="/system/">System</a></h3>
+        <p>musl and mimalloc, LLVM with ThinLTO, systemd on musl, and the whole
+           RPM stack &mdash; rpm, libsolv, librepo, dnf5 &mdash; built and running
+           with no glibc anywhere in its dependency tree.</p>
+      </div>
+      <div class="index-item">
+        <h3><a href="/userland/">Userland</a></h3>
+        <p>Rust uutils in place of GNU coreutils, and the modern CLI tools wired
+           in as defaults. Scripts that expect classic behaviour still run.</p>
+      </div>
+      <div class="index-item">
+        <h3><a href="/design/axon/">axon</a></h3>
+        <p>One daemon owns the GPU and every process is a client, so the local
+           and remote paths are the same path. CUDA workloads run on another
+           machine with the program unchanged.</p>
+      </div>
+      <div class="index-item">
+        <h3><a href="/design/atfield/">atfield</a></h3>
+        <p>Provenance for every byte on the machine, and a queue of yes/no
+           questions about the parts nothing accounts for.</p>
+      </div>
+      <div class="index-item">
+        <h3><a href="/design/s2/">S2</a></h3>
+        <p>An inference engine built for one machine and shipped in the image.
+           Everything is budgeted in bytes read per accepted token.</p>
+      </div>
+      <div class="index-item">
+        <h3><a href="/design/cage/">cage</a></h3>
+        <p>Transactional A/B updates on btrfs subvolumes. An update composes
+           into the slot you are not running.</p>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <nav class="footer__links" aria-label="Footer">
+      <a href="/system/">System</a>
+      <a href="/userland/">Userland</a>
+      <a href="/platforms/">Platforms</a>
+      <a href="/design/">Design</a>
+      <a href="/status/">Status</a>
+      <a href="/install/">Install</a>
+      <a href="https://github.com/nerv-dynamics/nerv-linux">Source</a>
+      <a href="mailto:robert@nervdynamics.io">robert@nervdynamics.io</a>
+    </nav>
+    <div class="footer__base">
+      <p>Copyright &copy; 2026 Robert. Nerv Linux is free software; each
+         package carries the licence of its upstream source.</p>
+      <p class="footer__tm">NVIDIA, CUDA, DGX and GB10 are trademarks of NVIDIA
+         Corporation. HP and ZGX are trademarks of HP Inc. AMD, Radeon and Strix
+         Halo are trademarks of Advanced Micro Devices, Inc. Windows is a
+         trademark of Microsoft Corporation. Linux is a registered trademark of
+         Linus Torvalds. Nerv Linux is not affiliated with, endorsed by, or
+         sponsored by any of them.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var btn = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    btn.addEventListener('click', function () {
+      var current = root.getAttribute('data-theme');
+      if (!current) {
+        current = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      var next = current === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('nerv-theme', next); } catch (e) {}
+    });
+  })();
+</script>
+
+</body>
+</html>

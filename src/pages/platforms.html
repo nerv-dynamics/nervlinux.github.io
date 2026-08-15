@@ -1,0 +1,93 @@
+<!--
+title: Platforms
+desc:  Three hardware targets from one source tree: NVIDIA GB10, AMD Strix Halo, and WSL2.
+slug:  platforms
+nav:   platforms
+-->
+
+<section class="section section--head">
+  <div class="wrap">
+    <h1 class="page-title">Platforms</h1>
+    <p class="page-lede">
+      Nerv targets the unified-memory GPU workstation. Three targets are built
+      from one source tree, each with its own kernel configuration and CPU
+      tuning.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="table-scroll">
+      <table class="data">
+        <thead>
+          <tr><th scope="col">Target</th><th scope="col">Arch</th><th scope="col">Machines</th><th scope="col">Accelerator</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><a href="#gb10"><code>gb10</code></a></td><td>aarch64</td><td>NVIDIA DGX Spark; GB300 and GB20 laptops</td><td>NVIDIA GB10</td></tr>
+          <tr><td><a href="#strix-halo"><code>strix-halo</code></a></td><td>x86_64</td><td>HP ZGX, Z2 Mini G1a, Strix Halo laptops</td><td>AMD Radeon 890M</td></tr>
+          <tr><td><a href="#wsl2"><code>wsl2</code></a></td><td>either</td><td>any Windows host</td><td>host driver bridge</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle" id="gb10">
+  <div class="wrap">
+    <h2 class="section-title">gb10</h2>
+    <div class="prose">
+      <p>
+        The primary target. NVIDIA GB10 on aarch64, with CPU and GPU sharing one
+        memory pool. The DGX Spark is the machine Nerv is developed against; the
+        GB300 and GB20 laptops are the same class of part and the same target.
+      </p>
+      <p>
+        Unified memory changes what the operating system is responsible for. The
+        GPU arena and the page cache are the same pool, so reserving device
+        memory is zero-sum against the filesystem cache, and a resident GPU
+        process fragments the allocator for every process after it. Both are
+        distribution-level problems, and both are what
+        <a href="/design/axon/">axon</a> exists to solve. The arena is reserved
+        on the kernel command line, before anything has had a chance to
+        fragment memory.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="strix-halo">
+  <div class="wrap">
+    <h2 class="section-title">strix-halo</h2>
+    <div class="prose">
+      <p>
+        AMD Strix Halo on x86_64, with a Radeon 890M and the same unified-memory
+        arrangement. The HP ZGX and Z2 Mini G1a are the desktop machines in this
+        class. This is the target Nerv is currently validated on.
+      </p>
+      <p>
+        The accelerator boundary is the same boundary; the vendor stack behind it
+        is not. Keeping both targets in one source tree is what stops that
+        boundary from quietly becoming an NVIDIA-shaped interface.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle" id="wsl2">
+  <div class="wrap">
+    <h2 class="section-title">wsl2</h2>
+    <div class="prose">
+      <p>
+        Nerv as a WSL2 distribution on whichever architecture the Windows host
+        is. There is no kernel package &mdash; Microsoft supplies the kernel &mdash; and
+        the GPU is reached through the host driver bridge.
+      </p>
+      <p>
+        This is the target that makes the rest usable from a machine you already
+        own, and it is the cheapest way to look at the system without
+        reinstalling anything.
+      </p>
+    </div>
+  </div>
+</section>

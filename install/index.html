@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Install — Nerv Linux</title>
+<meta name="description" content="How to build Nerv Linux from source, and what exists to install today.">
+<link rel="canonical" href="https://nervlinux.org/install/">
+<meta property="og:title" content="Install — Nerv Linux">
+<meta property="og:description" content="How to build Nerv Linux from source, and what exists to install today.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nervlinux.org/install/">
+<link rel="icon" href="/assets/favicon.png" sizes="32x32">
+<link rel="apple-touch-icon" href="/assets/nerv-square.png">
+<link rel="preload" href="/fonts/plex-sans-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/site.css">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('nerv-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="masthead__inner">
+    <a class="masthead__brand" href="/" aria-label="Nerv Linux — home">
+      <img src="/assets/nerv-wordmark.png" alt="Nerv Linux" width="994" height="335">
+    </a>
+    <nav class="masthead__nav" aria-label="Primary">
+      <a href="/system/">System</a>
+      <a href="/userland/">Userland</a>
+      <a href="/platforms/">Platforms</a>
+      <a href="/design/">Design</a>
+      <a href="/status/">Status</a>
+      <a href="/install/" aria-current="page">Install</a>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle colour theme">Theme</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="section section--head">
+  <div class="wrap">
+    <h1 class="page-title">Install</h1>
+    <p class="page-lede">
+      There is no downloadable image yet. Nerv is built from source on a
+      development machine and installed to a slot on the target. If you want to
+      look at it before then, build a QEMU image &mdash; it needs no hardware.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title">Build and boot a development image</h2>
+    <div class="prose">
+      <p>
+        Builds run on a development box, never on the target hardware, in a
+        pure-musl chroot. <code>geofront</code> composes the chroot from the local
+        repository, builds in it and publishes back.
+      </p>
+    </div>
+    <div class="term">
+      <div class="term__bar">build</div>
+<pre class="term__body"><span class="c-grey"># compose a rootfs image</span>
+tools/nerv-mkimage --platform qemu-aarch64 --smoke
+
+<span class="c-grey"># boot it under QEMU/KVM and run the smoke test</span>
+tools/nerv-qemu --smoke</pre>
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle">
+  <div class="wrap">
+    <h2 class="section-title">Build a package</h2>
+    <div class="term">
+      <div class="term__bar">geofront</div>
+<pre class="term__body">geofront build packages/core/nerv-dash.spec
+geofront --dry-run packages/core/nerv-dash.spec   <span class="c-grey"># resolved plan, touches nothing</span>
+geofront --keep    packages/core/nerv-dash.spec   <span class="c-grey"># keep the buildroot to debug a failure</span></pre>
+    </div>
+    <div class="prose" style="margin-top: var(--s-6)">
+      <p>
+        Nerv tracks the newest upstream release of everything and does not pin to
+        old versions. Bumping a package means updating <code>Version:</code> in
+        the spec and rebuilding; <code>geofront</code> stages the new source
+        itself.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title">Install to hardware</h2>
+    <div class="prose">
+      <p>
+        On a machine with an existing Linux install,
+        <code>tools/nerv-ab-install</code> composes Nerv into a second btrfs
+        subvolume without touching the first. The bootloader default stays where
+        it is, so the machine you have keeps booting.
+      </p>
+      <p>
+        The netboot installer described in
+        <a href="/design/cage/">cage</a> replaces this once it lands.
+      </p>
+      <p class="doclink">
+        <a href="https://github.com/nerv-dynamics/nerv-linux">Source repository</a> &middot;
+        <a href="https://github.com/nerv-dynamics/nerv-linux/blob/main/README.md">README</a>
+      </p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <nav class="footer__links" aria-label="Footer">
+      <a href="/system/">System</a>
+      <a href="/userland/">Userland</a>
+      <a href="/platforms/">Platforms</a>
+      <a href="/design/">Design</a>
+      <a href="/status/">Status</a>
+      <a href="/install/">Install</a>
+      <a href="https://github.com/nerv-dynamics/nerv-linux">Source</a>
+      <a href="mailto:robert@nervdynamics.io">robert@nervdynamics.io</a>
+    </nav>
+    <div class="footer__base">
+      <p>Copyright &copy; 2026 Robert. Nerv Linux is free software; each
+         package carries the licence of its upstream source.</p>
+      <p class="footer__tm">NVIDIA, CUDA, DGX and GB10 are trademarks of NVIDIA
+         Corporation. HP and ZGX are trademarks of HP Inc. AMD, Radeon and Strix
+         Halo are trademarks of Advanced Micro Devices, Inc. Windows is a
+         trademark of Microsoft Corporation. Linux is a registered trademark of
+         Linus Torvalds. Nerv Linux is not affiliated with, endorsed by, or
+         sponsored by any of them.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var btn = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    btn.addEventListener('click', function () {
+      var current = root.getAttribute('data-theme');
+      if (!current) {
+        current = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      var next = current === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('nerv-theme', next); } catch (e) {}
+    });
+  })();
+</script>
+
+</body>
+</html>

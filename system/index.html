@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>System — Nerv Linux</title>
+<meta name="description" content="The base system: musl with mimalloc, an LLVM toolchain applied uniformly, the RPM stack built pure-musl, and A/B updates on btrfs.">
+<link rel="canonical" href="https://nervlinux.org/system/">
+<meta property="og:title" content="System — Nerv Linux">
+<meta property="og:description" content="The base system: musl with mimalloc, an LLVM toolchain applied uniformly, the RPM stack built pure-musl, and A/B updates on btrfs.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nervlinux.org/system/">
+<link rel="icon" href="/assets/favicon.png" sizes="32x32">
+<link rel="apple-touch-icon" href="/assets/nerv-square.png">
+<link rel="preload" href="/fonts/plex-sans-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/site.css">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('nerv-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="masthead__inner">
+    <a class="masthead__brand" href="/" aria-label="Nerv Linux — home">
+      <img src="/assets/nerv-wordmark.png" alt="Nerv Linux" width="994" height="335">
+    </a>
+    <nav class="masthead__nav" aria-label="Primary">
+      <a href="/system/" aria-current="page">System</a>
+      <a href="/userland/">Userland</a>
+      <a href="/platforms/">Platforms</a>
+      <a href="/design/">Design</a>
+      <a href="/status/">Status</a>
+      <a href="/install/">Install</a>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle colour theme">Theme</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="section section--head">
+  <div class="wrap">
+    <h1 class="page-title">System</h1>
+    <p class="page-lede">
+      Everything Nerv builds is compiled from source against musl with LLVM. The
+      base has no GNU userland and no glibc in it. glibc exists on the machine as
+      an optional layer for software the user installs.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title">libc and allocator</h2>
+    <div class="prose">
+      <p>
+        The base links musl patched with mimalloc. libc, the allocator, init, the
+        shell, the system tools and the editors are all built this way. musl is
+        small and consistent, and mimalloc brings guard pages, randomised
+        allocation and encrypted free lists to every process on the system rather
+        than to the ones that opted in.
+      </p>
+      <p>
+        A second, glibc userland sits alongside it for packages that require one:
+        CUDA, Fedora RPMs, pip wheels, vendor binaries. The two coexist because
+        every ELF names its own interpreter, so a musl binary and a glibc binary
+        never collide at runtime. The rule is enforced in one direction: nothing
+        Nerv ships may link glibc, and the glibc layer is never a dependency of a
+        Nerv package.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle">
+  <div class="wrap">
+    <h2 class="section-title">Packaging</h2>
+    <div class="prose">
+      <p>
+        rpm, libsolv, librepo and dnf5 are built against musl and run with no
+        glibc in their dependency trees. No other musl distribution ships rpm and
+        dnf5. It means two things: the system can rebuild itself, and
+        <code>dnf install</code> still reaches the Fedora package ecosystem when
+        you need something Nerv does not build.
+      </p>
+    </div>
+    <div class="table-scroll">
+      <table class="data">
+        <thead><tr><th scope="col">Component</th><th scope="col">Version</th><th scope="col">Notes</th></tr></thead>
+        <tbody>
+          <tr><td><code>rpm</code></td><td>6.0.2</td><td>musl; PGP via librpm, which drops the whole gpgme chain</td></tr>
+          <tr><td><code>libsolv</code></td><td>0.7.39</td><td>built via librpm with comps enabled</td></tr>
+          <tr><td><code>librepo</code></td><td>1.20.0</td><td><code>USE_GPGME=OFF</code></td></tr>
+          <tr><td><code>dnf5</code></td><td>5.4.2.1</td><td>links libdnf5, librpm, libc++, libunwind, musl &mdash; no glibc</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title">Toolchain</h2>
+    <div class="prose">
+      <p>
+        The base is built with LLVM and clang, linked with lld, using ThinLTO and
+        per-target CPU tuning. One compiler across every package is what makes
+        hardening a property of the system rather than of whichever packages
+        enabled it: control-flow integrity, a subset of UBSan kept on at runtime,
+        stack protection and position-independent executables apply everywhere.
+      </p>
+      <p>
+        Builds run in a pure-musl chroot composed from the local repository, not
+        in a Fedora buildroot. Building a musl target inside a glibc buildroot
+        bakes glibc-shaped answers into musl binaries, which is a class of bug
+        that is very hard to find later.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle">
+  <div class="wrap">
+    <h2 class="section-title">Init and updates</h2>
+    <div class="prose">
+      <p>
+        systemd is PID 1, built against musl. <code>dash</code> is
+        <code>/bin/sh</code> for scripts and zsh is the interactive shell; bash is
+        a build-time dependency only and is not on a runtime slot.
+      </p>
+      <p>
+        The disk carries two btrfs subvolumes. An update composes into the slot
+        you are not running and the bootloader default moves only after the new
+        slot has booted. A failed update costs a reboot. The mechanism is
+        <a href="/design/cage/">cage</a>.
+      </p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <nav class="footer__links" aria-label="Footer">
+      <a href="/system/">System</a>
+      <a href="/userland/">Userland</a>
+      <a href="/platforms/">Platforms</a>
+      <a href="/design/">Design</a>
+      <a href="/status/">Status</a>
+      <a href="/install/">Install</a>
+      <a href="https://github.com/nerv-dynamics/nerv-linux">Source</a>
+      <a href="mailto:robert@nervdynamics.io">robert@nervdynamics.io</a>
+    </nav>
+    <div class="footer__base">
+      <p>Copyright &copy; 2026 Robert. Nerv Linux is free software; each
+         package carries the licence of its upstream source.</p>
+      <p class="footer__tm">NVIDIA, CUDA, DGX and GB10 are trademarks of NVIDIA
+         Corporation. HP and ZGX are trademarks of HP Inc. AMD, Radeon and Strix
+         Halo are trademarks of Advanced Micro Devices, Inc. Windows is a
+         trademark of Microsoft Corporation. Linux is a registered trademark of
+         Linus Torvalds. Nerv Linux is not affiliated with, endorsed by, or
+         sponsored by any of them.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var btn = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    btn.addEventListener('click', function () {
+      var current = root.getAttribute('data-theme');
+      if (!current) {
+        current = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      var next = current === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('nerv-theme', next); } catch (e) {}
+    });
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!--
+title: S2
+desc:  An inference engine specialised for one machine and shipped in the image. Two build-time artifacts, two run-time policies, one cost model.
+slug:  design/s2
+nav:   design
+-->
+
+<section class="section section--head">
+  <div class="wrap">
+    <p class="crumb"><a href="/design/">Design</a></p>
+    <h1 class="page-title">S2</h1>
+    <p class="page-lede">
+      Nerv's inference engine: written from scratch, shipped in the image,
+      specialised for the GB10 rather than portable across accelerators, and
+      running behind axon.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title">The shape</h2>
+    <div class="prose">
+      <p>
+        Two build-time artifacts and two run-time policies, against one cost
+        model. Everything decidable from the model and the silicon is decided
+        once, ahead of time, and recorded. Everything that depends on system
+        state is decided at run time by exactly two policies.
+      </p>
+    </div>
+    <div class="table-scroll">
+      <table class="data">
+        <tbody>
+          <tr><td><strong>the file</strong></td><td>One self-contained artifact per model: weights in access-frequency order, a graph over engine primitives, precision per tensor, tokenizer, template, drafter, ledger, provenance. No runtime options.</td></tr>
+          <tr><td><strong>the graphs</strong></td><td>An ahead-of-time compilation of file and hardware into replayable CUDA graphs and an arena layout. The runtime replays them.</td></tr>
+          <tr><td><strong>residency</strong></td><td>What occupies which memory tier right now, as one ranked table rather than five mechanisms.</td></tr>
+          <tr><td><strong>depth</strong></td><td>How far to speculate on this request, given measured acceptance and the deadline.</td></tr>
+          <tr><td><strong>the ledger</strong></td><td>One table of measured rates and per-model byte costs. Every decision above is a query against it.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle">
+  <div class="wrap">
+    <h2 class="section-title">One unit: bytes read per accepted token</h2>
+    <div class="prose">
+      <p>
+        Residency is cut by reconstructibility, not by size and not by
+        file-versus-driver.
+      </p>
+      <p>
+        <strong>Cache</strong> is any byte that exists somewhere else: an expert
+        extent rebuilt in 3&ndash;6&nbsp;ms from NVMe, a model's hot block at
+        about 5&nbsp;s cold, a device-tagged copy that is a memcpy from page
+        cache, a vision tower, an entire small model. Dropping cache is always
+        safe; only the price differs.
+      </p>
+      <p>
+        <strong>State</strong> is any byte that exists nowhere else: live KV, the
+        recurrent state of a hybrid model, sampler state. It cannot be dropped,
+        only ended or demoted at a re-prefill cost measured in seconds.
+      </p>
+      <p>
+        Once that cut is made, models are not the unit of residency &mdash; bytes
+        are, ranked by value density. A model switch is a priced transaction
+        rather than a mode, and "several models loaded at once" is not a
+        meaningful claim under this scheme.
+      </p>
+      <p class="doclink">
+        Full design:
+        <a href="https://github.com/nerv-dynamics/nerv-linux/tree/main/docs/s2">docs/s2/</a>
+      </p>
+    </div>
+  </div>
+</section>

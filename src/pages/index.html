@@ -1,0 +1,125 @@
+<!--
+title: Source-built Linux for GPU workstations
+desc:  A Linux distribution built entirely from source against musl and LLVM, targeting NVIDIA GB10 and AMD Strix Halo workstations.
+slug:
+nav:   home
+-->
+
+<section class="hero">
+  <div class="wrap">
+    <div class="hero__grid">
+      <div>
+        <h1 class="hero__title">Nerv Linux</h1>
+        <p class="hero__lede">
+          A Linux distribution for unified-memory GPU workstations. Every package
+          in the base system is compiled from source against musl and LLVM for
+          one of three hardware targets. The NVIDIA driver, CUDA runtime and
+          toolkit are part of the image and work on first boot.
+        </p>
+        <p class="hero__note">
+          The goal it is built around: an accelerated Wayland desktop on musl
+          with the proprietary NVIDIA driver. No distribution ships one, because
+          a musl process cannot load the vendor's glibc EGL. Nerv puts a
+          boundary there instead.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title">Why</h2>
+    <div class="prose">
+      <p>
+        Linux runs on everything, so no general-purpose distribution can assume
+        anything. Options accumulate, old behaviour is preserved indefinitely,
+        and portability wins every argument it has with economy. For a system
+        that has to boot on hardware nobody has built yet, that is the correct
+        trade.
+      </p>
+      <p>
+        Nerv targets three machines. It can assume the accelerator is an NVIDIA
+        GB10 or an AMD Strix Halo part, that the CPU and GPU share memory, and
+        that every binary on disk came out of the same compiler. Those
+        assumptions pay for the rest of the system: a daemon that owns the GPU
+        and can serve it over a network, one toolchain applied uniformly to
+        every package, and a record of where each file on the machine came from.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle">
+  <div class="wrap">
+    <h2 class="section-title">Hardware</h2>
+    <div class="table-scroll">
+      <table class="data">
+        <thead>
+          <tr><th scope="col">Target</th><th scope="col">Arch</th><th scope="col">Machines</th><th scope="col">Accelerator</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>gb10</code></td>
+            <td>aarch64</td>
+            <td>NVIDIA DGX Spark; GB300 and GB20 laptops as they arrive</td>
+            <td>NVIDIA GB10</td>
+          </tr>
+          <tr>
+            <td><code>strix-halo</code></td>
+            <td>x86_64</td>
+            <td>HP ZGX, Z2 Mini G1a, Strix Halo laptops</td>
+            <td>AMD Radeon 890M</td>
+          </tr>
+          <tr>
+            <td><code>wsl2</code></td>
+            <td>either</td>
+            <td>any Windows host</td>
+            <td>host driver bridge</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="after-table"><a href="/platforms/">Per-target detail &rarr;</a></p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title">Subsystems</h2>
+    <div class="index-list">
+      <div class="index-item">
+        <h3><a href="/system/">System</a></h3>
+        <p>musl and mimalloc, LLVM with ThinLTO, systemd on musl, and the whole
+           RPM stack &mdash; rpm, libsolv, librepo, dnf5 &mdash; built and running
+           with no glibc anywhere in its dependency tree.</p>
+      </div>
+      <div class="index-item">
+        <h3><a href="/userland/">Userland</a></h3>
+        <p>Rust uutils in place of GNU coreutils, and the modern CLI tools wired
+           in as defaults. Scripts that expect classic behaviour still run.</p>
+      </div>
+      <div class="index-item">
+        <h3><a href="/design/axon/">axon</a></h3>
+        <p>One daemon owns the GPU and every process is a client, so the local
+           and remote paths are the same path. CUDA workloads run on another
+           machine with the program unchanged.</p>
+      </div>
+      <div class="index-item">
+        <h3><a href="/design/atfield/">atfield</a></h3>
+        <p>Provenance for every byte on the machine, and a queue of yes/no
+           questions about the parts nothing accounts for.</p>
+      </div>
+      <div class="index-item">
+        <h3><a href="/design/s2/">S2</a></h3>
+        <p>An inference engine built for one machine and shipped in the image.
+           Everything is budgeted in bytes read per accepted token.</p>
+      </div>
+      <div class="index-item">
+        <h3><a href="/design/cage/">cage</a></h3>
+        <p>Transactional A/B updates on btrfs subvolumes. An update composes
+           into the slot you are not running.</p>
+      </div>
+    </div>
+  </div>
+</section>

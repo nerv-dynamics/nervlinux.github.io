@@ -1,0 +1,89 @@
+<!--
+title: atfield
+desc:  Provenance for every byte on the machine. Evidence is measured, disposition is decided once, and the rest becomes a queue of yes/no questions.
+slug:  design/atfield
+nav:   design
+-->
+
+<section class="section section--head">
+  <div class="wrap">
+    <p class="crumb"><a href="/design/">Design</a></p>
+    <h1 class="page-title">atfield</h1>
+    <p class="page-lede">
+      One tool that measures what the machine has become, asks about the parts
+      nothing accounts for, and acts on the answers. It is what makes "why is
+      this disk full" and "move this machine to that one" answerable from a
+      record instead of by inspection.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title">Evidence is separate from disposition</h2>
+    <div class="prose">
+      <p>
+        Provenance answers where a file came from. It does not answer whether you
+        may delete it, whether it should follow you to the next machine, or
+        whether it is a secret. A taxonomy that derives the second from the first
+        classifies model weights as untouchable and SSH keys as unexplained bytes.
+        So they are two layers.
+      </p>
+    </div>
+
+    <div class="table-scroll">
+      <table class="data">
+        <thead><tr><th scope="col">Evidence &mdash; measured</th><th scope="col">Mechanism</th></tr></thead>
+        <tbody>
+          <tr><td>byte-identical to the composed image, modified, or absent</td><td>btrfs diff against the generation</td></tr>
+          <tr><td>package-owned; modified against packaged content</td><td><code>rpm -qf</code>, <code>rpm -V</code></td></tr>
+          <tr><td>requested by the user, or pulled in as a dependency</td><td>dnf history</td></tr>
+          <tr><td>size, file count, shape, last written</td><td><code>stat</code></td></tr>
+          <tr><td>last read</td><td>atime, via <code>relatime</code></td></tr>
+          <tr><td>which process wrote it</td><td>attribution</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-scroll">
+      <table class="data">
+        <thead><tr><th scope="col">Disposition &mdash; decided once</th><th scope="col">Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><code>keep</code></td><td>follows you to another machine</td></tr>
+          <tr><td><code>never-touch</code></td><td>no automated action, ever, regardless of any other property</td></tr>
+          <tr><td><code>recreatable(cost)</code></td><td>can be rebuilt, priced in bytes, wall time and network</td></tr>
+          <tr><td><code>secret</code></td><td>leaves the machine only with explicit per-item consent</td></tr>
+          <tr><td><code>unknown</code></td><td>the default, and the only thing that generates a question</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle">
+  <div class="wrap">
+    <h2 class="section-title">Two rules that shape the tool</h2>
+    <div class="prose">
+      <p>
+        <strong>You never write a declaration.</strong> There is no manifest to
+        maintain. Answering the queue is what produces the declaration, which is
+        the only version of this idea that survives contact with a real machine.
+      </p>
+      <p>
+        <strong>A declaration patches the repository, never a live slot.</strong>
+        Any setting that exists only in a running system's <code>/etc</code> is a
+        bug. A tool that wrote its answers into the live slot would manufacture
+        that bug at machine speed.
+      </p>
+      <p>
+        Read-recency is the evidence that distinguishes live state from dead
+        state, and nothing else substitutes for it: mtime records when something
+        was last written, which for a cache is precisely the wrong signal.
+      </p>
+      <p class="doclink">
+        Full design:
+        <a href="https://github.com/nerv-dynamics/nerv-linux/blob/main/docs/ARCH-atfield.md">ARCH-atfield.md</a>
+      </p>
+    </div>
+  </div>
+</section>

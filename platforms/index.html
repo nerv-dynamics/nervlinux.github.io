@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Platforms — Nerv Linux</title>
+<meta name="description" content="Three hardware targets from one source tree: NVIDIA GB10, AMD Strix Halo, and WSL2.">
+<link rel="canonical" href="https://nervlinux.org/platforms/">
+<meta property="og:title" content="Platforms — Nerv Linux">
+<meta property="og:description" content="Three hardware targets from one source tree: NVIDIA GB10, AMD Strix Halo, and WSL2.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nervlinux.org/platforms/">
+<link rel="icon" href="/assets/favicon.png" sizes="32x32">
+<link rel="apple-touch-icon" href="/assets/nerv-square.png">
+<link rel="preload" href="/fonts/plex-sans-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/site.css">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('nerv-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="masthead__inner">
+    <a class="masthead__brand" href="/" aria-label="Nerv Linux — home">
+      <img src="/assets/nerv-wordmark.png" alt="Nerv Linux" width="994" height="335">
+    </a>
+    <nav class="masthead__nav" aria-label="Primary">
+      <a href="/system/">System</a>
+      <a href="/userland/">Userland</a>
+      <a href="/platforms/" aria-current="page">Platforms</a>
+      <a href="/design/">Design</a>
+      <a href="/status/">Status</a>
+      <a href="/install/">Install</a>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle colour theme">Theme</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="section section--head">
+  <div class="wrap">
+    <h1 class="page-title">Platforms</h1>
+    <p class="page-lede">
+      Nerv targets the unified-memory GPU workstation. Three targets are built
+      from one source tree, each with its own kernel configuration and CPU
+      tuning.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="table-scroll">
+      <table class="data">
+        <thead>
+          <tr><th scope="col">Target</th><th scope="col">Arch</th><th scope="col">Machines</th><th scope="col">Accelerator</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><a href="#gb10"><code>gb10</code></a></td><td>aarch64</td><td>NVIDIA DGX Spark; GB300 and GB20 laptops</td><td>NVIDIA GB10</td></tr>
+          <tr><td><a href="#strix-halo"><code>strix-halo</code></a></td><td>x86_64</td><td>HP ZGX, Z2 Mini G1a, Strix Halo laptops</td><td>AMD Radeon 890M</td></tr>
+          <tr><td><a href="#wsl2"><code>wsl2</code></a></td><td>either</td><td>any Windows host</td><td>host driver bridge</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle" id="gb10">
+  <div class="wrap">
+    <h2 class="section-title">gb10</h2>
+    <div class="prose">
+      <p>
+        The primary target. NVIDIA GB10 on aarch64, with CPU and GPU sharing one
+        memory pool. The DGX Spark is the machine Nerv is developed against; the
+        GB300 and GB20 laptops are the same class of part and the same target.
+      </p>
+      <p>
+        Unified memory changes what the operating system is responsible for. The
+        GPU arena and the page cache are the same pool, so reserving device
+        memory is zero-sum against the filesystem cache, and a resident GPU
+        process fragments the allocator for every process after it. Both are
+        distribution-level problems, and both are what
+        <a href="/design/axon/">axon</a> exists to solve. The arena is reserved
+        on the kernel command line, before anything has had a chance to
+        fragment memory.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="strix-halo">
+  <div class="wrap">
+    <h2 class="section-title">strix-halo</h2>
+    <div class="prose">
+      <p>
+        AMD Strix Halo on x86_64, with a Radeon 890M and the same unified-memory
+        arrangement. The HP ZGX and Z2 Mini G1a are the desktop machines in this
+        class. This is the target Nerv is currently validated on.
+      </p>
+      <p>
+        The accelerator boundary is the same boundary; the vendor stack behind it
+        is not. Keeping both targets in one source tree is what stops that
+        boundary from quietly becoming an NVIDIA-shaped interface.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle" id="wsl2">
+  <div class="wrap">
+    <h2 class="section-title">wsl2</h2>
+    <div class="prose">
+      <p>
+        Nerv as a WSL2 distribution on whichever architecture the Windows host
+        is. There is no kernel package &mdash; Microsoft supplies the kernel &mdash; and
+        the GPU is reached through the host driver bridge.
+      </p>
+      <p>
+        This is the target that makes the rest usable from a machine you already
+        own, and it is the cheapest way to look at the system without
+        reinstalling anything.
+      </p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <nav class="footer__links" aria-label="Footer">
+      <a href="/system/">System</a>
+      <a href="/userland/">Userland</a>
+      <a href="/platforms/">Platforms</a>
+      <a href="/design/">Design</a>
+      <a href="/status/">Status</a>
+      <a href="/install/">Install</a>
+      <a href="https://github.com/nerv-dynamics/nerv-linux">Source</a>
+      <a href="mailto:robert@nervdynamics.io">robert@nervdynamics.io</a>
+    </nav>
+    <div class="footer__base">
+      <p>Copyright &copy; 2026 Robert. Nerv Linux is free software; each
+         package carries the licence of its upstream source.</p>
+      <p class="footer__tm">NVIDIA, CUDA, DGX and GB10 are trademarks of NVIDIA
+         Corporation. HP and ZGX are trademarks of HP Inc. AMD, Radeon and Strix
+         Halo are trademarks of Advanced Micro Devices, Inc. Windows is a
+         trademark of Microsoft Corporation. Linux is a registered trademark of
+         Linus Torvalds. Nerv Linux is not affiliated with, endorsed by, or
+         sponsored by any of them.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var btn = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    btn.addEventListener('click', function () {
+      var current = root.getAttribute('data-theme');
+      if (!current) {
+        current = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      var next = current === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('nerv-theme', next); } catch (e) {}
+    });
+  })();
+</script>
+
+</body>
+</html>

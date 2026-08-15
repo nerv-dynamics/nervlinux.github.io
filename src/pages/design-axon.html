@@ -1,0 +1,113 @@
+<!--
+title: axon
+desc:  The accelerator behind a syscall-like boundary. One daemon owns the GPU, every process is a client, and the local and remote paths are the same path.
+slug:  design/axon
+nav:   design
+-->
+
+<section class="section section--head">
+  <div class="wrap">
+    <p class="crumb"><a href="/design/">Design</a></p>
+    <h1 class="page-title">axon</h1>
+    <p class="page-lede">
+      One daemon owns the accelerator. Every process on the machine is a client,
+      local processes included. That is the whole design; the useful properties
+      are consequences of it.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title">The device is always remote</h2>
+    <div class="prose">
+      <p>
+        The daemon creates the device context at boot from a reserved arena.
+        Applications never create a driver context of their own. Because the
+        local path and the network path are the same path,
+        <code>dlopen("libcuda.so.1")</code> resolves to axon's shim and the work
+        can run on another machine with the program unchanged.
+      </p>
+      <p>
+        Round trip over the local shared-memory ring is 1.9&nbsp;&micro;s, against
+        29&nbsp;&micro;s over TCP. Collapsing repeated boundary crossings into a
+        single graph replay gives 4.6&ndash;6.3&times;.
+      </p>
+    </div>
+
+    <div class="table-scroll">
+      <table class="data">
+        <thead><tr><th scope="col">axon</th><th scope="col">The equivalent it is modelled on</th></tr></thead>
+        <tbody>
+          <tr><td><code>Local</code> &mdash; answered without crossing</td><td>the vDSO: calls that do not deserve a trap</td></tr>
+          <tr><td><code>Deferred</code> + graph capture</td><td>io_uring: amortise the crossing, not the work</td></tr>
+          <tr><td><code>DevPtr::Minted</code></td><td>virtual addresses, handed out without consulting the device</td></tr>
+          <tr><td><code>Mirror</code></td><td>the page cache</td></tr>
+          <tr><td><code>Frontier</code></td><td>a completion queue</td></tr>
+          <tr><td><code>axon top</code></td><td><code>strace</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle">
+  <div class="wrap">
+    <h2 class="section-title">What follows from owning the boundary</h2>
+    <div class="prose">
+      <p>
+        <strong>Allocation stops costing a driver call.</strong>
+        <code>cuMemAlloc</code> is 63&nbsp;&micro;s for a single 4&nbsp;KiB page,
+        per call rather than per byte, and the driver does no pooling.
+        Suballocating from one reservation measured 3.8&times; cheaper to acquire
+        and 44.8&times; cheaper to release for the same 4&nbsp;GiB. Minted
+        addresses make the substitution invisible to the application.
+      </p>
+      <p>
+        <strong>The fragmentation spiral has nowhere to live.</strong> A resident
+        GPU process is what stops the next one starting: order-9 allocations went
+        0 &rarr; 248 &rarr; 0 across stopping and restarting one server.
+        Application processes never create driver contexts, so the failure mode
+        cannot occur.
+      </p>
+      <p>
+        <strong>Accounting is per-client and cannot be bypassed.</strong> One
+        process sees every allocation and which client asked for it, which makes
+        cgroup v2 accounting a consequence rather than a project.
+      </p>
+      <p>
+        <strong>Client checkpoint is nearly free,</strong> because clients hold no
+        device state.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title">Why this has to be the distribution</h2>
+    <div class="prose">
+      <p>
+        Policy is real only when bypass is impossible. A library shim is
+        advisory: any process can <code>dlopen</code> the vendor library and walk
+        around the accounting, the limits and the arena. Making it mandatory is
+        three packaging decisions, and only whoever builds the package set can
+        make them.
+      </p>
+      <ul class="list">
+        <li>The only <code>libcuda.so.1</code> in the package set is axon's.</li>
+        <li><code>/dev/nvidia*</code> is permissioned so that only the daemon may open it.</li>
+        <li>The arena is reserved on the kernel command line, before anything has fragmented memory.</li>
+      </ul>
+      <p>
+        A container cannot do any of it. A normal distribution cannot do the
+        first two.
+      </p>
+      <p class="doclink">
+        Full design:
+        <a href="https://github.com/nerv-dynamics/nerv-linux/blob/main/docs/ARCH-accelerator.md">ARCH-accelerator.md</a>,
+        <a href="https://github.com/nerv-dynamics/nerv-linux/blob/main/docs/ARCH-axon.md">ARCH-axon.md</a>
+      </p>
+    </div>
+  </div>
+</section>

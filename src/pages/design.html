@@ -1,0 +1,55 @@
+<!--
+title: Design
+desc:  The four subsystems Nerv exists to build: axon, atfield, S2 and cage.
+slug:  design
+nav:   design
+-->
+
+<section class="section section--head">
+  <div class="wrap">
+    <h1 class="page-title">Design</h1>
+    <p class="page-lede">
+      Four subsystems that a distribution can implement and a container, a
+      library or an application cannot. Each has a design document in the
+      repository; these pages are the summary.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="index-list">
+      <div class="index-item">
+        <h3><a href="/design/axon/">axon</a></h3>
+        <p>
+          The accelerator behind a syscall-like boundary. One daemon owns the
+          device and every process is a client, so the local and remote paths are
+          the same path and a CUDA program can run on another machine unchanged.
+        </p>
+      </div>
+      <div class="index-item">
+        <h3><a href="/design/atfield/">atfield</a></h3>
+        <p>
+          Provenance for every byte on the machine. Evidence is measured,
+          disposition is decided once, and the parts nothing accounts for become
+          a queue of yes/no questions.
+        </p>
+      </div>
+      <div class="index-item">
+        <h3><a href="/design/s2/">S2</a></h3>
+        <p>
+          An inference engine specialised for one machine and shipped in the
+          image. Everything decidable ahead of time is compiled into replayable
+          graphs; everything else is budgeted in one unit.
+        </p>
+      </div>
+      <div class="index-item">
+        <h3><a href="/design/cage/">cage</a></h3>
+        <p>
+          Transactional A/B updates. Compose into the inactive slot, prove it
+          boots, promote it, and roll back when it does not.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>

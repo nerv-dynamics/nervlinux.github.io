@@ -1,0 +1,92 @@
+<!--
+title: Userland
+desc:  Rust uutils in place of GNU coreutils, with modern CLI tools wired in as interactive defaults and scripting compatibility preserved.
+slug:  userland
+nav:   userland
+-->
+
+<section class="section section--head">
+  <div class="wrap">
+    <h1 class="page-title">Userland</h1>
+    <p class="page-lede">
+      The text tools are Rust uutils rather than GNU coreutils. The interactive
+      shell is zsh with a set of modern replacements wired in as defaults.
+      <code>/bin/sh</code> is dash and behaves the way scripts expect, so nothing
+      you already wrote changes.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="term">
+      <div class="term__bar">zsh &mdash; nerv@zgx2</div>
+<pre class="term__body"><span class="c-purple">~</span> <span class="c-blue">&#10095;</span> uname -sm
+<span class="c-fg">Linux aarch64</span>
+
+<span class="c-purple">~</span> <span class="c-blue">&#10095;</span> ldd /bin/sh
+<span class="c-grey">        /lib/ld-musl-aarch64.so.1 (0x7f9c4a1000)</span>
+
+<span class="c-purple">~</span> <span class="c-blue">&#10095;</span> dnf5 --version
+<span class="c-fg">5.4.2.1</span>
+<span class="c-purple">~</span> <span class="c-blue">&#10095;</span> ldd $(command -v dnf5) | grep -c glibc
+<span class="c-green">0</span>
+
+<span class="c-purple">~</span> <span class="c-blue">&#10095;</span> nvidia-smi --query-gpu=name --format=csv,noheader
+<span class="c-fg">NVIDIA GB10</span></pre>
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle">
+  <div class="wrap">
+    <h2 class="section-title">Replacements</h2>
+    <p class="section-lede">
+      Each of these is the interactive default. The classic tool remains
+      available and is what scripts resolve to.
+    </p>
+    <div class="table-scroll">
+      <table class="data">
+        <thead>
+          <tr><th scope="col">Classic</th><th scope="col">Default</th><th scope="col">Difference</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code class="col-classic">ls</code></td><td class="col-nerv">eza</td><td>git status and tree output</td></tr>
+          <tr><td><code class="col-classic">cat</code></td><td class="col-nerv">bat</td><td>syntax highlighting, paging</td></tr>
+          <tr><td><code class="col-classic">grep</code></td><td class="col-nerv">ripgrep</td><td>recursive by default, ignore-file aware</td></tr>
+          <tr><td><code class="col-classic">find</code></td><td class="col-nerv">fd</td><td>shorter invocations, ignore-file aware</td></tr>
+          <tr><td><code class="col-classic">cd</code></td><td class="col-nerv">zoxide</td><td>jumps by frecency</td></tr>
+          <tr><td><code class="col-classic">du</code></td><td class="col-nerv">dust</td><td>usage by directory, sorted</td></tr>
+          <tr><td><code class="col-classic">df</code></td><td class="col-nerv">duf</td><td>grouped filesystem summary</td></tr>
+          <tr><td><code class="col-classic">top</code></td><td class="col-nerv">btop</td><td>per-core and per-process history</td></tr>
+          <tr><td><code class="col-classic">ps</code></td><td class="col-nerv">procs</td><td>search and tree view</td></tr>
+          <tr><td><code class="col-classic">diff</code></td><td class="col-nerv">delta</td><td>syntax-aware side-by-side output</td></tr>
+          <tr><td><code class="col-classic">time</code></td><td class="col-nerv">hyperfine</td><td>repeated runs with statistical summaries</td></tr>
+          <tr><td><code class="col-classic">history</code></td><td class="col-nerv">atuin</td><td>searchable history database</td></tr>
+          <tr><td><code class="col-classic">sudo</code></td><td class="col-nerv">doas</td><td>smaller configuration surface</td></tr>
+          <tr><td><code class="col-classic">dig</code></td><td class="col-nerv">drill</td><td>DNS lookups</td></tr>
+          <tr><td><code class="col-classic">curl</code></td><td class="col-nerv">xh</td><td>HTTP requests with a modern CLI</td></tr>
+          <tr><td>&mdash;</td><td class="col-nerv">bandwhich</td><td>bandwidth by process</td></tr>
+          <tr><td>&mdash;</td><td class="col-nerv">gping</td><td>ping plotted over time</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title">Development</h2>
+    <div class="prose">
+      <p>
+        neovim with LSP, treesitter and linting configured for Rust, Python and
+        Julia. tmux, git and delta. The hardware and debug set &mdash; lspci, lsof,
+        strace, tcpdump, ethtool &mdash; is part of the base rather than something
+        you install after the first problem.
+      </p>
+      <p>
+        podman for containers. CUDA driver, runtime and toolkit are in the image.
+      </p>
+    </div>
+  </div>
+</section>

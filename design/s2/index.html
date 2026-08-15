@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S2 — Nerv Linux</title>
+<meta name="description" content="An inference engine specialised for one machine and shipped in the image. Two build-time artifacts, two run-time policies, one cost model.">
+<link rel="canonical" href="https://nervlinux.org/design/s2/">
+<meta property="og:title" content="S2 — Nerv Linux">
+<meta property="og:description" content="An inference engine specialised for one machine and shipped in the image. Two build-time artifacts, two run-time policies, one cost model.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nervlinux.org/design/s2/">
+<link rel="icon" href="/assets/favicon.png" sizes="32x32">
+<link rel="apple-touch-icon" href="/assets/nerv-square.png">
+<link rel="preload" href="/fonts/plex-sans-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/site.css">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('nerv-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="masthead__inner">
+    <a class="masthead__brand" href="/" aria-label="Nerv Linux — home">
+      <img src="/assets/nerv-wordmark.png" alt="Nerv Linux" width="994" height="335">
+    </a>
+    <nav class="masthead__nav" aria-label="Primary">
+      <a href="/system/">System</a>
+      <a href="/userland/">Userland</a>
+      <a href="/platforms/">Platforms</a>
+      <a href="/design/" aria-current="page">Design</a>
+      <a href="/status/">Status</a>
+      <a href="/install/">Install</a>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle colour theme">Theme</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="section section--head">
+  <div class="wrap">
+    <p class="crumb"><a href="/design/">Design</a></p>
+    <h1 class="page-title">S2</h1>
+    <p class="page-lede">
+      Nerv's inference engine: written from scratch, shipped in the image,
+      specialised for the GB10 rather than portable across accelerators, and
+      running behind axon.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title">The shape</h2>
+    <div class="prose">
+      <p>
+        Two build-time artifacts and two run-time policies, against one cost
+        model. Everything decidable from the model and the silicon is decided
+        once, ahead of time, and recorded. Everything that depends on system
+        state is decided at run time by exactly two policies.
+      </p>
+    </div>
+    <div class="table-scroll">
+      <table class="data">
+        <tbody>
+          <tr><td><strong>the file</strong></td><td>One self-contained artifact per model: weights in access-frequency order, a graph over engine primitives, precision per tensor, tokenizer, template, drafter, ledger, provenance. No runtime options.</td></tr>
+          <tr><td><strong>the graphs</strong></td><td>An ahead-of-time compilation of file and hardware into replayable CUDA graphs and an arena layout. The runtime replays them.</td></tr>
+          <tr><td><strong>residency</strong></td><td>What occupies which memory tier right now, as one ranked table rather than five mechanisms.</td></tr>
+          <tr><td><strong>depth</strong></td><td>How far to speculate on this request, given measured acceptance and the deadline.</td></tr>
+          <tr><td><strong>the ledger</strong></td><td>One table of measured rates and per-model byte costs. Every decision above is a query against it.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle">
+  <div class="wrap">
+    <h2 class="section-title">One unit: bytes read per accepted token</h2>
+    <div class="prose">
+      <p>
+        Residency is cut by reconstructibility, not by size and not by
+        file-versus-driver.
+      </p>
+      <p>
+        <strong>Cache</strong> is any byte that exists somewhere else: an expert
+        extent rebuilt in 3&ndash;6&nbsp;ms from NVMe, a model's hot block at
+        about 5&nbsp;s cold, a device-tagged copy that is a memcpy from page
+        cache, a vision tower, an entire small model. Dropping cache is always
+        safe; only the price differs.
+      </p>
+      <p>
+        <strong>State</strong> is any byte that exists nowhere else: live KV, the
+        recurrent state of a hybrid model, sampler state. It cannot be dropped,
+        only ended or demoted at a re-prefill cost measured in seconds.
+      </p>
+      <p>
+        Once that cut is made, models are not the unit of residency &mdash; bytes
+        are, ranked by value density. A model switch is a priced transaction
+        rather than a mode, and "several models loaded at once" is not a
+        meaningful claim under this scheme.
+      </p>
+      <p class="doclink">
+        Full design:
+        <a href="https://github.com/nerv-dynamics/nerv-linux/tree/main/docs/s2">docs/s2/</a>
+      </p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <nav class="footer__links" aria-label="Footer">
+      <a href="/system/">System</a>
+      <a href="/userland/">Userland</a>
+      <a href="/platforms/">Platforms</a>
+      <a href="/design/">Design</a>
+      <a href="/status/">Status</a>
+      <a href="/install/">Install</a>
+      <a href="https://github.com/nerv-dynamics/nerv-linux">Source</a>
+      <a href="mailto:robert@nervdynamics.io">robert@nervdynamics.io</a>
+    </nav>
+    <div class="footer__base">
+      <p>Copyright &copy; 2026 Robert. Nerv Linux is free software; each
+         package carries the licence of its upstream source.</p>
+      <p class="footer__tm">NVIDIA, CUDA, DGX and GB10 are trademarks of NVIDIA
+         Corporation. HP and ZGX are trademarks of HP Inc. AMD, Radeon and Strix
+         Halo are trademarks of Advanced Micro Devices, Inc. Windows is a
+         trademark of Microsoft Corporation. Linux is a registered trademark of
+         Linus Torvalds. Nerv Linux is not affiliated with, endorsed by, or
+         sponsored by any of them.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var btn = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    btn.addEventListener('click', function () {
+      var current = root.getAttribute('data-theme');
+      if (!current) {
+        current = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      var next = current === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('nerv-theme', next); } catch (e) {}
+    });
+  })();
+</script>
+
+</body>
+</html>

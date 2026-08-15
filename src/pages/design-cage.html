@@ -1,0 +1,48 @@
+<!--
+title: cage
+desc:  Transactional A/B slot updates on btrfs. Compose into the inactive slot, prove it boots, promote it, roll back when it does not.
+slug:  design/cage
+nav:   design
+-->
+
+<section class="section section--head">
+  <div class="wrap">
+    <p class="crumb"><a href="/design/">Design</a></p>
+    <h1 class="page-title">cage</h1>
+    <p class="page-lede">
+      Updates are transactions against a slot you are not currently running.
+      Install, seal, boot, promote &mdash; or roll back.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="prose">
+      <p>
+        The disk carries two btrfs subvolumes. An update composes a new
+        generation into the inactive one, non-destructively; the running system
+        is untouched for the whole operation. The bootloader default moves only
+        after the new slot has actually booted and passed its checks. If it does
+        not, the default never moved, and the next boot is the machine you had
+        yesterday.
+      </p>
+      <p>
+        The netboot artifact and an installed slot are the same kind of object: a
+        signed unified kernel image. The installer is a server you run on a
+        machine you already have, which makes the network the install medium
+        rather than a USB stick.
+      </p>
+      <p>
+        This is what makes a rolling, always-newest-upstream distribution
+        reasonable to run on a machine you care about. Tracking upstream closely
+        is only safe when being wrong is cheap.
+      </p>
+      <p class="doclink">
+        Full design:
+        <a href="https://github.com/nerv-dynamics/nerv-linux/blob/main/docs/ARCH-ab-updates.md">ARCH-ab-updates.md</a>,
+        <a href="https://github.com/nerv-dynamics/nerv-linux/blob/main/docs/ARCH-installer.md">ARCH-installer.md</a>
+      </p>
+    </div>
+  </div>
+</section>

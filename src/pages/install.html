@@ -1,0 +1,80 @@
+<!--
+title: Install
+desc:  How to build Nerv Linux from source, and what exists to install today.
+slug:  install
+nav:   install
+-->
+
+<section class="section section--head">
+  <div class="wrap">
+    <h1 class="page-title">Install</h1>
+    <p class="page-lede">
+      There is no downloadable image yet. Nerv is built from source on a
+      development machine and installed to a slot on the target. If you want to
+      look at it before then, build a QEMU image &mdash; it needs no hardware.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title">Build and boot a development image</h2>
+    <div class="prose">
+      <p>
+        Builds run on a development box, never on the target hardware, in a
+        pure-musl chroot. <code>geofront</code> composes the chroot from the local
+        repository, builds in it and publishes back.
+      </p>
+    </div>
+    <div class="term">
+      <div class="term__bar">build</div>
+<pre class="term__body"><span class="c-grey"># compose a rootfs image</span>
+tools/nerv-mkimage --platform qemu-aarch64 --smoke
+
+<span class="c-grey"># boot it under QEMU/KVM and run the smoke test</span>
+tools/nerv-qemu --smoke</pre>
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle">
+  <div class="wrap">
+    <h2 class="section-title">Build a package</h2>
+    <div class="term">
+      <div class="term__bar">geofront</div>
+<pre class="term__body">geofront build packages/core/nerv-dash.spec
+geofront --dry-run packages/core/nerv-dash.spec   <span class="c-grey"># resolved plan, touches nothing</span>
+geofront --keep    packages/core/nerv-dash.spec   <span class="c-grey"># keep the buildroot to debug a failure</span></pre>
+    </div>
+    <div class="prose" style="margin-top: var(--s-6)">
+      <p>
+        Nerv tracks the newest upstream release of everything and does not pin to
+        old versions. Bumping a package means updating <code>Version:</code> in
+        the spec and rebuilding; <code>geofront</code> stages the new source
+        itself.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title">Install to hardware</h2>
+    <div class="prose">
+      <p>
+        On a machine with an existing Linux install,
+        <code>tools/nerv-ab-install</code> composes Nerv into a second btrfs
+        subvolume without touching the first. The bootloader default stays where
+        it is, so the machine you have keeps booting.
+      </p>
+      <p>
+        The netboot installer described in
+        <a href="/design/cage/">cage</a> replaces this once it lands.
+      </p>
+      <p class="doclink">
+        <a href="https://github.com/nerv-dynamics/nerv-linux">Source repository</a> &middot;
+        <a href="https://github.com/nerv-dynamics/nerv-linux/blob/main/README.md">README</a>
+      </p>
+    </div>
+  </div>
+</section>
