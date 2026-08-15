@@ -53,7 +53,7 @@ nav:   platforms
         <strong>A resident GPU process is what stops the next one starting.</strong>
         Order-9 allocations were observed going 0 &rarr; 248 &rarr; 0 across
         stopping and restarting a single server. Under
-        <a href="/design/axon/">axon</a> application processes never create
+        <a href="/tools/axon/">axon</a> application processes never create
         driver contexts at all, so the failure mode has nowhere to occur.
       </p>
     </div>

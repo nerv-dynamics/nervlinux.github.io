@@ -22,9 +22,16 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3 { margin: 0; font-weight: 600; line-height: var(--lh-tight); letter-spacing: var(--tracking-tight); }
-p { margin: 0 0 var(--s-4); }
+h1, h2, h3 {
+  margin: 0; font-weight: 600;
+  line-height: var(--lh-tight); letter-spacing: var(--tracking-tight);
+  /* Distribute words evenly across lines instead of filling greedily, which
+     is what strands a single short word on the last line of a heading. */
+  text-wrap: balance;
+}
+p { margin: 0 0 var(--s-4); text-wrap: pretty; }
 p:last-child { margin-bottom: 0; }
+li { text-wrap: pretty; }
 
 a { color: var(--link); text-decoration: none; }
 a:hover { text-decoration: underline; text-underline-offset: 3px; }
@@ -55,7 +62,7 @@ img { max-width: 100%; height: auto; display: block; }
   font-size: var(--t-md); line-height: var(--lh-loose);
   color: var(--text-secondary); max-width: var(--max-w-text);
 }
-.section-title { font-size: var(--t-xl); margin-bottom: var(--s-5); max-width: 26ch; }
+.section-title { font-size: var(--t-xl); margin-bottom: var(--s-5); max-width: 34ch; }
 .section-lede {
   font-size: var(--t-base); color: var(--text-secondary);
   max-width: var(--max-w-text); margin-bottom: var(--s-5);
@@ -123,18 +130,29 @@ img { max-width: 100%; height: auto; display: block; }
 }
 .herobig__inner { position: relative; z-index: 1; padding-block: var(--s-11); }
 .herobig__title {
-  font-size: clamp(2.75rem, 7vw, 4.5rem);
-  letter-spacing: -0.035em; color: #fff; margin-bottom: var(--s-4);
+  font-size: clamp(1.75rem, 3.5vw, 2.85rem);
+  line-height: 1.22; letter-spacing: -0.022em; color: #fff;
+  margin-bottom: var(--s-6);
+  /* No ch cap and no balancing: the break in this heading is authored, and a
+     width limit would wrap it before the <br> ever applied. */
+  max-width: none;
+  text-wrap: initial;
 }
-.herobig__tag {
-  font-size: clamp(1.125rem, 2.2vw, var(--t-lg));
-  line-height: var(--lh-snug); color: #fff;
-  max-width: 30ch; margin-bottom: var(--s-5);
-  border-left: 3px solid var(--logo-red); padding-left: var(--s-4);
-}
-.herobig__lede {
-  font-size: var(--t-base); line-height: var(--lh-loose);
-  color: rgba(242,244,247,.82); max-width: 56ch; margin-bottom: var(--s-6);
+/* The hero sits on artwork and stays dark in both themes, so it must use the
+   dark-ground green directly. The themed token would go near-invisible here. */
+.herobig__title .hl { color: var(--od-green); }
+
+/* Authored line break, dropped on narrow screens so the line can reflow
+   instead of stranding a fragment. */
+@media (max-width: 700px) { .br-wide { display: none; } }
+
+/* Four statements, broken with <br> rather than separate blocks, so the red
+   rule reads as one mark against the whole set. */
+.herobig__points {
+  font-size: var(--t-md); line-height: 1.9;
+  color: rgba(242,244,247,.92);
+  margin-bottom: var(--s-7);
+  border-left: 3px solid var(--logo-red); padding-left: var(--s-5);
 }
 
 /* --- Buttons ------------------------------------------------------------- */
@@ -164,11 +182,49 @@ img { max-width: 100%; height: auto; display: block; }
 }
 .claim__head {
   font-size: var(--t-lg); line-height: var(--lh-snug);
-  margin-bottom: var(--s-4); max-width: 24ch;
+  margin-bottom: var(--s-4);
 }
 .claim p { color: var(--text-secondary); font-size: var(--t-sm); line-height: var(--lh-loose); }
 .claim__more { margin-top: auto; padding-top: var(--s-4); font-weight: 600; }
 .claim__more a { color: var(--brand); }
+
+/* --- Essay (long-form argument pages) ------------------------------------ */
+.essay { max-width: 40rem; margin-inline: auto; }
+.essay > p { font-size: var(--t-md); line-height: var(--lh-loose); margin-bottom: var(--s-5); }
+.essay h2 {
+  font-size: var(--t-xl); margin-top: var(--s-10); margin-bottom: var(--s-5);
+  padding-top: var(--s-5); border-top: 1px solid var(--border);
+}
+.essay h2:first-child { margin-top: 0; border-top: 0; padding-top: 0; }
+.essay h3 { font-size: var(--t-lg); margin-top: var(--s-7); margin-bottom: var(--s-4); }
+.essay .lead {
+  font-size: var(--t-lg); line-height: var(--lh-snug);
+  color: var(--text); margin-bottom: var(--s-7);
+}
+.essay ul, .essay ol { padding-left: var(--s-5); margin-bottom: var(--s-5); }
+.essay li { font-size: var(--t-md); line-height: var(--lh-loose); margin-bottom: var(--s-3); }
+
+/* A claim set apart because the argument turns on it. */
+.pull {
+  margin: var(--s-7) 0;
+  padding: var(--s-5) 0 var(--s-5) var(--s-5);
+  border-left: 3px solid var(--brand);
+  font-size: var(--t-lg); line-height: var(--lh-snug);
+  color: var(--text);
+}
+.pull p { margin: 0; }
+.pull cite { display: block; margin-top: var(--s-3); font-size: var(--t-sm);
+             font-style: normal; color: var(--text-tertiary); }
+
+/* The escaped/returned table — the centre of the argument. */
+.escaped { width: 100%; border-collapse: collapse; margin: var(--s-6) 0 var(--s-7); font-size: var(--t-base); }
+.escaped th, .escaped td { text-align: left; padding: var(--s-4); border-bottom: 1px solid var(--border); }
+.escaped thead th {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: var(--tracking-caps); text-transform: uppercase;
+  color: var(--text-tertiary); border-bottom: 1px solid var(--border-strong);
+}
+.escaped tr.open td { color: var(--brand); font-weight: 600; }
 
 /* --- Index list (front page + /design/) ---------------------------------- */
 .index-list {

@@ -24,7 +24,7 @@ SRC = ROOT / "src"
 # Copyright holder shown in the footer. This should be the natural person who
 # owns the copyright, or a legal entity if one actually exists — an
 # unincorporated trade name cannot hold a copyright.
-OWNER = "Robert"
+OWNER = "Robert Luciani"
 
 NAV = [
     ("design",    "/design/",    "Design"),

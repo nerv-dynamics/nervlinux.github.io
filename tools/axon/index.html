@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>axon — Nerv Linux</title>
-<meta name="description" content="The accelerator behind a syscall-like boundary. One daemon owns the GPU, every process is a client, and the local and remote paths are the same path.">
-<link rel="canonical" href="https://nervlinux.org/design/axon/">
-<meta property="og:title" content="axon — Nerv Linux">
-<meta property="og:description" content="The accelerator behind a syscall-like boundary. One daemon owns the GPU, every process is a client, and the local and remote paths are the same path.">
+<title>axon — run GPU work on a machine you are not sitting at — Nerv Linux</title>
+<meta name="description" content="Run an unmodified CUDA program on a GPU in another computer. axon is the daemon that owns the accelerator on a Nerv machine and makes local and remote the same path.">
+<link rel="canonical" href="https://nervlinux.org/tools/axon/">
+<meta property="og:title" content="axon — run GPU work on a machine you are not sitting at — Nerv Linux">
+<meta property="og:description" content="Run an unmodified CUDA program on a GPU in another computer. axon is the daemon that owns the accelerator on a Nerv machine and makes local and remote the same path.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://nervlinux.org/design/axon/">
+<meta property="og:url" content="https://nervlinux.org/tools/axon/">
 <link rel="icon" href="/assets/favicon.png" sizes="32x32">
 <link rel="apple-touch-icon" href="/assets/nerv-square.png">
 <link rel="preload" href="/fonts/plex-sans-var.woff2" as="font" type="font/woff2" crossorigin>
@@ -36,9 +36,9 @@
       <img class="logo logo--on-light" src="/assets/nerv-wordmark-inverted.png" alt="Nerv Linux" width="994" height="339">
     </a>
     <nav class="masthead__nav" aria-label="Primary">
-      <a href="/design/" aria-current="page">Design</a>
+      <a href="/design/">Design</a>
       <a href="/system/">System</a>
-      <a href="/tools/">Tools</a>
+      <a href="/tools/" aria-current="page">Tools</a>
       <a href="/userland/">Userland</a>
       <a href="/platforms/">Platforms</a>
       <a href="/install/">Install</a>
@@ -62,53 +62,82 @@
 <main id="main">
 <section class="section section--head">
   <div class="wrap">
-    <p class="crumb"><a href="/design/">Design</a></p>
-    <h1 class="page-title">axon</h1>
+    <p class="crumb"><a href="/tools/">Tools</a></p>
+    <h1 class="page-title">axon: use a GPU that is in another computer</h1>
     <p class="page-lede">
-      One daemon owns the accelerator. Every process on the machine is a client,
-      local processes included. That is the whole design; the useful properties
-      are consequences of it.
+      Run your CUDA program. The same binary, not rebuilt, not patched, not put
+      in a container. It executes on the GPU in the workstation across the room,
+      or in the machine under someone else's desk, and the program never learns
+      the difference.
     </p>
   </div>
 </section>
 
 <section class="section">
   <div class="wrap">
-    <h2 class="section-title">The device is always remote</h2>
+    <h2 class="section-title">What this looks like</h2>
     <div class="prose">
       <p>
-        The daemon creates the device context at boot from a reserved arena.
-        Applications never create a driver context of their own. Because the
-        local path and the network path are the same path,
-        <code>dlopen("libcuda.so.1")</code> resolves to axon's shim and the work
-        can run on another machine with the program unchanged.
-      </p>
-      <p>
-        Round trip over the local shared-memory ring is 1.9&nbsp;&micro;s, against
-        29&nbsp;&micro;s over TCP. Collapsing repeated boundary crossings into a
-        single graph replay gives 4.6&ndash;6.3&times;.
+        Blender, Julia, llama.cpp or anything else that loads
+        <code>libcuda.so.1</code> runs on your machine and computes on a
+        different one. The machine holding the GPU does not have to be running
+        Nerv, and it does not have to be running Linux &mdash; a Windows box with
+        a spare GPU is a valid host.
       </p>
     </div>
 
-    <div class="table-scroll">
-      <table class="data">
-        <thead><tr><th scope="col">axon</th><th scope="col">The equivalent it is modelled on</th></tr></thead>
-        <tbody>
-          <tr><td><code>Local</code> &mdash; answered without crossing</td><td>the vDSO: calls that do not deserve a trap</td></tr>
-          <tr><td><code>Deferred</code> + graph capture</td><td>io_uring: amortise the crossing, not the work</td></tr>
-          <tr><td><code>DevPtr::Minted</code></td><td>virtual addresses, handed out without consulting the device</td></tr>
-          <tr><td><code>Mirror</code></td><td>the page cache</td></tr>
-          <tr><td><code>Frontier</code></td><td>a completion queue</td></tr>
-          <tr><td><code>axon top</code></td><td><code>strace</code></td></tr>
-        </tbody>
-      </table>
+    <div class="term" style="margin-top: var(--s-6)">
+      <div class="term__bar">zsh</div>
+<pre class="term__body"><span class="c-grey"># the GPU in this machine</span>
+<span class="c-purple">~</span> <span class="c-blue">&#10095;</span> ./train.py
+
+<span class="c-grey"># the GPU in that machine. same binary.</span>
+<span class="c-purple">~</span> <span class="c-blue">&#10095;</span> AXON_HOST=zgx ./train.py
+
+<span class="c-grey"># and afterwards, where did the work actually run?</span>
+<span class="c-purple">~</span> <span class="c-blue">&#10095;</span> axon top</pre>
     </div>
+
+    <p class="prose" style="margin-top: var(--s-6)">
+      A kernel dispatched this way has been executed on a remote A800 through
+      the full stack and returned results bit-identical to running it natively.
+    </p>
   </div>
 </section>
 
 <section class="section section--subtle">
   <div class="wrap">
-    <h2 class="section-title">What follows from owning the boundary</h2>
+    <h2 class="section-title">How it works, and what it costs</h2>
+    <div class="prose">
+      <p>
+        On a Nerv machine no program talks to the GPU driver. A single daemon,
+        <code>axond</code>, owns the device, and everything else is a client of
+        it over a socket. That includes programs on the same machine: there is
+        no separate local path to fall back to.
+      </p>
+      <p>
+        This is the part that makes remote execution work rather than a
+        retrofit. A local client and a remote client take the same code path, so
+        which machine holds the GPU becomes a parameter instead of an
+        assumption. The daemon handles discovery and pairing, then hands the
+        program a connected socket and steps out of the data path, so it can
+        restart without killing a running job.
+      </p>
+      <p>
+        The cost is one boundary crossing. Locally that round trip is
+        1.9&nbsp;&micro;s over a shared-memory ring; over TCP it is
+        29&nbsp;&micro;s. Neither figure matters much on its own, because the
+        crossings get batched: collapsing a repeated sequence of them into a
+        single replayed graph measured 4.6&ndash;6.3&times; faster than issuing
+        them one at a time.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title">What else falls out of it</h2>
     <div class="prose">
       <p>
         <strong>Allocation stops costing a driver call.</strong>
@@ -119,20 +148,26 @@
         addresses make the substitution invisible to the application.
       </p>
       <p>
-        <strong>The fragmentation spiral has nowhere to live.</strong> A resident
-        GPU process is what stops the next one starting: order-9 allocations went
-        0 &rarr; 248 &rarr; 0 across stopping and restarting one server.
-        Application processes never create driver contexts, so the failure mode
-        cannot occur.
+        <strong>One GPU job stops blocking the next one.</strong> On unified
+        memory a long-running GPU process fragments the pool badly enough that
+        the next process cannot start, and the usual fix is to quit the first
+        one. Measured on a GB10: the count of free 2&nbsp;MiB blocks went from
+        zero, to 248, back to zero as a single server was stopped and restarted.
+        Under axon no application process ever creates a driver context, so
+        there is nothing to fragment the pool in the first place.
       </p>
       <p>
-        <strong>Accounting is per-client and cannot be bypassed.</strong> One
-        process sees every allocation and which client asked for it, which makes
-        cgroup v2 accounting a consequence rather than a project.
+        <strong>You can finally see who is using the GPU.</strong> One process
+        observes every allocation and knows which client asked for it, so
+        per-client accounting and cgroup v2 limits come for free. This is a
+        problem the industry has open: the kernel's DRM cgroup work is
+        unfinished, Windows reports per-process GPU use without letting you
+        bound it, and MPS and MIG partition the device instead of scheduling it.
       </p>
       <p>
-        <strong>Client checkpoint is nearly free,</strong> because clients hold no
-        device state.
+        <strong>A running GPU job can be suspended and moved.</strong> Clients
+        hold no device state, so checkpointing one costs almost nothing. Stop a
+        job, snapshot it, resume it later or on a different machine.
       </p>
     </div>
   </div>
@@ -160,8 +195,8 @@
       </p>
       <p class="doclink">
         Full design:
-        <a href="https://github.com/nerv-dynamics/nerv-linux/blob/main/docs/ARCH-accelerator.md">ARCH-accelerator.md</a>,
-        <a href="https://github.com/nerv-dynamics/nerv-linux/blob/main/docs/ARCH-axon.md">ARCH-axon.md</a>
+        <a href="https://github.com/nerv-dynamics/nerv-linux/tree/main/docs/accelerator">docs/accelerator/</a>,
+        <a href="https://github.com/nerv-dynamics/nerv-linux/blob/main/docs/accelerator/axon.md">axon.md</a>
       </p>
     </div>
   </div>
@@ -181,7 +216,7 @@
       <a href="mailto:robert@nervdynamics.io">robert@nervdynamics.io</a>
     </nav>
     <div class="footer__base">
-      <p>Copyright &copy; 2026 Robert. Nerv Linux is free software; each
+      <p>Copyright &copy; 2026 Robert Luciani. Nerv Linux is free software; each
          package carries the licence of its upstream source.</p>
       <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell and GB10 are
          trademarks of NVIDIA Corporation. Linux is a registered trademark of

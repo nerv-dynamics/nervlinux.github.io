@@ -1,22 +1,26 @@
 <!--
-title: Source-built Linux for NVIDIA GPU workstations
-desc:  A Linux distribution built from source against musl and LLVM for NVIDIA GB10, GB20 and GB300, with the GPU behind a system-call boundary and an inference engine in the image.
+title: A modern Unix for NVIDIA workstations
+desc:  A from-scratch Linux distribution for NVIDIA GB-series workstations. Built with LLVM against musl, boots in under four seconds, and ships CUDA and an inference engine that work on first boot.
 slug:
 nav:   home
 -->
 
 <section class="herobig">
   <div class="wrap herobig__inner">
-    <h1 class="herobig__title">Nerv&nbsp;Linux</h1>
-    <p class="herobig__tag">A Unix built for one machine: the unified-memory GPU workstation.</p>
-    <p class="herobig__lede">
-      Every package in the base system is compiled from source against musl and
-      LLVM. The NVIDIA driver, CUDA runtime and toolkit are part of the image and
-      work on first boot.
+    <h1 class="herobig__title">
+      A Linux system for the <span class="hl">NVIDIA&nbsp;Superchip</span><br class="br-wide">
+      built from scratch on musl with modern tooling.
+    </h1>
+
+    <p class="herobig__points">
+      Launch GPU code transparently on local or remote hardware.<br>
+      Add all your favorite programs like normal using dnf5.<br>
+      Feel the performance advantage of an OS that targets your hardware.<br>
+      Keep your system feeling fresh forever using provenance tooling.
     </p>
     <div class="actions">
-      <a class="btn btn--primary" href="/install/">Install</a>
-      <a class="btn btn--ghost" href="/design/">Read the design</a>
+      <a class="btn btn--primary" href="/tools/">What it does</a>
+      <a class="btn btn--ghost" href="/install/">Install</a>
     </div>
   </div>
 </section>
@@ -24,44 +28,76 @@ nav:   home
 <section class="section">
   <div class="wrap">
     <div class="claims">
+
       <div class="claim">
-        <h2 class="claim__head">Your GPU is a system call.</h2>
+        <h2 class="claim__head">Run your GPU program on a computer you are not sitting at.</h2>
         <p>
-          One daemon owns the device. Every process on the machine is a client,
-          and the boundary is mandatory rather than advisory &mdash; there is no
-          vendor library to <code>dlopen</code> around it.
+          Start a CUDA program here and it executes on the GPU in another
+          machine. Same binary, not rebuilt, not containerised. The machine
+          holding the GPU does not have to be running Nerv, or even Linux.
+          A dispatched kernel has run on a remote A800 and returned results
+          bit-identical to native.
         </p>
-        <p class="claim__more"><a href="/design/axon/">axon &rarr;</a></p>
+        <p class="claim__more"><a href="/tools/axon/">How axon does this &rarr;</a></p>
       </div>
 
       <div class="claim">
-        <h2 class="claim__head">CUDA runs on a GPU this machine doesn&rsquo;t have.</h2>
+        <h2 class="claim__head">50% more tokens per second than vLLM on Ubuntu.</h2>
         <p>
-          Because local and remote are the same path,
-          <code>dlopen("libcuda.so.1")</code> resolves to axon&rsquo;s shim and the
-          work executes on another box with the program unchanged.
+          S2, the inference engine, is part of the image. Not a container and
+          not a Python stack. Models are compiled ahead of time against the
+          silicon they run on, so the runtime replays prepared work instead of
+          deciding what to do on every token.
         </p>
-        <p class="claim__more"><a href="/design/axon/">axon &rarr;</a></p>
+        <p class="claim__more"><a href="/tools/s2/">S2 &rarr;</a></p>
       </div>
 
       <div class="claim">
-        <h2 class="claim__head">The inference engine ships with the OS.</h2>
+        <h2 class="claim__head">Up to 20% faster than Fedora or Ubuntu, on less power. Boots in four seconds.</h2>
         <p>
-          Not a container and not a Python stack. S2 is in the image, compiled
-          ahead of time against the silicon it runs on, and budgeted in one unit:
-          bytes read per accepted token.
-        </p>
-        <p class="claim__more"><a href="/design/s2/">S2 &rarr;</a></p>
-      </div>
-
-      <div class="claim">
-        <h2 class="claim__head">No glibc in the base. One compiler for all of it.</h2>
-        <p>
-          Every package Nerv builds is musl, compiled with LLVM and ThinLTO
-          &mdash; including rpm and dnf5, which no other musl distribution ships.
+          Every package is built with LLVM and ThinLTO and tuned for the CPU it
+          runs on, the allocator is mimalloc rather than glibc&rsquo;s, and
+          temporary files for compilation and the browser live in memory. You
+          notice it unpacking archives, running scripts, compiling, and
+          scrolling a terminal buffer.
         </p>
         <p class="claim__more"><a href="/system/">System &rarr;</a></p>
       </div>
+
+      <div class="claim">
+        <h2 class="claim__head">CUDA works unmodified, and so does <code>dnf5</code>.</h2>
+        <p>
+          The base is musl with a complete glibc layer beside it, so the NVIDIA
+          driver, runtime and toolkit work on first boot and the Fedora package
+          ecosystem stays one command away. rpm and dnf5 themselves are built
+          pure-musl, which no other musl distribution ships.
+        </p>
+        <p class="claim__more"><a href="/system/">System &rarr;</a></p>
+      </div>
+
+      <div class="claim">
+        <h2 class="claim__head">Ask the machine which files are actually yours.</h2>
+        <p>
+          atfield measures every byte against the image the system was composed
+          from and the packages that own it, then asks you about whatever is
+          left. It turns &ldquo;why is this disk full&rdquo; and &ldquo;move me
+          to the new machine&rdquo; into questions with recorded answers.
+        </p>
+        <p class="claim__more"><a href="/tools/atfield/">atfield &rarr;</a></p>
+      </div>
+
+      <div class="claim">
+        <h2 class="claim__head">Harder defaults that stay out of the way.</h2>
+        <p>
+          musl with mimalloc gives every process guard pages, randomised
+          allocation and encrypted free lists. Control-flow integrity, stack
+          protection and position-independent executables apply to the whole
+          system, because one compiler built all of it. A bad update costs one
+          reboot, because updates install into the slot you are not running.
+        </p>
+        <p class="claim__more"><a href="/tools/cage/">cage &rarr;</a></p>
+      </div>
+
     </div>
   </div>
 </section>
@@ -71,19 +107,25 @@ nav:   home
     <h2 class="section-title">What it is</h2>
     <div class="prose">
       <p>
-        Linux runs on everything, so no general-purpose distribution can assume
-        anything. Options accumulate, old behaviour is preserved indefinitely,
-        and portability wins every argument it has with economy. For a system
-        that has to boot on hardware nobody has built yet, that is the correct
-        trade.
+        A modern Unix that has left the GNU userland behind. The text tools are
+        Rust uutils, the console is kmscon with proper high-DPI rendering and
+        truecolor, privilege escalation is doas, and the interactive shell is
+        assembled from the tools people actually reach for. None of that breaks
+        scripting, because <code>/bin/sh</code> is still a POSIX shell that
+        behaves the way scripts expect.
       </p>
       <p>
-        Nerv targets one line of silicon. It can assume the accelerator is an
-        NVIDIA GB-series part, that the CPU and GPU share memory, and that every
-        binary on disk came out of the same compiler. Those assumptions pay for
-        the rest of the system: a daemon that owns the GPU and can serve it over
-        a network, one toolchain applied uniformly to every package, and a record
-        of where each file on the machine came from.
+        Underneath, the whole base system is compiled from source against musl
+        libc patched with mimalloc, using LLVM and clang. That makes the core
+        small, POSIX-clean and consistently hardened. A second glibc userland
+        sits alongside it so that CUDA, Python wheels and vendor binaries run
+        without anyone having to care about the arrangement.
+      </p>
+      <p>
+        The rest is opinion applied consistently: a kernel stripped of hardware
+        this machine will never have, application defaults chosen for a
+        workstation, and an inference engine and a working Steam setup in the
+        image because those are what the machine is for.
       </p>
     </div>
   </div>
@@ -95,8 +137,8 @@ nav:   home
     <div class="index-list">
       <div class="index-item">
         <h3><a href="/design/">Design</a></h3>
-        <p>What an operating system is for, what Nerv takes from Plan&nbsp;9,
-           FreeBSD and the rest, and the choices that follow.</p>
+        <p>What an operating system is for, why the accelerator sits outside
+           its jurisdiction, and what follows from that.</p>
       </div>
       <div class="index-item">
         <h3><a href="/system/">System</a></h3>
@@ -131,8 +173,8 @@ nav:   home
   <div class="wrap">
     <h2 class="section-title">Hardware</h2>
     <p class="section-lede">
-      Nerv officially targets NVIDIA GB-series unified-memory parts and nothing
-      else. Knowing the machine is what the rest of the design is paid for with.
+      Nerv targets NVIDIA GB-series unified-memory parts and nothing else.
+      Knowing the machine is what pays for everything above.
     </p>
     <div class="table-scroll">
       <table class="data">
@@ -140,9 +182,9 @@ nav:   home
           <tr><th scope="col">Target</th><th scope="col">Arch</th><th scope="col">Machines</th></tr>
         </thead>
         <tbody>
-          <tr><td><code>GB10</code></td><td>aarch64</td><td>NVIDIA DGX Spark and GB10 workstations</td></tr>
+          <tr><td><code>GB10</code></td><td>aarch64</td><td>NVIDIA DGX Spark, HP ZGX and other GB10 workstations</td></tr>
           <tr><td><code>GB20</code></td><td>aarch64</td><td>GB20-class laptops, as they ship</td></tr>
-          <tr><td><code>GB300</code></td><td>aarch64</td><td>GB300-class systems, as they ship</td></tr>
+          <tr><td><code>GB300</code></td><td>aarch64</td><td>GB300-class workstations, as they ship</td></tr>
         </tbody>
       </table>
     </div>

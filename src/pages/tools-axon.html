@@ -1,0 +1,148 @@
+<!--
+title: axon — run GPU work on a machine you are not sitting at
+desc:  Run an unmodified CUDA program on a GPU in another computer. axon is the daemon that owns the accelerator on a Nerv machine and makes local and remote the same path.
+slug:  tools/axon
+nav:   tools
+-->
+
+<section class="section section--head">
+  <div class="wrap">
+    <p class="crumb"><a href="/tools/">Tools</a></p>
+    <h1 class="page-title">axon: use a GPU that is in another computer</h1>
+    <p class="page-lede">
+      Run your CUDA program. The same binary, not rebuilt, not patched, not put
+      in a container. It executes on the GPU in the workstation across the room,
+      or in the machine under someone else's desk, and the program never learns
+      the difference.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title">What this looks like</h2>
+    <div class="prose">
+      <p>
+        Blender, Julia, llama.cpp or anything else that loads
+        <code>libcuda.so.1</code> runs on your machine and computes on a
+        different one. The machine holding the GPU does not have to be running
+        Nerv, and it does not have to be running Linux &mdash; a Windows box with
+        a spare GPU is a valid host.
+      </p>
+    </div>
+
+    <div class="term" style="margin-top: var(--s-6)">
+      <div class="term__bar">zsh</div>
+<pre class="term__body"><span class="c-grey"># the GPU in this machine</span>
+<span class="c-purple">~</span> <span class="c-blue">&#10095;</span> ./train.py
+
+<span class="c-grey"># the GPU in that machine. same binary.</span>
+<span class="c-purple">~</span> <span class="c-blue">&#10095;</span> AXON_HOST=zgx ./train.py
+
+<span class="c-grey"># and afterwards, where did the work actually run?</span>
+<span class="c-purple">~</span> <span class="c-blue">&#10095;</span> axon top</pre>
+    </div>
+
+    <p class="prose" style="margin-top: var(--s-6)">
+      A kernel dispatched this way has been executed on a remote A800 through
+      the full stack and returned results bit-identical to running it natively.
+    </p>
+  </div>
+</section>
+
+<section class="section section--subtle">
+  <div class="wrap">
+    <h2 class="section-title">How it works, and what it costs</h2>
+    <div class="prose">
+      <p>
+        On a Nerv machine no program talks to the GPU driver. A single daemon,
+        <code>axond</code>, owns the device, and everything else is a client of
+        it over a socket. That includes programs on the same machine: there is
+        no separate local path to fall back to.
+      </p>
+      <p>
+        This is the part that makes remote execution work rather than a
+        retrofit. A local client and a remote client take the same code path, so
+        which machine holds the GPU becomes a parameter instead of an
+        assumption. The daemon handles discovery and pairing, then hands the
+        program a connected socket and steps out of the data path, so it can
+        restart without killing a running job.
+      </p>
+      <p>
+        The cost is one boundary crossing. Locally that round trip is
+        1.9&nbsp;&micro;s over a shared-memory ring; over TCP it is
+        29&nbsp;&micro;s. Neither figure matters much on its own, because the
+        crossings get batched: collapsing a repeated sequence of them into a
+        single replayed graph measured 4.6&ndash;6.3&times; faster than issuing
+        them one at a time.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title">What else falls out of it</h2>
+    <div class="prose">
+      <p>
+        <strong>Allocation stops costing a driver call.</strong>
+        <code>cuMemAlloc</code> is 63&nbsp;&micro;s for a single 4&nbsp;KiB page,
+        per call rather than per byte, and the driver does no pooling.
+        Suballocating from one reservation measured 3.8&times; cheaper to acquire
+        and 44.8&times; cheaper to release for the same 4&nbsp;GiB. Minted
+        addresses make the substitution invisible to the application.
+      </p>
+      <p>
+        <strong>One GPU job stops blocking the next one.</strong> On unified
+        memory a long-running GPU process fragments the pool badly enough that
+        the next process cannot start, and the usual fix is to quit the first
+        one. Measured on a GB10: the count of free 2&nbsp;MiB blocks went from
+        zero, to 248, back to zero as a single server was stopped and restarted.
+        Under axon no application process ever creates a driver context, so
+        there is nothing to fragment the pool in the first place.
+      </p>
+      <p>
+        <strong>You can finally see who is using the GPU.</strong> One process
+        observes every allocation and knows which client asked for it, so
+        per-client accounting and cgroup v2 limits come for free. This is a
+        problem the industry has open: the kernel's DRM cgroup work is
+        unfinished, Windows reports per-process GPU use without letting you
+        bound it, and MPS and MIG partition the device instead of scheduling it.
+      </p>
+      <p>
+        <strong>A running GPU job can be suspended and moved.</strong> Clients
+        hold no device state, so checkpointing one costs almost nothing. Stop a
+        job, snapshot it, resume it later or on a different machine.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title">Why this has to be the distribution</h2>
+    <div class="prose">
+      <p>
+        Policy is real only when bypass is impossible. A library shim is
+        advisory: any process can <code>dlopen</code> the vendor library and walk
+        around the accounting, the limits and the arena. Making it mandatory is
+        three packaging decisions, and only whoever builds the package set can
+        make them.
+      </p>
+      <ul class="list">
+        <li>The only <code>libcuda.so.1</code> in the package set is axon's.</li>
+        <li><code>/dev/nvidia*</code> is permissioned so that only the daemon may open it.</li>
+        <li>The arena is reserved on the kernel command line, before anything has fragmented memory.</li>
+      </ul>
+      <p>
+        A container cannot do any of it. A normal distribution cannot do the
+        first two.
+      </p>
+      <p class="doclink">
+        Full design:
+        <a href="https://github.com/nerv-dynamics/nerv-linux/tree/main/docs/accelerator">docs/accelerator/</a>,
+        <a href="https://github.com/nerv-dynamics/nerv-linux/blob/main/docs/accelerator/axon.md">axon.md</a>
+      </p>
+    </div>
+  </div>
+</section>

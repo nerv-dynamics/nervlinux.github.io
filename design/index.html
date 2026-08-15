@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Design — Nerv Linux</title>
-<meta name="description" content="The four subsystems Nerv exists to build: axon, atfield, S2 and cage.">
+<meta name="description" content="What an operating system is for, why the accelerator sits outside its jurisdiction, and what a Unix built for known hardware owes its operator.">
 <link rel="canonical" href="https://nervlinux.org/design/">
 <meta property="og:title" content="Design — Nerv Linux">
-<meta property="og:description" content="The four subsystems Nerv exists to build: axon, atfield, S2 and cage.">
+<meta property="og:description" content="What an operating system is for, why the accelerator sits outside its jurisdiction, and what a Unix built for known hardware owes its operator.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://nervlinux.org/design/">
 <link rel="icon" href="/assets/favicon.png" sizes="32x32">
@@ -62,49 +62,333 @@
 <main id="main">
 <section class="section section--head">
   <div class="wrap">
-    <h1 class="page-title">Design</h1>
-    <p class="page-lede">
-      Four subsystems that a distribution can implement and a container, a
-      library or an application cannot. Each has a design document in the
-      repository; these pages are the summary.
-    </p>
+    <div class="essay">
+      <h1 class="page-title">What an operating system is for</h1>
+      <p class="lead">
+        This page is the argument the rest of Nerv is built to serve. Every
+        mechanism described elsewhere on the site exists to discharge one of the
+        duties named here, and where a mechanism cannot be justified against
+        something on this page, either the mechanism or the page is wrong.
+      </p>
+    </div>
   </div>
 </section>
 
 <section class="section">
   <div class="wrap">
-    <div class="index-list">
-      <div class="index-item">
-        <h3><a href="/design/axon/">axon</a></h3>
-        <p>
-          The accelerator behind a syscall-like boundary. One daemon owns the
-          device and every process is a client, so the local and remote paths are
-          the same path and a CUDA program can run on another machine unchanged.
-        </p>
+    <div class="essay">
+
+      <h2>What Unix asserted</h2>
+      <p>
+        The lasting part of Unix was never the tools. It was a claim about how a
+        machine should be addressed: give every part of the computer one
+        namespace and one calling convention, then let the user compose. Disks,
+        terminals, tapes, pipes and processes were all files, all
+        <code>open</code>, <code>read</code>, <code>write</code>,
+        <code>close</code>. That is why <code>cat</code> works on a serial port.
+      </p>
+      <p>
+        Four consequences followed, all of them deliberate. A tool does one thing
+        and the pipe supplies the rest. The system is written in a language that
+        ships with the machine, so the machine can rebuild itself. Text is the
+        interchange format, because in 1973 it was the only one every program
+        could agree on. And the user drives the machine by writing in a language.
+      </p>
+      <p>
+        All of that was also a statement about one particular machine. Files and
+        processes were the right abstraction because the PDP-11 was one CPU, one
+        memory, one disk and a few terminals. Unix worked because its
+        abstraction fit the hardware sitting in front of it, which is precisely
+        the reason to look at that abstraction again now that the hardware has
+        changed.
+      </p>
+
+      <h2>What GNU finished</h2>
+      <p>
+        GNU set out to make Unix free and to make it run everywhere. A goal like
+        that dictates a shape, and GNU got the shape right. To replace every
+        vendor's <code>ls</code> on every system you have to absorb every
+        vendor's <code>ls</code>: options accrete, old behaviours are kept for
+        compatibility, and portability outranks economy every time. An
+        implementation carrying sixty flags is not bloat when its job is to be a
+        superset of sixty implementations. It is the job, done.
+      </p>
+      <p>
+        That job is now finished. Free Unix won so completely that it became the
+        unremarkable default, the condition every system is built on, this one
+        included. An achieved goal stops constraining the next design. GNU's
+        shape is made out of the obligation to run everywhere, and a system built
+        for hardware it can name by part number does not carry that obligation.
+      </p>
+
+      <div class="pull">
+        <p>Completeness is the right value when you do not control the system.
+           Coherence is the right value when you do.</p>
       </div>
-      <div class="index-item">
-        <h3><a href="/design/atfield/">atfield</a></h3>
-        <p>
-          Provenance for every byte on the machine. Evidence is measured,
-          disposition is decided once, and the parts nothing accounts for become
-          a queue of yes/no questions.
-        </p>
+
+      <p>
+        None of that is a criticism; it is a handover. A distribution that knows
+        its hardware inherits a freedom it did nothing to earn, and the only
+        interesting question is what it spends that freedom on.
+      </p>
+
+      <h2>The pattern</h2>
+      <p>
+        The machine changed, but the more useful observation is that Linux has
+        been through this before. Hardware escapes the process model every so
+        often, and hauling it back is one of the recurring jobs of an operating
+        system.
+      </p>
+      <p>
+        The display went first. Graphics hardware outgrew the terminal
+        abstraction, drivers moved into userspace, and for years the X server
+        was a privileged process doing what the kernel could not describe. It
+        came back as KMS in the kernel and a compositor that owns the device and
+        speaks a protocol. Audio left by the same route, spent a decade among
+        competing sound daemons, and came back in the same shape.
+      </p>
+
+      <table class="escaped">
+        <thead>
+          <tr><th scope="col">Escaped</th><th scope="col">Returned as</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>the display</td><td>a compositor that owns the device and speaks a protocol</td></tr>
+          <tr><td>audio</td><td>a daemon that owns the device and speaks a protocol</td></tr>
+          <tr class="open"><td>compute</td><td>still outside</td></tr>
+        </tbody>
+      </table>
+
+      <p>
+        Both returns took the same form: a daemon takes ownership of the device
+        and speaks a protocol, and the kernel grows primitives underneath it to
+        make that ownership real. The repetition is not a coincidence. Both
+        times, that was what bringing hardware back under the process model
+        required.
+      </p>
+
+      <h2>The row that has not returned</h2>
+      <p>
+        An accelerator today is reached by linking a vendor library. It is
+        outside the namespace, outside the scheduler, outside accounting,
+        largely outside the system's own tracing, and outside checkpoint except
+        by vendor courtesy. One process can deny the device to every other, and
+        the system cannot see it happen, arbitrate it, or explain it afterwards.
+      </p>
+      <p>
+        Fragmentation and arbitration are the oldest problems in the field, and
+        they have come back in the one place the operating system currently has
+        no jurisdiction. In 2026 the most expensive silicon in the machine is
+        allocated first-come-first-served by a closed library, invisible to
+        <code>top</code> and un-limitable by cgroups. No general-purpose system
+        governs it the way it governs CPU time and memory. Linux cannot, because
+        the driver owns the device, and the DRM cgroup work that would change
+        that is unfinished. Windows reports per-process GPU use but gives you no
+        way to bound it. The vendor's own answers, MPS and MIG, partition the
+        device instead of scheduling it, and MIG exists only on datacenter
+        parts.
+      </p>
+      <p>
+        The hardware is not the obstacle. NVMe is submission and completion
+        rings in shared memory with doorbells, network cards are descriptor
+        rings, and GPUs are command rings. <code>io_uring</code> is the same shape
+        retrofitted onto system calls. Wayland and PipeWire are the same shape
+        in userspace. The hardware already converged on a calling convention.
+        The operating system never made it a first-class, nameable object.
+      </p>
+
+      <h2>Four duties</h2>
+      <p>
+        Putting the abstraction up for re-examination does not put the duties
+        underneath it in doubt. They are what any operating system owes whoever
+        runs it, and a mechanism earns its place in the base by discharging one
+        of them.
+      </p>
+
+      <h3>Run the user's programs</h3>
+      <p>
+        All of them, on all of the compute the operator paid for, not only the
+        CPU. A system that cannot say what a program is using, cannot stop it
+        starving another, and cannot tell you why it failed is not running that
+        program. It is standing next to it.
+      </p>
+
+      <h3>Know what is the user's</h3>
+      <p>
+        The file namespace gave a uniform way to address bytes and never a way
+        to know what those bytes mean or who put them there. A machine that
+        cannot tell what you made apart from what merely accumulated cannot help
+        you move it, reclaim it, or protect it.
+      </p>
+
+      <h3>Know what happened</h3>
+      <p>
+        Unix logged text because text was the only interchange format available.
+        The record therefore came out as prose, which you can grep at but cannot
+        query. A system that cannot answer what ran, on what data, and with what
+        result is asking you to reconstruct its own history by hand.
+      </p>
+
+      <h3>Be rebuildable</h3>
+      <p>
+        C and the compiler were in the box, so the machine could rebuild itself.
+        The modern form of that duty is that the system is a composed, named,
+        reproducible whole rather than the accumulated residue of every command
+        ever run against it.
+      </p>
+
+      <h2>Principles</h2>
+      <p>
+        These follow from the duties, and they exist to be cited in review when
+        a decision starts to sag.
+      </p>
+
+      <h3>Typed records as interchange</h3>
+      <p>
+        Text was universal in 1973 because it was the only candidate for the
+        job. That constraint is gone. The interchange is a typed record with a
+        stable schema, and text is one rendering of that record. The Unix
+        argument survives intact; only the representation moves. A format you
+        cannot parse without guessing at it is not a schema, whatever it is
+        called.
+      </p>
+
+      <h3>The operator surface is not the user surface</h3>
+      <p>
+        In testable form: no tool may require a shell, a display, or a human
+        being. Every verb runs with stdin closed and no terminal attached, emits
+        typed output, and exits with a status that means something. A system you
+        can only operate by sitting in front of it cannot be automated, and a
+        system that cannot be automated cannot be trusted to rebuild itself.
+      </p>
+
+      <h3>One operator</h3>
+      <p>
+        A Nerv machine assumes a single person is responsible for it. Multi-user
+        time-sharing was Unix's answer to one expensive computer and many
+        people, and that ratio has since inverted: one person, many processors.
+        It is written down so that it reads as a decision rather than an
+        omission.
+      </p>
+
+      <h3>Inference is never load-bearing</h3>
+      <p>
+        The machine ships an inference engine, and the machine stays fully
+        operable with that engine switched off. An operating system that cannot
+        function without inference has stopped being an operating system and
+        become an appliance.
+      </p>
+
+      <h2>Trust</h2>
+      <p>
+        One operator is an administrative statement, and on its own it says
+        nothing about security. Who is allowed to log in is a much smaller
+        question than what their programs may do once they have.
+      </p>
+
+      <div class="pull">
+        <p>The operator is trusted. The operator's code is not.</p>
       </div>
-      <div class="index-item">
-        <h3><a href="/design/s2/">S2</a></h3>
-        <p>
-          An inference engine specialised for one machine and shipped in the
-          image. Everything decidable ahead of time is compiled into replayable
-          graphs; everything else is budgeted in one unit.
-        </p>
+
+      <p>
+        Unix assumes that a process you launched is you. That single assumption
+        is why a bad package, a language-ecosystem wheel that reads your private
+        keys, and a remote hole in a daemon are the same bug wearing three hats.
+        Retiring it closes the class rather than the instances.
+      </p>
+      <p>
+        Nerv gives up the ambient authority of the user account and gets back a
+        machine that can state what it ran. Running unfamiliar code stops being
+        the default condition of being logged in; it becomes an explicit
+        operation, confined and recorded, in which a task names what it needs
+        and receives nothing else.
+      </p>
+      <p>
+        Confinement of this kind has a well-known failure mode. It fires a
+        cryptic denial, the operator switches it off to get the afternoon back,
+        and the security evaporates. So the paranoia is spent by domain. The
+        parts of the system that parse untrusted input are hardened hard; the
+        inference kernels that are the machine's entire purpose keep their fast
+        paths, because inside a domain that has already declared its files and
+        its budget those paths grant no new authority. A box hardened into
+        uselessness has failed.
+      </p>
+
+      <h2>The thesis</h2>
+      <p>
+        Stated so that it can be wrong:
+      </p>
+
+      <div class="pull">
+        <p>A workload on the accelerator should be a governed process:
+           scheduled, accounted, reclaimable, checkpointable and attested, on
+           hardware its operator owns.</p>
       </div>
-      <div class="index-item">
-        <h3><a href="/design/cage/">cage</a></h3>
-        <p>
-          Transactional A/B updates. Compose into the inactive slot, prove it
-          boots, promote it, and roll back when it does not.
-        </p>
-      </div>
+
+      <p>
+        The falsifier is specific. If compute returns to the process model
+        through the vendor's door rather than the kernel's, and running local
+        models well never comes to require the operating system's cooperation,
+        then the thesis was wrong and what remains is a coherent Unix and
+        nothing more. That is the test, and it is written down here so that
+        someone can apply it.
+      </p>
+
+      <h2>Which kind of system this becomes</h2>
+      <p>
+        A system built for one board and one operator cannot set a standard and
+        should not try. Every return in the table above was standardised by
+        people who arrived later and argued from a working example that already
+        existed. Kernel mode-setting before it was universal was one driver.
+        Control groups before systemd were one company's patches.
+      </p>
+      <p>
+        There are two honourable outcomes, and which one applies is not decided
+        by the people building the system.
+      </p>
+      <p>
+        DragonFly BSD demonstrated that a fundamentally different approach to
+        kernel messaging and filesystems was workable, and remains small. CoreOS
+        proved that an immutable, automatically updated, A/B-partitioned
+        operating system was not only possible but preferable for a whole class
+        of machine, and then ceased to exist as a product while that idea became
+        the default everywhere. Neither one became the vehicle for its own best
+        idea, and both were right anyway.
+      </p>
+      <p>
+        Alpine took musl and a minimal userland seriously enough that it became
+        the assumed base of an entire industry's container images. Fedora landed
+        systemd, Wayland and PipeWire early, absorbed the fallout, and let the
+        rest of the ecosystem standardise on something that already worked.
+        Those became vehicles.
+      </p>
+      <p>
+        What separates the two groups is not the quality of the idea. It is some
+        discipline and a great deal of timing and luck. A project this size can
+        only do the first half of the arc, which is to build the working example
+        and make it good enough that someone else can argue from it. Whether
+        Nerv ends up DragonFly or Alpine is not knowable yet, and it does not
+        change what to build this month.
+      </p>
+
+      <h2>What this is not</h2>
+      <p>
+        Nerv is not an easy system, and it is not a hostile one. The difficulty
+        budget goes on making the machine knowable, and none of it goes on
+        making the operator prove anything. It is not a Unix clone; that was
+        built and it won. It is not a collection of preferences either: every
+        choice should be answerable with a measurement or an argument, and the
+        choices that are answerable with neither get written down as such.
+      </p>
+
+      <p class="doclink">
+        Mechanism lives on the subsystem pages:
+        <a href="/tools/axon/">axon</a>,
+        <a href="/tools/atfield/">atfield</a>,
+        <a href="/tools/s2/">S2</a>,
+        <a href="/tools/cage/">cage</a>.
+      </p>
+
     </div>
   </div>
 </section>
@@ -123,7 +407,7 @@
       <a href="mailto:robert@nervdynamics.io">robert@nervdynamics.io</a>
     </nav>
     <div class="footer__base">
-      <p>Copyright &copy; 2026 Robert. Nerv Linux is free software; each
+      <p>Copyright &copy; 2026 Robert Luciani. Nerv Linux is free software; each
          package carries the licence of its upstream source.</p>
       <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell and GB10 are
          trademarks of NVIDIA Corporation. Linux is a registered trademark of
