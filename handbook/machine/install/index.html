@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nerv Linux — Install</title>
+<meta name="description" content="Installing Nerv needs two machines: the one you are sitting at, and the one you are installing. Nothing is written to removable media, and nothing is typed into the target. The machine you are...">
+<link rel="canonical" href="https://nervlinux.org/handbook/machine/install/">
+<meta property="og:title" content="Nerv Linux — Install">
+<meta property="og:description" content="Installing Nerv needs two machines: the one you are sitting at, and the one you are installing. Nothing is written to removable media, and nothing is typed into the target. The machine you are...">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nervlinux.org/handbook/machine/install/">
+<link rel="icon" href="/assets/favicon.png" sizes="32x32">
+<link rel="apple-touch-icon" href="/assets/nerv-square.png">
+<link rel="preload" href="/fonts/nerv-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/palette.css">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/site.css">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('nerv-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="masthead__inner">
+    <a class="masthead__brand" href="/" aria-label="Nerv Linux — home">
+      <img class="logo logo--on-dark" src="/assets/nerv-wordmark.png" alt="Nerv Linux" width="994" height="335">
+      <img class="logo logo--on-light" src="/assets/nerv-wordmark-inverted.png" alt="Nerv Linux" width="994" height="339">
+    </a>
+    <nav class="masthead__nav" aria-label="Primary">
+      <a href="/system/">System</a>
+      <a href="/tools/">Features</a>
+      <a href="/enterprise/">Enterprise</a>
+      <a href="/about/">About</a>
+      <a href="/handbook/" aria-current="page">Handbook</a>
+      <button class="theme-toggle" id="theme-toggle" type="button"
+              aria-label="Switch to light theme" title="Switch theme">
+        <svg class="icon icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path fill="currentColor" d="M20.7 14.6A8.6 8.6 0 0 1 9.4 3.3a8.7 8.7 0 1 0 11.3 11.3Z"/>
+        </svg>
+        <svg class="icon icon--sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2" fill="currentColor"/>
+          <g stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+            <path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4"/>
+            <path d="M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/>
+          </g>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="section section--head">
+  <div class="wrap">
+    <p class="crumb"><a href="/handbook/">Handbook</a></p>
+    <div class="essay">
+<hr class="rule">
+<p>title:    Install kind:     use one-line: From a bare box to a running machine over the network — one command on a machine you already have, and no USB stick.</p>
+<hr class="rule">
+<h1 class="page-title">Install</h1>
+<p>Installing Nerv needs two machines: the one you are sitting at, and the one you are installing. Nothing is written to removable media, and nothing is typed into the target. The machine you are sitting at becomes the installer; the target boots from it over the network.</p>
+<p>You need:</p>
+<ul class="list">
+<li>the <strong>target</strong> on the same network, able to boot from the network in its firmware</li>
+<li>the <strong>operator machine</strong>, any Linux box, with <code>curl</code> and <code>openssl</code></li>
+<li>the target's disk, which <strong>will be erased</strong></li>
+</ul>
+<h2 id="start-the-installer" class="section-title">Start the installer</h2>
+<p>One command. It fetches the installer, checks it against the key embedded in the script you just read, and hands over:</p>
+<pre class="term term__body">$ curl -fsSL http://&lt;host&gt;/install.sh | sh
+:: fetching http://&lt;host&gt;/bin/nerv-install-aarch64
+:: signature verified
+:: starting the installer</pre>
+<p>That is the whole bootstrap, and it is short on purpose: it contains no install logic, so it can be read in full before it is run. Everything it fetches afterwards is checked against the key printed in the script itself. Read it first if you like — <code>curl http://&lt;host&gt;/install.sh</code> alone prints it.</p>
+<p>A dashboard opens. Its header is the two ways a target can reach it — the first needs nothing set anywhere, the second is the pair of values a DHCP server asks for:</p>
+<pre class="term term__body">  Nerv Linux - Netboot Server
+  IPv6 - no configuration needed - [fd00:6e65:7276::1]
+  IPv4 - set DHCP 66 to 10.0.0.5 and 67 to nerv-installer.efi
+
+┌ Machines connected: 0 ─────────────────────────────────────────────┐
+│  No machines visible                                               │
+│                                                                    │
+│  A machine joins this fleet by netbooting from the address above.  │
+│  Nothing is written to any machine until you say so.               │
+└────────────────────────────────────────────────────────────────────┘
+  ↑↓ select   ⏎ configure   r reboot   s settings   q quit</pre>
+<h2 id="boot-the-target" class="section-title">Boot the target</h2>
+<p>Set the target to boot from the network, and turn it on. On the same network segment that is everything — the installer answers the target's own question about where to boot from, so there is nothing to configure on either machine and nothing to undo afterwards.</p>
+<p>Nothing is typed into the target either: no installer media, no kernel arguments, no console, and no boot entry to create in its firmware.</p>
+<h3 id="if-the-target-is-elsewhere-or-its-firmware-has-no-ipv6" class="sub-title">If the target is elsewhere, or its firmware has no IPv6</h3>
+<p>Then the network has to carry the answer, which is two fields every DHCP server has — a home router or a corporate one:</p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">field</th><th scope="col">value</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>next-server, or <em>option 66</em></td><td>the address the dashboard printed</td>
+</tr>
+<tr>
+<td>boot filename, or <em>option 67</em></td><td><code>nerv-installer.efi</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>On a UniFi this is <em>Network → Advanced → Network Boot</em>; on dnsmasq it is <code>dhcp-boot</code>.</p>
+<p>Worth knowing: <strong>a boot filename applies to the whole network</strong>, so anything else that netboots while it is set also reaches this installer. Undo it when you are finished.</p>
+<h3 id="why-it-asks-for-a-password" class="sub-title">Why it asks for a password</h3>
+<p>The two ports a firmware asks on — <code>69</code> and <code>547</code> — are privileged, so the last step needs root. The download and the signature check happen as you, before that; only the verified binary is run with privilege.</p>
+<p>The target appears on the dashboard when it has booted and reported itself:</p>
+<pre class="term term__body">  MACHINE            PLATFORM   DISKS  PHASE         LAST SEEN   PROGRESS
+▌ 52:54:00:12:34:56  qemu-aarch 1      booted 3/11   waiting 2m  ██████──────</pre>
+<p>It will wait there indefinitely. <strong>Nothing is written to the disk until you launch the install</strong>, and a machine that is waiting has not been touched.</p>
+<h2 id="configure-it" class="section-title">Configure it</h2>
+<p>Press <code>⏎</code> on the machine. The pane shows what it reported about itself — cores, memory, whether it has a TPM, and each disk it found — and the settings the install will use:</p>
+<pre class="term term__body">┌ configure ─────────────────────────────────────────────────────────┐
+│▌hostname    -                                                      │
+│ disk        /dev/nvme0n1                                           │
+│ encrypt     yes                                                    │
+│ secure boot yes                                                    │
+│ user        -                                                      │
+│ password    -                                                      │
+│ ssh key     -                                                      │
+│ shell       /usr/bin/fish                                          │
+│ keymap      us                                                     │
+│ subvol      @nerv                                                  │
+└────────────────────────────────────────────────────────────────────┘
+  ↑↓ field   ⏎ edit/toggle   i INSTALL   esc back</pre>
+<p>Set at minimum a <strong>hostname</strong> and an <strong>account</strong> — a user with either a password or an SSH key. An account with neither is refused: it produces a machine nobody can log into.</p>
+<p>Which <strong>profile</strong> is installed is a setting of the installer rather than of the machine, on the <code>s</code> page: <code>core</code>, <code>workstation</code>, <code>workstation-gui</code> or <code>dev</code>.</p>
+<p>Press <code>i</code> to install. That is the only destructive action in this chapter, and it is the first moment anything is written to the target.</p>
+<h2 id="watch-it" class="section-title">Watch it</h2>
+<p>The row tracks the install through eleven phases. It takes a few minutes, most of it transferring and unpacking the system:</p>
+<pre class="term term__body">▌ 52:54:00:12:34:56  qemu-aarch 1      done 11/11    1s          ████████████</pre>
+<p>At <code>done 11/11</code> the disk is bootable and the machine <strong>stays on the list</strong>, still reporting. It has not rebooted and will not until you say so.</p>
+<h2 id="reboot-into-it" class="section-title">Reboot into it</h2>
+<p>Press <code>r</code>. The target takes the order on its next poll and boots the system you just installed:</p>
+<pre class="term term__body">  52:54:00:12:34:56: reboot sent; it goes down on its next poll</pre>
+<p>You do not need to change anything in the target's firmware first. The install put the new system's boot entry ahead of the network entry it arrived on, so it boots from its own disk from here on.</p>
+<p>Then log in over the network, with the account you configured:</p>
+<pre class="term term__body">$ ssh &lt;user&gt;@&lt;hostname&gt;</pre>
+<h2 id="if-the-install-fails" class="section-title">If the install fails</h2>
+<p>The row turns red and names the phase it stopped in, and the machine is left alone — it does not reboot, so the console keeps the reason. <code>r</code> is refused on a machine whose install failed, because rebooting it would boot whatever was on the disk before.</p>
+<p>Reconfigure and press <code>i</code> again. A launch applies to one install: a machine that boots the installer again waits for a new one rather than repeating the last.</p>
+<h2 id="what-a-virtual-machine-cannot-show-you" class="section-title">What a virtual machine cannot show you</h2>
+<p>A VM is a complete rehearsal of everything above except encryption. No emulator implements the drive-native encryption Nerv uses, so a virtual target must be configured with <code>encrypt</code> off, and that one path is only ever exercised on real hardware.</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__base">
+      <p>Copyright &copy; 2026 Nerv Dynamics AB. Nerv Linux is free software; each
+         package carries the licence of its upstream source.</p>
+      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell and GB10 are
+         trademarks of NVIDIA Corporation. Linux is a registered trademark of
+         Linus Torvalds. Nerv Linux is not affiliated with, endorsed by, or
+         sponsored by either.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var btn = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    function label() {
+      var dark = root.getAttribute('data-theme') !== 'light';
+      btn.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+    }
+    label();
+    btn.addEventListener('click', function () {
+      // Dark is the default, so anything that isn't explicitly light is dark.
+      var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('nerv-theme', next); } catch (e) {}
+      label();
+    });
+  })();
+</script>
+
+</body>
+</html>

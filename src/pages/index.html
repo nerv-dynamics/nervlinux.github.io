@@ -1,154 +1,146 @@
 <!--
 title: Nerv Linux
-desc:  A from-scratch Linux distribution for NVIDIA GB-series workstations. Built with LLVM against musl, boots in under four seconds, and ships CUDA and an inference engine that work on first boot.
+desc:  An OS for NVIDIA Superchip computers, built from scratch on musl libc. CPU, GPU, and memory are services: a musl build of Quake runs on ARM and renders at 120 fps on an AMD 9070 in a Windows PC.
 slug:
 nav:   home
 -->
 
+<!--
+  The hero is deliberately the softest thing on the page. It invites; the two
+  sections under it do the proving. Four lines, no hard breaks, so they reflow
+  on a narrow screen instead of snapping mid-phrase.
+-->
 <section class="herobig">
   <div class="wrap herobig__inner">
     <h1 class="herobig__title">
-      A Linux system for the <span class="hl">NVIDIA&nbsp;Superchip</span><br class="br-wide">
-      built from scratch on musl with modern tooling.
+      An OS for <span class="hl">NVIDIA&nbsp;Superchip</span> computers<br class="br-wide">
+      built from scratch on musl libc<br class="br-wide">
+      with modern unix tooling.
     </h1>
 
-    <p class="herobig__points">
-      Launch GPU code transparently on local or remote hardware.<br>
-      Add all your favorite programs like normal using dnf5.<br>
-      Feel the performance advantage of an OS that targets your hardware.<br>
-      Keep your system feeling fresh forever using provenance tooling.
-    </p>
+    <ul class="herobig__points">
+      <li>Launch GPU code transparently on local or remote hardware.</li>
+      <li>Feel the performance of an OS that targets a single platform.</li>
+      <li>Keep your system feeling fresh forever using provenance tooling.</li>
+      <li>Add all your favorite programs using dnf5.</li>
+    </ul>
+
     <div class="actions">
       <a class="btn btn--primary" href="/tools/">What it does</a>
-      <a class="btn btn--ghost" href="/install/">Install</a>
+      <a class="btn btn--ghost" href="/enterprise/">For fleets</a>
+    </div>
+  </div>
+
+  <!--
+    The photo panel. Bleeds to the right edge and the full height of the hero,
+    masked on its left so it dissolves into the gradient instead of sitting in
+    a box. Hidden below 900px, where a portrait frame beside a column of text
+    stops working and the gradient carries the panel alone.
+  -->
+  <div class="herobig__photo">
+<div class="slot">
+      assets/photos/hero.jpg<br>
+      3:2 landscape, 2100&times;1400 or larger.<br>
+      Subject in the right half; left third is masked away.<br>
+      Graded: ./grade.sh in.jpg assets/photos/hero.jpg
     </div>
   </div>
 </section>
 
-<section class="section">
+<!--
+  Quake is the most legible benchmark in computing: a reader who knows nothing
+  about musl or unified memory still stops at this sentence. It gets the whole
+  section, and the numbers sit underneath the picture that earns them.
+-->
+<section class="poster">
   <div class="wrap">
-    <div class="claims">
+    <h2 class="poster__line">
+      CPU, GPU, and memory are services.
+    </h2>
+    <p class="poster__sub">
+      You can run a musl build of Quake on your ARM machine, and do the
+      rendering on an AMD&nbsp;9070 on your Windows PC.
+    </p>
 
-      <div class="claim">
-        <h2 class="claim__head">Run your GPU program on a computer you are not sitting at.</h2>
-        <p>
-          Start a CUDA program here and it executes on the GPU in another
-          machine. Same binary, not rebuilt, not containerised. The machine
-          holding the GPU does not have to be running Nerv, or even Linux.
-          A dispatched kernel has run on a remote A800 and returned results
-          bit-identical to native.
-        </p>
-        <p class="claim__more"><a href="/tools/axon/">How axon does this &rarr;</a></p>
+    <p class="readout">
+      <span>vkquake</span><span class="sep">/</span>
+      <span>vulkan</span><span class="sep">/</span>
+      <span>aarch64 musl</span><span class="sep">/</span>
+      <span>axon://win11pc.lan</span><span class="sep">/</span>
+      <span>radeon rx 9070</span><span class="sep">/</span>
+      <span>120 fps @ 4K</span>
+    </p>
+
+    <figure class="shot">
+      <div class="slot" style="aspect-ratio: 16 / 9">
+        assets/shots/quake.png<br>
+        16:9, 2560&times;1440. vkQuake in-game, fps overlay visible.
       </div>
+      <figcaption>
+        The binary was not rebuilt, recompiled or containerised, and the card
+        doing the work is neither NVIDIA nor running Linux.
+      </figcaption>
+    </figure>
 
-      <div class="claim">
-        <h2 class="claim__head">50% more tokens per second than vLLM on Ubuntu.</h2>
-        <p>
-          S2, the inference engine, is part of the image. Not a container and
-          not a Python stack. Models are compiled ahead of time against the
-          silicon they run on, so the runtime replays prepared work instead of
-          deciding what to do on every token.
+    <div class="figures">
+      <div class="figure">
+        <span class="figure__n">120</span>
+        <p class="figure__what">
+          fps, rendered on another machine's GPU.
+          <a href="/tools/axon/">axon &rarr;</a>
         </p>
-        <p class="claim__more"><a href="/tools/s2/">S2 &rarr;</a></p>
       </div>
-
-      <div class="claim">
-        <h2 class="claim__head">Up to 20% faster than Fedora or Ubuntu, on less power. Boots in four seconds.</h2>
-        <p>
-          Every package is built with LLVM and ThinLTO and tuned for the CPU it
-          runs on, the allocator is mimalloc rather than glibc&rsquo;s, and
-          temporary files for compilation and the browser live in memory. You
-          notice it unpacking archives, running scripts, compiling, and
-          scrolling a terminal buffer.
+      <div class="figure">
+        <span class="figure__n">6.9s</span>
+        <p class="figure__what">
+          Firmware hand-off to a login prompt. The board&rsquo;s own firmware
+          takes 9.8s before that.
+          <a href="/system/">System &rarr;</a>
         </p>
-        <p class="claim__more"><a href="/system/">System &rarr;</a></p>
       </div>
-
-      <div class="claim">
-        <h2 class="claim__head">CUDA works unmodified, and so does <code>dnf5</code>.</h2>
-        <p>
-          The base is musl with a complete glibc layer beside it, so the NVIDIA
-          driver, runtime and toolkit work on first boot and the Fedora package
-          ecosystem stays one command away. rpm and dnf5 themselves are built
-          pure-musl, which no other musl distribution ships.
+      <div class="figure">
+        <span class="figure__n">+50%</span>
+        <p class="figure__what">
+          Tokens per second over vLLM.
+          <a href="/tools/s2/">S2 &rarr;</a>
         </p>
-        <p class="claim__more"><a href="/system/">System &rarr;</a></p>
       </div>
-
-      <div class="claim">
-        <h2 class="claim__head">Ask the machine which files are actually yours.</h2>
-        <p>
-          atfield measures every byte against the image the system was composed
-          from and the packages that own it, then asks you about whatever is
-          left. It turns &ldquo;why is this disk full&rdquo; and &ldquo;move me
-          to the new machine&rdquo; into questions with recorded answers.
+      <div class="figure">
+        <span class="figure__n">3&times;</span>
+        <p class="figure__what">
+          Faster at getting data onto the GPU than DGX OS, at peak.
+          <a href="/system/">System &rarr;</a>
         </p>
-        <p class="claim__more"><a href="/tools/atfield/">atfield &rarr;</a></p>
       </div>
-
-      <div class="claim">
-        <h2 class="claim__head">Harder defaults that stay out of the way.</h2>
-        <p>
-          musl with mimalloc gives every process guard pages, randomised
-          allocation and encrypted free lists. Control-flow integrity, stack
-          protection and position-independent executables apply to the whole
-          system, because one compiler built all of it. A bad update costs one
-          reboot, because updates install into the slot you are not running.
+      <div class="figure">
+        <span class="figure__n">0</span>
+        <p class="figure__what">
+          GPL-3 packages needed to boot.
+          <a href="/enterprise/">Licensing &rarr;</a>
         </p>
-        <p class="claim__more"><a href="/tools/cage/">cage &rarr;</a></p>
       </div>
-
     </div>
   </div>
 </section>
 
-<section class="section section--subtle">
+<!--
+  The desktop is the advert. Full-bleed, native resolution, real work on
+  screen. The line under it undercuts the benchmark theatre on purpose.
+-->
+<section class="bleed">
   <div class="wrap">
-    <h2 class="section-title">What it is</h2>
-    <div class="prose">
-      <p>
-        A complete operating system rather than a distribution assembled out of
-        someone else&rsquo;s decisions. Nerv builds its own base from upstream
-        source: the C library, the allocator, the compiler, the init system, the
-        shell, the text tools and the package manager. Nothing underneath it is
-        waiting on another project&rsquo;s roadmap.
-      </p>
-      <p>
-        What that base feels like is a modern Unix with the GNU userland left
-        behind. The text tools are Rust uutils, the console renders properly at
-        high DPI and in truecolor, privilege escalation is doas, and the
-        interactive shell is put together from the tools people actually reach
-        for. None of it breaks scripting, because <code>/bin/sh</code> is still a
-        POSIX shell that behaves the way scripts expect. Underneath, everything
-        is compiled against musl with mimalloc using LLVM, and a glibc layer sits
-        alongside it so CUDA, Python wheels and vendor binaries run without
-        anyone having to think about the arrangement.
-      </p>
-
-      <h3 class="sub-title">What you are allowed to do with it</h3>
-      <p>
-        Owning the whole base means owning its licensing, and Nerv is built so
-        that <strong>no GPL-3 package is needed to boot a machine</strong>. The
-        core is MIT, 0BSD, BSD and Apache, alongside the GPL-2 kernel and
-        LGPL-2.1 libraries, none of which carry the clause that matters here.
-      </p>
-      <p>
-        The clause that matters is GPL-3 section 6. It obliges anyone shipping
-        object code inside a user product to hand over whatever is needed to
-        install a modified version. Secure Boot with kernel lockdown is precisely
-        the restriction that triggers it, so a signed, locked-down boot chain and
-        a GPL-3 runtime pull against each other. That is a real problem for
-        anyone putting an operating system on hardware they intend to ship, and
-        it is usually discovered late, by a lawyer.
-      </p>
-      <p>
-        Nerv does not manage that tension. It never creates it. A Nerv base can
-        be signed, locked and shipped without the licence review turning into a
-        redesign, and the handful of GPL-3 software people do want, rsync among
-        them, remains one <code>dnf5 install</code> away as an ordinary choice
-        rather than a structural commitment.
-      </p>
-    </div>
+    <h2 class="bleed__line">
+      The rest of the time, it is just a very good computer.
+    </h2>
+    <figure class="shot">
+      <div class="slot" style="aspect-ratio: 16 / 9">
+        assets/shots/desktop.png<br>
+        16:9, 2560&times;1440. niri, real work on screen.
+      </div>
+      <figcaption>
+        niri on Wayland. Rust userland, OneDark everywhere, and the typeface
+        this page is set in is the one the terminal uses.
+      </figcaption>
+    </figure>
   </div>
 </section>
-

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nerv Linux — About</title>
+<meta name="description" content="Nerv Linux is built by Nerv Dynamics AB. Who builds it, and why the whole base is built from source.">
+<link rel="canonical" href="https://nervlinux.org/about/">
+<meta property="og:title" content="Nerv Linux — About">
+<meta property="og:description" content="Nerv Linux is built by Nerv Dynamics AB. Who builds it, and why the whole base is built from source.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nervlinux.org/about/">
+<link rel="icon" href="/assets/favicon.png" sizes="32x32">
+<link rel="apple-touch-icon" href="/assets/nerv-square.png">
+<link rel="preload" href="/fonts/nerv-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/palette.css">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/site.css">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('nerv-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="masthead__inner">
+    <a class="masthead__brand" href="/" aria-label="Nerv Linux — home">
+      <img class="logo logo--on-dark" src="/assets/nerv-wordmark.png" alt="Nerv Linux" width="994" height="335">
+      <img class="logo logo--on-light" src="/assets/nerv-wordmark-inverted.png" alt="Nerv Linux" width="994" height="339">
+    </a>
+    <nav class="masthead__nav" aria-label="Primary">
+      <a href="/system/">System</a>
+      <a href="/tools/">Features</a>
+      <a href="/enterprise/">Enterprise</a>
+      <a href="/about/" aria-current="page">About</a>
+      <a href="/handbook/">Handbook</a>
+      <button class="theme-toggle" id="theme-toggle" type="button"
+              aria-label="Switch to light theme" title="Switch theme">
+        <svg class="icon icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path fill="currentColor" d="M20.7 14.6A8.6 8.6 0 0 1 9.4 3.3a8.7 8.7 0 1 0 11.3 11.3Z"/>
+        </svg>
+        <svg class="icon icon--sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2" fill="currentColor"/>
+          <g stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+            <path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4"/>
+            <path d="M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/>
+          </g>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="section section--head">
+  <div class="wrap">
+    <p class="crumb">Nerv&nbsp;Dynamics&nbsp;AB</p>
+    <h1 class="page-title">The system remembers.</h1>
+    <p class="page-lede">
+      Nerv Linux is built by Nerv Dynamics AB. This page is who that is, and
+      why a company this small decided to build an operating system from the C
+      library up.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title">Why build the whole base</h2>
+    <div class="prose">
+      <p>
+        Because the alternative is to inherit decisions. A distribution
+        assembled from another project&rsquo;s choices carries that
+        project&rsquo;s roadmap, its licensing, its allocator, and its idea of
+        what a userland is for. None of those were chosen for a machine with
+        128&nbsp;GB of unified memory and an accelerator that outweighs the
+        CPU, because none of them were chosen for any machine in particular.
+      </p>
+      <p>
+        A system that knows its hardware by part number inherits a freedom it
+        did nothing to earn. The only interesting question is what it spends
+        that freedom on. The answer is the reason this company exists: a coherent
+        base, a boundary with authority over compute, and a machine that can
+        account for itself.
+      </p>
+      <p class="doclink">
+        The argument in full is the handbook&rsquo;s first chapter:
+        <a href="/handbook/machine/why-an-operating-system-still/">Why an
+        operating system, still &rarr;</a>
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle">
+  <div class="wrap">
+    <h2 class="section-title">What the name means</h2>
+    <div class="prose">
+      <p>
+        <strong>The system remembers.</strong> The line describes the software
+        literally. The machine keeps its own record: what it was composed from,
+        which generation you chose, which bytes are yours and which are
+        rebuildable residue, and where a given piece of work actually ran.
+        Those properties are why this system exists at all.
+      </p>
+      <p>
+        The other half of the promise is more useful day to day:
+        <strong>you can ask it why.</strong> A machine that records what it did
+        can answer questions about itself. Without that record you operate by
+        inference.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title">Who</h2>
+    <div class="prose">
+      <p>
+        Nerv Dynamics AB is a Swedish limited company. Development happens on
+        self-hosted infrastructure, against a canary machine that is the same
+        hardware the system targets.
+      </p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__base">
+      <p>Copyright &copy; 2026 Nerv Dynamics AB. Nerv Linux is free software; each
+         package carries the licence of its upstream source.</p>
+      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell and GB10 are
+         trademarks of NVIDIA Corporation. Linux is a registered trademark of
+         Linus Torvalds. Nerv Linux is not affiliated with, endorsed by, or
+         sponsored by either.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var btn = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    function label() {
+      var dark = root.getAttribute('data-theme') !== 'light';
+      btn.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+    }
+    label();
+    btn.addEventListener('click', function () {
+      // Dark is the default, so anything that isn't explicitly light is dark.
+      var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('nerv-theme', next); } catch (e) {}
+      label();
+    });
+  })();
+</script>
+
+</body>
+</html>

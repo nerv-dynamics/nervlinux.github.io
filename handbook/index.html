@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nerv Linux — The Nerv Handbook</title>
+<meta name="description" content="The published manual: what this machine promises and how to use it. Read DISCIPLINE.md before adding a chapter.">
+<link rel="canonical" href="https://nervlinux.org/handbook/">
+<meta property="og:title" content="Nerv Linux — The Nerv Handbook">
+<meta property="og:description" content="The published manual: what this machine promises and how to use it. Read DISCIPLINE.md before adding a chapter.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nervlinux.org/handbook/">
+<link rel="icon" href="/assets/favicon.png" sizes="32x32">
+<link rel="apple-touch-icon" href="/assets/nerv-square.png">
+<link rel="preload" href="/fonts/nerv-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/palette.css">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/site.css">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('nerv-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="masthead__inner">
+    <a class="masthead__brand" href="/" aria-label="Nerv Linux — home">
+      <img class="logo logo--on-dark" src="/assets/nerv-wordmark.png" alt="Nerv Linux" width="994" height="335">
+      <img class="logo logo--on-light" src="/assets/nerv-wordmark-inverted.png" alt="Nerv Linux" width="994" height="339">
+    </a>
+    <nav class="masthead__nav" aria-label="Primary">
+      <a href="/system/">System</a>
+      <a href="/tools/">Features</a>
+      <a href="/enterprise/">Enterprise</a>
+      <a href="/about/">About</a>
+      <a href="/handbook/" aria-current="page">Handbook</a>
+      <button class="theme-toggle" id="theme-toggle" type="button"
+              aria-label="Switch to light theme" title="Switch theme">
+        <svg class="icon icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path fill="currentColor" d="M20.7 14.6A8.6 8.6 0 0 1 9.4 3.3a8.7 8.7 0 1 0 11.3 11.3Z"/>
+        </svg>
+        <svg class="icon icon--sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2" fill="currentColor"/>
+          <g stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+            <path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4"/>
+            <path d="M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/>
+          </g>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="section section--head">
+  <div class="wrap">
+    <p class="crumb"><a href="/handbook/">Handbook</a></p>
+    <div class="essay">
+<h1 class="page-title">The Nerv Handbook</h1>
+<p>The published manual: what this machine promises and how to use it. Read <code>DISCIPLINE.md</code> before adding a chapter.</p>
+<p><strong>This is the public tree.</strong> <code>docs/</code> is the private one and is never published — mechanism, measurements, and rejected alternatives live there. The line between them is one sentence: <em>publish the promise and its conditions, withhold the argument and the wounds.</em></p>
+<h2 id="status-of-this-table-of-contents" class="section-title">Status of this table of contents</h2>
+<p><strong>It is a frame, not a claim.</strong> A slot below with no link is a chapter that has not been written, because the thing it would describe is not yet running on the canary. The frame exists so that a new capability has an obvious home and so gaps are visible; the prose arrives when the machine does.</p>
+<p>Chapter count is a health metric. It rises when the canary learns something new, not when someone has an idea.</p>
+<h2 id="structure" class="section-title">Structure</h2>
+<p>Two kinds of chapter, and the split is what keeps the manual from drifting into five copies of the same explanation:</p>
+<ul class="list">
+<li><strong>Ideas</strong> (Part II) explain one promise of the machine, exactly once. Every mechanism has one home here, and everything else cites it.</li>
+<li><strong>Uses</strong> (Part III) are organised by what you are trying to do. Goals, steps, expected output, links — and no machinery.</li>
+</ul>
+<h2 id="part-i-this-machine" class="section-title">Part I — This machine</h2>
+<div class="table-scroll">
+<table class="data">
+<tbody>
+<tr>
+<td><a href="/handbook/machine/why-an-operating-system-still/"><strong>Why an operating system, still</strong></a></td><td>The argument. What Unix asserted and why it fit the machine it was built for, what changed about the machine, and the duty that is still unserved. No products, no verbs — the position this whole system is an answer to. <strong>The website's Design page is built from this chapter.</strong></td>
+</tr>
+<tr>
+<td><strong>What Nerv is</strong></td><td>The promises, what they cost, and what would disprove them. The chapter to read before deciding whether this machine is for you.</td>
+</tr>
+<tr>
+<td><a href="/handbook/machine/install/"><strong>Install</strong></a></td><td>From a bare box to an encrypted, attested workstation, over the network. No USB stick.</td>
+</tr>
+<tr>
+<td><a href="/handbook/machine/the-first-hour/"><strong>The first hour</strong></a></td><td>The shell and the userland, where things live, and how to change a setting so it survives an update.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="part-ii-five-ideas" class="section-title">Part II — Five ideas</h2>
+<div class="table-scroll">
+<table class="data">
+<tbody>
+<tr>
+<td><strong>Generations</strong></td><td>Every change to the system is a transaction: try it, prove it, keep it — or it rolls itself back.</td>
+</tr>
+<tr>
+<td><strong>The compute fabric</strong></td><td>One boundary governs compute: your GPU, someone else's across the network, memory, and where programs run. Every program is a client, and everything is accounted.</td>
+</tr>
+<tr>
+<td><strong>What the machine remembers</strong></td><td>The log, the facts, and <code>why</code>: the questions your machine can answer about itself and about your data — and when it will decline to answer.</td>
+</tr>
+<tr>
+<td><strong>Yours and not yours</strong></td><td>Your work, rebuildable residue, and unexplained bytes — and what follows you to the next machine.</td>
+</tr>
+<tr>
+<td><strong>The chain of trust</strong></td><td>What is verified between power-on and a prompt, and precisely what that does not defend against.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Five is the budget. A sixth idea requires retiring one.</p>
+<h2 id="part-iii-ways-of-using-it" class="section-title">Part III — Ways of using it</h2>
+<div class="table-scroll">
+<table class="data">
+<tbody>
+<tr>
+<td><strong>AI development</strong></td><td>Models, capabilities, and building against the machine's own store and fabric.</td>
+</tr>
+<tr>
+<td><strong>Gaming</strong></td><td>Steam, titles built for x86, and borrowing a faster GPU from across the room.</td>
+</tr>
+<tr>
+<td><strong>Running the world's software</strong></td><td>Fedora packages, containers, k3s — anything built for glibc.</td>
+</tr>
+<tr>
+<td><strong>Offloading and fleets</strong></td><td>Putting work on other machines, and several boxes acting as one.</td>
+</tr>
+<tr>
+<td><strong>Building your own</strong></td><td>Packaging software for your machine, and owning the stack.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="part-iv-when-it-breaks" class="section-title">Part IV — When it breaks</h2>
+<div class="table-scroll">
+<table class="data">
+<tbody>
+<tr>
+<td><strong>Recovery</strong></td><td>Rollback, the rescue slot, the morning it will not boot, the forgotten passphrase. Written for someone having a bad day.</td>
+</tr>
+<tr>
+<td><strong>Asking why</strong></td><td>From a symptom to a cause, using the machine's own record.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="part-v-reference" class="section-title">Part V — Reference</h2>
+<p>Generated per generation from the surface manifest — every verb, flag, exit code, config key and event schema. Never hand-written, and therefore never stale.</p>
+<h2 id="two-reading-orders" class="section-title">Two reading orders</h2>
+<p><strong>You own the machine:</strong> Install → The first hour → whichever Part III chapter you bought it for, following links backward into Part II when a promise needs explaining.</p>
+<p><strong>You are deciding whether to:</strong> What Nerv is → Generations → then run that chapter's demonstration in a VM: apply an update, break the slot, watch the machine repair itself. Then The chain of trust.</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__base">
+      <p>Copyright &copy; 2026 Nerv Dynamics AB. Nerv Linux is free software; each
+         package carries the licence of its upstream source.</p>
+      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell and GB10 are
+         trademarks of NVIDIA Corporation. Linux is a registered trademark of
+         Linus Torvalds. Nerv Linux is not affiliated with, endorsed by, or
+         sponsored by either.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var btn = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    function label() {
+      var dark = root.getAttribute('data-theme') !== 'light';
+      btn.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+    }
+    label();
+    btn.addEventListener('click', function () {
+      // Dark is the default, so anything that isn't explicitly light is dark.
+      var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('nerv-theme', next); } catch (e) {}
+      label();
+    });
+  })();
+</script>
+
+</body>
+</html>

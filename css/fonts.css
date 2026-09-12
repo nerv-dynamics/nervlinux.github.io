@@ -1,40 +1,126 @@
 /* ==========================================================================
-   IBM Plex — self-hosted, latin subset. No third-party requests.
+   The Nerv typeface — self-hosted, subsetted. No third-party requests.
 
-   Plex Sans ships as a variable font (one file covers 100..700).
-   Plex Mono is static, so 400 and 500 are separate files.
-   Total: ~74 KB for the whole typographic system.
+   These are the operating system's own letters. nerv-fonts builds four
+   metrically related families from an in-tree Iosevka build plan
+   (packages/nerv-fonts/files/private-build-plans.toml, which IS the design),
+   and the site is set in three of them. The page and the terminal say the same
+   word in the same hand, which is the one piece of brand nobody else can copy.
+
+   Lineage: Iosevka by Renzhi Li, by way of the Aporetic plan by Protesilaos
+   Stavrou. Both SIL OFL 1.1; Iosevka reserves no font name, which is why these
+   families may be called Nerv. See fonts/LICENSE-OFL.txt.
+
+   Produced by fonts/build-webfonts.py from a nerv-fonts build. Eight faces,
+   112 KB total — down from 54 MB of unsubsetted TTF. Regenerate with that
+   script when the build plan changes; do not hand-edit the .woff2 files.
+
+   The unicode-range is deliberately wider than "latin": the terminal
+   illustrations are drawn with box-drawing and block characters and the claim
+   links use arrows, so those blocks are as load-bearing as the letters.
    ========================================================================== */
 
-@font-face {
-  font-family: "IBM Plex Sans";
-  font-style: normal;
-  font-weight: 100 700;
-  font-display: swap;
-  src: url("../fonts/plex-sans-var.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
-    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
-    U+2212, U+2215, U+FEFF, U+FFFD;
-}
+/* The subset every face carries. Kept in one place as a comment because CSS
+   has no variables in @font-face — if you change it, change it in
+   fonts/build-webfonts.py first, which is where it is authoritative.
 
+   U+0000-00FF  U+0131  U+0152-0153  U+02BB-02BC  U+02C6  U+02DA  U+02DC
+   U+0304  U+0308  U+0329  U+2000-206F  U+20AC  U+2122  U+2190-2193
+   U+2212  U+2215  U+23CE  U+2500-257F  U+2580-259F  U+FEFF  U+FFFD  */
+
+/* --- Nerv Display — headings only --------------------------------------- */
+/* A wider cut of Nerv Sans: one parameter changed, width 525 to 600. The OS
+   plan is tuned for reading at 14px, where 525 is right; at 40px the
+   sidebearings can no longer separate the letters and headings set solid.
+   Built from fonts/nerv-display.plan.toml, which belongs upstream in
+   nerv-fonts once the width is settled.
+
+   Three weights, because weight has to come down as size goes up: a stroke
+   that reads correctly at 16px reads heavy at 64px. 300 carries the poster
+   and the hero, 400 the page titles, 600 the section headings. */
 @font-face {
-  font-family: "IBM Plex Mono";
+  font-family: "Nerv Display";
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("../fonts/nerv-display-300.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Nerv Display";
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url("../fonts/plex-mono-400.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
-    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
-    U+2212, U+2215, U+FEFF, U+FFFD;
+  src: url("../fonts/nerv-display-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Nerv Display";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../fonts/nerv-display-600.woff2") format("woff2");
 }
 
+/* --- Nerv Sans — UI and short copy -------------------------------------- */
 @font-face {
-  font-family: "IBM Plex Mono";
+  font-family: "Nerv Sans";
   font-style: normal;
-  font-weight: 500;
+  font-weight: 400;
   font-display: swap;
-  src: url("../fonts/plex-mono-500.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
-    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
-    U+2212, U+2215, U+FEFF, U+FFFD;
+  src: url("../fonts/nerv-sans-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Nerv Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../fonts/nerv-sans-700.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Nerv Sans";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/nerv-sans-400i.woff2") format("woff2");
+}
+
+/* --- Nerv Sans Mono — terminals, labels, data --------------------------- */
+@font-face {
+  font-family: "Nerv Sans Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/nerv-sans-mono-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Nerv Sans Mono";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../fonts/nerv-sans-mono-700.woff2") format("woff2");
+}
+
+/* --- Nerv Serif — documents and long-form reading ----------------------- */
+/* The face nerv-fonts describes as being "for documents and long-form reading,
+   including the published handbook". Any paragraph long enough to be read
+   rather than scanned is set in this. */
+@font-face {
+  font-family: "Nerv Serif";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/nerv-serif-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Nerv Serif";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../fonts/nerv-serif-700.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Nerv Serif";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/nerv-serif-400i.woff2") format("woff2");
 }

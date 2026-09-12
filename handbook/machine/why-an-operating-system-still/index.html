@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nerv Linux — Why an operating system, still</title>
+<meta name="description" content="The argument this whole system is an answer to. It describes a duty, not a product — every promise the rest of this book makes is discharging something claimed here, and if a promise elsewhere...">
+<link rel="canonical" href="https://nervlinux.org/handbook/machine/why-an-operating-system-still/">
+<meta property="og:title" content="Nerv Linux — Why an operating system, still">
+<meta property="og:description" content="The argument this whole system is an answer to. It describes a duty, not a product — every promise the rest of this book makes is discharging something claimed here, and if a promise elsewhere...">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nervlinux.org/handbook/machine/why-an-operating-system-still/">
+<link rel="icon" href="/assets/favicon.png" sizes="32x32">
+<link rel="apple-touch-icon" href="/assets/nerv-square.png">
+<link rel="preload" href="/fonts/nerv-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/palette.css">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/site.css">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('nerv-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="masthead__inner">
+    <a class="masthead__brand" href="/" aria-label="Nerv Linux — home">
+      <img class="logo logo--on-dark" src="/assets/nerv-wordmark.png" alt="Nerv Linux" width="994" height="335">
+      <img class="logo logo--on-light" src="/assets/nerv-wordmark-inverted.png" alt="Nerv Linux" width="994" height="339">
+    </a>
+    <nav class="masthead__nav" aria-label="Primary">
+      <a href="/system/">System</a>
+      <a href="/tools/">Features</a>
+      <a href="/enterprise/">Enterprise</a>
+      <a href="/about/">About</a>
+      <a href="/handbook/" aria-current="page">Handbook</a>
+      <button class="theme-toggle" id="theme-toggle" type="button"
+              aria-label="Switch to light theme" title="Switch theme">
+        <svg class="icon icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path fill="currentColor" d="M20.7 14.6A8.6 8.6 0 0 1 9.4 3.3a8.7 8.7 0 1 0 11.3 11.3Z"/>
+        </svg>
+        <svg class="icon icon--sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2" fill="currentColor"/>
+          <g stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+            <path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4"/>
+            <path d="M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/>
+          </g>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="section section--head">
+  <div class="wrap">
+    <p class="crumb"><a href="/handbook/">Handbook</a></p>
+    <div class="essay">
+<hr class="rule">
+<p>title:    Why an operating system, still kind:     position one-line: What Unix asserted, what changed about the machine underneath it, and the duty that is still unserved.</p>
+<hr class="rule">
+<h1 class="page-title">Why an operating system, still</h1>
+<p>The argument this whole system is an answer to. It describes a duty, not a product — every promise the rest of this book makes is discharging something claimed here, and if a promise elsewhere cannot be justified against this chapter, one of the two is wrong.</p>
+<p>Deliberately contains no solutions. What Nerv <em>does</em> about any of this is the rest of the book.</p>
+<h2 id="what-unix-asserted" class="section-title">What Unix asserted</h2>
+<p>Unix was not principally a set of tools. It was a claim about how a machine should be addressed: <strong>give every part of the computer one namespace and one calling convention, then let the user compose.</strong> Disks, terminals, tapes, pipes, processes — all files, all <code>open</code>/<code>read</code>/<code>write</code>/<code>close</code>. That is why <code>cat</code> works on a serial port.</p>
+<p>Four consequences, all deliberate:</p>
+<ul class="list">
+<li><strong>Composition over capability.</strong> A tool does one thing; the pipe supplies the rest.</li>
+<li><strong>The system is written in a language you have.</strong> C and the compiler were in the box, so the machine could rebuild itself.</li>
+<li><strong>Text as interchange</strong>, because in 1973 it was the only format every program could agree on.</li>
+<li><strong>The user drives with a language</strong>, not a menu.</li>
+</ul>
+<p>And it was a statement about a <em>specific machine</em>. Files and processes were the right abstraction because the PDP-11 was one CPU, one memory, one disk, and some terminals. The abstraction fit the hardware. That fit is the reason it worked, and noticing it is the reason to re-examine it now.</p>
+<h2 id="what-the-gnu-project-achieved" class="section-title">What the GNU project achieved</h2>
+<p>GNU set out to make Unix free and to make it run everywhere. That goal has a shape, and the shape is correct for it: to replace every vendor's <code>ls</code> on every system, you must absorb every vendor's <code>ls</code>, which means options accrete, behaviours are preserved for compatibility, and portability outranks economy. An implementation carrying sixty flags is not bloat when its job is to be a superset of sixty implementations. It is the job, done.</p>
+<p>And the job is finished. Free Unix won so completely that it is now the unremarkable default — the condition every system here is built on, this one included.</p>
+<p>A goal that has been achieved stops constraining the next design. The obligation to run everywhere, and to absorb everything that came before, is what GNU's shape is made of, and it is the obligation a system built for known hardware no longer carries. That is not a criticism of the shape; it is the handover.</p>
+<p><strong>Completeness is the right value when you do not control the system. Coherence is the right value when you do.</strong></p>
+<h2 id="what-changed-the-machine" class="section-title">What changed: the machine</h2>
+<p>The hardware stopped looking like the thing files and processes described.</p>
+<ul class="list">
+<li><strong>Compute is heterogeneous.</strong> Cores of different capability and power, a GPU with its own scheduler, and increasingly other machines.</li>
+<li><strong>Memory is not one pool with one owner.</strong> On unified-memory parts the GPU's memory <em>is</em> the host's, and two allocators with no way to negotiate share it.</li>
+<li><strong>The network is a tier</strong>, not a peripheral.</li>
+<li><strong>Storage is a log</strong>, not a block device with inodes.</li>
+</ul>
+<p>But the deeper change is a pattern the system has been through before. <strong>Hardware escapes the process model, and the operating system's recurring duty is to bring it back.</strong></p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">escaped</th><th scope="col">returned as</th><th scope="col">the kernel primitive underneath</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>mode-setting</td><td>the kernel sets modes; one compositor owns the device</td><td>KMS/DRM</td>
+</tr>
+<tr>
+<td>the display</td><td>a compositor that owns the device and speaks a protocol</td><td>DRM leases, dma-buf</td>
+</tr>
+<tr>
+<td>input</td><td>one library, driven by the compositor that owns the seat</td><td>evdev</td>
+</tr>
+<tr>
+<td>audio</td><td>a daemon that owns the device and speaks a protocol</td><td>ALSA, then timer-based scheduling</td>
+</tr>
+<tr>
+<td>bluetooth</td><td>a daemon that owns the adapter and speaks a protocol</td><td>the kernel BT stack</td>
+</tr>
+<tr>
+<td>printing</td><td>a daemon that owns the device and speaks a protocol</td><td>USB/IPP transport</td>
+</tr>
+<tr>
+<td>service state</td><td>an init that owns the lifecycle and speaks a protocol</td><td>cgroups</td>
+</tr>
+<tr>
+<td><strong>compute</strong></td><td><strong>still outside</strong></td><td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Six times, the same shape. Each began as capability reached by linking a vendor library or loading a vendor driver into someone else's address space — X's userspace mode-setting and input drivers, OSS-era per-application device grabs, vendor print and Bluetooth stacks. Each ended with <strong>one process owning the device and speaking a protocol, and the kernel growing a primitive underneath it.</strong> Nobody planned the pattern; it is what the problem forces, because a device that several processes address directly cannot be arbitrated, accounted, or explained by anyone.</p>
+<p>The row that is still empty is the one where that shape has not yet been applied.</p>
+<p>A GPU today is reached by linking a vendor library. It is outside the namespace, outside the scheduler, outside accounting, largely outside the system's own tracing, and outside checkpoint except by vendor courtesy. One process can deny the device to every other and the system cannot see it, arbitrate it, or explain it. That is fragmentation and arbitration — the oldest operating-system problems there are — recurring in the one place the operating system currently has no jurisdiction.</p>
+<h2 id="the-four-duties" class="section-title">The four duties</h2>
+<p><strong>1. Run the user's programs.</strong> Schedule, isolate, account, trace, checkpoint — across <em>all the compute the user owns</em>, which now includes the GPU and, where the boundary allows, other machines. Everything below serves this. An operating system that cannot say what a program is using, cannot stop it starving another, and cannot tell you why it failed is not running that program; it is standing next to it.</p>
+<p><strong>2. Know what is the user's.</strong> The file namespace gave a uniform way to <em>address</em> bytes and never a way to know what they <em>mean</em> or who put them there. A machine that cannot distinguish the user's own work from reproducible output from unexplained residue cannot be cleaned, audited, or moved.</p>
+<p><strong>3. Know what happened.</strong> A system that changes itself should be able to say what changed and why. Unix logged text because text was the interchange format available; the record was therefore prose, and prose is unqueryable.</p>
+<p><strong>4. Be rebuildable.</strong> C and the compiler were in the box. The modern form is that the system is a composed, named, reproducible whole rather than the accumulated residue of every command ever run against it.</p>
+<h2 id="what-follows" class="section-title">What follows</h2>
+<p>Principles, not mechanisms.</p>
+<p><strong>Coherence over completeness.</strong> Every element earns its place against the whole. Owning the stack is what makes this available; refusing to use it is what wastes it.</p>
+<p><strong>Correct from the beginning, or not yet.</strong> A thing that works now and is shaped wrong is not a step toward the thing that is shaped right. It is a thing that will have to be removed, and by the time that is obvious something depends on it. "Get it working first" describes a different artifact that happens to emit the same output — the path from it to the design is usually demolition, not refinement.</p>
+<p>This is not an argument for delay. It is an argument that the question <em>what is the right shape</em> must be answered before the question <em>what makes this run</em>, because the second question is much easier and will silently answer the first if allowed to. Where a stopgap is genuinely necessary it is named as one and given an expiry, since an unnamed stopgap becomes the design by default — and the record here is that this happens: a libudev stub was written from scratch on a premise nobody had checked and later deleted; a network stack was assembled live to get a box talking and then had to be described, in its own notes, as "panic-configured, NOT the intended design".</p>
+<p><strong>Typed records as interchange.</strong> Text was the universal format because in 1973 it was the only one. That constraint is gone. The interchange is a typed record with a stable schema, and text is a <em>rendering</em> of it — the same argument Unix made, one representation later. A format that cannot be read without guessing is prose wearing a schema's clothes.</p>
+<p><strong>The operator surface is not the user surface.</strong> Conflating them is what makes a general distribution unadministrable. The shell is a user program and an excellent one; it is where you <em>compose</em> the system's tools, not what they require. Testable form: <strong>no tool may require a shell, a display, or a human.</strong> Every verb runs with stdin closed and no terminal, emits typed output, and exits honestly. A human demanded as an <em>authentication factor</em> is a security mechanism, not an interactive dependency; that exception is narrow and deliberate.</p>
+<p><strong>A submission boundary is the unit of remoting.</strong> What one machine can hand to another is whatever is addressed through a queue coarser than the network is slow: command submission, block I/O, starting a unit. What cannot be handed over is whatever is addressed at load/store granularity, because no interface exists to intercept and no latency budget exists to hide. The line is not which device — it is whether the interface is coarser than the wire. This is why the GPU, swap, and service placement are the same problem, and coherent shared memory is a different one.</p>
+<p><strong>One operator.</strong> A Nerv machine assumes a single person is responsible for it. Multi-user time-sharing was Unix's answer to one expensive computer and many people; the situation inverted. Stated so it is understood as a decision rather than an omission.</p>
+<p><strong>Inference is never load-bearing.</strong> A resident model may read what a person has no time to read and propose what a person must still decide. It may not be required for the system to boot, install, upgrade, repair, or explain itself. <em>The moment the OS cannot function without inference, it stops being an operating system and becomes an appliance.</em></p>
+<h2 id="the-role-and-the-thesis" class="section-title">The role, and the thesis</h2>
+<p>A system built for one board and one operator cannot set a standard, and should not try. Every return in the table above was standardized by people who arrived later and argued from a working example that already existed: KMS before it was universal was one driver; cgroups before systemd were one company's patches. The role available here is the other half of that arc — <strong>be the working example.</strong> Ship the policy that has no standard yet, on the one machine where it can be shipped whole, and leave the argument about generalising it to whoever wants to have it.</p>
+<p>Stated as a thesis, so that it can be wrong: <strong>a workload on the GPU should be a governed process — scheduled, accounted, reclaimable, checkpointable, and attested — on hardware its operator owns.</strong></p>
+<p>And stated with its falsifier, because a promise with no conditions is marketing: if compute returns to the process model through the vendor's door rather than the kernel's — if running local models excellently never comes to require the operating system's cooperation — then the thesis was wrong, and what remains is a coherent Unix and nothing more. That is the test. It is written here to be checked, not defended.</p>
+<h2 id="what-this-is-not" class="section-title">What this is not</h2>
+<p>Not an easy system, and not a hostile one — the difficulty budget is spent on the machine being knowable, not on the user proving themselves. Not a Unix clone; the clone was built and won. Not a collection of preferences: every choice here should be answerable with a measurement or an argument, and where it is answerable with neither, that is recorded rather than defended.</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__base">
+      <p>Copyright &copy; 2026 Nerv Dynamics AB. Nerv Linux is free software; each
+         package carries the licence of its upstream source.</p>
+      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell and GB10 are
+         trademarks of NVIDIA Corporation. Linux is a registered trademark of
+         Linus Torvalds. Nerv Linux is not affiliated with, endorsed by, or
+         sponsored by either.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var btn = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    function label() {
+      var dark = root.getAttribute('data-theme') !== 'light';
+      btn.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+    }
+    label();
+    btn.addEventListener('click', function () {
+      // Dark is the default, so anything that isn't explicitly light is dark.
+      var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('nerv-theme', next); } catch (e) {}
+      label();
+    });
+  })();
+</script>
+
+</body>
+</html>

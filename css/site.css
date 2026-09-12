@@ -23,7 +23,7 @@ body {
 }
 
 h1, h2, h3 {
-  margin: 0; font-weight: 600;
+  margin: 0; font-family: var(--font-display); font-weight: 600;
   line-height: var(--lh-tight); letter-spacing: var(--tracking-tight);
   /* Distribute words evenly across lines instead of filling greedily, which
      is what strands a single short word on the last line of a heading. */
@@ -57,12 +57,18 @@ img { max-width: 100%; height: auto; display: block; }
 .section--head { padding-block: var(--s-9) var(--s-8); }
 
 /* --- Headings ------------------------------------------------------------ */
-.page-title { font-size: var(--t-3xl); margin-bottom: var(--s-5); }
+.page-title {
+  font-size: var(--t-3xl); margin-bottom: var(--s-5);
+  font-weight: var(--w-display);   /* large, therefore lighter */
+}
 .page-lede {
   font-size: var(--t-md); line-height: var(--lh-loose);
   color: var(--text-secondary); max-width: var(--max-w-text);
 }
-.section-title { font-size: var(--t-xl); margin-bottom: var(--s-5); max-width: 34ch; }
+.section-title {
+  font-size: var(--t-xl); font-weight: var(--w-title);
+  margin-bottom: var(--s-5); max-width: 34ch;
+}
 .section-lede {
   font-size: var(--t-base); color: var(--text-secondary);
   max-width: var(--max-w-text); margin-bottom: var(--s-5);
@@ -113,53 +119,141 @@ img { max-width: 100%; height: auto; display: block; }
   display: inline-flex; align-items: center; justify-content: center;
   margin-left: var(--s-2);
   width: 34px; height: 34px;
-  background: none; border: 1px solid var(--border); color: var(--text);
+  background: none; border: 1px solid var(--border-interactive); color: var(--text);
   cursor: pointer; opacity: .8;
   transition: opacity var(--dur) var(--ease), border-color var(--dur) var(--ease);
 }
-.theme-toggle:hover { opacity: 1; border-color: var(--border-strong); }
+.theme-toggle:hover { opacity: 1; border-color: var(--text-secondary); }
 /* Show the icon for the theme you would switch TO. */
 .icon--sun  { display: var(--logo-dark-bg); }
 .icon--moon { display: var(--logo-light-bg); }
 
 /* --- Landing hero -------------------------------------------------------- */
-/* Sits on artwork, so it stays dark in both themes and sets its own colours. */
+/* Sits on artwork, so it stays dark in both themes and sets its own colours.
+
+   The grey gradient is the design, not a placeholder for a photo. Three
+   layers, in the order they stack:
+
+     1. scanlines at a 3px pitch. A 72px grid was tried first and the problem
+        with it was structural rather than cosmetic: cells that large are read
+        as an alignment, so every viewport width that does not divide evenly
+        looks like a mistake. At 3px there is no perceptible cell, only
+        texture, and it cannot mis-align with anything.
+     2. a light source off the top-left corner, so the panel has a direction
+        instead of being a flat wash.
+     3. the grey itself, four stops running to near-black bottom-right.
+
+   All CSS, no image, nothing to load. */
 .herobig {
   position: relative;
-  background: #1b1f24 url("/assets/hero-bg.jpg") center/cover no-repeat;
-  border-bottom: 1px solid var(--border);
   color: #f2f4f7;
+  border-bottom: 1px solid var(--border);
+  background:
+    repeating-linear-gradient(to bottom,
+      rgba(215, 220, 227, .028) 0 1px, transparent 1px 3px),
+    radial-gradient(120% 150% at 8% -20%,
+      rgba(215, 220, 227, .14) 0%, transparent 55%),
+    linear-gradient(155deg, #363c45 0%, #272c33 42%, #1a1e22 100%);
 }
+.herobig__inner {
+  /* Above the photo. The panel comes later in the DOM, so without this the
+     photo would paint over the headline at the same stacking level. */
+  position: relative; z-index: 3; padding-block: var(--s-11);
+}
+/* The text column is an explicit width, NOT a percentage padding on .wrap.
+   Percentage padding resolves against the containing block's inline size,
+   which here is the section (the viewport), not the wrap's content width, so
+   `padding-right: 52%` quietly took 749px of a 1264px column and starved the
+   text. An explicit measure is predictable at every viewport width.
+
+   600px is set by the heading's longest authored line, "built from scratch on
+   musl". Starve the column below that and the line wraps before its own <br>
+   can apply, which is the single thing the authored breaks exist to prevent.
+   It also keeps the text clear of the point where the photo's mask reaches
+   about 0.2 alpha, so nothing is ever read against a competing image. */
+@media (min-width: 900px) {
+  .herobig__title,
+  .herobig__points,
+  .herobig .actions { max-width: 720px; }
+}
+
+/* The photo panel: full height, bleeding to the right edge of the viewport.
+   The mask is the whole trick. The gradient bottoms out near #1a1e22 and the
+   grade's shadow endpoint is #21252b, so a photo that fades leftward stops
+   reading as an inserted picture and becomes part of the same surface.
+   Without the mask this is a rectangle stuck on a gradient.
+
+   The ramp is placed by what is PERCEPTIBLE rather than by even percentages.
+   Measured against a checkerboard in this panel, alpha under roughly 0.2 is
+   invisible on this gradient, so a mask that spends its first third down
+   there wastes that third and the photo still reads as a narrow strip. This
+   one reaches useful opacity early and is solid by 34% of the panel, which
+   lands the photo across the right half of the page. The intermediate stops
+   approximate an ease, so there is no visible band where the ramp starts or
+   finishes. */
+/* Scrim: sits above the photo and below the text. The art direction asks for
+   an empty, shadowed left third, but a headline must not depend on a
+   photographer honouring that. This makes the contrast behind the text a
+   property of the page rather than of the picture. */
 .herobig::after {
-  content: ""; position: absolute; inset: 0;
-  background: linear-gradient(100deg, rgba(15,17,20,.86) 0%, rgba(15,17,20,.55) 55%, rgba(15,17,20,.30) 100%);
+  content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background: linear-gradient(to right,
+    rgba(20, 23, 27, .72) 0%, rgba(20, 23, 27, .52) 34%,
+    rgba(20, 23, 27, .18) 52%, transparent 66%);
 }
-.herobig__inner { position: relative; z-index: 1; padding-block: var(--s-11); }
+
+.herobig__photo {
+  position: absolute; z-index: 1;
+  top: 0; bottom: 0; right: 0; width: 60%;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right,
+    rgba(0,0,0,0) 0%, rgba(0,0,0,.04) 6%, rgba(0,0,0,.16) 12%,
+    rgba(0,0,0,.42) 18%, rgba(0,0,0,.72) 24%, rgba(0,0,0,.92) 29%,
+    rgba(0,0,0,1) 34%);
+  mask-image: linear-gradient(to right,
+    rgba(0,0,0,0) 0%, rgba(0,0,0,.04) 6%, rgba(0,0,0,.16) 12%,
+    rgba(0,0,0,.42) 18%, rgba(0,0,0,.72) 24%, rgba(0,0,0,.92) 29%,
+    rgba(0,0,0,1) 34%);
+}
+.herobig__photo img {
+  width: 100%; height: 100%; object-fit: cover; object-position: center;
+}
+.herobig__photo .slot { height: 100%; border-left: 0; }
+@media (max-width: 899px) { .herobig__photo { display: none; } }
 .herobig__title {
-  font-size: clamp(1.75rem, 3.5vw, 2.85rem);
-  line-height: 1.22; letter-spacing: -0.022em; color: #fff;
+  font-size: var(--t-display);
+  font-weight: var(--w-display);
+  line-height: 1.2; letter-spacing: 0; color: #fff;
   margin-bottom: var(--s-6);
-  /* No ch cap and no balancing: the break in this heading is authored, and a
-     width limit would wrap it before the <br> ever applied. */
+  /* The text column is already bounded by the photo panel's padding, so a ch
+     cap here only narrows it twice. And `balance` is wrong in a narrow column:
+     evening the line lengths made four short lines out of what fills in three.
+     Let it fill greedily against the column it is in. */
+  /* The breaks in this heading are authored, so no measure cap and no
+     balancing: either would rewrap the line before the <br> could apply.
+     .br-wide drops them below 700px and the line reflows on its own. */
   max-width: none;
   text-wrap: initial;
 }
-/* The hero sits on artwork and stays dark in both themes, so it must use the
-   dark-ground green directly. The themed token would go near-invisible here. */
-.herobig__title .hl { color: var(--od-green); }
+.herobig__title .hl { color: var(--nerv-green); }
+
+/* Four statements sharing one red rule. A list, not <br>-separated text, so a
+   long line wraps under itself on a narrow screen instead of breaking the
+   set apart. */
+.herobig__points {
+  list-style: none; margin: 0 0 var(--s-7); padding: 0 0 0 var(--s-5);
+  font-size: var(--t-md); line-height: 1.9;
+  color: rgba(242, 244, 247, .92);
+  border-left: 3px solid var(--logo-red);
+  /* Wide enough that the longest of the four sits on one line at desktop
+     width. Four statements that wrap into six lines stop reading as a set. */
+  max-width: 72ch;
+}
+.herobig__points li + li { margin-top: var(--s-3); }
 
 /* Authored line break, dropped on narrow screens so the line can reflow
    instead of stranding a fragment. */
 @media (max-width: 700px) { .br-wide { display: none; } }
-
-/* Four statements, broken with <br> rather than separate blocks, so the red
-   rule reads as one mark against the whole set. */
-.herobig__points {
-  font-size: var(--t-md); line-height: 1.9;
-  color: rgba(242,244,247,.92);
-  margin-bottom: var(--s-7);
-  border-left: 3px solid var(--logo-red); padding-left: var(--s-5);
-}
 
 /* --- Buttons ------------------------------------------------------------- */
 .actions { display: flex; flex-wrap: wrap; gap: var(--s-3); }
@@ -195,7 +289,11 @@ img { max-width: 100%; height: auto; display: block; }
 .claim__more a { color: var(--brand); }
 
 /* --- Essay (long-form argument pages) ------------------------------------ */
-.essay { max-width: 40rem; margin-inline: auto; }
+/* Read, not scanned — so this is the one place the serif takes over. Headings
+   stay sans: the voice is in the display face, the reading is in the text
+   face, and the contrast between them is the hierarchy. */
+.essay { max-width: 40rem; margin-inline: auto; font-family: var(--font-serif); }
+.essay h2, .essay h3, .essay .lead { font-family: var(--font-sans); }
 .essay > p { font-size: var(--t-md); line-height: var(--lh-loose); margin-bottom: var(--s-5); }
 .essay h2 {
   font-size: var(--t-xl); margin-top: var(--s-10); margin-bottom: var(--s-5);
@@ -249,25 +347,25 @@ img { max-width: 100%; height: auto; display: block; }
 /* --- Terminal ------------------------------------------------------------ */
 /* Canonical OneDark in both themes: this is the palette being shown, not used. */
 .term {
-  background: var(--od-bg); color: var(--od-fg);
-  border: 1px solid var(--od-bg-deep);
+  background: var(--nerv-bg); color: var(--nerv-fg);
+  border: 1px solid var(--term-bg-deep);
   font-family: var(--font-mono); font-size: var(--t-sm); line-height: var(--lh-snug);
   overflow-x: auto; margin: 0;
 }
 .term__bar {
-  background: var(--od-bg-deep); padding: var(--s-2) var(--s-4);
+  background: var(--term-bg-deep); padding: var(--s-2) var(--s-4);
   font-size: var(--t-xs); letter-spacing: var(--tracking-wide);
-  color: var(--od-grey); border-bottom: 1px solid var(--od-bg);
+  color: var(--nerv-gray); border-bottom: 1px solid var(--nerv-bg);
 }
 .term__body { padding: var(--s-4); margin: 0; white-space: pre; }
-.term .c-red { color: var(--od-red); }
-.term .c-green { color: var(--od-green); }
-.term .c-yellow { color: var(--od-yellow); }
-.term .c-blue { color: var(--od-blue); }
-.term .c-purple { color: var(--od-purple); }
-.term .c-cyan { color: var(--od-cyan); }
-.term .c-grey { color: var(--od-grey); }
-.term .c-fg { color: var(--od-fg); }
+.term .c-red { color: var(--nerv-red); }
+.term .c-green { color: var(--nerv-green); }
+.term .c-yellow { color: var(--nerv-yellow); }
+.term .c-blue { color: var(--nerv-blue); }
+.term .c-purple { color: var(--nerv-magenta); }
+.term .c-cyan { color: var(--nerv-cyan); }
+.term .c-grey { color: var(--nerv-gray); }
+.term .c-fg { color: var(--nerv-fg); }
 
 /* --- Tables -------------------------------------------------------------- */
 .table-scroll { overflow-x: auto; margin-block: var(--s-6); }
@@ -333,3 +431,169 @@ table.data td code { font-size: var(--t-xs); background: var(--bg-sunken); paddi
   .masthead__nav a { display: none; }
   .masthead__nav a[aria-current="page"] { display: inline-block; }
 }
+
+/* --- Handbook chapters --------------------------------------------------- */
+/* mdrender.py emits these. They exist here rather than in the renderer so a
+   chapter is styled by the site, not by the thing that converted it. */
+hr.rule {
+  border: 0; border-top: 1px solid var(--border);
+  margin-block: var(--s-8);
+}
+/* The handbook's sanctioned "Underneath." box: one sentence of mechanism plus
+   a link. A callout, not a quotation, so it does not get quote styling. */
+blockquote.note {
+  margin: var(--s-6) 0;
+  padding: var(--s-5);
+  background: var(--bg-subtle);
+  border-left: 3px solid var(--accent-blue);
+  font-family: var(--font-sans);
+  font-size: var(--t-sm); line-height: var(--lh-loose);
+}
+blockquote.note p { margin: 0; }
+.essay > .table-scroll table.data { font-family: var(--font-sans); }
+.essay pre.term { margin-block: var(--s-6); padding: var(--s-4); }
+
+/* --- Fleet answers (enterprise) ----------------------------------------- */
+.answers {
+  /* Two columns, not auto-fit: four items with a paragraph each read as a
+     2x2 block, where auto-fit makes four thin columns of wildly uneven
+     height. The count is known, so it is stated. */
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 1px; background: var(--border);
+  border: 1px solid var(--border); margin-block: var(--s-6);
+}
+.answer { background: var(--bg); padding: var(--s-5) var(--s-6); }
+.section--subtle .answer { background: var(--bg-subtle); }
+.answer__q {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: var(--tracking-caps); text-transform: uppercase;
+  color: var(--text-tertiary); margin-bottom: var(--s-3);
+}
+.answer h3 { font-size: var(--t-md); margin-bottom: var(--s-3); }
+.answer p { color: var(--text-secondary); font-size: var(--t-sm); line-height: var(--lh-loose); }
+.answer__tool { margin-top: var(--s-4); font-size: var(--t-sm); font-weight: 600; }
+.answer__tool a { color: var(--brand); }
+@media (max-width: 760px) { .answers { grid-template-columns: 1fr; } }
+
+
+/* --- Poster: one sentence nobody can parse without stopping -------------- */
+/* Some capabilities are not demonstrable in fifteen seconds of video; they are
+   a stack of things that should not coexist. Those want a poster, and the
+   annotation row underneath is where each clause names the thing that makes it
+   true. */
+.poster { padding-block: var(--s-11); border-bottom: 1px solid var(--border); }
+.poster__label {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: var(--tracking-caps); text-transform: uppercase;
+  color: var(--accent-cyan); margin-bottom: var(--s-5);
+}
+.poster__line {
+  font-family: var(--font-display);
+  font-weight: var(--w-poster);
+  /* Just under the hero. A proof section that outsizes the h1 inverts the
+     page's hierarchy, however much the proof deserves the room. */
+  font-size: var(--t-display);
+  line-height: 1.18; letter-spacing: 0;
+  margin: 0 0 var(--s-7);
+  /* No measure cap. A ch limit on a display line manufactures line breaks,
+     which is the opposite of letting the page respond to its width. */
+  /* The breaks in this heading are authored, so no measure cap and no
+     balancing: either would rewrap the line before the <br> could apply.
+     .br-wide drops them below 700px and the line reflows on its own. */
+  max-width: none;
+  text-wrap: initial;
+  color: var(--text);
+}
+/* No colour here. Green means NVIDIA on this site and nothing else; a claim
+   that borrows it dilutes the one place it carries meaning. Size and position
+   carry this line. */
+
+/* The demonstration, under the claim. Big enough to be read as part of the
+   headline rather than as body copy, small enough that the claim still wins. */
+.poster__sub {
+  font-size: var(--t-md); line-height: var(--lh-snug);
+  color: var(--text-secondary);
+  /* No measure cap. This is one sentence under a claim, not a column of body
+     copy, and it fits the full width at this size. A ch cap here did what a ch
+     cap always does: invented a line break nobody asked for. */
+  max-width: none;
+  margin: calc(var(--s-6) * -1) 0 var(--s-7);
+}
+
+/* The readout. Real values, in the machine's voice: cyan and monospaced. */
+.readout {
+  display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-4);
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: .04em;
+  border: 1px solid var(--border); border-left: 2px solid var(--accent-cyan);
+  padding: var(--s-3) var(--s-4);
+  color: var(--accent-cyan);
+  margin-bottom: var(--s-7);
+}
+.readout span { white-space: nowrap; }
+.readout .sep { color: var(--border-strong); }
+
+/* --- Figures: screenshots are product photography ----------------------- */
+.shot { margin: 0; }
+.shot img { width: 100%; display: block; border: 1px solid var(--border); }
+.shot figcaption {
+  font-family: var(--font-mono); font-size: var(--t-xs);
+  letter-spacing: .04em; color: var(--text-tertiary);
+  margin-top: var(--s-3);
+}
+/* A stand-in image that must not reach production. The badge is deliberately
+   loud, and build.py refuses to publish while any remain, because the failure
+   this prevents is shipping somebody else's watermarked marketing still. */
+.shot--provisional { position: relative; }
+.shot--provisional::after {
+  content: "PROVISIONAL";
+  position: absolute; top: 0; left: 0;
+  background: var(--accent-yellow); color: #21252b;
+  font-family: var(--font-mono); font-size: var(--t-xs); font-weight: 700;
+  letter-spacing: var(--tracking-caps);
+  padding: var(--s-2) var(--s-3);
+}
+
+/* The desktop section. It was full-bleed while the Quake shot sat inside the
+   wrap, which put two screenshots of the same machine at 1264px and 1440px on
+   a 1440 viewport. A 14% difference is the worst available amount: visible,
+   but not enough to read as a decision. They match now, and the markup of the
+   two sections is identical, so they cannot drift apart again. */
+.bleed { padding-block: var(--s-10); border-bottom: 1px solid var(--border); }
+.bleed .shot { margin-top: var(--s-6); }
+.bleed__line {
+  font-family: var(--font-display); font-weight: var(--w-poster);
+  font-size: var(--t-display);
+  line-height: 1.2; letter-spacing: 0;
+  max-width: none;
+}
+.bleed .shot figcaption { margin-top: var(--s-4); }
+
+/* A slot with no image yet. Deliberately ugly: an empty frame that looks
+   designed is an empty frame that ships. */
+.slot {
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg-sunken);
+  border: 1px dashed var(--accent-yellow);
+  color: var(--accent-yellow);
+  font-family: var(--font-mono); font-size: var(--t-sm);
+  text-align: center; padding: var(--s-6); line-height: var(--lh-body);
+}
+
+/* --- Proof strip: the numbers, without the paragraphs ------------------- */
+.poster .figures { margin-top: var(--s-9); }
+.figures {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  border-top: 1px solid var(--border); border-left: 1px solid var(--border);
+}
+.figure {
+  padding: var(--s-5) var(--s-6);
+  border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);
+}
+.figure__n {
+  font-family: var(--font-display); font-weight: var(--w-display);
+  font-size: var(--t-2xl); line-height: 1; color: var(--text);
+  display: block; margin-bottom: var(--s-3);
+}
+.figure__what { font-size: var(--t-sm); color: var(--text-secondary); line-height: var(--lh-body); }
+.figure__what a { color: var(--brand); }

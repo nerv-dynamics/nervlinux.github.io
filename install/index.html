@@ -4,16 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Nerv Linux — Install</title>
-<meta name="description" content="How to build Nerv Linux from source, and what exists to install today.">
+<meta name="description" content="The network is the install medium. A server you already have provisions every other machine over it, with no USB stick and no live image to maintain.">
 <link rel="canonical" href="https://nervlinux.org/install/">
 <meta property="og:title" content="Nerv Linux — Install">
-<meta property="og:description" content="How to build Nerv Linux from source, and what exists to install today.">
+<meta property="og:description" content="The network is the install medium. A server you already have provisions every other machine over it, with no USB stick and no live image to maintain.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://nervlinux.org/install/">
 <link rel="icon" href="/assets/favicon.png" sizes="32x32">
 <link rel="apple-touch-icon" href="/assets/nerv-square.png">
-<link rel="preload" href="/fonts/plex-sans-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/nerv-sans-400.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/palette.css">
 <link rel="stylesheet" href="/css/tokens.css">
 <link rel="stylesheet" href="/css/site.css">
 <script>
@@ -36,12 +37,11 @@
       <img class="logo logo--on-light" src="/assets/nerv-wordmark-inverted.png" alt="Nerv Linux" width="994" height="339">
     </a>
     <nav class="masthead__nav" aria-label="Primary">
-      <a href="/design/">Design</a>
       <a href="/system/">System</a>
-      <a href="/tools/">Tools</a>
-      <a href="/userland/">Userland</a>
-      <a href="/platforms/">Platforms</a>
-      <a href="/install/" aria-current="page">Install</a>
+      <a href="/tools/">Features</a>
+      <a href="/enterprise/">Enterprise</a>
+      <a href="/about/">About</a>
+      <a href="/handbook/">Handbook</a>
       <button class="theme-toggle" id="theme-toggle" type="button"
               aria-label="Switch to light theme" title="Switch theme">
         <svg class="icon icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
@@ -62,51 +62,85 @@
 <main id="main">
 <section class="section section--head">
   <div class="wrap">
-    <h1 class="page-title">Install</h1>
+    <h1 class="page-title">The network is the install medium</h1>
     <p class="page-lede">
-      There is no downloadable image yet. Nerv is built from source on a
-      development machine and installed to a slot on the target. If you want to
-      look at it before then, build a QEMU image &mdash; it needs no hardware.
+      Nerv does not install from a USB stick. The installer is a server you run
+      on a machine you already have, and it provisions every other machine over
+      the network. A target powers on, netboots a signed image, and installs
+      itself.
     </p>
   </div>
 </section>
 
 <section class="section">
   <div class="wrap">
-    <h2 class="section-title">Build and boot a development image</h2>
+    <h2 class="section-title">Three programs, one name</h2>
+    <div class="table-scroll">
+      <table class="data">
+        <thead>
+          <tr>
+            <th scope="col">Piece</th>
+            <th scope="col">Runs on</th>
+            <th scope="col">Job</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>bootstrap</strong></td>
+            <td>WSL2, Fedora, Nerv</td>
+            <td>Fetch the server binary and verify its signature. Nothing
+                else.</td>
+          </tr>
+          <tr>
+            <td><strong>server</strong></td>
+            <td>the same box</td>
+            <td>Version broker, boot source, caching mirror, live view of every
+                client.</td>
+          </tr>
+          <tr>
+            <td><strong>target</strong></td>
+            <td>the machine being installed</td>
+            <td>The install itself, attended through a TUI or unattended.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
     <div class="prose">
       <p>
-        Builds run on a development box, never on the target hardware, in a
-        pure-musl chroot. <code>geofront</code> composes the chroot from the local
-        repository, builds in it and publishes back.
+        The server binary is static musl with no host dependencies, so the same
+        binary runs on WSL2, a Fedora box, or Nerv. The bootstrap that fetches
+        it is short enough to read in full before running, and it verifies what
+        it downloads against a public key embedded in the script itself.
       </p>
-    </div>
-    <div class="term">
-      <div class="term__bar">build</div>
-<pre class="term__body"><span class="c-grey"># compose a rootfs image</span>
-tools/nerv-mkimage --platform qemu-aarch64 --smoke
-
-<span class="c-grey"># boot it under QEMU/KVM and run the smoke test</span>
-tools/nerv-qemu --smoke</pre>
+      <p>
+        The netboot artifact is a UKI, the same artifact class an installed slot
+        boots. There is no separate live image to keep in step with the real
+        system.
+      </p>
     </div>
   </div>
 </section>
 
 <section class="section section--subtle">
   <div class="wrap">
-    <h2 class="section-title">Build a package</h2>
-    <div class="term">
-      <div class="term__bar">geofront</div>
-<pre class="term__body">geofront build packages/core/nerv-dash.spec
-geofront --dry-run packages/core/nerv-dash.spec   <span class="c-grey"># resolved plan, touches nothing</span>
-geofront --keep    packages/core/nerv-dash.spec   <span class="c-grey"># keep the buildroot to debug a failure</span></pre>
-    </div>
-    <div class="prose" style="margin-top: var(--s-6)">
+    <h2 class="section-title">What the server does that a file server cannot</h2>
+    <div class="prose">
       <p>
-        Nerv tracks the newest upstream release of everything and does not pin to
-        old versions. Bumping a package means updating <code>Version:</code> in
-        the spec and rebuilding; <code>geofront</code> stages the new source
-        itself.
+        It holds several generations and decides which one each client gets, so
+        one machine can take generation N+1 while the rest stay on N. It proxies
+        the package mirror, so installing eight machines fetches each package
+        once. It shows a live list of every target: hardware identity, chosen
+        generation, current phase, progress, and the tail of that client's log.
+      </p>
+      <p>
+        Reporting runs from client to server only. The server offers a manifest
+        and bits and issues no commands, so it cannot drive operations on a
+        machine that has already booted.
+      </p>
+      <p class="doclink">
+        The operator's account of an install is the handbook:
+        <a href="/handbook/machine/install/">Install &rarr;</a>
       </p>
     </div>
   </div>
@@ -114,21 +148,55 @@ geofront --keep    packages/core/nerv-dash.spec   <span class="c-grey"># keep th
 
 <section class="section">
   <div class="wrap">
-    <h2 class="section-title">Install to hardware</h2>
+    <h2 class="section-title">Upgrading is the same operation</h2>
     <div class="prose">
       <p>
-        On a machine with an existing Linux install,
-        <code>tools/nerv-ab-install</code> composes Nerv into a second btrfs
-        subvolume without touching the first. The bootloader default stays where
-        it is, so the machine you have keeps booting.
+        Netbooting a machine that already runs Nerv does not mean wiping it. It
+        composes into the inactive btrfs slot, through the same code path and
+        the same boot-counted rollback as a local update. The rare frightening
+        operation and the routine one are the same operation, which is what
+        keeps the frightening one from rusting.
       </p>
       <p>
-        The netboot installer described in
-        <a href="/tools/cage/">cage</a> replaces this once it lands.
+        A live USB remains the rescue path, and slot management stays available
+        directly. The network installer is a new front end onto the same
+        phases.
       </p>
       <p class="doclink">
-        <a href="https://github.com/nerv-dynamics/nerv-linux">Source repository</a> &middot;
-        <a href="https://github.com/nerv-dynamics/nerv-linux/blob/main/README.md">README</a>
+        <a href="/tools/cage/">Slot transactions &rarr;</a>
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle">
+  <div class="wrap">
+    <h2 class="section-title">Building it yourself</h2>
+    <div class="prose">
+      <p>
+        Builds run on a development box and never on the target hardware, in a
+        pure-musl chroot. <code>geofront</code> composes the chroot from the
+        local repository, builds in it, and publishes back. A QEMU image needs
+        no hardware at all.
+      </p>
+    </div>
+    <div class="term">
+      <div class="term__bar">build</div>
+<pre class="term__body"><span class="c-grey"># compose a rootfs image and boot it under QEMU/KVM</span>
+tools/nerv-mkimage --platform qemu-aarch64 --smoke
+tools/nerv-qemu --smoke
+
+<span class="c-grey"># build a single package</span>
+geofront build packages/core/nerv-dash.spec
+geofront --dry-run packages/core/nerv-dash.spec   <span class="c-grey"># resolved plan, touches nothing</span>
+geofront --keep    packages/core/nerv-dash.spec   <span class="c-grey"># keep the buildroot to debug a failure</span></pre>
+    </div>
+    <div class="prose" style="margin-top: var(--s-6)">
+      <p>
+        Nerv tracks the newest upstream release of everything and does not pin
+        to old versions. Bumping a package means updating <code>Version:</code>
+        in the spec and rebuilding; <code>geofront</code> stages the new source
+        itself.
       </p>
     </div>
   </div>
@@ -137,18 +205,8 @@ geofront --keep    packages/core/nerv-dash.spec   <span class="c-grey"># keep th
 
 <footer class="footer">
   <div class="wrap">
-    <nav class="footer__links" aria-label="Footer">
-      <a href="/design/">Design</a>
-      <a href="/system/">System</a>
-      <a href="/tools/">Tools</a>
-      <a href="/userland/">Userland</a>
-      <a href="/platforms/">Platforms</a>
-      <a href="/install/">Install</a>
-      <a href="https://github.com/nerv-dynamics/nerv-linux">Source</a>
-      <a href="mailto:robert@nervdynamics.io">robert@nervdynamics.io</a>
-    </nav>
     <div class="footer__base">
-      <p>Copyright &copy; 2026 Robert Luciani. Nerv Linux is free software; each
+      <p>Copyright &copy; 2026 Nerv Dynamics AB. Nerv Linux is free software; each
          package carries the licence of its upstream source.</p>
       <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell and GB10 are
          trademarks of NVIDIA Corporation. Linux is a registered trademark of

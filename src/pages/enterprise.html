@@ -1,0 +1,252 @@
+<!--
+title: Enterprise
+desc:  A fleet manager for GB-series machines. Install devices over the network, manage what is on them, and provision GPUs and system resources centrally.
+slug:  enterprise
+nav:   enterprise
+-->
+
+<section class="section section--head">
+  <div class="wrap">
+    <h1 class="page-title">What do you do with a fleet of edge AI devices?</h1>
+    <p class="page-lede">
+      One GB10 on a desk is a workstation, and it arrives knowing how to be
+      one. A hundred of them across twelve sites is an estate, and nothing in
+      the box knows how to be that. Nerv&rsquo;s answer is a fleet manager:
+      one server that installs new devices over the network, manages what is
+      on them, and provisions GPUs and system resources centrally.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title">One server provisions the estate</h2>
+    <div class="prose">
+      <p>
+        The installer is a server you run on a machine you already have, and
+        it provisions every other machine over the network. There is no USB
+        stick and no live image to maintain. A target powers on, netboots a
+        signed UKI over ordinary DHCP and TFTP, and installs itself, either
+        attended through a TUI or unattended from a per-machine record.
+      </p>
+      <p>
+        The artifact a target netboots is the same artifact class an installed
+        slot boots, so there is no separate live-media build to keep in step
+        with the real system. Any Nerv machine can provision the next one.
+      </p>
+    </div>
+
+    <div class="answers">
+
+      <div class="answer">
+        <p class="answer__q">Broker</p>
+        <h3>Canary by client.</h3>
+        <p>
+          The server holds several generations and decides which one each
+          client gets. Serve generation N+1 to one machine while the rest stay
+          on N. That is the whole canary discipline, and it costs one field in
+          a client record. It also caches, so installing eight machines
+          fetches each package once.
+        </p>
+      </div>
+
+      <div class="answer">
+        <p class="answer__q">Live view</p>
+        <h3>N machines, each changing state.</h3>
+        <p>
+          One dashboard shows every target: its hardware identity, the
+          generation it was given, the phase it is in, progress, and the tail
+          of its log. Targets post typed phase events and the server renders
+          them. Piped or over a serial line it degrades to plain streaming
+          lines.
+        </p>
+      </div>
+
+      <div class="answer">
+        <p class="answer__q">Upgrade</p>
+        <h3>Reinstall and update are one operation.</h3>
+        <p>
+          Netbooting a machine that already runs Nerv does not mean wiping it.
+          It composes into the inactive slot, through the same code path and
+          the same boot-counted rollback as a local update. The rare
+          frightening operation and the routine one are the same operation, so
+          the frightening one never rusts.
+        </p>
+        <p class="answer__tool"><a href="/tools/cage/">cage &rarr;</a></p>
+      </div>
+
+      <div class="answer">
+        <p class="answer__q">Resources</p>
+        <h3>Accelerators assigned, not configured.</h3>
+        <p>
+          axon owns the device and hands out pre-authenticated sockets, and
+          local and remote are the same path. A fleet&rsquo;s GPUs become a pool
+          that work is placed into, not a list of boxes someone has to ssh to
+          one at a time. <code>axon top</code> answers where a given piece of
+          work actually ran.
+        </p>
+        <p class="answer__tool"><a href="/tools/axon/">axon &rarr;</a></p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle">
+  <div class="wrap">
+    <h2 class="section-title">The server issues no commands</h2>
+    <div class="prose">
+      <p>
+        Reporting runs one way, from client to server. The server offers a
+        manifest and bits; it never drives a sequence of operations on a
+        machine. A compromised server can serve a bad generation, which is what
+        signing is for, and it cannot reach into a machine that has already
+        booted.
+      </p>
+      <p>
+        This is a deliberate limit on what a central manager is allowed to be,
+        and it is why the fleet manager does not need to be trusted the way a
+        configuration-management agent has to be.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title">It will not be the only console in the rack</h2>
+    <div class="prose">
+      <p>
+        Nobody operating an estate wants another management plane. The machines
+        that will run this are going into racks that are already managed from
+        somewhere, by platforms that own virtualisation, inventory and
+        lifecycle for everything else on the floor.
+      </p>
+      <p>
+        So the fleet manager is being built to present its machines, generations
+        and accelerators as objects those platforms can already consume. An
+        operations team should not have to adopt a second console to run these
+        boxes. Integration work with established infrastructure platforms is
+        underway, and we are not naming names yet.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle">
+  <div class="wrap">
+    <h2 class="section-title">Ship it on hardware you sell</h2>
+    <div class="prose">
+      <p>
+        This is the part that tends to surface late, in legal review, after a
+        hardware programme has committed.
+      </p>
+      <p>
+        <strong>GPL-3 section 6</strong> obliges anyone shipping object code
+        inside a user product to hand over whatever is needed to install a
+        modified version. Secure Boot with kernel lockdown is exactly the
+        restriction that triggers it, so a signed, locked-down boot chain and a
+        GPL-3 runtime pull against each other.
+      </p>
+
+      <div class="pull">
+        <p>Nerv does not manage that tension. It never creates it.</p>
+      </div>
+
+      <p>
+        <strong>No GPL-3 package is needed to boot a Nerv machine.</strong> The
+        core is MIT, 0BSD, BSD, and Apache, alongside the GPL-2 kernel and
+        LGPL-2.1 libraries, none of which carry the clause that matters. A Nerv
+        base can be signed, locked, and shipped without the licence review
+        turning into a redesign. The GPL-3 software people do want, rsync among
+        it, stays one <code>dnf5 install</code> away. Installing it is an
+        operator&rsquo;s choice and commits the base to nothing.
+      </p>
+      <p>
+        Owning the whole base is what makes that possible. Nerv builds its own
+        C library, allocator, compiler, init, shell, text tools, and package
+        manager from upstream source. Its licensing is therefore something
+        chosen, not something inherited.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title">What is running, and what is not</h2>
+    <p class="section-lede">
+      Uniform present tense makes a procurement conversation worse. This is
+      where each piece actually stands.
+    </p>
+
+    <div class="table-scroll">
+      <table class="data">
+        <thead>
+          <tr>
+            <th scope="col">Capability</th>
+            <th scope="col">State</th>
+            <th scope="col">Where it stands</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Netboot install over the network, no USB</td>
+            <td><span class="pill pill--shipping">running</span></td>
+            <td>Signed UKI over DHCP and TFTP, attended TUI on the target.</td>
+          </tr>
+          <tr>
+            <td>Version broker and caching mirror</td>
+            <td><span class="pill pill--shipping">running</span></td>
+            <td>Several generations held; publishing one is dropping a
+                directory.</td>
+          </tr>
+          <tr>
+            <td>A/B slot updates and rollback</td>
+            <td><span class="pill pill--shipping">running</span></td>
+            <td>btrfs slots, promotion only after a proven boot.</td>
+          </tr>
+          <tr>
+            <td>Remote GPU execution, unmodified binaries</td>
+            <td><span class="pill pill--shipping">running</span></td>
+            <td>A dispatched kernel has run on a remote A800 and returned
+                results bit-identical to native.</td>
+          </tr>
+          <tr>
+            <td>Unattended install, live client view, hardware-bound records</td>
+            <td><span class="pill pill--building">building</span></td>
+            <td>proxyDHCP, the server dashboard, and TPM-EK manifests.</td>
+          </tr>
+          <tr>
+            <td>Verified bootstrap</td>
+            <td><span class="pill pill--building">building</span></td>
+            <td>Open work, and the gate on the rest of the signing chain.</td>
+          </tr>
+          <tr>
+            <td>Adopting a machine from a peer rather than a mirror</td>
+            <td><span class="pill pill--design">designed</span></td>
+            <td>Specified. Depends on the provenance corpus landing first.</td>
+          </tr>
+          <tr>
+            <td>Per-peer identity and revocation across a fleet</td>
+            <td><span class="pill pill--design">designed</span></td>
+            <td>axon&rsquo;s shared fleet key, per-peer identity, and revocation
+                are specified and not yet built. Today a multi-machine
+                deployment trusts its network.</td>
+          </tr>
+          <tr>
+            <td>Presenting the fleet to an external platform</td>
+            <td><span class="pill pill--design">designed</span></td>
+            <td>Underway, unannounced.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="after-table">
+      Nerv targets NVIDIA GB-series unified-memory parts and nothing else. See
+      <a href="/platforms/">Platforms</a> for which, and why the list is short
+      on purpose.
+    </p>
+  </div>
+</section>

@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nerv Linux — The first hour</title>
+<meta name="description" content="You have logged in. This chapter is what is under your hands, and how to change it.">
+<link rel="canonical" href="https://nervlinux.org/handbook/machine/the-first-hour/">
+<meta property="og:title" content="Nerv Linux — The first hour">
+<meta property="og:description" content="You have logged in. This chapter is what is under your hands, and how to change it.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nervlinux.org/handbook/machine/the-first-hour/">
+<link rel="icon" href="/assets/favicon.png" sizes="32x32">
+<link rel="apple-touch-icon" href="/assets/nerv-square.png">
+<link rel="preload" href="/fonts/nerv-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/palette.css">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/site.css">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('nerv-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="masthead__inner">
+    <a class="masthead__brand" href="/" aria-label="Nerv Linux — home">
+      <img class="logo logo--on-dark" src="/assets/nerv-wordmark.png" alt="Nerv Linux" width="994" height="335">
+      <img class="logo logo--on-light" src="/assets/nerv-wordmark-inverted.png" alt="Nerv Linux" width="994" height="339">
+    </a>
+    <nav class="masthead__nav" aria-label="Primary">
+      <a href="/system/">System</a>
+      <a href="/tools/">Features</a>
+      <a href="/enterprise/">Enterprise</a>
+      <a href="/about/">About</a>
+      <a href="/handbook/" aria-current="page">Handbook</a>
+      <button class="theme-toggle" id="theme-toggle" type="button"
+              aria-label="Switch to light theme" title="Switch theme">
+        <svg class="icon icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path fill="currentColor" d="M20.7 14.6A8.6 8.6 0 0 1 9.4 3.3a8.7 8.7 0 1 0 11.3 11.3Z"/>
+        </svg>
+        <svg class="icon icon--sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2" fill="currentColor"/>
+          <g stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+            <path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4"/>
+            <path d="M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/>
+          </g>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="section section--head">
+  <div class="wrap">
+    <p class="crumb"><a href="/handbook/">Handbook</a></p>
+    <div class="essay">
+<hr class="rule">
+<p>title:    The first hour one-line: The shell you land in, the tools that replace the ones you know, where the defaults live, and how to change one so it survives an update. kind:     use</p>
+<hr class="rule">
+<h1 class="page-title">The first hour</h1>
+<p>You have logged in. This chapter is what is under your hands, and how to change it.</p>
+<h2 id="what-you-got" class="section-title">What you got</h2>
+<p>Two answers, depending on which profile was installed.</p>
+<p><strong><code>core</code></strong> is the machine and nothing else: <code>fish</code> as the login shell, the coreutils, <code>ssh</code>, <code>doas</code>, <code>ip</code>, <code>ping</code>, and busybox for the POSIX tail — <code>sed</code>, <code>grep</code>, <code>awk</code>, <code>tar</code>, <code>gzip</code>, <code>vi</code>, <code>less</code>. It is a complete, usable Unix and it is deliberately austere. There is no <code>neovim</code>, no <code>tmux</code>, no prompt beyond fish's own.</p>
+<p><strong><code>workstation</code></strong> is core plus the things a person uses: <code>neovim</code>, <code>tmux</code>, <code>git</code>, a prompt, and a set of Rust replacements for the classic tools. Everything below that names a tool by name is describing workstation.</p>
+<p>Check which you have:</p>
+<pre class="term term__body">$ rpm -q nerv-workstation
+nerv-workstation-1.0.0-4.nerv.noarch       # installed
+package nerv-workstation is not installed  # core only</pre>
+<h2 id="the-shell" class="section-title">The shell</h2>
+<p><code>fish</code>, and it is configured system-wide rather than per user. The configuration is seven files in <code>/etc/fish/conf.d/</code>, loaded in numeric order:</p>
+<pre class="term term__body">$ ls /etc/fish/conf.d/
+05-nerv-path.fish   20-nerv-colors.fish     40-nerv-navigation.fish  60-nerv-tmux.fish
+10-nerv-options.fish 30-nerv-aliases.fish   50-nerv-prompt.fish</pre>
+<p>Each one begins by returning unless the shell is interactive, so none of it affects scripts.</p>
+<p><strong>Every alias is conditional on the tool being installed.</strong> That is the whole reason one configuration serves both profiles:</p>
+<pre class="term term__body">command -q eza; and alias ls 'eza --icons=never'
+command -q bat; and alias cat 'bat --style=plain --paging=never'</pre>
+<p>On <code>core</code> there is no <code>eza</code>, so <code>ls</code> is the real <code>ls</code>. On <code>workstation</code> it is <code>eza</code>. Nothing errors on the machine that lacks the tool, and nothing needs a per-profile config file.</p>
+<p>The binaries are never replaced. <code>ls</code> is an alias, so <code>command ls</code> and any script calling <code>ls</code> get the original.</p>
+<h2 id="the-tools-that-replace-the-ones-you-know" class="section-title">The tools that replace the ones you know</h2>
+<p>On workstation, these are aliased over their classic names:</p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">you type</th><th scope="col">you get</th><th scope="col"></th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code>ls</code>, <code>ll</code>, <code>la</code></td><td><code>eza</code></td><td>listing, with git status</td>
+</tr>
+<tr>
+<td><code>cat</code></td><td><code>bat</code></td><td>syntax highlighting, no pager</td>
+</tr>
+<tr>
+<td><code>vi</code>, <code>vim</code></td><td><code>nvim</code></td><td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>And these are new names, not aliases:</p>
+<div class="table-scroll">
+<table class="data">
+<tbody>
+<tr>
+<td><code>rg</code></td><td>search file contents — the one to reach for</td>
+</tr>
+<tr>
+<td><code>fd</code></td><td>find files by name</td>
+</tr>
+<tr>
+<td><code>sd</code></td><td>substitute, in place of <code>sed s///</code></td>
+</tr>
+<tr>
+<td><code>jq</code></td><td>query JSON</td>
+</tr>
+<tr>
+<td><code>dust</code></td><td>what is using the disk</td>
+</tr>
+<tr>
+<td><code>duf</code></td><td>what is mounted and how full</td>
+</tr>
+<tr>
+<td><code>procs</code></td><td>processes, in place of <code>ps</code></td>
+</tr>
+<tr>
+<td><code>btop</code></td><td>the system monitor</td>
+</tr>
+<tr>
+<td><code>delta</code></td><td>how <code>git</code> shows you a diff</td>
+</tr>
+<tr>
+<td><code>xh</code></td><td>HTTP requests</td>
+</tr>
+<tr>
+<td><code>hyperfine</code></td><td>time a command properly, over many runs</td>
+</tr>
+<tr>
+<td><code>tldr</code></td><td>the short version of a man page</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code>tldr</code> matters more here than elsewhere: <strong>Nerv ships no man pages and nothing to render them.</strong> <code>tldr</code> and <code>--help</code> are the documentation on the machine.</p>
+<h2 id="the-prompt-history-and-jumping-about" class="section-title">The prompt, history and jumping about</h2>
+<p>Three tools are wired into the shell rather than run by you:</p>
+<ul class="list">
+<li><strong>starship</strong> draws the prompt, from <code>/etc/xdg/starship.toml</code></li>
+<li><strong>atuin</strong> replaces shell history — press <code>↑</code> and search it</li>
+<li><strong>zoxide</strong> learns the directories you visit; <code>z &lt;part-of-the-name&gt;</code> jumps to one</li>
+<li><strong>fzf</strong> provides the fuzzy pickers those use</li>
+</ul>
+<h2 id="tmux" class="section-title">tmux</h2>
+<p>On workstation, logging in <strong>at the machine</strong> puts you inside a tmux session named <code>nerv</code> — attaching to the existing one if it is there, creating it if not. Logging in over SSH does not, so a remote session is a plain shell.</p>
+<p>The prefix is the default <code>C-b</code>. What is different:</p>
+<div class="table-scroll">
+<table class="data">
+<tbody>
+<tr>
+<td><code>C-b h</code> / <code>C-b v</code></td><td>split horizontally / vertically</td>
+</tr>
+<tr>
+<td><code>Alt</code> + arrows</td><td>move between panes, no prefix</td>
+</tr>
+<tr>
+<td><code>Ctrl-Alt</code> + <code>←</code>/<code>→</code></td><td>previous / next window, no prefix</td>
+</tr>
+<tr>
+<td><code>C-b j</code> / <code>C-b s</code></td><td>join a pane from, or send a pane to, another window</td>
+</tr>
+<tr>
+<td><code>C-b r</code></td><td>reload the configuration</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The mouse works — click a pane to focus it, drag a border to resize.</p>
+<h2 id="the-editor" class="section-title">The editor</h2>
+<p><code>nvim</code>, configured from a kickstart-derived Lua config seeded into your home the first time your account is created:</p>
+<pre class="term term__body">$ ls ~/.config/nvim/
+after  doc  init.lua  lsp</pre>
+<p><code>lsp/</code> holds one file per language server. The config is <strong>yours</strong> — it was copied in at account creation, not linked, so editing it is the intended way to change the editor and nothing will overwrite it.</p>
+<h2 id="where-the-defaults-live-and-how-to-change-one" class="section-title">Where the defaults live, and how to change one</h2>
+<p>Three places, and which you use decides whether your change survives.</p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">what</th><th scope="col">where</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>your editor config</td><td><code>~/.config/nvim/</code></td>
+</tr>
+<tr>
+<td>your shell additions</td><td><code>~/.config/fish/config.fish</code></td>
+</tr>
+<tr>
+<td>the system shell config</td><td><code>/etc/fish/conf.d/*.fish</code></td>
+</tr>
+<tr>
+<td>the system tmux config</td><td><code>/etc/tmux.conf</code></td>
+</tr>
+<tr>
+<td>the prompt</td><td><code>/etc/xdg/starship.toml</code></td>
+</tr>
+<tr>
+<td>kernel and module hardening</td><td><code>/etc/sysctl.d/</code>, <code>/etc/modprobe.d/</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Edit any of them.</strong> Everything above is shipped <code>%config(noreplace)</code>: when an update carries a new default for a file you have changed, rpm keeps your version and writes the new one beside it as <code>.rpmnew</code>. Your edit is never silently replaced.</p>
+<pre class="term term__body">$ rpm -qf --qf '%{FILEFLAGS:fflags}\n' /etc/tmux.conf
+cn</pre>
+<p><code>c</code> is config, <code>n</code> is noreplace. After an update, look for what arrived:</p>
+<pre class="term term__body">$ find /etc -name '*.rpmnew'</pre>
+<p>Two things are deliberately <strong>not</strong> noreplace, and both would be a bug if they were: <code>/etc/os-release</code> and the CA bundle in <code>/etc/pki</code>. The first is the machine's identity — an edit that persisted would make it lie about what it is — and the second must track upstream, because a CA bundle pinned to what you had last year is a vulnerability rather than a preference.</p>
+<p>To <strong>add</strong> to the shell, put it in <code>~/.config/fish/config.fish</code>.</p>
+<p>To <strong>override</strong> one of the system drop-ins rather than add to it, put a file with the <strong>same name</strong> in <code>~/.config/fish/conf.d/</code> — fish loads <code>conf.d</code> by basename and yours is found first:</p>
+<pre class="term term__body">$ echo "alias ls 'ls --color=auto'" &gt; ~/.config/fish/conf.d/30-nerv-aliases.fish</pre>
+<p>That replaces the whole aliases drop-in with yours, permanently, and no update touches it.</p>
+<p>For tmux, <code>~/.config/tmux/tmux.conf</code> is read after the system one, so it adds to and overrides what is above without replacing the file.</p>
+<h2 id="becoming-root" class="section-title">Becoming root</h2>
+<p><code>doas</code>, not <code>sudo</code>:</p>
+<pre class="term term__body">$ doas systemctl restart sshd
+$</pre>
+<p><strong>No password.</strong> Your account was put in <code>wheel</code> at install time, and <code>/etc/doas.conf</code> is:</p>
+<pre class="term term__body">permit nopass keepenv :wheel</pre>
+<p>That is a deliberate choice and worth knowing rather than discovering: on a single-operator machine with an encrypted disk, a password prompt on every privileged command defends against someone who is already logged in as you. If that is not your threat model, remove <code>nopass</code> — in your own copy of the file, since this one is owned by the package.</p>
+<h2 id="checking-the-machine-is-well" class="section-title">Checking the machine is well</h2>
+<p>Every package that ships a program also ships a check that exercises it, and <code>cage check</code> runs them all. It needs no privileges:</p>
+<pre class="term term__body">$ cage check
+  ok    nerv-fish              fish -c evaluates expressions and variables
+  ok    nerv-ripgrep           rg finds a match
+  n/a   nerv-tcpdump           capture needs CAP_NET_RAW
+  ...
+:: 34 ok, 0 failed, 5 n/a  (36 package checks in /usr/libexec/nerv/check)</pre>
+<p>A <code>failed</code> line names the package and prints why. That is the first thing to run when something feels wrong, and the last thing to run after changing anything.</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__base">
+      <p>Copyright &copy; 2026 Nerv Dynamics AB. Nerv Linux is free software; each
+         package carries the licence of its upstream source.</p>
+      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell and GB10 are
+         trademarks of NVIDIA Corporation. Linux is a registered trademark of
+         Linus Torvalds. Nerv Linux is not affiliated with, endorsed by, or
+         sponsored by either.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var btn = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    function label() {
+      var dark = root.getAttribute('data-theme') !== 'light';
+      btn.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+    }
+    label();
+    btn.addEventListener('click', function () {
+      // Dark is the default, so anything that isn't explicitly light is dark.
+      var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('nerv-theme', next); } catch (e) {}
+      label();
+    });
+  })();
+</script>
+
+</body>
+</html>
