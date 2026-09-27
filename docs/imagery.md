@@ -62,7 +62,7 @@ one:
   other direction.
 - **Tonal contrast is a grading decision, so do not bake it in.** Expose to
   keep detail at both ends. The grade's job is to crush the shadows onto
-  `#21252b` and roll the highlights to `#d7dce3`. Give it range to work with.
+  `#1e1e1e` and roll the highlights to `#dfdfdf`. Give it range to work with.
 
 Measured, with the actual `grade.sh`, on one scene captured two ways and then
 graded identically. Standard deviation in the bottom tonal quartile, which is

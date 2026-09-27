@@ -1,4 +1,17 @@
-:root {
+/* The colour aliases are declared for :root AND for .on-dark, and the second
+   selector is load-bearing rather than tidy.
+
+   A custom property that references another one is resolved where it is
+   DECLARED, not where it is used. So `--text: var(--myelin-fg)` computes
+   against :root's --myelin-fg and then inherits that finished value. An
+   element deeper in the tree redeclaring --myelin-fg does not change it.
+
+   .on-dark redeclares the Myelin tokens for a subtree that stays dark whatever
+   the page is doing. Without repeating the alias block here, that subtree got
+   Myelin's dark scale and the light theme's semantics: a dark hero with dark
+   text on it. Listing both selectors re-resolves every alias inside .on-dark
+   against the values it actually has. */
+:root, .on-dark {
   /* --- Colour ------------------------------------------------------------
      Every value below resolves to a Myelin token from css/palette.css. The
      site states no colour of its own: Myelin already ships light and dark,
@@ -55,10 +68,10 @@
   --nerv-magenta:  var(--myelin-magenta);
   --term-bg-deep:  var(--myelin-surface);
 
-  /* Brand. The logo artwork is pure #ff0000 and is never recoloured; marks
-     are exempt from contrast rules. --brand is Myelin's red for everything
-     that is brand-coloured but is also text or a fill. */
-  --logo-red:      #ff0000;
+  /* Brand. The wordmark artwork is pure #ff0000 and is never recoloured;
+     marks are exempt from contrast rules. It is a PNG, so no token is needed
+     for it, and there is deliberately no red in this file: every red in the
+     interface is Myelin's. */
   --brand:         var(--myelin-brand-ink);
   --brand-deep:    var(--myelin-brand);
 
@@ -68,6 +81,9 @@
   --show-when-dark:   block;
   --show-when-light:  none;
 
+}
+
+:root {
   /* --- Type ------------------------------------------------------------- */
   /* Ashinoko, the OS's own families. Ashinoko Sans is quasi-proportional
      and reads as a technical face rather than a neutral one: right for

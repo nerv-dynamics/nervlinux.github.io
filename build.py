@@ -154,6 +154,13 @@ def render_palette():
            "/* Light, when the toggle asks for it. Myelin's light values, verbatim. */",
            ':root[data-theme="light"] {\n' + "\n".join(light_sem)
            + "\n  color-scheme: light;\n}",
+           "",
+           "/* A subtree that is dark whatever the page is doing. The hero is",
+           "   artwork with its own ground, so it keeps Myelin's dark values even",
+           "   under the light theme. Redeclaring the semantic tokens here means",
+           "   everything inside resolves to them through ordinary inheritance,",
+           "   so no component has to know it is sitting on a dark panel. */",
+           ".on-dark {" + dark + "\n  color-scheme: dark;\n}",
            ""]
     if write(ROOT / "css" / "palette.css", "\n".join(out)):
         n = len(re.findall(r"--myelin-[a-z0-9-]+:", dark))

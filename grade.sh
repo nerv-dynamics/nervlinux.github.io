@@ -43,8 +43,11 @@
 #         page like stickers; grain is what makes them look photographed.
 set -euo pipefail
 
-SHADOW="${SHADOW:-#21252b}"   # --bg, the page ground
-HIGHLIGHT="${HIGHLIGHT:-#d7dce3}"   # --text
+# Myelin's dark ground and body text. A graded image is meant to be made of
+# the same material as the page it sits on, so these track the palette: if
+# Myelin changes, change them here too.
+SHADOW="${SHADOW:-#1e1e1e}"     # --myelin-bg, dark
+HIGHLIGHT="${HIGHLIGHT:-#dfdfdf}"   # --myelin-fg, dark
 SAT="${SAT:-100}"
 MIX="${MIX:-52}"
 LIFT="${LIFT:-6}"

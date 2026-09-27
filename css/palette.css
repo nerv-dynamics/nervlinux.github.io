@@ -107,3 +107,47 @@
   --myelin-brand-ink: var(--myelin-red-ink);
   color-scheme: light;
 }
+
+/* A subtree that is dark whatever the page is doing. The hero is
+   artwork with its own ground, so it keeps Myelin's dark values even
+   under the light theme. Redeclaring the semantic tokens here means
+   everything inside resolves to them through ordinary inheritance,
+   so no component has to know it is sitting on a dark panel. */
+.on-dark {
+  --myelin-bg: var(--myelin-n24);
+  --myelin-surface: var(--myelin-n28);
+  --myelin-line: var(--myelin-n32);
+  --myelin-strong: var(--myelin-n53);
+  --myelin-subtle: var(--myelin-n71);
+  --myelin-muted: var(--myelin-n83);
+  --myelin-fg: var(--myelin-n90);
+  --myelin-red: #ff9a9f;
+  --myelin-red-bright: #ffbabb;
+  --myelin-red-ink: var(--myelin-red);
+  --myelin-orange: #fda06b;
+  --myelin-orange-bright: #ffbe99;
+  --myelin-orange-ink: var(--myelin-orange);
+  --myelin-yellow: #e1af4a;
+  --myelin-yellow-bright: #f6c461;
+  --myelin-yellow-ink: var(--myelin-yellow);
+  --myelin-green: #92c56c;
+  --myelin-green-bright: #a7db81;
+  --myelin-green-ink: var(--myelin-green);
+  --myelin-cyan: #05c9db;
+  --myelin-cyan-bright: #3cdef1;
+  --myelin-cyan-ink: var(--myelin-cyan);
+  --myelin-blue: #6ebdff;
+  --myelin-blue-bright: #9dd1ff;
+  --myelin-blue-ink: var(--myelin-blue);
+  --myelin-magenta: #dea0f1;
+  --myelin-magenta-bright: #efb8ff;
+  --myelin-magenta-ink: var(--myelin-magenta);
+  --myelin-red-tint: #3e2727;
+  --myelin-green-tint: #27321f;
+  --myelin-on-ink: var(--myelin-bg);
+  --myelin-accent: var(--myelin-blue);
+  --myelin-accent-ink: var(--myelin-blue-ink);
+  --myelin-brand: var(--myelin-red);
+  --myelin-brand-ink: var(--myelin-red-ink);
+  color-scheme: dark;
+}

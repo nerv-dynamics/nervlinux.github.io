@@ -6,8 +6,8 @@ The mechanism behind `./grade.sh`. For what to point a camera at, see
 ## What it is for
 
 Every image on the site is mapped onto the same two endpoints: shadows land on
-`--bg` (`#21252b`, the page ground) and highlights land on `--text`
-(`#d7dce3`). An image graded this way is not merely darkened — it is made of
+`--bg` (`#1e1e1e`, the page ground) and highlights land on `--text`
+(`#dfdfdf`). An image graded this way is not merely darkened — it is made of
 the same material as the page around it, so the edge between photograph and
 interface stops being visible, and a set of pictures from unrelated sources
 reads as one campaign.
@@ -72,12 +72,15 @@ full black-to-white ramp:
 
 | MIX | shadow out | highlight out |
 | --- | --- | --- |
-| 42 | `13,15,18` | `238,240,243` |
-| **52 (default)** | `17,19,22` | `234,236,240` |
-| 62 | `20,22,26` | `230,233,237` |
-| 80 | `26,29,34` | `223,227,232` |
-| 100 | **`33,37,43`** | **`215,220,227`** |
-| target | `33,37,43` = `#21252b` | `215,220,227` = `#d7dce3` |
+| 42 | `12` | `241` |
+| **52 (default)** | `15` | `238` |
+| 62 | `18` | `235` |
+| 80 | `24` | `229` |
+| 100 | **`30`** | **`223`** |
+| target | `30` = `#1e1e1e` | `223` = `#dfdfdf` |
+
+Measured on a neutral ramp, so one channel is enough: Myelin's endpoints are
+pure greys, which makes the duotone neutral too.
 
 The default no longer lands on the endpoints, and that is a deliberate trade:
 a hero photograph that bleeds off the page edge can afford deeper blacks, and

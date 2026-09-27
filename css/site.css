@@ -43,7 +43,8 @@ img { max-width: 100%; height: auto; display: block; }
 
 .skip {
   position: absolute; left: -9999px; top: 0; z-index: 100;
-  background: var(--brand); color: #fff; padding: var(--s-3) var(--s-4); font-weight: 600;
+  background: var(--brand); color: var(--text-on-brand);
+  padding: var(--s-3) var(--s-4); font-weight: 600;
 }
 .skip:focus { left: 0; }
 
@@ -145,14 +146,17 @@ img { max-width: 100%; height: auto; display: block; }
    All CSS, no image, nothing to load. */
 .herobig {
   position: relative;
-  color: #f2f4f7;
+  color: var(--text);
   border-bottom: 1px solid var(--border);
   background:
     repeating-linear-gradient(to bottom,
-      rgba(215, 220, 227, .028) 0 1px, transparent 1px 3px),
+      color-mix(in srgb, var(--myelin-n90) 3%, transparent) 0 1px,
+      transparent 1px 3px),
     radial-gradient(120% 150% at 8% -20%,
-      rgba(215, 220, 227, .14) 0%, transparent 55%),
-    linear-gradient(155deg, #363c45 0%, #272c33 42%, #1a1e22 100%);
+      color-mix(in srgb, var(--myelin-n90) 14%, transparent) 0%,
+      transparent 55%),
+    linear-gradient(155deg, var(--myelin-n42) 0%, var(--myelin-n32) 42%,
+                    var(--myelin-n28) 78%, var(--myelin-n24) 100%);
 }
 .herobig__inner {
   /* Above the photo. The panel comes later in the DOM, so without this the
@@ -177,8 +181,8 @@ img { max-width: 100%; height: auto; display: block; }
 }
 
 /* The photo panel: full height, bleeding to the right edge of the viewport.
-   The mask is the whole trick. The gradient bottoms out near #1a1e22 and the
-   grade's shadow endpoint is #21252b, so a photo that fades leftward stops
+   The mask is the whole trick. The gradient bottoms out on Myelin's darkest
+   neutral and the grade lands its shadows there too, so a photo fading left stops
    reading as an inserted picture and becomes part of the same surface.
    Without the mask this is a rectangle stuck on a gradient.
 
@@ -197,14 +201,18 @@ img { max-width: 100%; height: auto; display: block; }
 .herobig::after {
   content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none;
   background: linear-gradient(to right,
-    rgba(20, 23, 27, .72) 0%, rgba(20, 23, 27, .52) 34%,
-    rgba(20, 23, 27, .18) 52%, transparent 66%);
+    color-mix(in srgb, var(--myelin-n24) 72%, transparent) 0%,
+    color-mix(in srgb, var(--myelin-n24) 52%, transparent) 34%,
+    color-mix(in srgb, var(--myelin-n24) 18%, transparent) 52%,
+    transparent 66%);
 }
 
 .herobig__photo {
   position: absolute; z-index: 1;
   top: 0; bottom: 0; right: 0; width: 60%;
   overflow: hidden;
+  /* A mask reads only the alpha channel, so the black here is arbitrary and
+     is not a colour the palette owns. */
   -webkit-mask-image: linear-gradient(to right,
     rgba(0,0,0,0) 0%, rgba(0,0,0,.04) 6%, rgba(0,0,0,.16) 12%,
     rgba(0,0,0,.42) 18%, rgba(0,0,0,.72) 24%, rgba(0,0,0,.92) 29%,
@@ -222,7 +230,7 @@ img { max-width: 100%; height: auto; display: block; }
 .herobig__title {
   font-size: var(--t-display);
   font-weight: var(--w-display);
-  line-height: 1.2; letter-spacing: 0; color: #fff;
+  line-height: 1.2; letter-spacing: 0; color: var(--myelin-n100);
   margin-bottom: var(--s-6);
   /* The text column is already bounded by the photo panel's padding, so a ch
      cap here only narrows it twice. And `balance` is wrong in a narrow column:
@@ -242,8 +250,8 @@ img { max-width: 100%; height: auto; display: block; }
 .herobig__points {
   list-style: none; margin: 0 0 var(--s-7); padding: 0 0 0 var(--s-5);
   font-size: var(--t-md); line-height: 1.9;
-  color: rgba(242, 244, 247, .92);
-  border-left: 3px solid var(--logo-red);
+  color: color-mix(in srgb, var(--text) 92%, transparent);
+  border-left: 3px solid var(--brand);
   /* Wide enough that the longest of the four sits on one line at desktop
      width. Four statements that wrap into six lines stop reading as a set. */
   max-width: 72ch;
@@ -264,10 +272,19 @@ img { max-width: 100%; height: auto; display: block; }
   transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
 }
 .btn:hover { text-decoration: none; }
-.btn--primary { background: var(--logo-red); color: #fff; }
-.btn--primary:hover { background: #cc0000; }
-.btn--ghost { border-color: rgba(242,244,247,.45); color: #f2f4f7; }
-.btn--ghost:hover { background: rgba(242,244,247,.12); border-color: #f2f4f7; }
+/* Myelin ships an -ink variant precisely for a fill, with --myelin-on-ink as
+   the text on it. The hover darkens the same colour rather than naming a
+   second one. */
+.btn--primary { background: var(--brand); color: var(--text-on-brand); }
+.btn--primary:hover { background: color-mix(in srgb, var(--brand) 84%, var(--myelin-fg)); }
+.btn--ghost {
+  border-color: color-mix(in srgb, var(--text) 45%, transparent);
+  color: var(--text);
+}
+.btn--ghost:hover {
+  background: color-mix(in srgb, var(--text) 12%, transparent);
+  border-color: var(--text);
+}
 
 /* --- Claim tiles --------------------------------------------------------- */
 .claims {
@@ -548,7 +565,7 @@ blockquote.note p { margin: 0; }
 .shot--provisional::after {
   content: "PROVISIONAL";
   position: absolute; top: 0; left: 0;
-  background: var(--accent-yellow); color: #21252b;
+  background: var(--accent-yellow); color: var(--myelin-on-ink);
   font-family: var(--font-mono); font-size: var(--t-xs); font-weight: 700;
   letter-spacing: var(--tracking-caps);
   padding: var(--s-2) var(--s-3);
