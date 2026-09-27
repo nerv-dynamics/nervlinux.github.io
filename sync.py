@@ -7,10 +7,9 @@
 Two kinds of thing come across, and the reason is the same for both: the site
 must not be a second copy of something the OS already decides.
 
-  palette.env   The twelve OneDark roles. Its own header says it is THE source
-                of truth and that nothing else may restate a hex value — so the
-                site generates its colours from it (see build.py) instead of
-                keeping a hand-written copy, the way gen-env.sh does for shells.
+  myelin.css    Myelin, the OS colour scheme, as nerv-theme exports it. The
+                site generates css/palette.css from this (see build.py) rather
+                than keeping a hand-written copy of any value.
 
   handbook/     The published manual. Its chapters are written in the OS tree,
                 next to the thing they describe, and rendered here.
@@ -29,7 +28,7 @@ VENDOR = ROOT / "src" / "vendor"
 
 # (source path in nerv-linux, destination in src/vendor/)
 FILES = [
-    ("packages/nerv-theme/files/palette.env", "palette.env"),
+    ("packages/nerv-theme/files/myelin.css", "myelin.css"),
 ]
 TREES = [
     ("handbook", "handbook"),

@@ -117,7 +117,7 @@ or above the pixel size given; the grade script does not resize.
 
 The last two are not generated and not graded — a screenshot of the system is
 already in the palette, because the system *is* the palette. That is the whole
-point of generating `css/palette.css` from `palette.env`.
+point of generating `css/palette.css` from Myelin.
 
 ### The hero panel is masked, which constrains the composition
 

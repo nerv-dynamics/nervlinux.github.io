@@ -23,7 +23,7 @@ images. This file is the part that is a decision rather than a measurement.
 
 ## Colour
 
-The palette's twelve roles come from `nerv-theme` and are documented in
+The colours come from **Myelin**, the OS colour scheme, documented in
 [`palette.md`](palette.md). What each one *means* here:
 
 | | meaning | where |
@@ -31,8 +31,12 @@ The palette's twelve roles come from `nerv-theme` and are documented in
 | **Green** | **NVIDIA, and nothing else** | `.hl` in the hero headline |
 | **Red** | Nerv's own mark, and the primary action | the logo, `.btn--primary`, the hero rule |
 | **Cyan** | the machine speaking | `.readout`, eyebrow labels |
-| **Yellow** | attention, something unfinished | `.pill--building`, the provisional badge |
-| grey scale | everything else | all body copy |
+| **Yellow** | attention, something unfinished | `.pill--building`, the empty-slot frames |
+| the neutrals | everything else | all body copy |
+
+Use the **`-ink`** variant whenever a colour carries words or fills a button.
+Myelin ships each colour three ways for exactly this reason, and `tokens.css`
+already maps the site's accents to the ink ones.
 
 **Green is the one to be strict about.** It was chosen because it is NVIDIA's
 colour, so every additional thing it marks costs the one place it carries
@@ -52,6 +56,11 @@ Status green only ever appears inside a pill or a status column, never in a
 sentence. `.col-nerv` in the userland comparison table is the one borderline
 case, marking the Nerv column of a two-column comparison; it reads as status
 rather than brand, which is why it stays.
+
+The logo is the single exception to Myelin: the wordmark is pure `#ff0000`
+artwork and is never recoloured, because marks are exempt from contrast rules.
+Everything else that is brand-coloured *and* is text or a fill uses
+`--myelin-brand-ink`.
 
 ## Capitals
 

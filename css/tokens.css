@@ -1,87 +1,86 @@
-/* ==========================================================================
-   Nerv Linux — design tokens
-   Palette derived from OneDark, corrected for WCAG AA.
-
-   Dark is the default: the base :root below is the dark theme, and light is
-   applied only when the user asks for it via [data-theme="light"]. Every value
-   is measured, not eyeballed — see docs/palette.md for ratios and method.
-   ========================================================================== */
-
 :root {
-  /* --- The palette ------------------------------------------------------
-     Twelve roles arrive as --nerv-* from css/palette.css, generated from
-     nerv-theme's palette.env. They are not restated here. What follows is
-     only what the WEB needs on top of them, and each addition says why it
-     is not in the palette.
+  /* --- Colour ------------------------------------------------------------
+     Every value below resolves to a Myelin token from css/palette.css. The
+     site states no colour of its own: Myelin already ships light and dark,
+     and already distinguishes a colour from its -ink variant, which is the
+     one meant for coloured running text.
 
-     Two greys the terminal chrome needs and palette.env does not have. This
-     is the "a role a consumer will make up" case the palette file warns
-     about, so it is named as the site's own rather than passed off as
-     OneDark — and both are candidates for a palette role.                */
-  --term-bg-deep:  #21252b;  /* the bar above a terminal block */
-  --term-bg-lift:  #2c313a;  /* a raised row inside one */
+     There used to be a block of contrast corrections here, because OneDark
+     is tuned for one background and fails badly on the other. Myelin is
+     authored for both, so the corrections are gone rather than ported. */
 
-  /* --- Accents ---------------------------------------------------------
-     The palette hues, used as they arrive wherever they already clear
-     4.5:1 on their own ground. Exactly one value in dark mode needs
-     moving, and it is the only hex below: keeping the list this way means
-     a correction is always visible as a correction.                      */
-  --accent-blue:   var(--nerv-blue);     /* 5.92 on #282c34 */
-  --accent-green:  var(--nerv-green);    /* 6.94 */
-  --accent-cyan:   var(--nerv-cyan);     /* 5.91 */
-  --accent-yellow: var(--nerv-yellow);   /* 8.10 */
-  --accent-orange: var(--nerv-orange);   /* 6.05 */
-  --accent-purple: var(--nerv-magenta);  /* 4.75 */
-  --accent-red:    #e17079;  /* SITE-LOCAL: --nerv-red reaches only 4.38 */
+  --bg:            var(--myelin-bg);
+  --bg-subtle:     var(--myelin-surface);
+  /* A third ground, which Myelin does not define. Derived rather than
+     invented, so it follows the theme instead of pinning a hex. */
+  --bg-sunken:     color-mix(in srgb, var(--myelin-bg) 94%, var(--myelin-fg));
+  --bg-inverse:    var(--myelin-fg);
 
-/* Brand red. The logo is pure #ff0000 and is never altered (marks are
-     exempt from contrast rules). --brand is the same hue moved only as far as
-     it must go to pass against the background it actually sits on. */
+  --text:          var(--myelin-fg);
+  --text-secondary:var(--myelin-muted);
+  --text-tertiary: var(--myelin-subtle);
+  --text-inverse:  var(--myelin-bg);
+  --text-on-brand: var(--myelin-on-ink);
+
+  --border:        var(--myelin-line);
+  --border-strong: var(--myelin-strong);
+  /* The visible edge of a CONTROL, which WCAG 1.4.11 holds to 3:1. The
+     hairlines above are structure and exempt as decoration; a button's edge
+     is how you know it is a button. */
+  --border-interactive: var(--myelin-strong);
+
+  --link:          var(--myelin-accent-ink);
+  --focus:         var(--myelin-accent);
+
+  /* Accents, for coloured running text. The -ink variants exist for this. */
+  --accent-red:    var(--myelin-red-ink);
+  --accent-orange: var(--myelin-orange-ink);
+  --accent-yellow: var(--myelin-yellow-ink);
+  --accent-green:  var(--myelin-green-ink);
+  --accent-cyan:   var(--myelin-cyan-ink);
+  --accent-blue:   var(--myelin-blue-ink);
+  --accent-purple: var(--myelin-magenta-ink);
+
+  /* The terminal shows the palette rather than using it, so those blocks
+     take the plain colours, not the -ink ones. */
+  --nerv-bg:       var(--myelin-bg);
+  --nerv-fg:       var(--myelin-fg);
+  --nerv-gray:     var(--myelin-subtle);
+  --nerv-red:      var(--myelin-red);
+  --nerv-orange:   var(--myelin-orange);
+  --nerv-yellow:   var(--myelin-yellow);
+  --nerv-green:    var(--myelin-green);
+  --nerv-cyan:     var(--myelin-cyan);
+  --nerv-blue:     var(--myelin-blue);
+  --nerv-magenta:  var(--myelin-magenta);
+  --term-bg-deep:  var(--myelin-surface);
+
+  /* Brand. The logo artwork is pure #ff0000 and is never recoloured; marks
+     are exempt from contrast rules. --brand is Myelin's red for everything
+     that is brand-coloured but is also text or a fill. */
   --logo-red:      #ff0000;
-  --brand:         #ff5858;  /* 4.53 on #282c34 — pure red reaches only 3.50 */
-  --brand-deep:    #ff8080;
-
-  /* --- Neutrals --------------------------------------------------------- */
-  --bg:            #21252b;
-  --bg-subtle:     #282c34;
-  --bg-sunken:     #1b1f24;
-  --bg-inverse:    #f4f5f7;
-
-  --text:          #d7dce3;
-  --text-secondary:#abb2bf;
-  --text-tertiary: #8b93a1;
-  --text-inverse:  #1a1d23;
-  --text-on-brand: #21252b;
-
-  --border:        #3a4049;
-  --border-strong: #4d5561;
-  /* The visible boundary of a CONTROL, which WCAG 1.4.11 holds to 3:1 — the
-     hairlines above are structure and exempt as decoration, but a button's
-     edge is how you know it is a button. --border on the masthead reaches
-     only 1.34, so it cannot be reused here. 3.37 on #282c34. */
-  --border-interactive: #757d8a;
-
-  --link:          var(--accent-blue);
-  --focus:         var(--accent-blue);
+  --brand:         var(--myelin-brand-ink);
+  --brand-deep:    var(--myelin-brand);
 
   /* Which wordmark to show. Swapped by the light theme below. */
   --logo-dark-bg:   block;   /* white "LINUX" artwork */
   --logo-light-bg:  none;    /* black "LINUX" artwork */
 
   /* --- Type ------------------------------------------------------------- */
-  /* The operating system's own three families. Nerv Sans is
-     quasi-proportional and reads as a technical face rather than a neutral
-     one, which is exactly right for headings, labels and short copy — and
-     wrong for a column of prose. So anything meant to be READ rather than
-     scanned is set in --font-serif, which is the family nerv-fonts built for
-     that job. The split is the type system; see docs/type.md. */
-  --font-display: "Nerv Display", "Nerv Sans", ui-sans-serif, system-ui,
-                  "Segoe UI", Roboto, Arial, sans-serif;
-  --font-sans:  "Nerv Sans", ui-sans-serif, system-ui, -apple-system,
-                "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-serif: "Nerv Serif", ui-serif, Georgia, "Times New Roman", serif;
-  --font-mono:  "Nerv Sans Mono", ui-monospace, SFMono-Regular, "SF Mono",
-                Menlo, Consolas, "Liberation Mono", monospace;
+  /* Ashinoko, the OS's own families. Ashinoko Sans is quasi-proportional
+     and reads as a technical face rather than a neutral one: right for
+     headings, labels and short copy, wrong for a column of prose. So
+     anything meant to be READ rather than scanned is set in --font-serif.
+     See docs/type.md, including why there is no Display cut yet. */
+  /* Ashinoko, the OS's own families. There is no Display cut yet, so the
+     headings use Ashinoko Sans and pay for it in tracking; see below. */
+  --font-display: "Ashinoko Sans", ui-sans-serif, system-ui, "Segoe UI",
+                  Roboto, Arial, sans-serif;
+  --font-sans:    "Ashinoko Sans", ui-sans-serif, system-ui, -apple-system,
+                  "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-serif:   "Ashinoko Serif", ui-serif, Georgia, "Times New Roman", serif;
+  --font-mono:    "Ashinoko Sans Mono", ui-monospace, SFMono-Regular, "SF Mono",
+                  Menlo, Consolas, "Liberation Mono", monospace;
 
   --t-xs:   0.75rem;
   --t-sm:   0.875rem;
@@ -118,11 +117,12 @@
   --lh-body:  1.6;
   --lh-loose: 1.7;
 
-  /* Headings sit at 0. The -0.02em that used to be here was tuned for IBM
-     Plex, a wide humanist sans; on a narrow quasi-proportional face negative
-     tracking is what made headings read as one block. The width now comes
-     from the display cut rather than from spacing. */
-  --tracking-tight: 0em;
+  /* Headings take POSITIVE tracking. Ashinoko Sans is quasi-proportional at
+     width 525, which is right at 14px and tight at 32px. A wider cut is the
+     real fix and belongs in nerv-fonts; until it exists, spacing does the
+     work the width should. Never negative: that is what made headings set
+     solid when the site was on IBM Plex's values. */
+  --tracking-tight: 0.015em;
   --tracking-wide:   0.06em;
   --tracking-caps:   0.10em;
 
@@ -141,37 +141,8 @@
   --dur:  110ms;
 }
 
-/* --- Light theme, on request -------------------------------------------- */
-:root[data-theme="light"] {
-  /* SITE-LOCAL, all of them. The palette is tuned for one background — its
-     own — and every hue fails badly on white, so light mode keeps the hue and
-     moves only lightness, far enough to clear 4.5:1. See docs/palette.md. */
-  --accent-red:    #d63e4a;  /* 4.52 */
-  --accent-blue:   #1579cc;  /* 4.53 */
-  --accent-green:  #58813a;  /* 4.55 */
-  --accent-cyan:   #32818b;  /* 4.52 */
-  --accent-yellow: #9a6f1e;  /* 4.50 */
-  --accent-purple: #b146d1;  /* 4.50 */
-  --accent-orange: #8a5a1b;  /* 4.51 */
-
-  --brand:         #ee0000;  /* 4.53 on white, same hue as the logo */
-  --brand-deep:    #bf0000;  /* 6.53 */
-
-  --bg:            #ffffff;
-  --bg-subtle:     #f4f5f7;
-  --bg-sunken:     #eceef1;
-  --bg-inverse:    #21252b;
-
-  --text:          #1a1d23;  /* 16.88 */
-  --text-secondary:#4b525e;  /*  7.87 */
-  --text-tertiary: #6b7280;  /*  4.83 */
-  --text-inverse:  #f4f5f7;
-  --text-on-brand: #ffffff;
-
-  --border:        #d8dbe0;
-  --border-strong: #b6bcc6;
-  --border-interactive: #8e949e;  /* 3.05 on #ffffff */
-
-  --logo-dark-bg:  none;
-  --logo-light-bg: block;
-}
+/* --- Which wordmark, in each theme ---------------------------------------
+   The mark carries its own outline colour and cannot be recoloured with CSS,
+   so the right artwork is shown instead. Dark is the default, matching the
+   palette. */
+:root[data-theme="light"] { --logo-dark-bg: none; --logo-light-bg: block; }

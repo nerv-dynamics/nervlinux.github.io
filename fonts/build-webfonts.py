@@ -3,9 +3,8 @@
 
     python3 fonts/build-webfonts.py <dist-dir>
 
-where <dist-dir> is the `dist/` of an Iosevka build run against
-packages/nerv-fonts/files/private-build-plans.toml — see fonts/README.md for
-how to produce one.
+where <ttf-dir> is a directory of Ashinoko TrueType files named
+`ashinoko-<family>-normal<weight><slope>.ttf`, as shipped by nerv-fonts.
 
 This is NOT part of `python3 build.py`. It runs when the typeface changes,
 which is approximately never, and it needs fonttools; the site build needs
@@ -14,9 +13,10 @@ nothing. Its output is committed.
     pip install --user fonttools brotli
 
 WHY SUBSET AT ALL
-  A full Nerv face is ~5.6 MB and 37,573 glyphs, because Iosevka draws
-  essentially everything. The site uses 106 distinct characters. Shipping the
-  unsubsetted faces would be a 54 MB page.
+  A full Ashinoko face is 37,573 glyphs, or 48,318 for the proportional ones,
+  because Iosevka draws essentially everything. The site uses ~106 distinct
+  characters. nerv-fonts also ships webfonts, but unsubsetted: 23 MB for the
+  sixteen faces. Subsetting the eight the site uses brings that under 120 KB.
 
 WHY THIS RANGE
   The obvious "latin subset" is wrong here, and getting it wrong fails
@@ -66,30 +66,25 @@ UNICODES = ",".join([
 # glyph, which is wrong when the point is to show literal shell text.
 FEATURES = "kern,ccmp,locl,mark,mkmk,rlig"
 
-# (family dir, iosevka face file, output name, weight, style)
+# (family, face suffix, output name, weight, style)
+#
+# Eight of the sixteen faces shipped. Ashinoko Serif Mono is not on the web,
+# and no family needs bold italic here.
 FACES = [
-    # Display: a wider cut of Nerv Sans, headings only. See
-    # fonts/nerv-display.plan.toml. Three weights because weight has to come
-    # DOWN as size goes up: 300 carries the poster and the hero, 400 the page
-    # titles, 600 the section headings. Nothing large is set at 600.
-    ("nerv-display",   "normallightupright",    "nerv-display-300",  "300", "normal"),
-    ("nerv-display",   "normalregularupright",  "nerv-display-400",  "400", "normal"),
-    ("nerv-display",   "normalsemiboldupright", "nerv-display-600",  "600", "normal"),
-    ("nerv-sans",      "normalregularupright", "nerv-sans-400",      "400", "normal"),
-    ("nerv-sans",      "normalboldupright",    "nerv-sans-700",      "700", "normal"),
-    ("nerv-sans",      "normalregularitalic",  "nerv-sans-400i",     "400", "italic"),
-    ("nerv-sans-mono", "normalregularupright", "nerv-sans-mono-400", "400", "normal"),
-    ("nerv-sans-mono", "normalboldupright",    "nerv-sans-mono-700", "700", "normal"),
-    ("nerv-serif",     "normalregularupright", "nerv-serif-400",     "400", "normal"),
-    ("nerv-serif",     "normalboldupright",    "nerv-serif-700",     "700", "normal"),
-    ("nerv-serif",     "normalregularitalic",  "nerv-serif-400i",    "400", "italic"),
+    ("sans",      "normalregularupright", "ashinoko-sans-400",      "400", "normal"),
+    ("sans",      "normalboldupright",    "ashinoko-sans-700",      "700", "normal"),
+    ("sans",      "normalregularitalic",  "ashinoko-sans-400i",     "400", "italic"),
+    ("sans-mono", "normalregularupright", "ashinoko-sans-mono-400", "400", "normal"),
+    ("sans-mono", "normalboldupright",    "ashinoko-sans-mono-700", "700", "normal"),
+    ("serif",     "normalregularupright", "ashinoko-serif-400",     "400", "normal"),
+    ("serif",     "normalboldupright",    "ashinoko-serif-700",     "700", "normal"),
+    ("serif",     "normalregularitalic",  "ashinoko-serif-400i",    "400", "italic"),
 ]
 
 FAMILY_NAME = {
-    "nerv-display":   "Nerv Display",
-    "nerv-sans":      "Nerv Sans",
-    "nerv-sans-mono": "Nerv Sans Mono",
-    "nerv-serif":     "Nerv Serif",
+    "sans":      "Ashinoko Sans",
+    "sans-mono": "Ashinoko Sans Mono",
+    "serif":     "Ashinoko Serif",
 }
 
 HERE = pathlib.Path(__file__).parent
@@ -142,7 +137,7 @@ def main():
 
     rows = []
     for fam, face, out, weight, style in FACES:
-        src = dist / fam / "TTF-Unhinted" / f"{fam}-{face}.ttf"
+        src = dist / f"ashinoko-{fam}-{face}.ttf"
         if not src.is_file():
             sys.exit(f"missing: {src}")
         dest = HERE / f"{out}.woff2"

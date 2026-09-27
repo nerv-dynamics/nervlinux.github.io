@@ -108,6 +108,6 @@ control, and there is deliberately no clamp in the script.
 
 Screenshots. A screenshot of the system is already in the palette, because the
 system is the palette — `css/palette.css` and the running machine's colours are
-generated from the same `palette.env`. Grading a screenshot would put it
+generated from the same Myelin export. Grading a screenshot would put it
 *through* the palette twice and leave it the only image on the page that does
 not match the interface it is a picture of.

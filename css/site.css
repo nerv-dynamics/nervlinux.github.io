@@ -345,7 +345,8 @@ img { max-width: 100%; height: auto; display: block; }
 .index-item p { color: var(--text-secondary); font-size: var(--t-sm); line-height: var(--lh-loose); }
 
 /* --- Terminal ------------------------------------------------------------ */
-/* Canonical OneDark in both themes: this is the palette being shown, not used. */
+/* Myelin's plain colours, not the -ink variants: a terminal block is a
+   picture of the palette rather than a use of it. */
 .term {
   background: var(--nerv-bg); color: var(--nerv-fg);
   border: 1px solid var(--term-bg-deep);

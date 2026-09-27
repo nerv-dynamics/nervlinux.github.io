@@ -47,7 +47,7 @@ python3 build.py && python3 -m http.server 8000
 ```
 build.py             assembles the site; --strict refuses unresolved placeholders
 dev.py               preview server: rebuild on save, reload the tab, LAN-visible
-sync.py              pulls palette.env and handbook/ from ../nerv-linux
+sync.py              pulls myelin.css and handbook/ from ../nerv-linux
 mdrender.py          markdown -> HTML for the handbook, stdlib only
 grade.sh             puts an image into the Nerv grade
 
@@ -55,20 +55,19 @@ src/layout.html      the shell: head, masthead, footer, theme script
 src/pages/*.html     one file per page, with a metadata comment at the top
 src/vendor/          copies pulled from the OS tree by sync.py, not authored here
 
-css/palette.css      GENERATED from src/vendor/palette.env — do not edit
+css/palette.css      GENERATED from src/vendor/myelin.css — do not edit
 css/tokens.css       design tokens: type scale, spacing, contrast corrections
-css/fonts.css        self-hosted Nerv typeface @font-face rules
+css/fonts.css        self-hosted Ashinoko @font-face rules
 css/site.css         components
 
-fonts/               the Nerv typeface, 11 faces subsetted to WOFF2, ~176 KB
+fonts/               Ashinoko, 8 faces subsetted to WOFF2, ~113 KB
 fonts/build-webfonts.py   TTF -> subsetted WOFF2, verifies glyph coverage
-fonts/nerv-display.plan.toml   the display cut, for upstreaming to nerv-fonts
 
 assets/              logo lockups and favicon
 assets/shots/        screenshots, never graded
 assets/photos/       photography, always graded
 
-docs/palette.md      how the OneDark palette was adapted, with contrast ratios
+docs/palette.md      Myelin: the roles, the ratios, and why the site is dark first
 docs/type.md         the type system and how the webfonts are built
 docs/voice.md        prose, colour meaning, capitals, display sizes
 docs/grade.md        the image grade, measured
@@ -93,10 +92,9 @@ top-level nav item is current. Add the page to `NAV` in `build.py` if it belongs
 in the primary navigation, and to the footer list in `src/layout.html`.
 
 - **Colour comes from the OS, not from here.** `css/palette.css` is generated
-  from `src/vendor/palette.env`, which `nerv-theme` declares to be the only
-  place a Nerv hex value may be written. The site adds contrast corrections and
-  non-colour tokens in `css/tokens.css`, and every addition there says why it
-  is not in the palette.
+  from `src/vendor/myelin.css`, which is nerv-theme's own export of the
+  Myelin palette. `css/tokens.css` maps it onto the site's semantic names and
+  states no colour of its own.
 
 ## Conventions
 
