@@ -99,10 +99,9 @@ img { max-width: 100%; height: auto; display: block; }
 .masthead__brand { display: flex; align-items: center; text-decoration: none; }
 .masthead__brand .logo { height: 30px; width: auto; }
 
-/* Two artworks, one per theme: the mark carries its own outline colour, so it
-   cannot be recoloured with CSS — the right file is shown instead. */
-.logo--on-dark  { display: var(--logo-dark-bg); }
-.logo--on-light { display: var(--logo-light-bg); }
+/* One artwork, both themes. The wordmark is red with a white keyline: the
+   keyline separates it from a dark ground and disappears into a light one, so
+   the pair of theme-swapped files this used to need is gone. */
 
 .masthead__nav { margin-left: auto; display: flex; align-items: center; gap: var(--s-1); }
 .masthead__nav a {
@@ -125,8 +124,8 @@ img { max-width: 100%; height: auto; display: block; }
 }
 .theme-toggle:hover { opacity: 1; border-color: var(--text-secondary); }
 /* Show the icon for the theme you would switch TO. */
-.icon--sun  { display: var(--logo-dark-bg); }
-.icon--moon { display: var(--logo-light-bg); }
+.icon--sun  { display: var(--show-when-dark); }
+.icon--moon { display: var(--show-when-light); }
 
 /* --- Landing hero -------------------------------------------------------- */
 /* Sits on artwork, so it stays dark in both themes and sets its own colours.

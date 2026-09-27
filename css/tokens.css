@@ -62,9 +62,11 @@
   --brand:         var(--myelin-brand-ink);
   --brand-deep:    var(--myelin-brand);
 
-  /* Which wordmark to show. Swapped by the light theme below. */
-  --logo-dark-bg:   block;   /* white "LINUX" artwork */
-  --logo-light-bg:  none;    /* black "LINUX" artwork */
+  /* Show-in-this-theme switches. The wordmark no longer needs them — one
+     file serves both grounds — but the theme toggle still does, because it
+     shows the icon for the theme you would switch TO. */
+  --show-when-dark:   block;
+  --show-when-light:  none;
 
   /* --- Type ------------------------------------------------------------- */
   /* Ashinoko, the OS's own families. Ashinoko Sans is quasi-proportional
@@ -141,8 +143,4 @@
   --dur:  110ms;
 }
 
-/* --- Which wordmark, in each theme ---------------------------------------
-   The mark carries its own outline colour and cannot be recoloured with CSS,
-   so the right artwork is shown instead. Dark is the default, matching the
-   palette. */
-:root[data-theme="light"] { --logo-dark-bg: none; --logo-light-bg: block; }
+:root[data-theme="light"] { --show-when-dark: none; --show-when-light: block; }
