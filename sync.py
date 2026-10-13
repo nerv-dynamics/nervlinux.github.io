@@ -14,6 +14,14 @@ must not be a second copy of something the OS already decides.
   handbook/     The published manual. Its chapters are written in the OS tree,
                 next to the thing they describe, and rendered here.
 
+  install.sh    The bootstrap behind `curl https://nervlinux.org/install.sh | sh`,
+                from src/nerv-install/install.sh. One line differs: the host it
+                fetches the installer from, which here is the public mirror. It
+                lands at the site root, not in src/vendor/, because it is served
+                as it is. Everything it fetches is verified against the key in
+                the script, so the mirror is plain http on purpose: the installer
+                speaks nothing else.
+
 The copies land in src/vendor/ and are committed, so a clone of this repository
 still builds with nothing beside it. Re-run this when the upstream changes; the
 diff is the review.
@@ -33,6 +41,21 @@ FILES = [
 TREES = [
     ("handbook", "handbook"),
 ]
+
+INSTALL_SH = "src/nerv-install/install.sh"
+# The one line nerv-repo rewrites when it publishes the script to a host; here, to the mirror.
+MIRROR = "http://repo.nervlinux.org"
+
+
+def sync_install_sh(src):
+    lines = (src / INSTALL_SH).read_text().splitlines(keepends=True)
+    hits = [i for i, l in enumerate(lines) if l.startswith('BASE="${NERV_BASE:-')]
+    if len(hits) != 1:
+        sys.exit(f"{INSTALL_SH}: expected one BASE= line, found {len(hits)}; "
+                 "the script changed shape, so look before publishing it")
+    lines[hits[0]] = f'BASE="${{NERV_BASE:-{MIRROR}}}"\n'
+    (ROOT / "install.sh").write_text("".join(lines))
+    print(f"  {INSTALL_SH:48} -> install.sh (BASE={MIRROR})")
 
 
 def main():
@@ -63,6 +86,8 @@ def main():
             "*.py", "*.sh", ".*", "__pycache__"))
         n = len(list(target.rglob("*.md")))
         print(f"  {rel + '/':48} -> src/vendor/{dest}/ ({n} markdown files)")
+
+    sync_install_sh(src)
 
     print("\nsynced. `git diff src/vendor/` is the review; then python3 build.py")
 

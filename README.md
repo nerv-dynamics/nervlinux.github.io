@@ -47,7 +47,8 @@ python3 build.py && python3 -m http.server 8000
 ```
 build.py             assembles the site; --strict refuses unresolved placeholders
 dev.py               preview server: rebuild on save, reload the tab, LAN-visible
-sync.py              pulls myelin.css and handbook/ from ../nerv-linux
+sync.py              pulls myelin.css, handbook/ and install.sh from ../nerv-linux
+install.sh           served at /install.sh: the OS's bootstrap, pointed at the mirror (sync.py)
 mdrender.py          markdown -> HTML for the handbook, stdlib only
 grade.sh             puts an image into the Nerv grade
 
