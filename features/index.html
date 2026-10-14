@@ -68,65 +68,339 @@
 
 <section class="section section--subtle">
   <div class="wrap">
-    <h2 class="section-title">Serve models that others cannot load</h2>
+    <h2 class="section-title">A state-of-the-art inference engine</h2>
     <div class="prose">
-      <p><span class="kw kw--nerv">S2</span> is Nerv's inference engine, written for this hardware from the CUDA driver API up. Models load in under a second because every step is captured ahead of time as a CUDA graph. Prefill on Qwen3.8-27B runs ahead of <span class="kw kw--tool">vLLM</span> at every prompt length we measured, and speculative decoding is decided on the GPU.</p>
+      <p><span class="kw kw--nerv">S2</span> is Nerv's inference engine, written for this hardware from the CUDA driver API up. A model loads in 10 seconds, where vLLM takes 7 minutes, because every step is compiled ahead of time and only replayed as a CUDA graph at load. Prefill on Qwen3.8-27B runs ahead of <span class="kw kw--tool">vLLM</span> at every prompt length we measured, and speculative decoding is decided on the GPU. S2 leads at every concurrency we measured: at 64 sessions it serves 493 tokens per second, 1.5&times; vLLM and over 6&times; llama.cpp.</p>
       <p>S2 is the only engine we tested that runs <span class="kw kw--nvidia">NVIDIA</span>'s own NVFP4 checkpoint of Qwen 3.8 Flash-Next on a single <span class="kw kw--nvidia">GB10</span>, because it keeps the model's n-gram table on disk. Stock vLLM and Atlas ran out of memory or refused to load it, and every competing recipe that worked needed its own re-quantised checkpoint.</p>
       <p>Everything else you already use keeps working. PyTorch and your own <span class="kw kw--nvidia">CUDA</span> code run unmodified, and a notebook that allocates too much GPU memory gets an out-of-memory error at its limit instead of taking the machine down.</p>
     </div>
+    <figure class="diagram">
+      <svg viewBox="0 0 960 640" role="img" aria-label="Prefill and decode throughput against vLLM, Atlas and llama.cpp. S2 is fastest in every case: 2,840 tokens per second prefill at 8k, and 493.4 decode at 64 sessions against vLLM's 329.0. It loads the model in 10 seconds, against 7 minutes for vLLM.">
+        <g font-family="var(--font-mono)" font-size="12.5">
+          <text x="16" y="28" fill="var(--text)" font-weight="600" font-size="14">Prefill, tokens per second</text>
+          <text x="16" y="62" fill="var(--text-secondary)">8k prompt</text>
+          <text x="16" y="87" fill="var(--brand)" font-weight="600">S2</text>
+          <rect x="116" y="74" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 8k prompt: 2,840 tok/s</title></rect>
+          <text x="404.0" y="87" fill="var(--text)" font-weight="600">2,840</text>
+          <text x="16" y="115" fill="var(--text-secondary)">vLLM NVFP4</text>
+          <rect x="116" y="102" width="226.1" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4, 8k prompt: 2,293 tok/s</title></rect>
+          <text x="350.1" y="115" fill="var(--text)">2,293</text>
+          <text x="16" y="143" fill="var(--text-secondary)">Atlas</text>
+          <rect x="116" y="130" width="86.5" height="18" rx="3" fill="var(--border-strong)"><title>Atlas, 8k prompt: 877 tok/s</title></rect>
+          <text x="210.5" y="143" fill="var(--text)">877</text>
+          <text x="16" y="171" fill="var(--text-secondary)">llama.cpp</text>
+          <rect x="116" y="158" width="78.0" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp, 8k prompt: 791 tok/s</title></rect>
+          <text x="202.0" y="171" fill="var(--text)">791</text>
+          <text x="16" y="210" fill="var(--text-secondary)">32k prompt</text>
+          <text x="16" y="235" fill="var(--brand)" font-weight="600">S2</text>
+          <rect x="116" y="222" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 32k prompt: 2,412 tok/s</title></rect>
+          <text x="404.0" y="235" fill="var(--text)" font-weight="600">2,412</text>
+          <text x="16" y="263" fill="var(--text-secondary)">vLLM NVFP4</text>
+          <rect x="116" y="250" width="230.0" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4, 32k prompt: 1,981 tok/s</title></rect>
+          <text x="354.0" y="263" fill="var(--text)">1,981</text>
+          <text x="16" y="291" fill="var(--text-secondary)">Atlas</text>
+          <rect x="116" y="278" width="88.9" height="18" rx="3" fill="var(--border-strong)"><title>Atlas, 32k prompt: 766 tok/s</title></rect>
+          <text x="212.9" y="291" fill="var(--text)">766</text>
+          <text x="16" y="319" fill="var(--text-secondary)">llama.cpp</text>
+          <rect x="116" y="306" width="87.8" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp, 32k prompt: 756 tok/s</title></rect>
+          <text x="211.8" y="319" fill="var(--text)">756</text>
+          <text x="16" y="358" fill="var(--text-secondary)">131k prompt</text>
+          <text x="16" y="383" fill="var(--brand)" font-weight="600">S2</text>
+          <rect x="116" y="370" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 131k prompt: 1,390 tok/s</title></rect>
+          <text x="404.0" y="383" fill="var(--text)" font-weight="600">1,390</text>
+          <text x="16" y="411" fill="var(--text-secondary)">vLLM NVFP4</text>
+          <rect x="116" y="398" width="239.7" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4, 131k prompt: 1,190 tok/s</title></rect>
+          <text x="363.7" y="411" fill="var(--text)">1,190</text>
+          <text x="16" y="439" fill="var(--text-secondary)">Atlas</text>
+          <text x="116" y="439" fill="var(--text-secondary)" font-size="11.5">no result</text>
+          <text x="16" y="467" fill="var(--text-secondary)">llama.cpp</text>
+          <text x="116" y="467" fill="var(--text-secondary)" font-size="11.5">no result</text>
+          <text x="488" y="28" fill="var(--text)" font-weight="600" font-size="14">Decode, tokens per second</text>
+          <text x="488" y="62" fill="var(--text-secondary)">1 session</text>
+          <text x="488" y="87" fill="var(--brand)" font-weight="600">S2</text>
+          <rect x="588" y="74" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 1 session: 15.3 tok/s</title></rect>
+          <text x="876.0" y="87" fill="var(--text)" font-weight="600">15.3</text>
+          <text x="488" y="115" fill="var(--text-secondary)">vLLM NVFP4</text>
+          <rect x="588" y="102" width="206.8" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4, 1 session: 11.3 tok/s</title></rect>
+          <text x="802.8" y="115" fill="var(--text)">11.3</text>
+          <text x="488" y="143" fill="var(--text-secondary)">Atlas</text>
+          <rect x="588" y="130" width="265.4" height="18" rx="3" fill="var(--border-strong)"><title>Atlas, 1 session: 14.5 tok/s</title></rect>
+          <text x="861.4" y="143" fill="var(--text)">14.5</text>
+          <text x="488" y="171" fill="var(--text-secondary)">llama.cpp</text>
+          <rect x="588" y="158" width="214.1" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp, 1 session: 11.7 tok/s</title></rect>
+          <text x="810.1" y="171" fill="var(--text)">11.7</text>
+          <text x="488" y="210" fill="var(--text-secondary)">4 sessions</text>
+          <text x="488" y="235" fill="var(--brand)" font-weight="600">S2</text>
+          <rect x="588" y="222" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 4 sessions: 56.7 tok/s</title></rect>
+          <text x="876.0" y="235" fill="var(--text)" font-weight="600">56.7</text>
+          <text x="488" y="263" fill="var(--text-secondary)">vLLM NVFP4</text>
+          <rect x="588" y="250" width="208.9" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4, 4 sessions: 42.3 tok/s</title></rect>
+          <text x="804.9" y="263" fill="var(--text)">42.3</text>
+          <text x="488" y="291" fill="var(--text-secondary)">Atlas</text>
+          <rect x="588" y="278" width="256.3" height="18" rx="3" fill="var(--border-strong)"><title>Atlas, 4 sessions: 51.9 tok/s</title></rect>
+          <text x="852.3" y="291" fill="var(--text)">51.9</text>
+          <text x="488" y="319" fill="var(--text-secondary)">llama.cpp</text>
+          <rect x="588" y="306" width="187.2" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp, 4 sessions: 37.9 tok/s</title></rect>
+          <text x="783.2" y="319" fill="var(--text)">37.9</text>
+          <text x="488" y="358" fill="var(--text-secondary)">16 sessions</text>
+          <text x="488" y="383" fill="var(--brand)" font-weight="600">S2</text>
+          <rect x="588" y="370" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 16 sessions: 195.0 tok/s</title></rect>
+          <text x="876.0" y="383" fill="var(--text)" font-weight="600">195.0</text>
+          <text x="488" y="411" fill="var(--text-secondary)">vLLM NVFP4</text>
+          <rect x="588" y="398" width="203.0" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4, 16 sessions: 141.4 tok/s</title></rect>
+          <text x="799.0" y="411" fill="var(--text)">141.4</text>
+          <text x="488" y="439" fill="var(--text-secondary)">Atlas</text>
+          <rect x="588" y="426" width="195.9" height="18" rx="3" fill="var(--border-strong)"><title>Atlas, 16 sessions: 136.4 tok/s</title></rect>
+          <text x="791.9" y="439" fill="var(--text)">136.4</text>
+          <text x="488" y="467" fill="var(--text-secondary)">llama.cpp</text>
+          <rect x="588" y="454" width="79.8" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp, 16 sessions: 55.6 tok/s</title></rect>
+          <text x="675.8" y="467" fill="var(--text)">55.6</text>
+          <text x="488" y="506" fill="var(--text-secondary)">64 sessions</text>
+          <text x="488" y="531" fill="var(--brand)" font-weight="600">S2</text>
+          <rect x="588" y="518" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 64 sessions: 493.4 tok/s</title></rect>
+          <text x="876.0" y="531" fill="var(--text)" font-weight="600">493.4</text>
+          <text x="488" y="559" fill="var(--text-secondary)">vLLM NVFP4</text>
+          <rect x="588" y="546" width="186.7" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4, 64 sessions: 329.0 tok/s</title></rect>
+          <text x="782.7" y="559" fill="var(--text)">329.0</text>
+          <text x="488" y="587" fill="var(--text-secondary)">Atlas</text>
+          <text x="588" y="587" fill="var(--text-secondary)" font-size="11.5">supports at most 16</text>
+          <text x="488" y="615" fill="var(--text-secondary)">llama.cpp</text>
+          <rect x="588" y="602" width="45.3" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp, 64 sessions: 79.9 tok/s</title></rect>
+          <text x="641.3" y="615" fill="var(--text)">79.9</text>
+          <text x="16" y="506" fill="var(--text)" font-weight="600">Time to load the model</text>
+          <text x="16" y="531" fill="var(--brand)" font-weight="600">S2</text>
+          <rect x="116" y="518" width="6.7" height="18" rx="3" fill="var(--brand)"><title>S2: 10 s</title></rect>
+          <text x="130.7" y="531" fill="var(--text)" font-weight="600">10 s</text>
+          <text x="16" y="559" fill="var(--text-secondary)">vLLM NVFP4</text>
+          <rect x="116" y="546" width="280.0" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4: 7 min</title></rect>
+          <text x="404.0" y="559" fill="var(--text)">7 min</text>
+          <text x="16" y="587" fill="var(--text-secondary)">Atlas</text>
+          <rect x="116" y="574" width="25.3" height="18" rx="3" fill="var(--border-strong)"><title>Atlas: 38 s</title></rect>
+          <text x="149.3" y="587" fill="var(--text)">38 s</text>
+          <text x="16" y="615" fill="var(--text-secondary)">llama.cpp</text>
+          <rect x="116" y="602" width="48.7" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp: 1 min 13 s</title></rect>
+          <text x="172.7" y="615" fill="var(--text)">1 min 13 s</text>
+        </g>
+      </svg>
+      <figcaption>Qwen3.8-27B on one GB10. Each panel has its own scale.</figcaption>
+    </figure>
   </div>
 </section>
 
 <section class="section">
   <div class="wrap">
-    <h2 class="section-title">Use every GPU and core you own</h2>
+    <h2 class="section-title">Remote GPUs and CPUs, as if local</h2>
     <div class="prose">
       <p>With <span class="kw kw--nerv">axon</span>, a program uses a GPU in another machine as if it were installed locally, with no rebuild and no code changes. That works for CUDA, Vulkan and OpenGL, across GB10s, and even to an AMD card in a Windows PC. Two DGX Sparks on one cable behave as one system: axon ships a drop-in <code>libnccl.so.2</code>, so multi-GPU programs run collectives across both machines, with a 20&nbsp;KiB all-reduce in about 14&nbsp;&micro;s and bit-identical results on every rank.</p>
       <p>Nerv also speaks <span class="kw kw--tool">9P2000.L</span>, which means you can run your programs on the cores of another Nerv computer to increase performance or save power. And <code>axon top</code> tells you where every piece of work actually ran.</p>
     </div>
+    <figure class="diagram">
+      <svg viewBox="0 0 960 170" role="img" aria-label="Median latency between two GB10s on one cable: an 8-byte RDMA write in 2.7 to 3.4 microseconds one way, an axon call round trip in 13.5, a 20 KiB all-reduce in 13.4 to 15.8, and a 320 KiB all-reduce in 52 to 59.">
+        <g font-family="var(--font-mono)" font-size="12.5">
+          <text x="16" y="30" fill="var(--text)" font-weight="600">Between two GB10s on one cable, median latency</text>
+          <text x="16" y="59" fill="var(--text-secondary)">RDMA write, 8 bytes, one way</text>
+          <rect x="260" y="46" width="28.5" height="18" rx="3" fill="var(--brand)"><title>RDMA write, 8 bytes, one way: 2.7–3.4 µs</title></rect>
+          <line x1="285.2" x2="291.7" y1="55" y2="55" stroke="var(--text)" stroke-width="1.5"/>
+          <text x="299.7" y="59" fill="var(--text)" font-weight="600">2.7–3.4 µs</text>
+          <text x="16" y="87" fill="var(--text-secondary)">axon call, round trip</text>
+          <rect x="260" y="74" width="126.0" height="18" rx="3" fill="var(--brand)"><title>axon call, round trip: 13.5 µs</title></rect>
+          <text x="394.0" y="87" fill="var(--text)" font-weight="600">13.5 µs</text>
+          <text x="16" y="115" fill="var(--text-secondary)">ncclAllReduce, 20 KiB</text>
+          <rect x="260" y="102" width="136.3" height="18" rx="3" fill="var(--brand)"><title>ncclAllReduce, 20 KiB: 13.4–15.8 µs</title></rect>
+          <line x1="385.1" x2="407.5" y1="111" y2="111" stroke="var(--text)" stroke-width="1.5"/>
+          <text x="415.5" y="115" fill="var(--text)" font-weight="600">13.4–15.8 µs</text>
+          <text x="16" y="143" fill="var(--text-secondary)">ncclAllReduce, 320 KiB</text>
+          <rect x="260" y="130" width="518.0" height="18" rx="3" fill="var(--brand)"><title>ncclAllReduce, 320 KiB: 52–59 µs</title></rect>
+          <line x1="745.3" x2="810.7" y1="139" y2="139" stroke="var(--text)" stroke-width="1.5"/>
+          <text x="818.7" y="143" fill="var(--text)" font-weight="600">52–59 µs</text>
+        </g>
+      </svg>
+    </figure>
+    <figure class="diagram">
+      <svg viewBox="0 0 960 260" role="img" aria-label="A program started on your laptop runs on the twenty cores of another Nerv machine, while your terminal and files stay on the laptop and are served back over 9P2000.L.">
+        <defs><marker id="np-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--text-secondary)"/></marker></defs>
+        <g font-family="var(--font-mono)" font-size="13" text-anchor="middle">
+          <rect x="16" y="16" width="330" height="228" rx="10" fill="none" stroke="var(--border-strong)" stroke-dasharray="4 4"/>
+          <text x="32" y="40" text-anchor="start" fill="var(--text-secondary)">your laptop</text>
+          <rect x="40" y="56" width="282" height="78" rx="8" fill="var(--bg-subtle)" stroke="var(--border-strong)"/>
+          <text x="56" y="82" text-anchor="start" fill="var(--text-secondary)">~/project ❯</text>
+          <text x="56" y="104" text-anchor="start" fill="var(--text)" font-weight="600">cargo build --release</text>
+          <text x="56" y="122" text-anchor="start" fill="var(--text-secondary)" font-size="12">output streams here</text>
+          <rect x="40" y="158" width="282" height="62" rx="8" fill="none" stroke="var(--accent-cyan)" stroke-width="1.5"/>
+          <text x="181" y="183" fill="var(--accent-cyan)" font-weight="600">your files</text>
+          <text x="181" y="202" fill="var(--text-secondary)" font-size="12">stay on your disk</text>
+          <rect x="614" y="16" width="330" height="228" rx="10" fill="none" stroke="var(--border-strong)" stroke-dasharray="4 4"/>
+          <text x="630" y="40" text-anchor="start" fill="var(--text-secondary)">another Nerv machine</text>
+          <rect x="638" y="56" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.85" stroke="var(--brand)"/>
+          <rect x="696" y="56" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.85" stroke="var(--brand)"/>
+          <rect x="754" y="56" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.85" stroke="var(--brand)"/>
+          <rect x="812" y="56" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.85" stroke="var(--brand)"/>
+          <rect x="870" y="56" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.85" stroke="var(--brand)"/>
+          <rect x="638" y="96" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.85" stroke="var(--brand)"/>
+          <rect x="696" y="96" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.85" stroke="var(--brand)"/>
+          <rect x="754" y="96" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.85" stroke="var(--brand)"/>
+          <rect x="812" y="96" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.85" stroke="var(--brand)"/>
+          <rect x="870" y="96" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.85" stroke="var(--brand)"/>
+          <rect x="638" y="136" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.45" stroke="var(--brand)"/>
+          <rect x="696" y="136" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.45" stroke="var(--brand)"/>
+          <rect x="754" y="136" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.45" stroke="var(--brand)"/>
+          <rect x="812" y="136" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.45" stroke="var(--brand)"/>
+          <rect x="870" y="136" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.45" stroke="var(--brand)"/>
+          <rect x="638" y="176" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.45" stroke="var(--brand)"/>
+          <rect x="696" y="176" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.45" stroke="var(--brand)"/>
+          <rect x="754" y="176" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.45" stroke="var(--brand)"/>
+          <rect x="812" y="176" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.45" stroke="var(--brand)"/>
+          <rect x="870" y="176" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.45" stroke="var(--brand)"/>
+          <text x="779" y="230" fill="var(--text-secondary)" font-size="12">20 cores, busy with your build</text>
+          <g fill="none" stroke="var(--text-secondary)" stroke-width="1.5">
+            <path d="M322 95H612" marker-end="url(#np-arrow)"/>
+            <path d="M324 189H612" marker-start="url(#np-arrow)" marker-end="url(#np-arrow)"/>
+          </g>
+          <text x="468" y="85" fill="var(--brand)" font-weight="600">runs on its cores</text>
+          <text x="468" y="179" fill="var(--accent-cyan)" font-weight="600">9P2000.L</text>
+          <text x="468" y="211" fill="var(--text-secondary)" font-size="12">files served on demand</text>
+        </g>
+      </svg>
+    </figure>
   </div>
 </section>
 
 <section class="section section--subtle">
   <div class="wrap">
-    <h2 class="section-title">Reach your machines from anywhere</h2>
+    <h2 class="section-title">Secure remote access with Plexus</h2>
     <div class="prose">
       <p><span class="kw kw--nerv">Plexus</span> connects your laptop to the Sparks at home or in the lab, wherever you are. It punches through NAT on both ends and connects directly over <span class="kw kw--tool">WireGuard</span>, falling back to a relay that sees only ciphertext when no direct path exists. Machines are known by identity rather than address, so a laptop that sleeps, roams or changes networks reconnects as the same peer.</p>
       <p>Access is a grant you control. Give a collaborator access to one machine, let it expire on its own, or revoke it and watch their session end. You host it yourself, and nothing about your fleet passes through anyone else.</p>
     </div>
+    <figure class="diagram">
+      <svg viewBox="0 0 960 420" role="img" aria-label="Plexus connects a laptop in a hotel to the GPUs at home, which are linked together, and to six GPUs in a datacenter, over WireGuard.">
+        <defs><marker id="pl-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--brand)"/></marker></defs>
+        <g font-family="var(--font-mono)" font-size="13" text-anchor="middle">
+          <rect x="16" y="150" width="200" height="120" rx="10" fill="none" stroke="var(--border-strong)" stroke-dasharray="4 4"/>
+          <text x="32" y="174" text-anchor="start" fill="var(--text-secondary)">hotel</text>
+          <rect x="40" y="186" width="152" height="60" rx="8" fill="var(--bg-subtle)" stroke="var(--border-strong)"/>
+          <text x="116" y="212" fill="var(--text)" font-weight="600">your laptop</text>
+          <text x="116" y="230" fill="var(--text-secondary)" font-size="12">behind hotel NAT</text>
+          <rect x="400" y="16" width="544" height="150" rx="10" fill="none" stroke="var(--border-strong)" stroke-dasharray="4 4"/>
+          <text x="416" y="40" text-anchor="start" fill="var(--text-secondary)">home</text>
+          <rect x="424" y="60" width="144" height="56" rx="8" fill="none" stroke="var(--accent-green)" stroke-width="1.5"/>
+          <text x="496" y="84" fill="var(--text)" font-weight="600">DGX Spark</text>
+          <text x="496" y="102" fill="var(--accent-green)" font-size="12">GB10</text>
+          <rect x="600" y="60" width="144" height="56" rx="8" fill="none" stroke="var(--accent-green)" stroke-width="1.5"/>
+          <text x="672" y="84" fill="var(--text)" font-weight="600">DGX Spark</text>
+          <text x="672" y="102" fill="var(--accent-green)" font-size="12">GB10</text>
+          <rect x="776" y="60" width="144" height="56" rx="8" fill="none" stroke="var(--accent-green)" stroke-width="1.5"/>
+          <text x="848" y="84" fill="var(--text)" font-weight="600">desktop PC</text>
+          <text x="848" y="102" fill="var(--accent-green)" font-size="12">RTX GPU</text>
+          <g stroke="var(--accent-green)" stroke-width="2"><path d="M568 88H600"/><path d="M744 88H776"/></g>
+          <text x="672" y="146" fill="var(--text-secondary)" font-size="11.5">linked together, one pool of GPUs</text>
+          <rect x="400" y="236" width="544" height="168" rx="10" fill="none" stroke="var(--border-strong)" stroke-dasharray="4 4"/>
+          <text x="416" y="260" text-anchor="start" fill="var(--text-secondary)">datacenter</text>
+          <rect x="424" y="276" width="144" height="44" rx="8" fill="none" stroke="var(--accent-green)" stroke-width="1.5"/>
+          <text x="496" y="303" fill="var(--accent-green)" font-weight="600">GPU 1</text>
+          <rect x="600" y="276" width="144" height="44" rx="8" fill="none" stroke="var(--accent-green)" stroke-width="1.5"/>
+          <text x="672" y="303" fill="var(--accent-green)" font-weight="600">GPU 2</text>
+          <rect x="776" y="276" width="144" height="44" rx="8" fill="none" stroke="var(--accent-green)" stroke-width="1.5"/>
+          <text x="848" y="303" fill="var(--accent-green)" font-weight="600">GPU 3</text>
+          <rect x="424" y="336" width="144" height="44" rx="8" fill="none" stroke="var(--accent-green)" stroke-width="1.5"/>
+          <text x="496" y="363" fill="var(--accent-green)" font-weight="600">GPU 4</text>
+          <rect x="600" y="336" width="144" height="44" rx="8" fill="none" stroke="var(--accent-green)" stroke-width="1.5"/>
+          <text x="672" y="363" fill="var(--accent-green)" font-weight="600">GPU 5</text>
+          <rect x="776" y="336" width="144" height="44" rx="8" fill="none" stroke="var(--accent-green)" stroke-width="1.5"/>
+          <text x="848" y="363" fill="var(--accent-green)" font-weight="600">GPU 6</text>
+          <g fill="none" stroke="var(--brand)" stroke-width="2" marker-end="url(#pl-arrow)" marker-start="url(#pl-arrow)">
+            <path d="M192 200C300 200 300 91 398 91"/>
+            <path d="M192 232C300 232 300 320 398 320"/>
+            <path d="M920 168V234"/>
+          </g>
+          <text x="250" y="104" fill="var(--brand)" font-weight="600">Plexus</text>
+          <text x="250" y="120" fill="var(--text-secondary)" font-size="11.5">WireGuard, direct</text>
+          <text x="250" y="334" fill="var(--brand)" font-weight="600">Plexus</text>
+          <text x="250" y="350" fill="var(--text-secondary)" font-size="11.5">revocable grant</text>
+          <text x="910" y="205" text-anchor="end" fill="var(--brand)" font-size="11.5" font-weight="600">Plexus</text>
+        </g>
+      </svg>
+    </figure>
   </div>
 </section>
 
 <section class="section">
   <div class="wrap">
-    <h2 class="section-title">Install anything</h2>
+    <h2 class="section-title">A fantastic unix experience</h2>
     <div class="prose">
       <p>The base system is built on musl, but you are not limited to what Nerv builds. <code>dnf install</code> reaches the whole Fedora package collection, and pip wheels, CUDA toolkits and vendor binaries run on a glibc runtime that sits beside the base without a container or a chroot.</p>
       <p>Containers get a GPU by holding one socket and one library, never the host's device nodes or driver libraries. A driver upgrade does not break your images, and a container cannot reach past its GPU allocation.</p>
+    </div>
+    <div class="prose">
+      <p>The userland is modern too. The interactive defaults are fast Rust tools, while <code>/bin/sh</code> is dash and the classic commands stay where scripts expect them, so nothing you already wrote changes.</p>
+    </div>
+    <div class="table-scroll">
+      <table class="data">
+        <thead><tr><th scope="col">Instead of</th><th scope="col">Nerv ships</th><th scope="col">What you get</th></tr></thead>
+        <tbody>
+          <tr><td><code>bash</code></td><td><code>fish + starship</code></td><td>autosuggestions, syntax highlighting, a fast prompt</td></tr>
+          <tr><td><code>GNU coreutils</code></td><td><code>uutils</code></td><td>the same commands, rewritten in Rust</td></tr>
+          <tr><td><code>ls</code></td><td><code>eza</code></td><td>git status and tree views</td></tr>
+          <tr><td><code>cat</code></td><td><code>bat</code></td><td>syntax highlighting and paging</td></tr>
+          <tr><td><code>grep</code></td><td><code>ripgrep</code></td><td>recursive by default, respects .gitignore</td></tr>
+          <tr><td><code>find</code></td><td><code>fd</code></td><td>short invocations, respects .gitignore</td></tr>
+          <tr><td><code>sed</code></td><td><code>sd</code></td><td>plain regular expressions, no escaping maze</td></tr>
+          <tr><td><code>cd</code></td><td><code>zoxide</code></td><td>jump to directories by how often you use them</td></tr>
+          <tr><td><code>history</code></td><td><code>atuin</code></td><td>searchable shell history across sessions</td></tr>
+          <tr><td><code>top</code></td><td><code>btop</code></td><td>per-core, per-process and GPU history</td></tr>
+          <tr><td><code>ps</code></td><td><code>procs</code></td><td>search and tree views</td></tr>
+          <tr><td><code>du / df</code></td><td><code>dust / duf</code></td><td>sorted, readable disk usage</td></tr>
+          <tr><td><code>diff</code></td><td><code>delta</code></td><td>syntax-aware side-by-side diffs</td></tr>
+          <tr><td><code>time</code></td><td><code>hyperfine</code></td><td>repeated runs with statistics</td></tr>
+          <tr><td><code>man</code></td><td><code>tealdeer</code></td><td>short, practical examples</td></tr>
+          <tr><td><code>curl</code></td><td><code>xh</code></td><td>HTTP with a friendlier command line</td></tr>
+          <tr><td><code>vim</code></td><td><code>neovim</code></td><td>configured with LSP and tree-sitter</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </section>
 
 <section class="section section--subtle">
   <div class="wrap">
-    <h2 class="section-title">Update without fear</h2>
+    <h2 class="section-title">Atomic updates with automatic rollback</h2>
     <div class="prose">
       <p>Every update is a new generation beside the one you are running, and the machine only switches to it after it has booted. If an update breaks the boot, the machine falls back to the last generation that worked, with nobody present. Your Spark in the lab stays reachable even when an update goes wrong.</p>
       <p>You always run the newest kernel and the newest NVIDIA driver, and you get them within days of release, because rolling back is cheap. The disk unlocks itself from the TPM, so a remote machine reboots straight back onto the network without anyone typing a passphrase.</p>
     </div>
-  </div>
-</section>
-
-<section class="section">
-  <div class="wrap">
-    <h2 class="section-title">Try it</h2>
-    <div class="prose">
-      <p>The handbook covers installing Nerv, your first hour on it, and how everything on this page works day to day.</p>
-    </div>
-    <div class="actions">
-      <a class="btn btn--primary" href="/install/">Install</a>
-      <a class="btn btn--ghost" href="/handbook/">Read the handbook</a>
-    </div>
+    <figure class="diagram">
+      <svg viewBox="0 0 960 300" role="img" aria-label="A new NVIDIA driver is installed as generation 42 beside the running generation 41. It boots on trial: if it works it becomes the default; if it breaks the boot, the machine returns to 41 on its own after three tries and stays reachable.">
+        <defs><marker id="up-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--text-secondary)"/></marker></defs>
+        <g font-family="var(--font-mono)" font-size="13">
+          <rect x="16" y="104" width="200" height="92" rx="8" fill="var(--bg-subtle)" stroke="var(--border-strong)" stroke-width="1.5"/>
+          <text x="32" y="128" fill="var(--text)" font-weight="600">1  Running</text>
+          <text x="32" y="148" fill="var(--text-secondary)" font-size="12">generation 41</text>
+          <text x="32" y="165" fill="var(--text-secondary)" font-size="12">NVIDIA driver 610</text>
+          <rect x="256" y="104" width="200" height="92" rx="8" fill="none" stroke="var(--brand)" stroke-width="2"/>
+          <text x="272" y="128" fill="var(--brand)" font-weight="600">2  Update</text>
+          <text x="272" y="148" fill="var(--text-secondary)" font-size="12">new driver goes into</text>
+          <text x="272" y="165" fill="var(--text-secondary)" font-size="12">generation 42, beside 41</text>
+          <rect x="496" y="104" width="200" height="92" rx="8" fill="none" stroke="var(--brand)" stroke-width="2"/>
+          <text x="512" y="128" fill="var(--brand)" font-weight="600">3  Reboot</text>
+          <text x="512" y="148" fill="var(--text-secondary)" font-size="12">42 boots on trial</text>
+          <text x="512" y="165" fill="var(--text-secondary)" font-size="12">with a counter</text>
+          <rect x="736" y="16" width="208" height="108" rx="8" fill="none" stroke="var(--accent-green)" stroke-width="2"/>
+          <text x="752" y="40" fill="var(--accent-green)" font-weight="600">It works</text>
+          <text x="752" y="60" fill="var(--text-secondary)" font-size="12">42 becomes</text>
+          <text x="752" y="77" fill="var(--text-secondary)" font-size="12">the default</text>
+          <text x="752" y="94" fill="var(--text-secondary)" font-size="12">new driver, done</text>
+          <rect x="736" y="168" width="208" height="116" rx="8" fill="none" stroke="var(--text-secondary)" stroke-width="1.5"/>
+          <text x="752" y="192" fill="var(--text)" font-weight="600">The driver breaks boot</text>
+          <text x="752" y="212" fill="var(--text-secondary)" font-size="12">three tries, then back</text>
+          <text x="752" y="229" fill="var(--text-secondary)" font-size="12">on 41 by itself, still</text>
+          <text x="752" y="246" fill="var(--text-secondary)" font-size="12">reachable over Plexus</text>
+          <g fill="none" stroke="var(--text-secondary)" stroke-width="1.5" marker-end="url(#up-arrow)">
+            <path d="M216 150H254"/><path d="M456 150H494"/>
+            <path d="M696 130C716 130 716 70 734 70"/><path d="M696 170C716 170 716 226 734 226"/>
+          </g>
+        </g>
+      </svg>
+    </figure>
   </div>
 </section>
 </main>

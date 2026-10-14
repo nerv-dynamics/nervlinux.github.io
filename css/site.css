@@ -55,6 +55,8 @@ img { max-width: 100%; height: auto; display: block; }
 /* Term colours: cyan for upstream tools, red for what Nerv made, green for NVIDIA. */
 .kw { font-weight: 600; }
 .diagram { margin: var(--s-7) 0 0; }
+.diagram figcaption { margin-top: var(--s-3); font-family: var(--font-mono); font-size: var(--t-xs); color: var(--text-tertiary); }
+.diagram + .table-scroll { margin-top: var(--s-6); }
 .diagram svg { width: 100%; height: auto; display: block; max-width: 960px; }
 .kw--tool { color: var(--accent-cyan); }
 .kw--nerv { color: var(--brand); }
