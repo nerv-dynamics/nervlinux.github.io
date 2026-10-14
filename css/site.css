@@ -50,7 +50,15 @@ img { max-width: 100%; height: auto; display: block; }
 
 /* --- Layout -------------------------------------------------------------- */
 .wrap { max-width: var(--max-w); margin-inline: auto; padding-inline: var(--gutter); }
-.prose { max-width: var(--max-w-text); }
+.prose { max-width: none; }
+.prose p { text-wrap: wrap; }
+/* Term colours: cyan for upstream tools, red for what Nerv made, green for NVIDIA. */
+.kw { font-weight: 600; }
+.diagram { margin: var(--s-7) 0 0; }
+.diagram svg { width: 100%; height: auto; display: block; max-width: 960px; }
+.kw--tool { color: var(--accent-cyan); }
+.kw--nerv { color: var(--brand); }
+.kw--nvidia { color: var(--accent-green); }
 
 .section { padding-block: var(--s-10); }
 .section--subtle { background: var(--bg-subtle); }
@@ -64,15 +72,15 @@ img { max-width: 100%; height: auto; display: block; }
 }
 .page-lede {
   font-size: var(--t-md); line-height: var(--lh-loose);
-  color: var(--text-secondary); max-width: var(--max-w-text);
+  color: var(--text-secondary); max-width: none; text-wrap: wrap;
 }
 .section-title {
   font-size: var(--t-xl); font-weight: var(--w-title);
-  margin-bottom: var(--s-5); max-width: 34ch;
+  margin-bottom: var(--s-5); max-width: none; text-wrap: wrap;
 }
 .section-lede {
   font-size: var(--t-base); color: var(--text-secondary);
-  max-width: var(--max-w-text); margin-bottom: var(--s-5);
+  max-width: none; margin-bottom: var(--s-5);
 }
 .sub-title {
   font-size: var(--t-lg);
