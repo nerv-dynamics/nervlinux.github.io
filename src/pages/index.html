@@ -38,87 +38,92 @@ nav:   home
     stops working and the gradient carries the panel alone.
   -->
   <div class="herobig__photo">
-<div class="slot">
-      assets/photos/hero.jpg<br>
-      3:2 landscape, 2100&times;1400 or larger.<br>
-      Subject in the right half; left third is masked away.<br>
-      Graded: ./grade.sh in.jpg assets/photos/hero.jpg
-    </div>
+<img src="/assets/photos/hero.jpg" alt="A person holding an NVIDIA Grace Blackwell board">
   </div>
 </section>
 
 <!--
   Quake is the most legible benchmark in computing: a reader who knows nothing
   about musl or unified memory still stops at this sentence. It gets the whole
-  section, and the numbers sit underneath the picture that earns them.
+  section. The numbers lead it, straight under the hero, so they are the first
+  thing read after the pitch.
 -->
 <section class="poster">
   <div class="wrap">
-    <h2 class="poster__line">
-      CPU, GPU, and memory are services.
-    </h2>
-    <p class="poster__sub">
-      You can run a musl build of Quake on your ARM machine, and do the
-      rendering on an AMD&nbsp;9070 on your Windows PC.
-    </p>
-
-    <p class="readout">
-      <span>vkquake</span><span class="sep">/</span>
-      <span>vulkan</span><span class="sep">/</span>
-      <span>aarch64 musl</span><span class="sep">/</span>
-      <span>axon://win11pc.lan</span><span class="sep">/</span>
-      <span>radeon rx 9070</span><span class="sep">/</span>
-      <span>120 fps @ 4K</span>
-    </p>
-
-    <figure class="shot">
-      <div class="slot" style="aspect-ratio: 16 / 9">
-        assets/shots/quake.png<br>
-        16:9, 2560&times;1440. vkQuake in-game, fps overlay visible.
-      </div>
-      <figcaption>
-        The binary was not rebuilt, recompiled or containerised, and the card
-        doing the work is neither NVIDIA nor running Linux.
-      </figcaption>
-    </figure>
-
     <div class="figures">
       <div class="figure">
-        <span class="figure__n">120</span>
+        <span class="figure__n">10&nbsp;&micro;s</span>
         <p class="figure__what">
-          fps, rendered on another machine's GPU.
+          latency to a second GB10 machine. No clustering code needed.
           <a href="/tools/axon/">axon &rarr;</a>
         </p>
       </div>
       <div class="figure">
-        <span class="figure__n">9s</span>
+        <span class="figure__n">4&times;</span>
         <p class="figure__what">
-          Firmware hand-off to a prompt. DGX OS takes 20s on the same board.
-          <a href="/system/">System &rarr;</a>
-        </p>
-      </div>
-      <div class="figure">
-        <span class="figure__n">+50%</span>
-        <p class="figure__what">
-          Tokens per second over vLLM.
+          faster than other state of the art inference engines.
           <a href="/tools/s2/">S2 &rarr;</a>
         </p>
       </div>
       <div class="figure">
-        <span class="figure__n">3&times;</span>
+        <span class="figure__n">100%</span>
         <p class="figure__what">
-          Faster at getting data onto the GPU than DGX OS, at peak.
+          Vulkan speed without extra buffering on shared memory.
+          <a href="/tools/axon/">axon &rarr;</a>
+        </p>
+      </div>
+      <div class="figure">
+        <span class="figure__n">3.6&times;</span>
+        <p class="figure__what">
+          lower CPU power use due to energy aware scheduling.
           <a href="/system/">System &rarr;</a>
         </p>
       </div>
       <div class="figure">
-        <span class="figure__n">0</span>
+        <span class="figure__n">0 GPL-3</span>
         <p class="figure__what">
-          GPL-3 packages needed to boot.
+          packages in the core system. Always the latest NVIDIA driver.
           <a href="/enterprise/">Licensing &rarr;</a>
         </p>
       </div>
     </div>
+
+    <div class="split">
+      <div>
+      <h2 class="poster__line poster__line--cyan">
+        CPU, GPU, and memory are services.
+      </h2>
+      <figure class="shot">
+        <figcaption>
+          Gaming has always pushed the frontier of computing. Nerv can borrow a
+          Radeon&nbsp;RX&nbsp;9070 from a Windows PC and run an unmodified ARM
+          build of vkQuake at 120&nbsp;FPS.
+        </figcaption>
+        <img src="/assets/shots/quake.jpg" alt="vkQuake rendering on a remote GPU">
+      </figure>
+      </div>
+
+      <div class="readout">
+        <p class="readout__text">
+        Decades of old vendor code make it supremely difficult to get a modern
+        Wayland desktop running on musl Linux on NVIDIA hardware. On Nerv, a
+        single daemon holds Vulkan, CUDA, NVML, and all the vendor libraries.
+        Buffers are shared between processes, not copied. A crashing program
+        takes down its connection, not the desktop. An unmodified build of Quake
+        opens an ordinary window on the local desktop and renders on an AMD card
+        on a Windows PC, as if the card were installed locally. Things locked
+        behind hardware SKUs become available too, such as GPUDirect-style RDMA,
+        MIG-style partitioning, and GPUs pooled across a fleet. Even
+        <code>nvidia-smi</code> works as expected, unlike on DGX&nbsp;OS&nbsp;:)
+        </p>
+        <p class="readout__text">
+        Nerv also speaks 9P2000.L, which means you can run your programs on
+        the cores of another Nerv computer to increase performance or save
+        power.
+        </p>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -132,14 +137,8 @@ nav:   home
       The rest of the time, it is just a very good computer.
     </h2>
     <figure class="shot">
-      <div class="slot" style="aspect-ratio: 16 / 9">
-        assets/shots/desktop.png<br>
-        16:9, 2560&times;1440. niri, real work on screen.
-      </div>
-      <figcaption>
-        niri on Wayland. Rust userland, Myelin everywhere, and the typeface
-        this page is set in is the one the terminal uses.
-      </figcaption>
+      <img src="/assets/shots/desktop.png" alt="The Nerv desktop: axon and cage dashboards beside fastfetch">
+      <figcaption>A modern unix userland, a cohesive colorscheme called Myelin, a font called Ashinoko, and a minimalist desktop for power users.</figcaption>
     </figure>
   </div>
 </section>

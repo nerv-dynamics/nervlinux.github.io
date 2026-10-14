@@ -434,8 +434,8 @@ table.data td code { font-size: var(--t-xs); background: var(--bg-sunken); paddi
   font-size: var(--t-sm);
   padding-bottom: var(--s-5); border-bottom: 1px solid var(--border);
 }
-.footer__base { padding-top: var(--s-5); font-size: var(--t-xs); opacity: .65; max-width: 90ch; }
-.footer__base p { margin-bottom: var(--s-3); line-height: var(--lh-body); }
+.footer__base { padding-top: var(--s-5); font-size: var(--t-xs); opacity: .65; }
+.footer__base p { margin-bottom: var(--s-3); line-height: var(--lh-body); max-width: none; text-wrap: wrap; }
 .footer__tm { opacity: .8; }
 
 /* --- Responsive ---------------------------------------------------------- */
@@ -498,7 +498,7 @@ blockquote.note p { margin: 0; }
    a stack of things that should not coexist. Those want a poster, and the
    annotation row underneath is where each clause names the thing that makes it
    true. */
-.poster { padding-block: var(--s-11); border-bottom: 1px solid var(--border); }
+.poster { padding-block: var(--s-9) 0; }
 .poster__label {
   font-family: var(--font-mono); font-size: var(--t-xs);
   letter-spacing: var(--tracking-caps); text-transform: uppercase;
@@ -539,7 +539,6 @@ blockquote.note p { margin: 0; }
 
 /* The readout. Real values, in the machine's voice: cyan and monospaced. */
 .readout {
-  display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-4);
   font-family: var(--font-mono); font-size: var(--t-xs);
   letter-spacing: .04em;
   border: 1px solid var(--border); border-left: 2px solid var(--accent-cyan);
@@ -547,8 +546,24 @@ blockquote.note p { margin: 0; }
   color: var(--accent-cyan);
   margin-bottom: var(--s-7);
 }
+.readout p { margin: 0; text-wrap: wrap; }
+.readout p + p { margin-top: var(--s-4); }
+.readout__text { max-width: none; font-size: var(--t-base); line-height: var(--lh-body); color: var(--text); }
 .readout span { white-space: nowrap; }
 .readout .sep { color: var(--border-strong); }
+
+/* Screenshot and its explanation side by side; stacks where the hero photo hides. */
+.split {
+  display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-7);
+  align-items: stretch;
+}
+.split .readout {
+  margin-bottom: 0;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.poster__line--cyan { color: var(--accent-cyan); }
+.split .shot figcaption { margin: 0 0 var(--s-3); }
+@media (max-width: 899px) { .split { grid-template-columns: 1fr; } }
 
 /* --- Figures: screenshots are product photography ----------------------- */
 .shot { margin: 0; }
@@ -576,15 +591,15 @@ blockquote.note p { margin: 0; }
    a 1440 viewport. A 14% difference is the worst available amount: visible,
    but not enough to read as a decision. They match now, and the markup of the
    two sections is identical, so they cannot drift apart again. */
-.bleed { padding-block: var(--s-10); border-bottom: 1px solid var(--border); }
+.bleed { padding-block: var(--s-9) var(--s-10); border-bottom: 1px solid var(--border); }
 .bleed .shot { margin-top: var(--s-6); }
 .bleed__line {
   font-family: var(--font-display); font-weight: var(--w-poster);
   font-size: var(--t-display);
   line-height: 1.2; letter-spacing: 0;
-  max-width: none;
+  max-width: none; text-wrap: wrap;
 }
-.bleed .shot figcaption { margin-top: var(--s-4); }
+.bleed .shot figcaption { margin-top: var(--s-4); text-wrap: wrap; max-width: none; }
 
 /* A slot with no image yet. Deliberately ugly: an empty frame that looks
    designed is an empty frame that ships. */
@@ -598,7 +613,7 @@ blockquote.note p { margin: 0; }
 }
 
 /* --- Proof strip: the numbers, without the paragraphs ------------------- */
-.poster .figures { margin-top: var(--s-9); }
+.poster .figures { margin-bottom: var(--s-10); }
 .figures {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   border-top: 1px solid var(--border); border-left: 1px solid var(--border);

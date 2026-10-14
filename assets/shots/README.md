@@ -8,7 +8,7 @@ image on the page that does not match the interface it is a picture of.
 
 | file | ratio | size | what |
 | --- | --- | --- | --- |
-| `quake.png` | 16:9 | 2560×1440 | vkQuake in-game, fps overlay visible |
+| `quake.jpg` | 16:9 | 2560×1440 | vkQuake in-game |
 | `desktop.png` | 16:10 | 2880×1800 | niri, real work on screen |
 
 Rules that make the difference between product photography and a screenshot:
