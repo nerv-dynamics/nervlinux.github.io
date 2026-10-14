@@ -78,12 +78,9 @@ SOURCE_URL = "https://github.com/nerv-dynamics"
 # Five items. A nav is a promise about how much there is to read, so it stays
 # short even when more pages exist; anything not here is reached from the page
 # that owns it.
-#
-# "Features" points at /tools/ for now. The label is right and the URL is not,
-# and moving it belongs to the session that rewrites that page.
 NAV = [
     ("system",     "/system/",     "System"),
-    ("tools",      "/tools/",      "Features"),
+    ("features",   "/features/",   "Features"),
     ("enterprise", "/enterprise/", "Enterprise"),
     ("about",      "/about/",      "About"),
     ("handbook",   "/handbook/",   "Handbook"),

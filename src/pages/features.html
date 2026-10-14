@@ -1,0 +1,77 @@
+<!--
+title: Features
+desc:  What developers do with Nerv: serve models faster, use every GPU they own as if it were local, reach their machines from anywhere, install anything, and update without fear.
+slug:  features
+nav:   features
+-->
+
+<section class="section section--head">
+  <div class="wrap">
+    <h1 class="page-title">Features</h1>
+    <p class="page-lede">Nerv is built for developers who own NVIDIA GB-series machines: people who train, serve and debug models, write GPU code, and run the systems around them. These are the things you can do on Nerv that you cannot do out of the box anywhere else. How each one works is on the <a href="/system/">System</a> page.</p>
+  </div>
+</section>
+
+<section class="section section--subtle">
+  <div class="wrap">
+    <h2 class="section-title">Serve models that others cannot load</h2>
+    <div class="prose">
+      <p><span class="kw kw--nerv">S2</span> is Nerv's inference engine, written for this hardware from the CUDA driver API up. Models load in under a second because every step is captured ahead of time as a CUDA graph. Prefill on Qwen3.8-27B runs ahead of <span class="kw kw--tool">vLLM</span> at every prompt length we measured, and speculative decoding is decided on the GPU.</p>
+      <p>S2 is the only engine we tested that runs <span class="kw kw--nvidia">NVIDIA</span>'s own NVFP4 checkpoint of Qwen 3.8 Flash-Next on a single <span class="kw kw--nvidia">GB10</span>, because it keeps the model's n-gram table on disk. Stock vLLM and Atlas ran out of memory or refused to load it, and every competing recipe that worked needed its own re-quantised checkpoint.</p>
+      <p>Everything else you already use keeps working. PyTorch and your own <span class="kw kw--nvidia">CUDA</span> code run unmodified, and a notebook that allocates too much GPU memory gets an out-of-memory error at its limit instead of taking the machine down.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title">Use every GPU and core you own</h2>
+    <div class="prose">
+      <p>With <span class="kw kw--nerv">axon</span>, a program uses a GPU in another machine as if it were installed locally, with no rebuild and no code changes. That works for CUDA, Vulkan and OpenGL, across GB10s, and even to an AMD card in a Windows PC. Two DGX Sparks on one cable behave as one system: axon ships a drop-in <code>libnccl.so.2</code>, so multi-GPU programs run collectives across both machines, with a 20&nbsp;KiB all-reduce in about 14&nbsp;&micro;s and bit-identical results on every rank.</p>
+      <p>Nerv also speaks <span class="kw kw--tool">9P2000.L</span>, which means you can run your programs on the cores of another Nerv computer to increase performance or save power. And <code>axon top</code> tells you where every piece of work actually ran.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle">
+  <div class="wrap">
+    <h2 class="section-title">Reach your machines from anywhere</h2>
+    <div class="prose">
+      <p><span class="kw kw--nerv">Plexus</span> connects your laptop to the Sparks at home or in the lab, wherever you are. It punches through NAT on both ends and connects directly over <span class="kw kw--tool">WireGuard</span>, falling back to a relay that sees only ciphertext when no direct path exists. Machines are known by identity rather than address, so a laptop that sleeps, roams or changes networks reconnects as the same peer.</p>
+      <p>Access is a grant you control. Give a collaborator access to one machine, let it expire on its own, or revoke it and watch their session end. You host it yourself, and nothing about your fleet passes through anyone else.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title">Install anything</h2>
+    <div class="prose">
+      <p>The base system is built on musl, but you are not limited to what Nerv builds. <code>dnf install</code> reaches the whole Fedora package collection, and pip wheels, CUDA toolkits and vendor binaries run on a glibc runtime that sits beside the base without a container or a chroot.</p>
+      <p>Containers get a GPU by holding one socket and one library, never the host's device nodes or driver libraries. A driver upgrade does not break your images, and a container cannot reach past its GPU allocation.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle">
+  <div class="wrap">
+    <h2 class="section-title">Update without fear</h2>
+    <div class="prose">
+      <p>Every update is a new generation beside the one you are running, and the machine only switches to it after it has booted. If an update breaks the boot, the machine falls back to the last generation that worked, with nobody present. Your Spark in the lab stays reachable even when an update goes wrong.</p>
+      <p>You always run the newest kernel and the newest NVIDIA driver, and you get them within days of release, because rolling back is cheap. The disk unlocks itself from the TPM, so a remote machine reboots straight back onto the network without anyone typing a passphrase.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <h2 class="section-title">Try it</h2>
+    <div class="prose">
+      <p>The handbook covers installing Nerv, your first hour on it, and how everything on this page works day to day.</p>
+    </div>
+    <div class="actions">
+      <a class="btn btn--primary" href="/install/">Install</a>
+      <a class="btn btn--ghost" href="/handbook/">Read the handbook</a>
+    </div>
+  </div>
+</section>

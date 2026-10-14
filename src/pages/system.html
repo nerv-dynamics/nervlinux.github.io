@@ -286,7 +286,7 @@ nav:   system
     <h2 class="section-title">Generations</h2>
     <div class="prose">
       <p>Every change to the system is a new generation: a <span class="kw kw--tool">btrfs</span> subvolume beside the running one, sealed into its own signed boot image. There is no fixed A/B pair; a machine keeps as many generations as it has reason to. A new generation boots on trial with a counter. If it fails to complete a boot three times, the machine falls back to the generation that worked, with nobody present. Only a generation that has booted becomes the default.</p>
-      <p>Before anything goes to hardware, the new generation is booted in a VM from its own boot image and driven through a real login. The mechanism is <a href="/tools/cage/">cage</a>.</p>
+      <p>Before anything goes to hardware, the new generation is booted in a VM from its own boot image and driven through a real login. The mechanism is <a href="/system/">cage</a>.</p>
     </div>
     <figure class="diagram">
       <svg viewBox="0 0 960 300" role="img" aria-label="A new generation is checked in a VM, then boots on trial with a counter; if it completes a boot it becomes the default, and if it fails three times the machine falls back to the generation that worked.">
