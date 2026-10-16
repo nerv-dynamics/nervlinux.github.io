@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Nerv Linux — The first hour</title>
-<meta name="description" content="You have logged in. This chapter is what is under your hands, and how to change it.">
+<meta name="description" content="What you have once you log in: the console and the shell, the tools that replace the ones you know, where the defaults live and how to change one so an update keeps your change, plus becoming root, swap, memory, and checking the machine is well.">
 <link rel="canonical" href="https://nervlinux.org/handbook/machine/the-first-hour/">
 <meta property="og:title" content="Nerv Linux — The first hour">
-<meta property="og:description" content="You have logged in. This chapter is what is under your hands, and how to change it.">
+<meta property="og:description" content="What you have once you log in: the console and the shell, the tools that replace the ones you know, where the defaults live and how to change one so an update keeps your change, plus becoming root, swap, memory, and checking the machine is well.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://nervlinux.org/handbook/machine/the-first-hour/">
 <link rel="icon" href="/assets/favicon.png" sizes="32x32">
@@ -83,6 +83,7 @@
 <li><a href="/handbook/machine/the-first-hour/" aria-current="page">The first hour</a>
 <ol class="hb-nav__sections">
 <li><a href="#what-you-got">What you got</a></li>
+<li><a href="#help-on-the-machine">Help on the machine</a></li>
 <li><a href="#the-console">The console</a></li>
 <li><a href="#the-shell">The shell</a></li>
 <li><a href="#the-tools-that-replace-the-ones-you-know">The tools that replace the ones you know</a></li>
@@ -92,9 +93,9 @@
 <li><a href="#where-the-defaults-live-and-how-to-change-one">Where the defaults live, and how to change one</a></li>
 <li><a href="#becoming-root">Becoming root</a></li>
 <li><a href="#swap">Swap</a></li>
-<li><a href="#nothing-takes-the-machines-last-memory">Nothing takes the machine's last memory</a></li>
+<li><a href="#the-machine-keeps-its-last-memory">The machine keeps its last memory</a></li>
 <li><a href="#running-something-risky-on-the-gpu">Running something risky on the GPU</a></li>
-<li><a href="#the-allocator-and-how-to-ask-it-what-it-is-doing">The allocator, and how to ask it what it is doing</a></li>
+<li><a href="#the-allocator">The allocator</a></li>
 <li><a href="#checking-the-machine-is-well">Checking the machine is well</a></li>
 </ol>
 </li>
@@ -103,32 +104,74 @@
     <div class="hb__main">
       <div class="essay">
 <h1 class="page-title">The first hour</h1>
-<p>You have logged in. This chapter is what is under your hands, and how to change it.</p>
+<p>What you have once you log in: the console and the shell, the tools that replace the ones you know, where the defaults live and how to change one so an update keeps your change, plus becoming root, swap, memory, and checking the machine is well.</p>
 <h2 id="what-you-got" class="section-title">What you got</h2>
-<p>Two answers, depending on which profile was installed.</p>
-<p><strong><code>core</code></strong> is the machine and nothing else: <code>fish</code> as the login shell, the coreutils, <code>ssh</code>, <code>doas</code>, <code>ip</code>, <code>ping</code>, and busybox for the POSIX tail — <code>sed</code>, <code>grep</code>, <code>awk</code>, <code>tar</code>, <code>gzip</code>, <code>vi</code>, <code>less</code>. It is a complete, usable Unix and it is deliberately austere. There is no <code>neovim</code>, no <code>tmux</code>, no prompt beyond fish's own.</p>
-<p><strong><code>workstation</code></strong> is core plus the things a person uses: <code>neovim</code>, <code>tmux</code>, <code>git</code>, a prompt, and a set of Rust replacements for the classic tools. Everything below that names a tool by name is describing workstation.</p>
+<p>That depends on the profile you installed.</p>
+<p><strong><code>core</code></strong> is the machine and nothing else: <code>fish</code> as the login shell, the coreutils, <code>ssh</code>, <code>doas</code>, <code>ip</code>, <code>ping</code>, and busybox for the rest of POSIX — <code>sed</code>, <code>grep</code>, <code>awk</code>, <code>tar</code>, <code>gzip</code>, <code>vi</code>, <code>less</code>. It is a complete, usable Unix, and it is deliberately austere: no <code>neovim</code>, no <code>tmux</code>, no prompt beyond fish's own.</p>
+<p><strong><code>workstation</code></strong> is core plus the things a person uses every day: <code>neovim</code>, <code>tmux</code>, <code>git</code>, a prompt, and modern replacements for the classic tools. Everything below that names a tool describes workstation.</p>
 <p>Check which you have:</p>
 <pre class="term term__body">$ rpm -q nerv-workstation
-nerv-workstation-1.0.0-4.nerv.noarch       # installed
+nerv-workstation-1.0.0-8.nerv.noarch       # installed
 package nerv-workstation is not installed  # core only</pre>
+<h2 id="help-on-the-machine" class="section-title">Help on the machine</h2>
+<p>Nerv ships no man pages. Every Nerv tool documents itself instead: <code>&lt;tool&gt; --help</code> lists every command and flag, and <code>tldr &lt;tool&gt;</code> shows the commands you use most. <code>tldr</code> covers the classic tools too, once its page cache has been downloaded with <code>tldr --update</code>.</p>
+<pre class="term term__body">$ cage --help
+$ tldr cage</pre>
 <h2 id="the-console" class="section-title">The console</h2>
-<p>What you logged into is <code>kmscon</code>, on <strong>tty1</strong>, and it is the only console: there is no getty behind it, so a boot lands on the login prompt rather than on a VT something has to switch to. It renders through DRM rather than the kernel's text console, which is what lets it use Nerv's own font and palette — Ashinoko Sans Mono, Nerv's typeface, and Myelin, its colour scheme.</p>
-<p>Switching virtual terminals is <strong>Ctrl+Alt+F1</strong> through <strong>Ctrl+Alt+F12</strong>. Plain Alt+F*n* is the kernel's chord and does nothing here: kmscon reads the keyboard itself and turns the kernel's own key handling off on its VT. Ctrl+Alt is also what a Wayland compositor uses, so the chord does not change depending on what is in front of you.</p>
-<p>Nothing needs to be switched to for a second shell — <code>tmux</code> is installed on workstation, and <code>60-nerv-tmux.fish</code> is one of the files below.</p>
+<p>You log in on <code>kmscon</code>, on <strong>tty1</strong>. It is the only console: there is no getty behind it, so a boot lands on the login prompt rather than on a VT you have to switch to. It draws through DRM rather than the kernel's text console, in Nerv's own typeface, Ashinoko Sans Mono, and colour scheme, Myelin.</p>
+<p>Switch virtual terminals with <strong>Ctrl+Alt+F1</strong> through <strong>Ctrl+Alt+F12</strong>. Plain Alt+F*n* does nothing here, because kmscon reads the keyboard itself. Ctrl+Alt is also what a Wayland compositor uses, so the chord is the same whatever is in front of you.</p>
+<p>For a second shell you do not need another VT: <code>tmux</code> is installed on workstation, and the console starts inside it.</p>
 <h2 id="the-shell" class="section-title">The shell</h2>
-<p><code>fish</code>, and it is configured system-wide rather than per user. The configuration is seven files in <code>/etc/fish/conf.d/</code>, loaded in numeric order:</p>
+<p>The shell is <code>fish</code>, configured system-wide in <code>/etc/fish/conf.d/</code>. The files load in name order:</p>
 <pre class="term term__body">$ ls /etc/fish/conf.d/
-05-nerv-path.fish   20-nerv-colors.fish     40-nerv-navigation.fish  60-nerv-tmux.fish
-10-nerv-options.fish 30-nerv-aliases.fish   50-nerv-prompt.fish</pre>
-<p>Each one begins by returning unless the shell is interactive, so none of it affects scripts.</p>
-<p><strong>Every alias is conditional on the tool being installed.</strong> That is the whole reason one configuration serves both profiles:</p>
+05-nerv-path.fish     15-nerv-theme.fish   30-nerv-aliases.fish     50-nerv-prompt.fish  70-nerv-terminal-modes.fish
+10-nerv-options.fish  20-nerv-colors.fish  40-nerv-navigation.fish  60-nerv-tmux.fish    nerv-editor.fish</pre>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">file</th><th scope="col">what it does</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code>05-nerv-path.fish</code></td><td>sets <code>PATH</code>, including <code>/usr/sbin</code></td>
+</tr>
+<tr>
+<td><code>10-nerv-options.fish</code></td><td>shell options</td>
+</tr>
+<tr>
+<td><code>15-nerv-theme.fish</code></td><td>the Myelin colour environment for tools that read their colours from a variable</td>
+</tr>
+<tr>
+<td><code>20-nerv-colors.fish</code></td><td>fish's syntax colours and <code>LS_COLORS</code></td>
+</tr>
+<tr>
+<td><code>30-nerv-aliases.fish</code></td><td>the aliases below</td>
+</tr>
+<tr>
+<td><code>40-nerv-navigation.fish</code></td><td>zoxide, fzf and atuin</td>
+</tr>
+<tr>
+<td><code>50-nerv-prompt.fish</code></td><td>the starship prompt</td>
+</tr>
+<tr>
+<td><code>60-nerv-tmux.fish</code></td><td>puts a local login inside tmux</td>
+</tr>
+<tr>
+<td><code>70-nerv-terminal-modes.fish</code></td><td>resets the terminal after a remote session dies, so the mouse stops typing into your shell</td>
+</tr>
+<tr>
+<td><code>nerv-editor.fish</code></td><td><code>EDITOR</code>, <code>VISUAL</code> and <code>PAGER</code>, unless you have set them</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>None of it affects scripts: each file applies only to interactive shells.</p>
+<p><strong>Every alias depends on the tool being installed</strong>, which is why one configuration serves both profiles:</p>
 <pre class="term term__body">command -q eza; and alias ls 'eza --icons=never'
 command -q bat; and alias cat 'bat --style=plain --paging=never'</pre>
-<p>On <code>core</code> there is no <code>eza</code>, so <code>ls</code> is the real <code>ls</code>. On <code>workstation</code> it is <code>eza</code>. Nothing errors on the machine that lacks the tool, and nothing needs a per-profile config file.</p>
-<p>The binaries are never replaced. <code>ls</code> is an alias, so <code>command ls</code> and any script calling <code>ls</code> get the original.</p>
+<p>On <code>core</code> there is no <code>eza</code>, so <code>ls</code> is the real <code>ls</code>; on <code>workstation</code> it is <code>eza</code>. The binaries are never replaced: <code>command ls</code>, and any script that calls <code>ls</code>, gets the original.</p>
 <h2 id="the-tools-that-replace-the-ones-you-know" class="section-title">The tools that replace the ones you know</h2>
-<p>On workstation, these are aliased over their classic names:</p>
+<p>On workstation, these take the classic names:</p>
 <div class="table-scroll">
 <table class="data">
 <thead><tr>
@@ -144,36 +187,39 @@ command -q bat; and alias cat 'bat --style=plain --paging=never'</pre>
 <tr>
 <td><code>vi</code>, <code>vim</code></td><td><code>nvim</code></td><td></td>
 </tr>
+<tr>
+<td><code>grep</code></td><td><code>rg</code></td><td>searches file contents</td>
+</tr>
+<tr>
+<td><code>find</code></td><td><code>fd</code></td><td>finds files by name</td>
+</tr>
+<tr>
+<td><code>sed</code></td><td><code>sd</code></td><td>substitution, with ordinary regular expressions</td>
+</tr>
+<tr>
+<td><code>du</code></td><td><code>dust</code></td><td>what is using the disk</td>
+</tr>
+<tr>
+<td><code>df</code></td><td><code>duf</code></td><td>what is mounted and how full</td>
+</tr>
+<tr>
+<td><code>ps</code></td><td><code>procs</code></td><td>processes</td>
+</tr>
+<tr>
+<td><code>top</code></td><td><code>btop</code></td><td>the system monitor</td>
+</tr>
+<tr>
+<td><code>sudo</code></td><td><code>doas</code></td><td></td>
+</tr>
 </tbody>
 </table>
 </div>
-<p>And these are new names, not aliases:</p>
+<p>And these are installed under their own names:</p>
 <div class="table-scroll">
 <table class="data">
 <tbody>
 <tr>
-<td><code>rg</code></td><td>search file contents — the one to reach for</td>
-</tr>
-<tr>
-<td><code>fd</code></td><td>find files by name</td>
-</tr>
-<tr>
-<td><code>sd</code></td><td>substitute, in place of <code>sed s///</code></td>
-</tr>
-<tr>
 <td><code>jq</code></td><td>query JSON</td>
-</tr>
-<tr>
-<td><code>dust</code></td><td>what is using the disk</td>
-</tr>
-<tr>
-<td><code>duf</code></td><td>what is mounted and how full</td>
-</tr>
-<tr>
-<td><code>procs</code></td><td>processes, in place of <code>ps</code></td>
-</tr>
-<tr>
-<td><code>btop</code></td><td>the system monitor</td>
 </tr>
 <tr>
 <td><code>delta</code></td><td>how <code>git</code> shows you a diff</td>
@@ -185,28 +231,28 @@ command -q bat; and alias cat 'bat --style=plain --paging=never'</pre>
 <td><code>hyperfine</code></td><td>time a command properly, over many runs</td>
 </tr>
 <tr>
-<td><code>tldr</code></td><td>the short version of a man page</td>
+<td><code>tldr</code></td><td>short, example-first help pages</td>
 </tr>
 </tbody>
 </table>
 </div>
-<p><code>tldr</code> matters more here than elsewhere: <strong>Nerv ships no man pages and nothing to render them.</strong> <code>tldr</code> and <code>--help</code> are the documentation on the machine.</p>
+<p><code>nvidia-smi</code> is not aliased: it is the real command and prints the vendor's own table.</p>
 <h2 id="the-prompt-history-and-jumping-about" class="section-title">The prompt, history and jumping about</h2>
-<p>Three tools are wired into the shell rather than run by you:</p>
+<p>These are wired into the shell rather than run by you:</p>
 <ul class="list">
 <li><strong>starship</strong> draws the prompt, from <code>/etc/xdg/starship.toml</code></li>
-<li><strong>atuin</strong> replaces shell history — press <code>↑</code> and search it</li>
+<li><strong>atuin</strong> keeps shell history — press <code>↑</code> and search it</li>
 <li><strong>zoxide</strong> learns the directories you visit; <code>z &lt;part-of-the-name&gt;</code> jumps to one</li>
 <li><strong>fzf</strong> provides the fuzzy pickers those use</li>
 </ul>
 <h2 id="tmux" class="section-title">tmux</h2>
-<p>On workstation, logging in <strong>at the machine</strong> puts you inside a tmux session named <code>nerv</code> — attaching to the existing one if it is there, creating it if not. Logging in over SSH does not, so a remote session is a plain shell.</p>
+<p>On workstation, logging in <strong>at the machine</strong> puts you in a tmux session named <code>nerv</code>, attaching to it if it already exists. Logging in over SSH does not, so a remote session is a plain shell.</p>
 <p>The prefix is the default <code>C-b</code>. What is different:</p>
 <div class="table-scroll">
 <table class="data">
 <tbody>
 <tr>
-<td><code>C-b h</code> / <code>C-b v</code></td><td>split horizontally / vertically</td>
+<td><code>C-b h</code> / <code>C-b v</code></td><td>split into panes above and below / side by side</td>
 </tr>
 <tr>
 <td><code>Alt</code> + arrows</td><td>move between panes, no prefix</td>
@@ -223,22 +269,26 @@ command -q bat; and alias cat 'bat --style=plain --paging=never'</pre>
 </tbody>
 </table>
 </div>
-<p>The mouse works — click a pane to focus it, drag a border to resize.</p>
-<p>There are two status bars, and they answer different questions.</p>
-<p>The <strong>upper</strong> one opens with the machine's hostname, so on a desk with more than one of these you can never mistake which box a terminal is on. The block changes colour rather than adding words: yellow while the prefix key is pressed and tmux is waiting for a command, pink in copy mode, where keys scroll the pane instead of reaching the program in it. Then the windows, and at the right edge what the hardware is doing — how long the machine has been up, how hot it is, and what it is drawing. There is no clock, on the grounds that every screen already has one.</p>
-<p>The <strong>lower</strong> one opens with the machine's LAN address — the one you would <code>ssh</code> to. Then the sessions, which are clickable: the one you are in is on a grey block, the others on the bar itself. At the right, <code>CPU</code>, <code>GPU</code> and memory.</p>
-<p>Both right-hand groups come from <code>axon --format=tmux --fields=…</code>, which is also how you can ask for something else:</p>
+<p>The mouse works: click a pane to focus it, drag a border to resize it.</p>
+<p>There are two status bars.</p>
+<p>The <strong>upper</strong> one starts with the machine's hostname, so on a desk with several of these you always know which machine a terminal is on. The hostname block turns yellow while tmux waits for a command after the prefix, and pink in copy mode, where keys scroll the pane instead of reaching the program in it. Then come the windows, and at the right edge the machine's uptime, temperature and power draw. There is no clock; every screen already has one.</p>
+<p>The <strong>lower</strong> one starts with the machine's LAN address, the one you would <code>ssh</code> to. Then come the sessions, which you can click: the one you are in sits on a grey block. At the right are <code>CPU</code>, <code>GPU</code> and memory.</p>
+<p>Both right-hand groups come from <code>axon --format=tmux --fields=…</code>, which you can also ask for other fields:</p>
 <pre class="term term__body">$ axon --format=tmux --fields=cpu,gpu,mem
 $ axon --help              # the field list</pre>
-<p><code>axon</code> on its own opens the full picture: every machine in the compute fabric, each GPU's load, memory, power and heat as it moves, and what is using them. <code>?</code> inside it lists the keys; <code>q</code> leaves.</p>
-<p>Three things about those figures are worth knowing, and all three are properties of the board rather than choices about the bar. The <strong>temperature is one figure</strong> because a GB10 is a superchip: the ACPI thermal zones and the GPU's own sensor are the same die, about a degree apart, so a CPU and a GPU temperature would be one fact printed twice. The <strong>memory is one pool</strong> — the kernel's <code>MemTotal</code> and the GPU's <code>memory.total</code> are the same 121.6 GiB — so the used figure is of the whole machine, not of a card. And the GPU figures are there only for a member of the <code>video</code> group, which is who may use the GPU at all; the account the installer creates is one, and another is added with <code>doas usermod -aG video &lt;user&gt;</code> and a fresh login.</p>
+<p><code>axon</code> on its own opens the full picture: every machine in the compute fabric, each GPU's load, memory, power and temperature as they change, and what is using them. <code>?</code> inside it lists the keys; <code>q</code> leaves.</p>
+<p>On a GB10:</p>
+<ul class="list">
+<li><strong>The temperature is one figure.</strong> The CPU and GPU are one superchip, and their sensors read the same die.</li>
+<li><strong>The memory is one pool.</strong> The CPU and the GPU share the same 121.6 GiB, so the used figure is for the whole machine.</li>
+<li><strong>GPU figures appear for members of the <code>video</code> group</strong>, the group that may use the GPU at all. The account the installer creates is one; add another with <code>doas usermod -aG video &lt;user&gt;</code> and a fresh login.</li>
+</ul>
 <h2 id="the-editor" class="section-title">The editor</h2>
-<p><code>nvim</code>, configured from a kickstart-derived Lua config seeded into your home the first time your account is created:</p>
+<p><code>nvim</code>, with a kickstart-based Lua configuration copied into your home when your account is created:</p>
 <pre class="term term__body">$ ls ~/.config/nvim/
-after  doc  init.lua  lsp</pre>
-<p><code>lsp/</code> holds one file per language server. The config is <strong>yours</strong> — it was copied in at account creation, not linked, so editing it is the intended way to change the editor and nothing will overwrite it.</p>
+colors  doc  init.lua  lsp  lua  nvim-pack-lock.json</pre>
+<p><code>lsp/</code> holds one file per language server. The configuration is <strong>yours</strong>: it was copied, not linked, so edit it freely and nothing will overwrite it.</p>
 <h2 id="where-the-defaults-live-and-how-to-change-one" class="section-title">Where the defaults live, and how to change one</h2>
-<p>Three places, and which you use decides whether your change survives.</p>
 <div class="table-scroll">
 <table class="data">
 <thead><tr>
@@ -264,85 +314,70 @@ after  doc  init.lua  lsp</pre>
 <td>kernel and module hardening</td><td><code>/etc/sysctl.d/</code>, <code>/etc/modprobe.d/</code></td>
 </tr>
 <tr>
-<td>how much swap the machine gets</td><td><code>/etc/nerv/swap.conf</code> — see <em>Swap</em> below</td>
+<td>how much swap the machine gets</td><td><code>/etc/nerv/swap.conf</code> — see <a href="#swap">Swap</a></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p><strong>Edit any of them.</strong> Everything above is shipped <code>%config(noreplace)</code>: when an update carries a new default for a file you have changed, rpm keeps your version and writes the new one beside it as <code>.rpmnew</code>. Your edit is never silently replaced.</p>
+<p><strong>Edit any of them.</strong> Every system file above is shipped <code>%config(noreplace)</code>: when an update brings a new default for a file you have changed, rpm keeps your version and writes the new one beside it as <code>.rpmnew</code>.</p>
 <pre class="term term__body">$ rpm -qf --qf '%{FILEFLAGS:fflags}\n' /etc/tmux.conf
 cn</pre>
 <p><code>c</code> is config, <code>n</code> is noreplace. After an update, look for what arrived:</p>
 <pre class="term term__body">$ find /etc -name '*.rpmnew'</pre>
-<p>Two things are deliberately <strong>not</strong> noreplace, and both would be a bug if they were: <code>/etc/os-release</code> and the CA bundle in <code>/etc/pki</code>. The first is the machine's identity — an edit that persisted would make it lie about what it is — and the second must track upstream, because a CA bundle pinned to what you had last year is a vulnerability rather than a preference.</p>
+<p>Two files are always replaced by updates: <code>/etc/os-release</code>, which says what the machine is, and the CA bundle in <code>/etc/pki</code>, which has to track upstream to stay safe.</p>
 <p>To <strong>add</strong> to the shell, put it in <code>~/.config/fish/config.fish</code>.</p>
-<p>To <strong>override</strong> one of the system drop-ins rather than add to it, put a file with the <strong>same name</strong> in <code>~/.config/fish/conf.d/</code> — fish loads <code>conf.d</code> by basename and yours is found first:</p>
+<p>To <strong>replace</strong> one of the system files, put a file with the <strong>same name</strong> in <code>~/.config/fish/conf.d/</code>. fish loads <code>conf.d</code> by name and finds yours first:</p>
 <pre class="term term__body">$ echo "alias ls 'ls --color=auto'" &gt; ~/.config/fish/conf.d/30-nerv-aliases.fish</pre>
-<p>That replaces the whole aliases drop-in with yours, permanently, and no update touches it.</p>
-<p>For tmux, <code>~/.config/tmux/tmux.conf</code> is read after the system one, so it adds to and overrides what is above without replacing the file.</p>
+<p>That replaces the whole aliases file with yours, and no update touches it.</p>
+<p>For tmux, <code>~/.config/tmux/tmux.conf</code> is read after the system file, so it adds to and overrides it.</p>
 <h2 id="becoming-root" class="section-title">Becoming root</h2>
 <p><code>doas</code>, not <code>sudo</code>:</p>
 <pre class="term term__body">$ doas systemctl restart sshd
 $</pre>
-<p><strong>No password.</strong> Your account was put in <code>wheel</code> at install time, and <code>/etc/doas.conf</code> is:</p>
+<p><strong>No password.</strong> Your account is in <code>wheel</code>, and <code>/etc/doas.conf</code> is:</p>
 <pre class="term term__body">permit nopass keepenv :wheel</pre>
-<p>That is a deliberate choice and worth knowing rather than discovering: on a single-operator machine with an encrypted disk, a password prompt on every privileged command defends against someone who is already logged in as you. If that is not your threat model, remove <code>nopass</code> — in your own copy of the file, since this one is owned by the package.</p>
+<p>On a single-operator machine with an encrypted disk, a password prompt on every privileged command only stops someone who is already logged in as you. To require one, remove <code>nopass</code> in your own copy of the file, since this one belongs to its package.</p>
 <h2 id="swap" class="section-title">Swap</h2>
-<p>The machine has 16 GiB of swap, on by the time you log in.</p>
+<p>The machine has 16 GiB of swap, on by the time you log in:</p>
 <pre class="term term__body">$ swapon --show
 NAME               TYPE SIZE USED PRIO
 /var/swap/swapfile file  16G   0B   -1</pre>
-<p>It sits in its own btrfs subvolume, <code>@swap</code>, and that placement is load-bearing rather than tidy: btrfs refuses to snapshot a subvolume that holds an active swapfile, and every system update snapshots the system you are running. A swapfile anywhere inside the system would therefore break updates the moment it was switched on. <strong>Do not create one there.</strong> One swapfile, in <code>@swap</code>, shared by every version of the system on the disk.</p>
-<p><code>swappiness</code> is 10, not the usual 60. Swap here is what the machine reaches for when something has gone wrong, not a tier it pages into routinely.</p>
+<p>It lives in its own btrfs subvolume, <code>@swap</code>, shared by every version of the system on the disk. Updates snapshot the running system, and btrfs cannot snapshot a subvolume holding an active swapfile, so <strong>never create a swapfile anywhere else</strong>.</p>
+<p><code>swappiness</code> is 10. Swap is a reserve for when something has gone wrong, not a tier the machine pages into routinely.</p>
 <p><strong>To change the size</strong>, put it in a file of your own:</p>
 <pre class="term term__body">$ printf 'NERV_SWAP_SIZE=32g\n' | doas tee /etc/nerv/swap.conf
 $ doas swapoff /var/swap/swapfile &amp;&amp; doas rm /var/swap/swapfile
 $ doas nerv-swap
 nerv-swap: creating a 32g swapfile at /var/swap/swapfile
 nerv-swap: /var/swap/swapfile is on</pre>
-<p><code>/etc/nerv/swap.conf</code> is not shipped by any package, which is the point: there is nothing for an update to replace, so the file is yours alone. The board's default lives in <code>/etc/nerv/platform</code>, which <strong>is</strong> replaced by updates — it states what the hardware is, so it has to be. Do not put your override there; it will be discarded.</p>
-<h2 id="nothing-takes-the-machines-last-memory" class="section-title">Nothing takes the machine's last memory</h2>
-<p><strong>The promise:</strong> however much the GPU is asked for, the machine keeps 2 GiB to itself. An allocation of GPU memory, or of host memory pinned for the GPU, that would leave less is refused, and the program sees an ordinary CUDA out-of-memory — exactly what a full GPU says. You stay able to log in and stop whatever asked.</p>
-<p><strong>Its condition:</strong> it covers what programs ask the GPU for. A program's own heap is ordinary memory, and the kernel's to manage.</p>
-<p><strong>What would disprove it:</strong> the machine stalling for memory while GPU sessions hold it. That is a bug worth reporting.</p>
+<p>No package ships <code>/etc/nerv/swap.conf</code>, so no update replaces it. The board's default lives in <code>/etc/nerv/platform</code>, which updates do replace, because it describes the hardware; a change made there is lost.</p>
+<h2 id="the-machine-keeps-its-last-memory" class="section-title">The machine keeps its last memory</h2>
+<p>The GPU can never take the machine's last 2 GiB. A GPU allocation, or host memory pinned for the GPU, that would leave less is refused, and the program gets an ordinary CUDA out-of-memory error, exactly what a full GPU says. You can always still log in and stop whatever asked.</p>
+<p>This covers what programs ask the GPU for. A program's own heap is ordinary memory, managed by the kernel.</p>
 <h2 id="running-something-risky-on-the-gpu" class="section-title">Running something risky on the GPU</h2>
-<p>Work you do not trust yet — a benchmark, a probe, anything whose memory appetite you are still measuring — goes in <code>gpu-test.slice</code>:</p>
+<p>Put work you do not trust yet — a benchmark, a probe, anything whose memory appetite you are still finding out — in <code>gpu-test.slice</code>:</p>
 <pre class="term term__body">$ doas systemd-run --slice=gpu-test --scope ./my-experiment</pre>
-<p><strong>The promise:</strong> an allocation inside that slice is refused rather than granted at the machine's expense. CUDA reports an ordinary out-of-memory and the program can handle it or die; nothing outside the slice is disturbed.</p>
-<p><strong>Its conditions</strong>, both of which matter:</p>
-<ul class="list">
-<li>It applies only to what you put in it. Nothing else on this machine is capped, deliberately — a cap on your login session would also refuse a model you meant to load.</li>
-<li>The cap is 8 GiB, and it covers GPU memory as well as ordinary memory, because on this board they are the same memory.</li>
-</ul>
-<p><strong>What would disprove it:</strong> a program in the slice growing past 8 GiB. If you see that, the accounting is not working and it is a bug worth reporting, not a limit worth raising.</p>
-<h2 id="the-allocator-and-how-to-ask-it-what-it-is-doing" class="section-title">The allocator, and how to ask it what it is doing</h2>
-<p>Every program on this machine gets its memory from <code>umalloc</code> — a hardened build of mimalloc that <em>is</em> the C library's <code>malloc</code>, rather than something a particular program was linked against. You do not choose it and cannot avoid it; it is as much a part of <code>libc</code> as <code>printf</code>.</p>
-<p><strong>The promise:</strong> a large class of heap bugs — a double free, a write past the end of a block, a free list an attacker has learned to steer — ends in the program dying rather than in the program doing what the attacker wanted. Guard pages sit between heap regions, free lists are encrypted, and placement is randomised.</p>
-<p>Specifically, each of these kills the process at the moment it happens rather than being absorbed: freeing the same pointer twice, freeing a pointer into the middle of a block, freeing an address that never came from <code>malloc</code> (a stack variable, say), overwriting a free-list link, and writing through a pointer after it was freed.</p>
-<p>The compiler helps too. Every package is built with <code>_FORTIFY_SOURCE=3</code>, a stack protector, branch protection and read-only relocations, so a <code>memcpy</code> past the end of a known-size buffer stops the program rather than corrupting it. musl does not implement fortification itself — Nerv supplies it as overlay headers — and before that was done, this machine had none of it, silently.</p>
-<p><strong>Its conditions:</strong></p>
-<ul class="list">
-<li>It protects against corruption of the <em>allocator's own</em> bookkeeping. A program that overwrites its own data inside one valid allocation is doing something the allocator cannot see.</li>
-<li>A program with a latent heap bug that used to run will now stop running. That is the feature, and it is the same trade every hardened allocator makes: the alternative is a program continuing on a heap whose shape somebody else chose.</li>
-<li>It costs a few percent, and the direction depends on the program: against glibc's allocator it is about 4% faster on one standard benchmark and 8% slower on another. Allocation is a small share of most programs' time, so this is a fraction of a percent of anything you will notice. The trade was made deliberately, measured rather than assumed, and is not configurable per-program.</li>
-</ul>
-<p>It answers questions if you ask. Any of mimalloc's options can be set in the environment under either spelling — <code>umalloc_</code> is the one that matches this system, <code>mimalloc_</code> keeps upstream's documentation usable:</p>
-<pre class="term term__body">$ umalloc_verbose=1 some-program
-umalloc: process init: 0xFDB17C
-umalloc: reserved 1048576 KiB memory
-...
-umalloc: process done: 0xFDB17C</pre>
-<p><code>umalloc_show_stats=1</code> prints a breakdown at exit instead of the whole verbose log. Both write to standard error, so they will not corrupt a program's output if you are piping it somewhere.</p>
-<p><strong>What would disprove it:</strong> a program that writes past the end of a block and carries on as if nothing happened. That is worth reporting.</p>
+<p>Inside the slice, memory is capped at 8 GiB, counting GPU memory, because on a GB10 they are the same memory. An allocation past the cap is refused with an ordinary out-of-memory error, and nothing outside the slice is disturbed. Only what you put in the slice is capped; your login session is not, so a model you mean to load is never refused.</p>
+<h2 id="the-allocator" class="section-title">The allocator</h2>
+<p>Every program on the machine gets its memory from <code>umalloc</code>, a hardened build of mimalloc that is the C library's <code>malloc</code>. It is part of <code>libc</code>, like <code>printf</code>.</p>
+<p>Heap bugs end with the program stopping, not with the program doing what an attacker wanted. Guard pages sit between heap regions, free lists are encrypted, and placement is randomised. Each of these kills the process the moment it happens: freeing the same pointer twice, freeing a pointer into the middle of a block, freeing an address that never came from <code>malloc</code>, overwriting a free-list link, and writing through a pointer after it was freed.</p>
+<p>The compiler adds to it. Every package is built with <code>_FORTIFY_SOURCE=3</code>, a stack protector, branch protection and read-only relocations, so a <code>memcpy</code> past the end of a buffer of known size stops the program instead of corrupting it. Nerv supplies the fortified headers for musl itself.</p>
+<p><code>umalloc</code> guards its own bookkeeping; a program that overwrites its own data inside one valid allocation is outside what an allocator can see. A program with a latent heap bug stops instead of carrying on. Against glibc's allocator, <code>umalloc</code> is about 4% faster on one standard benchmark and 8% slower on another, a fraction of a percent of anything you will notice.</p>
+<p>It reports what it is doing when you ask. mimalloc's options are read from the environment under either prefix, <code>umalloc_</code> or <code>mimalloc_</code>:</p>
+<pre class="term term__body">$ umalloc_verbose=1 ls
+umalloc: process init: 0x428F0
+v3.3.2 (built on Sep 19 2026, 15:15:36)
+option 'show_errors': 0
+...</pre>
+<p><code>umalloc_show_stats=1</code> prints a summary at exit instead. Both write to standard error, so they never mix into a program's output.</p>
 <h2 id="checking-the-machine-is-well" class="section-title">Checking the machine is well</h2>
 <p>Every package that ships a program also ships a check that exercises it, and <code>cage check</code> runs them all. It needs no privileges:</p>
 <pre class="term term__body">$ cage check
-  ok    nerv-fish              fish -c evaluates expressions and variables
-  ok    nerv-ripgrep           rg finds a match
-  n/a   nerv-tcpdump           capture needs CAP_NET_RAW
-  ...
-:: 34 ok, 0 failed, 5 n/a  (36 package checks in /usr/libexec/nerv/check)</pre>
-<p>A <code>failed</code> line names the package and prints why. That is the first thing to run when something feels wrong, and the last thing to run after changing anything.</p>
+  n/a   nerv-bandwhich         n/a: capture needs CAP_NET_RAW; only argument parsing checked
+  n/a   nerv-gping             n/a: pinging needs the network; only argument parsing checked
+
+:: 76 ok, 0 failed, 2 n/a  (78 package checks in /usr/libexec/nerv/check)</pre>
+<p>It lists only what did not pass; <code>cage check --verbose</code> lists every check. A <code>FAIL</code> line names the package and says why. Run it first when something feels wrong, and last after changing anything.</p>
       </div>
       <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/install/"><span>Previous</span>Install</a></nav>
     </div>
