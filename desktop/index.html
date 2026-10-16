@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nerv Linux — Desktop</title>
+<meta name="description" content="The Nerv desktop: Umbriel and Noctalia on Wayland, the Myelin colour scheme, the Ashinoko typeface, and a modern unix userland.">
+<link rel="canonical" href="https://nervlinux.org/desktop/">
+<meta property="og:title" content="Nerv Linux — Desktop">
+<meta property="og:description" content="The Nerv desktop: Umbriel and Noctalia on Wayland, the Myelin colour scheme, the Ashinoko typeface, and a modern unix userland.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nervlinux.org/desktop/">
+<link rel="icon" href="/assets/favicon.png" sizes="32x32">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/nerv-square.png">
+<link rel="preload" href="/fonts/ashinoko-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/palette.css">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/site.css">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('nerv-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="masthead__inner">
+    <a class="masthead__brand" href="/" aria-label="Nerv Linux — home">
+      <img class="logo" src="/assets/nerv-wordmark.png" alt="Nerv Linux" width="600" height="149">
+    </a>
+    <nav class="masthead__nav" aria-label="Primary">
+      <div class="masthead__links" id="primary-links">
+      <a href="/system/">System</a>
+      <a href="/desktop/" aria-current="page">Desktop</a>
+      <a href="/enterprise/">Enterprise</a>
+      <a href="/community/">Community</a>
+      <a href="/handbook/">Handbook</a>
+      <a href="/about/">About</a>
+      </div>
+      <button class="theme-toggle" id="theme-toggle" type="button"
+              aria-label="Switch to light theme" title="Switch theme">
+        <svg class="icon icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path fill="currentColor" d="M20.7 14.6A8.6 8.6 0 0 1 9.4 3.3a8.7 8.7 0 1 0 11.3 11.3Z"/>
+        </svg>
+        <svg class="icon icon--sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2" fill="currentColor"/>
+          <g stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+            <path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4"/>
+            <path d="M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/>
+          </g>
+        </svg>
+      </button>
+      <button class="menu-toggle" id="menu-toggle" type="button"
+              aria-label="Menu" aria-expanded="false" aria-controls="primary-links">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+          <path class="menu-toggle__open" d="M4 7h16M4 12h16M4 17h16"/>
+          <path class="menu-toggle__close" d="M6 6l12 12M18 6L6 18"/>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="section section--head">
+  <div class="wrap">
+    <h1 class="page-title">Desktop</h1>
+    <p class="page-lede">Nerv is the computer you sit in front of, not only the one you deploy to. Everything you see is built by Nerv on musl, from the compositor and the terminal to the colours and the typeface.</p>
+    <figure class="shot">
+      <img src="/assets/shots/desktop.png" alt="The Nerv desktop: axon and cage dashboards beside fastfetch">
+    </figure>
+  </div>
+</section>
+
+<section class="section section--subtle" id="wayland">
+  <div class="wrap">
+    <h2 class="section-title">A minimalist desktop for power users</h2>
+    <div class="prose">
+      <p>The compositor is <span class="kw kw--tool">Umbriel</span>, built on <span class="kw kw--tool">wlroots</span>. <span class="kw kw--tool">Noctalia</span> draws the bar, the launcher, notifications and the wallpaper, and <span class="kw kw--tool">foot</span> is the terminal. It is all Wayland, with nothing on screen you did not ask for, and a program that crashes takes down its own connection to the GPU, never the desktop.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="myelin">
+  <div class="wrap">
+    <h2 class="section-title">Myelin, a colour scheme that was designed</h2>
+    <div class="prose">
+      <p>You read your screen for hours a day, and most colour schemes were picked by eye on one monitor. They look pleasant and fail the people who need them most: dim comments vanish in daylight, one accent shouts while another disappears, and the light mode is an afterthought nobody can read. OneDark, one of the most popular schemes there is, draws its comments at 2.3:1, under the 3:1 floor for an interface border, let alone text. Swap in a white background and every one of its accents falls between 1.7:1 and 3.1:1.</p>
+      <p>Myelin keeps OneDark's hues and solves everything else from contrast targets. Every pair of colours is checked twice: against WCAG&nbsp;2, the measure accessibility law is written against, and against APCA, which models how people actually perceive contrast and is much stricter about light text on dark grounds. All seven accents sit at exactly the same perceived contrast in both modes, so no hue shouts over another and syntax highlighting reads as structure instead of noise. The ten greys are exactly neutral, so nothing casts warm or cool against an accent. Blue is the interface colour and red is reserved for the brand and destructive actions, because a red switch reads as an error.</p>
+      <p>One palette covers the terminal, the kernel console, Neovim, graphical applications and the browser. Every program Nerv ships takes its colours from it, and the build refuses any file that carries its own copy of a colour. This website is Myelin too.</p>
+    </div>
+    <ul class="swatches">
+      <li class="swatch"><span class="swatch__chip" style="background: var(--myelin-red)"></span><span class="swatch__chip" style="background: var(--myelin-red-bright)"></span><span class="swatch__name">red</span></li>
+      <li class="swatch"><span class="swatch__chip" style="background: var(--myelin-orange)"></span><span class="swatch__chip" style="background: var(--myelin-orange-bright)"></span><span class="swatch__name">orange</span></li>
+      <li class="swatch"><span class="swatch__chip" style="background: var(--myelin-yellow)"></span><span class="swatch__chip" style="background: var(--myelin-yellow-bright)"></span><span class="swatch__name">yellow</span></li>
+      <li class="swatch"><span class="swatch__chip" style="background: var(--myelin-green)"></span><span class="swatch__chip" style="background: var(--myelin-green-bright)"></span><span class="swatch__name">green</span></li>
+      <li class="swatch"><span class="swatch__chip" style="background: var(--myelin-cyan)"></span><span class="swatch__chip" style="background: var(--myelin-cyan-bright)"></span><span class="swatch__name">cyan</span></li>
+      <li class="swatch"><span class="swatch__chip" style="background: var(--myelin-blue)"></span><span class="swatch__chip" style="background: var(--myelin-blue-bright)"></span><span class="swatch__name">blue</span></li>
+      <li class="swatch"><span class="swatch__chip" style="background: var(--myelin-magenta)"></span><span class="swatch__chip" style="background: var(--myelin-magenta-bright)"></span><span class="swatch__name">magenta</span></li>
+    </ul>
+    <div class="table-scroll">
+      <table class="data">
+        <thead><tr><th scope="col">Dark mode, on its own background</th><th scope="col">OneDark</th><th scope="col">Myelin</th></tr></thead>
+        <tbody>
+          <tr><td>Body text, APCA</td><td>Lc&nbsp;56, under the floor for body text</td><td>Lc&nbsp;85</td></tr>
+          <tr><td>Comments and dim text</td><td>2.3:1</td><td>at least 4.5:1 on every ground</td></tr>
+          <tr><td>Red</td><td>4.4:1</td><td>Lc&nbsp;61, like every other accent</td></tr>
+          <tr><td>Accents in light mode</td><td>1.7&ndash;3.1:1</td><td>Lc&nbsp;61, and running text at 4.5:1</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle" id="ashinoko">
+  <div class="wrap">
+    <h2 class="section-title">Ashinoko, a typeface for people who read code all day</h2>
+    <div class="prose">
+      <p>Ashinoko is generated, not drawn. <span class="kw kw--tool">Iosevka</span> is a parametric typeface: a build plan chooses every glyph's shape, the weights, the widths and the metrics, and the build turns that plan into outlines. Ashinoko is that plan, kept in Nerv's tree and rebuilt like any other package, so every decision about a letter is written down with its reason and can be changed with one line.</p>
+      <p>Those decisions are about telling characters apart at a glance. Zero is slashed and never mistaken for O. One, lowercase l and capital I each have a distinct shape. D is shaped so it never reads as O at small sizes, where <code>TODO</code> in many fonts turns into <code>TOOO</code>. The m has a short middle leg so its strokes never blend into a block. Stock Iosevka is narrow and spiky; Ashinoko is wider and calmer, for long reading rather than for fitting the most columns on screen.</p>
+      <p>One plan produces four families with the same proportions: Sans Mono for the terminal, editor and console, Sans for the desktop, Serif for documents and the handbook, and Serif Mono with slab serifs. The Mono face is also compiled into the kernel, so the first line printed at boot is already in Ashinoko.</p>
+    </div>
+    <div class="specimen">
+      <p class="specimen__line specimen__line--big" style="font-family: var(--font-mono)">0O 1lI rn m TODO {} () [] =&gt; != &lt;=</p>
+      <p class="specimen__line" style="font-family: var(--font-sans)">Ashinoko Sans &mdash; The quick brown fox jumps over the lazy dog</p>
+      <p class="specimen__line" style="font-family: var(--font-serif)">Ashinoko Serif &mdash; The quick brown fox jumps over the lazy dog</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="userland">
+  <div class="wrap">
+    <h2 class="section-title">A modern unix userland</h2>
+    <div class="prose">
+      <p>The interactive defaults are fast Rust tools, while <code>/bin/sh</code> is dash and the classic commands stay where scripts expect them, so nothing you already wrote changes.</p>
+    </div>
+    <div class="table-scroll">
+      <table class="data">
+        <thead><tr><th scope="col">Instead of</th><th scope="col">Nerv ships</th><th scope="col">What you get</th></tr></thead>
+        <tbody>
+          <tr><td><code>bash</code></td><td><code>fish + starship</code></td><td>autosuggestions, syntax highlighting, a fast prompt</td></tr>
+          <tr><td><code>GNU coreutils</code></td><td><code>uutils</code></td><td>the same commands, rewritten in Rust</td></tr>
+          <tr><td><code>ls</code></td><td><code>eza</code></td><td>git status and tree views</td></tr>
+          <tr><td><code>cat</code></td><td><code>bat</code></td><td>syntax highlighting and paging</td></tr>
+          <tr><td><code>grep</code></td><td><code>ripgrep</code></td><td>recursive by default, respects .gitignore</td></tr>
+          <tr><td><code>find</code></td><td><code>fd</code></td><td>short invocations, respects .gitignore</td></tr>
+          <tr><td><code>sed</code></td><td><code>sd</code></td><td>plain regular expressions, no escaping maze</td></tr>
+          <tr><td><code>cd</code></td><td><code>zoxide</code></td><td>jump to directories by how often you use them</td></tr>
+          <tr><td><code>history</code></td><td><code>atuin</code></td><td>searchable shell history across sessions</td></tr>
+          <tr><td><code>top</code></td><td><code>btop</code></td><td>per-core, per-process and GPU history</td></tr>
+          <tr><td><code>ps</code></td><td><code>procs</code></td><td>search and tree views</td></tr>
+          <tr><td><code>du / df</code></td><td><code>dust / duf</code></td><td>sorted, readable disk usage</td></tr>
+          <tr><td><code>diff</code></td><td><code>delta</code></td><td>syntax-aware side-by-side diffs</td></tr>
+          <tr><td><code>time</code></td><td><code>hyperfine</code></td><td>repeated runs with statistics</td></tr>
+          <tr><td><code>man</code></td><td><code>tealdeer</code></td><td>short, practical examples</td></tr>
+          <tr><td><code>curl</code></td><td><code>xh</code></td><td>HTTP with a friendlier command line</td></tr>
+          <tr><td><code>vim</code></td><td><code>neovim</code></td><td>configured with LSP and tree-sitter</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle" id="software">
+  <div class="wrap">
+    <h2 class="section-title">Install anything</h2>
+    <div class="prose">
+      <p>The base system is built on musl, but you are not limited to what Nerv builds. <code>dnf install</code> reaches the whole Fedora package collection, and pip wheels, CUDA toolkits and vendor binaries run on a glibc runtime that sits beside the base without a container or a chroot. PyTorch and your own <span class="kw kw--nvidia">CUDA</span> code run unmodified, and a notebook that allocates too much GPU memory gets an out-of-memory error at its limit instead of taking the machine down.</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__base">
+      <p>Copyright &copy; 2026 Nerv Dynamics AB. Nerv Linux is free software; each
+         package carries the licence of its upstream source.</p>
+      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell, GB10 and GB300 are
+         trademarks of NVIDIA Corporation. Linux is a registered trademark of
+         Linus Torvalds. Nerv Linux is not affiliated with, endorsed by, or
+         sponsored by either.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var btn = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    function label() {
+      var dark = root.getAttribute('data-theme') !== 'light';
+      btn.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+    }
+    label();
+    btn.addEventListener('click', function () {
+      // Dark is the default, so anything that isn't explicitly light is dark.
+      var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('nerv-theme', next); } catch (e) {}
+      label();
+    });
+  })();
+  (function () {
+    // Phone menu: the nav links fold into a panel under the masthead.
+    var btn = document.getElementById('menu-toggle');
+    var head = btn.closest('.masthead');
+    btn.addEventListener('click', function () {
+      var open = head.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  })();
+  (function () {
+    // On phones a tapped diagram opens full screen, large, to pan and zoom.
+    var narrow = window.matchMedia('(max-width: 760px)');
+    function close(z) { z.remove(); document.body.classList.remove('has-zoom'); }
+    document.querySelectorAll('.diagram').forEach(function (fig) {
+      fig.addEventListener('click', function () {
+        var svg = fig.querySelector('svg');
+        if (!narrow.matches || !svg) return;
+        var z = document.createElement('div');
+        z.className = 'zoom'; z.setAttribute('role', 'dialog'); z.setAttribute('aria-label', svg.getAttribute('aria-label') || 'Diagram');
+        z.appendChild(svg.cloneNode(true));
+        var b = document.createElement('button');
+        b.className = 'zoom__close'; b.type = 'button'; b.setAttribute('aria-label', 'Close');
+        b.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+        b.addEventListener('click', function () { close(z); });
+        z.appendChild(b);
+        document.body.appendChild(z); document.body.classList.add('has-zoom');
+        document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { close(z); document.removeEventListener('keydown', esc); } });
+      });
+    });
+  })();
+  (function () {
+    // The handbook contents start folded on narrow screens, open on wide ones.
+    if (window.matchMedia('(max-width: 960px)').matches)
+      document.querySelectorAll('.hb-nav__box').forEach(function (d) { d.open = false; });
+  })();
+  (function () {
+    // Narrow tables read as stacked cards; each cell carries its column name.
+    document.querySelectorAll('table.data').forEach(function (t) {
+      var heads = Array.prototype.map.call(t.querySelectorAll('thead th'), function (th) { return th.textContent.trim(); });
+      t.querySelectorAll('tbody tr').forEach(function (tr) {
+        Array.prototype.forEach.call(tr.children, function (td, i) {
+          if (heads[i]) td.setAttribute('data-label', heads[i]);
+        });
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>

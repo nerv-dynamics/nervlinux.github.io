@@ -40,7 +40,7 @@ same explanation:
 | | |
 | --- | --- |
 | **Generations** | Every change to the system is a transaction: try it, prove it, keep it — or it rolls itself back. |
-| **The compute fabric** | One boundary governs compute: your GPU, someone else's across the network, memory, and where programs run. Every program is a client, and everything is accounted. |
+| **The compute fabric** | One boundary governs compute: your GPU, someone else's across the network, memory, and where programs run. Every program is a client, and everything is accounted. GPUs on several machines work together through the standard NCCL library. |
 | **What the machine remembers** | The log, the facts, and `why`: the questions your machine can answer about itself and about your data — and when it will decline to answer. |
 | **Yours and not yours** | Your work, rebuildable residue, and unexplained bytes — and what follows you to the next machine. |
 | **The chain of trust** | What is verified between power-on and a prompt, and precisely what that does not defend against. |

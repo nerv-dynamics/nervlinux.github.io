@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Nerv Linux — Enterprise</title>
-<meta name="description" content="A fleet manager for GB-series machines. Install devices over the network, manage what is on them, and provision GPUs and system resources centrally.">
+<meta name="description" content="Nerv is open source under Apache-2.0. Organisations pay for a self-hosted management plane and for supported generations, with no DRM and nothing that calls home.">
 <link rel="canonical" href="https://nervlinux.org/enterprise/">
 <meta property="og:title" content="Nerv Linux — Enterprise">
-<meta property="og:description" content="A fleet manager for GB-series machines. Install devices over the network, manage what is on them, and provision GPUs and system resources centrally.">
+<meta property="og:description" content="Nerv is open source under Apache-2.0. Organisations pay for a self-hosted management plane and for supported generations, with no DRM and nothing that calls home.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://nervlinux.org/enterprise/">
 <link rel="icon" href="/assets/favicon.png" sizes="32x32">
@@ -36,11 +36,14 @@
       <img class="logo" src="/assets/nerv-wordmark.png" alt="Nerv Linux" width="600" height="149">
     </a>
     <nav class="masthead__nav" aria-label="Primary">
+      <div class="masthead__links" id="primary-links">
       <a href="/system/">System</a>
-      <a href="/features/">Features</a>
+      <a href="/desktop/">Desktop</a>
       <a href="/enterprise/" aria-current="page">Enterprise</a>
-      <a href="/about/">About</a>
+      <a href="/community/">Community</a>
       <a href="/handbook/">Handbook</a>
+      <a href="/about/">About</a>
+      </div>
       <button class="theme-toggle" id="theme-toggle" type="button"
               aria-label="Switch to light theme" title="Switch theme">
         <svg class="icon icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
@@ -54,6 +57,13 @@
           </g>
         </svg>
       </button>
+      <button class="menu-toggle" id="menu-toggle" type="button"
+              aria-label="Menu" aria-expanded="false" aria-controls="primary-links">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+          <path class="menu-toggle__open" d="M4 7h16M4 12h16M4 17h16"/>
+          <path class="menu-toggle__close" d="M6 6l12 12M18 6L6 18"/>
+        </svg>
+      </button>
     </nav>
   </div>
 </header>
@@ -61,247 +71,171 @@
 <main id="main">
 <section class="section section--head">
   <div class="wrap">
-    <h1 class="page-title">What do you do with a fleet of edge AI devices?</h1>
-    <p class="page-lede">
-      One GB10 on a desk is a workstation, and it arrives knowing how to be
-      one. A hundred of them across twelve sites is an estate, and nothing in
-      the box knows how to be that. Nerv&rsquo;s answer is a fleet manager:
-      one server that installs new devices over the network, manages what is
-      on them, and provisions GPUs and system resources centrally.
-    </p>
+    <h1 class="page-title">Nerv for organisations</h1>
   </div>
 </section>
 
-<section class="section">
+<section class="section section--subtle" id="open-source">
   <div class="wrap">
-    <h2 class="section-title">One server provisions the estate</h2>
+    <h2 class="section-title">Open source, all of it</h2>
     <div class="prose">
-      <p>
-        The installer is a server you run on a machine you already have, and
-        it provisions every other machine over the network. There is no USB
-        stick and no live image to maintain. A target powers on, netboots a
-        signed UKI over ordinary DHCP and TFTP, and installs itself, either
-        attended through a TUI or unattended from a per-machine record.
-      </p>
-      <p>
-        The artifact a target netboots is the same artifact class an installed
-        slot boots, so there is no separate live-media build to keep in step
-        with the real system. Any Nerv machine can provision the next one.
-      </p>
+      <p>Nerv and every tool in it are open source under Apache-2.0: the base system and its kernel patches, <span class="kw kw--nerv">umalloc</span>, <span class="kw kw--nerv">geofront</span>, <span class="kw kw--nerv">cage</span>, <span class="kw kw--nerv">nerv-install</span>, <span class="kw kw--nerv">axon</span>, 9P CPU sharing, <span class="kw kw--nerv">Plexus</span> and <span class="kw kw--nerv">S2</span>. Patches to other projects keep their original licences. Apache-2.0 includes a patent grant.</p>
+      <p>Your engineers can read every line, build it themselves and run exactly what your fleet runs. Only builds signed by Nerv Dynamics carry the Nerv name.</p>
     </div>
+  </div>
+</section>
+
+<section class="section" id="management-plane">
+  <div class="wrap">
+    <h2 class="section-title">The management plane</h2>
+    <div class="prose">
+      <p>One place to run a fleet of <span class="kw kw--nvidia">GB10</span> and <span class="kw kw--nvidia">GB300</span> machines under one set of rules: which GPUs and CPUs serve which teams, which machines are enrolled, which generation each one runs, and what they report. It runs on your own hardware, connected or fully air-gapped, and its source is available to customers for audit.</p>
+      <p>Machines fetch signed generations and signed policy from the plane and report back. The plane sends no commands, so it has no way into a running machine, and signing rejects anything it should not offer. With a customer-held trust root, generations are signed with your key and nothing reaches your fleet without your signature.</p>
+    </div>
+    <figure class="diagram">
+      <svg viewBox="0 0 960 340" role="img" aria-label="Machines fetch signed generations and signed policy from the self-hosted management plane and report back to it. The plane sends no commands. The customer's key signs what the fleet accepts.">
+        <defs><marker id="mp-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--text-secondary)"/></marker></defs>
+        <g font-family="var(--font-mono)" font-size="13" text-anchor="middle">
+          <rect x="16" y="16" width="360" height="308" rx="10" fill="none" stroke="var(--border-strong)" stroke-dasharray="4 4"/>
+          <text x="32" y="40" text-anchor="start" fill="var(--text-secondary)">your site, air-gapped or not</text>
+          <rect x="40" y="60" width="312" height="64" rx="8" fill="none" stroke="var(--accent-cyan)" stroke-width="1.5"/>
+          <text x="196" y="87" fill="var(--accent-cyan)" font-weight="600">your signing key</text>
+          <text x="196" y="106" fill="var(--text-secondary)" font-size="12">you approve every generation</text>
+          <rect x="40" y="160" width="312" height="140" rx="8" fill="none" stroke="var(--brand)" stroke-width="2"/>
+          <text x="196" y="187" fill="var(--brand)" font-weight="600">management plane</text>
+          <text x="196" y="212" fill="var(--text-secondary)" font-size="12">placement · quotas · enrolment</text>
+          <text x="196" y="232" fill="var(--text-secondary)" font-size="12">generations · access · audit log</text>
+          <text x="196" y="252" fill="var(--text-secondary)" font-size="12">fleet data · compliance reports</text>
+          <text x="196" y="280" fill="var(--text-secondary)" font-size="12">licence checked offline</text>
+          <path d="M196 124V158" fill="none" stroke="var(--text-secondary)" stroke-width="1.25" marker-end="url(#mp-arrow)"/>
+          <text x="206" y="146" text-anchor="start" fill="var(--text-secondary)" font-size="11.5">signs</text>
+
+          <rect x="584" y="16" width="360" height="308" rx="10" fill="none" stroke="var(--border-strong)" stroke-dasharray="4 4"/>
+          <text x="600" y="40" text-anchor="start" fill="var(--text-secondary)">the fleet</text>
+          <g fill="none" stroke="var(--accent-green)" stroke-width="1.5">
+            <rect x="608" y="60" width="148" height="56" rx="8"/><rect x="772" y="60" width="148" height="56" rx="8"/>
+            <rect x="608" y="140" width="148" height="56" rx="8"/><rect x="772" y="140" width="148" height="56" rx="8"/>
+            <rect x="608" y="220" width="148" height="56" rx="8"/><rect x="772" y="220" width="148" height="56" rx="8"/>
+          </g>
+          <g fill="var(--text)" font-weight="600">
+            <text x="682" y="84">GB300</text><text x="846" y="84">GB300</text>
+            <text x="682" y="164">GB10</text><text x="846" y="164">GB10</text>
+            <text x="682" y="244">GB10</text><text x="846" y="244">GB10</text>
+          </g>
+          <g fill="var(--text-secondary)" font-size="12">
+            <text x="682" y="103">generation 41</text><text x="846" y="103">generation 41</text>
+            <text x="682" y="183">generation 41</text><text x="846" y="183">generation 41</text>
+            <text x="682" y="263">generation 42</text><text x="846" y="263">generation 41</text>
+          </g>
+          <text x="682" y="304" fill="var(--brand)" font-size="11.5">canary</text>
+
+          <g fill="none" stroke="var(--text-secondary)" stroke-width="1.25" marker-end="url(#mp-arrow)">
+            <path d="M582 196H354"/>
+            <path d="M354 248H582"/>
+          </g>
+          <text x="468" y="186" fill="var(--text)" font-weight="600" font-size="12">fetch</text>
+          <text x="468" y="214" fill="var(--text-secondary)" font-size="11.5">signed generations and policy</text>
+          <text x="468" y="240" fill="var(--text)" font-weight="600" font-size="12">report</text>
+          <text x="468" y="268" fill="var(--text-secondary)" font-size="11.5">health, usage, attestation</text>
+          <text x="468" y="306" fill="var(--text-secondary)" font-size="11.5">no commands flow to a machine</text>
+        </g>
+      </svg>
+    </figure>
 
     <div class="answers">
-
       <div class="answer">
-        <p class="answer__q">Broker</p>
-        <h3>Canary by client.</h3>
-        <p>
-          The server holds several generations and decides which one each
-          client gets. Serve generation N+1 to one machine while the rest stay
-          on N. That is the whole canary discipline, and it costs one field in
-          a client record. It also caches, so installing eight machines
-          fetches each package once.
-        </p>
+        <p class="answer__q">Placement</p>
+        <h3>GPUs assigned, not configured.</h3>
+        <p>Assign GPUs and CPUs to teams, projects and workloads. Through <span class="kw kw--nerv">axon</span>, a fleet's accelerators become one pool that work is placed into, and local and remote are the same path.</p>
       </div>
-
       <div class="answer">
-        <p class="answer__q">Live view</p>
-        <h3>N machines, each changing state.</h3>
-        <p>
-          One dashboard shows every target: its hardware identity, the
-          generation it was given, the phase it is in, progress, and the tail
-          of its log. Targets post typed phase events and the server renders
-          them. Piped or over a serial line it degrades to plain streaming
-          lines.
-        </p>
+        <p class="answer__q">Quotas</p>
+        <h3>Shared GPUs, hard limits.</h3>
+        <p>Cap memory and compute per tenant on a shared GPU. A workload that reaches its limit gets an out-of-memory error there, and nothing else on the machine is affected.</p>
       </div>
-
       <div class="answer">
-        <p class="answer__q">Upgrade</p>
-        <h3>Reinstall and update are one operation.</h3>
-        <p>
-          Netbooting a machine that already runs Nerv does not mean wiping it.
-          It composes into the inactive slot, through the same code path and
-          the same boot-counted rollback as a local update. The rare
-          frightening operation and the routine one are the same operation, so
-          the frightening one never rusts.
-        </p>
-        <p class="answer__tool"><a href="/system/">cage &rarr;</a></p>
+        <p class="answer__q">Enrolment</p>
+        <h3>No shared fleet secret.</h3>
+        <p>Machines join the fleet with their own keys, and new ones install themselves over the network from a machine you already have. Revoking one machine touches no other.</p>
       </div>
-
       <div class="answer">
-        <p class="answer__q">Resources</p>
-        <h3>Accelerators assigned, not configured.</h3>
-        <p>
-          axon owns the device and hands out pre-authenticated sockets, and
-          local and remote are the same path. A fleet&rsquo;s GPUs become a pool
-          that work is placed into, not a list of boxes someone has to ssh to
-          one at a time. <code>axon top</code> answers where a given piece of
-          work actually ran.
-        </p>
-        <p class="answer__tool"><a href="/system/">axon &rarr;</a></p>
+        <p class="answer__q">Generations</p>
+        <h3>Canary by machine.</h3>
+        <p>Choose which generation each machine runs and roll a new one out to canaries first. Every machine still falls back on its own if a generation fails to boot.</p>
       </div>
-
+      <div class="answer">
+        <p class="answer__q">Access</p>
+        <h3>Single sign-on and an audit log.</h3>
+        <p>Roles, grants that expire, and a record of who changed what. <span class="kw kw--nerv">Plexus</span> carries remote access over your own policy, never weaker.</p>
+      </div>
+      <div class="answer">
+        <p class="answer__q">Compliance</p>
+        <h3>Evidence an auditor can use.</h3>
+        <p>A software bill of materials and attestation evidence per machine. Every package records the source commit it was built from, and offline bundles carry signed generations into sites with no internet.</p>
+      </div>
     </div>
   </div>
 </section>
 
-<section class="section section--subtle">
+<section class="section section--subtle" id="supported-generations">
   <div class="wrap">
-    <h2 class="section-title">The server issues no commands</h2>
+    <h2 class="section-title">Supported generations</h2>
     <div class="prose">
-      <p>
-        Reporting runs one way, from client to server. The server offers a
-        manifest and bits; it never drives a sequence of operations on a
-        machine. A compromised server can serve a bad generation, which is what
-        signing is for, and it cannot reach into a machine that has already
-        booted.
-      </p>
-      <p>
-        This is a deliberate limit on what a central manager is allowed to be,
-        and it is why the fleet manager does not need to be trusted the way a
-        configuration-management agent has to be.
-      </p>
+      <p>A supported generation is a frozen, validated release of Nerv, kept patched for an agreed period and tested on your hardware and workloads. It holds an accredited configuration still and changes only through your change control, while the rolling release keeps moving to the newest kernel, NVIDIA driver and packages.</p>
     </div>
-  </div>
-</section>
-
-<section class="section">
-  <div class="wrap">
-    <h2 class="section-title">It will not be the only console in the rack</h2>
-    <div class="prose">
-      <p>
-        Nobody operating an estate wants another management plane. The machines
-        that will run this are going into racks that are already managed from
-        somewhere, by platforms that own virtualisation, inventory and
-        lifecycle for everything else on the floor.
-      </p>
-      <p>
-        So the fleet manager is being built to present its machines, generations
-        and accelerators as objects those platforms can already consume. An
-        operations team should not have to adopt a second console to run these
-        boxes. Integration work with established infrastructure platforms is
-        underway, and we are not naming names yet.
-      </p>
-    </div>
-  </div>
-</section>
-
-<section class="section section--subtle">
-  <div class="wrap">
-    <h2 class="section-title">Ship it on hardware you sell</h2>
-    <div class="prose">
-      <p>
-        This is the part that tends to surface late, in legal review, after a
-        hardware programme has committed.
-      </p>
-      <p>
-        <strong>GPL-3 section 6</strong> obliges anyone shipping object code
-        inside a user product to hand over whatever is needed to install a
-        modified version. Secure Boot with kernel lockdown is exactly the
-        restriction that triggers it, so a signed, locked-down boot chain and a
-        GPL-3 runtime pull against each other.
-      </p>
-
-      <div class="pull">
-        <p>Nerv does not manage that tension. It never creates it.</p>
-      </div>
-
-      <p>
-        <strong>No GPL-3 package is needed to boot a Nerv machine.</strong> The
-        core is MIT, 0BSD, BSD, and Apache, alongside the GPL-2 kernel and
-        LGPL-2.1 libraries, none of which carry the clause that matters. A Nerv
-        base can be signed, locked, and shipped without the licence review
-        turning into a redesign. The GPL-3 software people do want, rsync among
-        it, stays one <code>dnf5 install</code> away. Installing it is an
-        operator&rsquo;s choice and commits the base to nothing.
-      </p>
-      <p>
-        Owning the whole base is what makes that possible. Nerv builds its own
-        C library, allocator, compiler, init, shell, text tools, and package
-        manager from upstream source. Its licensing is therefore something
-        chosen, not something inherited.
-      </p>
-    </div>
-  </div>
-</section>
-
-<section class="section">
-  <div class="wrap">
-    <h2 class="section-title">What is running, and what is not</h2>
-    <p class="section-lede">
-      Uniform present tense makes a procurement conversation worse. This is
-      where each piece actually stands.
-    </p>
-
     <div class="table-scroll">
       <table class="data">
-        <thead>
-          <tr>
-            <th scope="col">Capability</th>
-            <th scope="col">State</th>
-            <th scope="col">Where it stands</th>
-          </tr>
-        </thead>
+        <thead><tr><th scope="col"></th><th scope="col">Rolling, free</th><th scope="col">Supported generation</th></tr></thead>
         <tbody>
-          <tr>
-            <td>Netboot install over the network, no USB</td>
-            <td><span class="pill pill--shipping">running</span></td>
-            <td>Signed UKI over DHCP and TFTP, attended TUI on the target.</td>
-          </tr>
-          <tr>
-            <td>Version broker and caching mirror</td>
-            <td><span class="pill pill--shipping">running</span></td>
-            <td>Several generations held; publishing one is dropping a
-                directory.</td>
-          </tr>
-          <tr>
-            <td>A/B slot updates and rollback</td>
-            <td><span class="pill pill--shipping">running</span></td>
-            <td>btrfs slots, promotion only after a proven boot.</td>
-          </tr>
-          <tr>
-            <td>Remote GPU execution, unmodified binaries</td>
-            <td><span class="pill pill--shipping">running</span></td>
-            <td>A dispatched kernel has run on a remote A800 and returned
-                results bit-identical to native.</td>
-          </tr>
-          <tr>
-            <td>Unattended install, live client view, hardware-bound records</td>
-            <td><span class="pill pill--building">building</span></td>
-            <td>proxyDHCP, the server dashboard, and TPM-EK manifests.</td>
-          </tr>
-          <tr>
-            <td>Verified bootstrap</td>
-            <td><span class="pill pill--building">building</span></td>
-            <td>Open work, and the gate on the rest of the signing chain.</td>
-          </tr>
-          <tr>
-            <td>Adopting a machine from a peer rather than a mirror</td>
-            <td><span class="pill pill--design">designed</span></td>
-            <td>Specified. Depends on the provenance corpus landing first.</td>
-          </tr>
-          <tr>
-            <td>Per-peer identity and revocation across a fleet</td>
-            <td><span class="pill pill--design">designed</span></td>
-            <td>axon&rsquo;s shared fleet key, per-peer identity, and revocation
-                are specified and not yet built. Today a multi-machine
-                deployment trusts its network.</td>
-          </tr>
-          <tr>
-            <td>Presenting the fleet to an external platform</td>
-            <td><span class="pill pill--design">designed</span></td>
-            <td>Underway, unannounced.</td>
-          </tr>
+          <tr><td>Updates</td><td>Continuous; everything moves forward</td><td>Frozen; security and critical fixes backported</td></tr>
+          <tr><td>Length</td><td>Always the newest</td><td>Agreed per customer, for example 12 to 36 months</td></tr>
+          <tr><td>Advisories</td><td>Public</td><td>Early notice, with an assessment of whether each issue affects you</td></tr>
+          <tr><td>Software bill of materials</td><td>Published per generation</td><td>Signed per generation, with audit support</td></tr>
+          <tr><td>Validation</td><td>Our test suite</td><td>Also on your hardware and your workloads</td></tr>
         </tbody>
       </table>
     </div>
+    <p class="after-table">Security fixes are never held back from the rolling release.</p>
+  </div>
+</section>
 
-    <p class="after-table">
-      Nerv targets NVIDIA GB-series unified-memory parts and nothing else. See
-      <a href="/platforms/">Platforms</a> for which, and why the list is short
-      on purpose.
-    </p>
+<section class="section" id="licensing">
+  <div class="wrap">
+    <h2 class="section-title">No DRM, nothing that calls home</h2>
+    <div class="prose">
+      <p>Licences are signed files, checked offline by the management plane, naming your organisation, the number of machines and the expiry date. A fleet that outgrows its licence gets a notice, never a shutdown, and renewal uses a signed machine count produced by the plane. Nothing in Nerv calls home, and nothing outside your site decides what your machines do.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle" id="hardware">
+  <div class="wrap">
+    <h2 class="section-title">Ship it on hardware you sell</h2>
+    <div class="prose">
+      <p>A Nerv base can be signed, locked down with Secure Boot and shipped preinstalled without triggering the installation clause in section 6 of GPL-3, because no GPL-3 package is needed to boot it. The core is Apache, MIT, BSD and 0BSD, with the GPL-2 kernel and LGPL-2.1 libraries. GPL-3 software such as rsync stays available through <code>dnf install</code> for anyone who wants it.</p>
+      <p>Nerv builds its own C library, allocator, compiler, init, shell, text tools and package manager from source, so its licensing is chosen rather than inherited. Preinstallation on GB10 and GB300 hardware is licensed per unit.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="sovereignty">
+  <div class="wrap">
+    <h2 class="section-title">Built in Sweden, held by you</h2>
+    <div class="prose">
+      <p>Nerv Dynamics is a Swedish company. Keys are generated on each machine and never leave it, every package is built from source, the source is open to audit, and with a customer-held trust root your key decides what your fleet runs. Nothing about your fleet passes through anyone else, including us.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle" id="contact">
+  <div class="wrap">
+    <h2 class="section-title">Talk to Nerv Dynamics</h2>
+    <div class="prose">
+      <p>The management plane, supported generations and preinstallation licences are offered by Nerv Dynamics AB, which sponsors the development of Nerv Linux.</p>
+    </div>
+    <div class="actions">
+      <a class="btn btn--primary" href="https://nervdynamics.ai">nervdynamics.ai &rarr;</a>
+    </div>
   </div>
 </section>
 </main>
@@ -311,7 +245,7 @@
     <div class="footer__base">
       <p>Copyright &copy; 2026 Nerv Dynamics AB. Nerv Linux is free software; each
          package carries the licence of its upstream source.</p>
-      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell and GB10 are
+      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell, GB10 and GB300 are
          trademarks of NVIDIA Corporation. Linux is a registered trademark of
          Linus Torvalds. Nerv Linux is not affiliated with, endorsed by, or
          sponsored by either.</p>
@@ -334,6 +268,52 @@
       root.setAttribute('data-theme', next);
       try { localStorage.setItem('nerv-theme', next); } catch (e) {}
       label();
+    });
+  })();
+  (function () {
+    // Phone menu: the nav links fold into a panel under the masthead.
+    var btn = document.getElementById('menu-toggle');
+    var head = btn.closest('.masthead');
+    btn.addEventListener('click', function () {
+      var open = head.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  })();
+  (function () {
+    // On phones a tapped diagram opens full screen, large, to pan and zoom.
+    var narrow = window.matchMedia('(max-width: 760px)');
+    function close(z) { z.remove(); document.body.classList.remove('has-zoom'); }
+    document.querySelectorAll('.diagram').forEach(function (fig) {
+      fig.addEventListener('click', function () {
+        var svg = fig.querySelector('svg');
+        if (!narrow.matches || !svg) return;
+        var z = document.createElement('div');
+        z.className = 'zoom'; z.setAttribute('role', 'dialog'); z.setAttribute('aria-label', svg.getAttribute('aria-label') || 'Diagram');
+        z.appendChild(svg.cloneNode(true));
+        var b = document.createElement('button');
+        b.className = 'zoom__close'; b.type = 'button'; b.setAttribute('aria-label', 'Close');
+        b.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+        b.addEventListener('click', function () { close(z); });
+        z.appendChild(b);
+        document.body.appendChild(z); document.body.classList.add('has-zoom');
+        document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { close(z); document.removeEventListener('keydown', esc); } });
+      });
+    });
+  })();
+  (function () {
+    // The handbook contents start folded on narrow screens, open on wide ones.
+    if (window.matchMedia('(max-width: 960px)').matches)
+      document.querySelectorAll('.hb-nav__box').forEach(function (d) { d.open = false; });
+  })();
+  (function () {
+    // Narrow tables read as stacked cards; each cell carries its column name.
+    document.querySelectorAll('table.data').forEach(function (t) {
+      var heads = Array.prototype.map.call(t.querySelectorAll('thead th'), function (th) { return th.textContent.trim(); });
+      t.querySelectorAll('tbody tr').forEach(function (tr) {
+        Array.prototype.forEach.call(tr.children, function (td, i) {
+          if (heads[i]) td.setAttribute('data-label', heads[i]);
+        });
+      });
     });
   })();
 </script>

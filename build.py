@@ -75,15 +75,16 @@ OWNER = "Nerv Dynamics AB"
 # that would ever click it.
 SOURCE_URL = "https://github.com/nerv-dynamics"
 
-# Five items. A nav is a promise about how much there is to read, so it stays
+# Six items. A nav is a promise about how much there is to read, so it stays
 # short even when more pages exist; anything not here is reached from the page
 # that owns it.
 NAV = [
     ("system",     "/system/",     "System"),
-    ("features",   "/features/",   "Features"),
+    ("desktop",    "/desktop/",    "Desktop"),
     ("enterprise", "/enterprise/", "Enterprise"),
-    ("about",      "/about/",      "About"),
+    ("community",  "/community/",  "Community"),
     ("handbook",   "/handbook/",   "Handbook"),
+    ("about",      "/about/",      "About"),
 ]
 
 
@@ -187,7 +188,20 @@ HANDBOOK = VENDOR / "handbook"
 # DISCIPLINE.md governs how a chapter is written. It is addressed to authors,
 # not to operators, and publishing it would put the editorial rules on the
 # same shelf as the instructions for installing the machine.
-HANDBOOK_SKIP = {"DISCIPLINE.md"}
+HANDBOOK_SKIP = {"DISCIPLINE.md", "README.md"}
+
+# The table of contents, in reading order. README.md in the OS tree is the
+# authors' map (planned slots, the editorial frame); the reader's front page
+# is generated from this list and the chapters' own front matter instead, so
+# it only ever shows chapters that exist. A chapter missing from this list is
+# still published, at the end, under "More".
+HANDBOOK_TOC = [
+    ("Getting started", [
+        "machine/why-an-operating-system-still",
+        "machine/install",
+        "machine/the-first-hour",
+    ]),
+]
 
 
 def handbook_slug(path):
@@ -221,38 +235,112 @@ def handbook_link(source, href):
     return url + (f"#{anchor}" if anchor else "")
 
 
+def front_matter(text):
+    """Split a chapter's leading `---` block into (keys, rest).
+
+    The keys are flat `name: value` pairs; an indented line continues the
+    value above it, which is how a long one-line wraps in the source."""
+    m = re.match(r"\A---\n(.*?)\n---\n", text, re.S)
+    if not m:
+        return {}, text
+    keys, last = {}, None
+    for line in m.group(1).split("\n"):
+        if line[:1].isspace() and last:
+            keys[last] += " " + line.strip()
+            continue
+        k, sep, v = line.partition(":")
+        if sep:
+            last = k.strip()
+            keys[last] = v.strip()
+    return keys, text[m.end():]
+
+
 def handbook_pages():
-    """(slug, title, desc, html) for every published chapter."""
+    """Chapters in table-of-contents order, as dicts."""
     if not HANDBOOK.is_dir():
         return []
-    pages = []
+    found = {}
     for path in sorted(HANDBOOK.rglob("*.md")):
         if path.name in HANDBOOK_SKIP:
             continue
-        text = path.read_text()
+        keys, text = front_matter(path.read_text())
 
         m = re.search(r"^#\s+(.*)$", text, re.M)
-        title = m.group(1).strip() if m else path.stem.replace("-", " ")
-
-        # The first real paragraph is the description. Skip headings, tables,
-        # fences and the italic self-identification line chapters open with.
-        desc = ""
-        for block in re.split(r"\n\s*\n", text):
-            b = " ".join(block.split())
-            if b.startswith(("#", "|", "```", ">", "-", "*")):
-                continue
-            desc = re.sub(r"[*`\[\]]|\(.*?\)", "", b)
-            break
-        if len(desc) > 200:
-            desc = desc[:197].rsplit(" ", 1)[0] + "..."
+        title = keys.get("title") or (m.group(1).strip() if m else path.stem.replace("-", " "))
+        desc = keys.get("one-line", "")
 
         try:
             body = mdrender.render(text, link=lambda h, s=path: handbook_link(s, h))
         except mdrender.MarkdownError as e:
             sys.exit(f"{path.relative_to(ROOT)}: {e}")
 
-        pages.append((handbook_slug(path), title, desc, body))
-    return pages
+        sections = [(i, re.sub(r"<[^>]+>", "", t)) for i, t in
+                    re.findall(r'<h2 id="([^"]+)"[^>]*>(.*?)</h2>', body)]
+        key = str(path.relative_to(HANDBOOK).with_suffix(""))
+        found[key] = {"slug": handbook_slug(path), "title": title, "desc": desc,
+                      "body": body, "sections": sections}
+
+    parts = []
+    for name, keys in HANDBOOK_TOC:
+        chapters = [found.pop(k) for k in keys if k in found]
+        if chapters:
+            parts.append((name, chapters))
+    if found:
+        parts.append(("More", list(found.values())))
+    for name, chapters in parts:
+        for c in chapters:
+            c["part"] = name
+    return parts
+
+
+def handbook_sidebar(parts, current=None):
+    """The left-hand contents. The open chapter lists its own sections."""
+    out = ['<nav class="hb-nav" aria-label="Handbook">',
+           '<details class="hb-nav__box" open>',
+           '<summary class="hb-nav__summary">Contents</summary>',
+           '<a class="hb-nav__home" href="/handbook/">The Nerv Handbook</a>']
+    for name, chapters in parts:
+        out.append(f'<p class="hb-nav__part">{_html.escape(name)}</p><ol class="hb-nav__list">')
+        for c in chapters:
+            cur = c is current
+            attr = ' aria-current="page"' if cur else ""
+            out.append(f'<li><a href="/{c["slug"]}/"{attr}>{_html.escape(c["title"])}</a>')
+            if cur and c["sections"]:
+                out.append('<ol class="hb-nav__sections">')
+                for sid, label in c["sections"]:
+                    out.append(f'<li><a href="#{sid}">{label}</a></li>')
+                out.append("</ol>")
+            out.append("</li>")
+        out.append("</ol>")
+    out.append("</details></nav>")
+    return "\n".join(out)
+
+
+def handbook_pager(flat, i):
+    """Previous and next chapter, in reading order."""
+    cells = []
+    if i > 0:
+        p = flat[i - 1]
+        cells.append(f'<a class="hb-pager__prev" href="/{p["slug"]}/"><span>Previous</span>{_html.escape(p["title"])}</a>')
+    else:
+        cells.append("<span></span>")
+    if i + 1 < len(flat):
+        n = flat[i + 1]
+        cells.append(f'<a class="hb-pager__next" href="/{n["slug"]}/"><span>Next</span>{_html.escape(n["title"])}</a>')
+    return '<nav class="hb-pager" aria-label="Chapters">' + "".join(cells) + "</nav>"
+
+
+def handbook_index(parts):
+    """The handbook's front page: what it is, then every chapter."""
+    out = ['<h1 class="page-title">The Nerv Handbook</h1>',
+           '<p class="lead">How to install Nerv, use it every day, and run it across many machines.</p>']
+    for name, chapters in parts:
+        out.append(f'<h2 class="section-title">{_html.escape(name)}</h2><ol class="hb-toc">')
+        for c in chapters:
+            out.append(f'<li><a href="/{c["slug"]}/">{_html.escape(c["title"])}</a>'
+                       f'<p>{_html.escape(c["desc"])}</p></li>')
+        out.append("</ol>")
+    return "\n".join(out)
 
 
 def render_source():
@@ -265,10 +353,13 @@ def render_source():
 # Chapters are long-form, so they take .essay — which is where the serif and
 # the narrow measure live. See docs/type.md.
 HANDBOOK_WRAP = """<section class="section section--head">
-  <div class="wrap">
-    <p class="crumb"><a href="/handbook/">Handbook</a></p>
-    <div class="essay">
+  <div class="wrap hb">
+    {sidebar}
+    <div class="hb__main">
+      <div class="essay">
 {body}
+      </div>
+      {pager}
     </div>
   </div>
 </section>"""
@@ -385,9 +476,16 @@ def main():
         print(f"  {page.name:20} -> {dest.relative_to(ROOT)}")
 
     # --- handbook chapters ---------------------------------------------
-    chapters = handbook_pages()
-    for slug, title, desc, body in chapters:
-        html = layout
+    parts = handbook_pages()
+    flat = [c for _, chapters in parts for c in chapters]
+    hb_pages = [("handbook", "Handbook", "The Nerv Handbook: how to install Nerv, use it every day, and run it across many machines.",
+                 HANDBOOK_WRAP.format(sidebar=handbook_sidebar(parts), body=handbook_index(parts), pager=""))]
+    for i, c in enumerate(flat):
+        hb_pages.append((c["slug"], c["title"], c["desc"],
+                         HANDBOOK_WRAP.format(sidebar=handbook_sidebar(parts, c), body=c["body"],
+                                              pager=handbook_pager(flat, i))))
+    for slug, title, desc, content in hb_pages:
+        html_out = layout
         for key, value in {
             "title": title,
             "pagetitle": f"Nerv Linux \u2014 {title}",
@@ -396,17 +494,18 @@ def main():
             "nav": render_nav("handbook"),
             "owner": OWNER,
             "source": render_source(),
-            "content": HANDBOOK_WRAP.format(body=body),
+            "content": content,
         }.items():
-            html = html.replace("{{" + key + "}}", value)
-        left = re.findall(r"\{\{(\w+)\}\}", html)
+            html_out = html_out.replace("{{" + key + "}}", value)
+        left = re.findall(r"\{\{(\w+)\}\}", html_out)
         if left:
             sys.exit(f"{slug}: unreplaced placeholders {sorted(set(left))}")
         dest = ROOT / slug / "index.html"
-        write(dest, html)
+        write(dest, html_out)
         written.append(dest)
         print(f"  {'handbook:' + slug.removeprefix('handbook'):20} -> "
               f"{dest.relative_to(ROOT)}")
+    chapters = flat
 
     print(f"built {len(pages)} pages and {len(chapters)} handbook chapters")
     check_placeholders(written)

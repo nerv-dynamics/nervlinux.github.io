@@ -8,9 +8,9 @@ nav:   system
 <section class="section section--head">
   <div class="wrap">
     <h1 class="page-title">System</h1>
-    <p class="page-lede">Nerv is a Linux distribution built from scratch on musl with LLVM. Because we build every layer, from the C library and allocator to the kernel and the GPU driver, we can change any of them, and this page is what we changed.</p>
+    <p class="page-lede">Nerv is a Linux distribution built from scratch on musl with LLVM. Every layer, from the C library and allocator to the kernel and the GPU driver, is built by Nerv for NVIDIA Grace Blackwell machines.</p>
     <figure class="diagram">
-      <svg viewBox="0 0 960 470" role="img" aria-label="The Nerv stack, from the GB10 up: boot, kernel and driver, the musl C library with umalloc, the userland, Nerv's own tools and your programs, with a glibc runtime beside it for software you install.">
+      <svg viewBox="0 0 960 470" role="img" aria-label="The Nerv stack, from the hardware up: boot, kernel and driver, the musl C library with umalloc, the userland, Nerv's own tools and your programs, with a glibc runtime beside it for software you install.">
         <g font-family="var(--font-mono)" font-size="13">
           <!-- programs -->
           <rect x="16" y="16" width="690" height="56" rx="8" fill="var(--bg-subtle)" stroke="var(--border-strong)"/>
@@ -44,8 +44,8 @@ nav:   system
           <text x="400" y="381" fill="var(--text-secondary)" font-size="12">Secure Boot · TPM unlock · rollback</text>
           <!-- hardware -->
           <rect x="16" y="408" width="928" height="46" rx="8" fill="none" stroke="var(--accent-green)" stroke-width="2"/>
-          <text x="36" y="436" fill="var(--accent-green)" font-weight="600">GB10</text>
-          <text x="100" y="436" fill="var(--text-secondary)" font-size="12">10 Cortex-X925 + 10 Cortex-A725 cores · Blackwell GPU · 128 GB unified memory</text>
+          <text x="36" y="436" fill="var(--accent-green)" font-weight="600">GB10 · GB300</text>
+          <text x="160" y="436" fill="var(--text-secondary)" font-size="12">Arm CPU cores · Blackwell GPU · CPU and GPU sharing one memory</text>
           <!-- glibc side column -->
           <rect x="726" y="16" width="218" height="260" rx="8" fill="none" stroke="var(--accent-cyan)" stroke-width="1.5" stroke-dasharray="5 4"/>
           <text x="746" y="40" fill="var(--accent-cyan)" font-weight="600">glibc runtime</text>
@@ -69,7 +69,7 @@ nav:   system
   </div>
 </section>
 
-<section class="section section--subtle">
+<section class="section section--subtle" id="libc">
   <div class="wrap">
     <h2 class="section-title">Two C libraries, one boundary</h2>
     <div class="prose">
@@ -110,7 +110,7 @@ nav:   system
   </div>
 </section>
 
-<section class="section">
+<section class="section" id="umalloc">
   <div class="wrap">
     <h2 class="section-title">umalloc, the allocator</h2>
     <div class="prose">
@@ -134,196 +134,130 @@ nav:   system
   </div>
 </section>
 
-<section class="section section--subtle">
+<section class="section section--subtle" id="s2">
   <div class="wrap">
-    <h2 class="section-title">One compiler, hardening nobody can turn off</h2>
+    <h2 class="section-title">S2, the inference engine</h2>
     <div class="prose">
-      <p>Every package is built with <span class="kw kw--tool">LLVM</span> 22 and <span class="kw kw--tool">clang</span>, linked with <span class="kw kw--tool">lld</span>, with <span class="kw kw--tool">ThinLTO</span> and tuning for the <span class="kw kw--nvidia">GB10</span>'s Cortex-X925 and A725 cores. <code>-O3</code>, the stack protector, ARM branch protection (PAC and BTI), full RELRO, a non-executable stack and <code>_FORTIFY_SOURCE=3</code> are appended after each package's own flags, where the last flag wins. A package cannot opt out by passing <code>-O0 -fno-stack-protector</code>: the enforced flags still win, and the build audits every ELF and refuses to publish one that lacks them. The few exemptions are listed in the tree, each with its reason.</p>
-      <p><span class="kw kw--tool">musl</span> implements no fortified functions, so <code>_FORTIFY_SOURCE</code> is silently inert on other musl systems. Nerv ships fortify headers in every build root, so every package is fortified apart from the listed exemptions.</p>
-      <p>Builds run in a pure-musl chroot composed from Nerv's own repository, never a <span class="kw kw--tool">glibc</span> build root, because a musl binary built inside a glibc environment picks up glibc-shaped answers that surface as bugs much later.</p>
-    </div>
-  </div>
-</section>
-
-<section class="section">
-  <div class="wrap">
-    <h2 class="section-title">Packaging</h2>
-    <div class="prose">
-      <p><span class="kw kw--tool">rpm</span>, <span class="kw kw--tool">libsolv</span>, <span class="kw kw--tool">librepo</span> and <span class="kw kw--tool">dnf5</span> are built against <span class="kw kw--tool">musl</span> and run with no <span class="kw kw--tool">glibc</span> anywhere in their dependency trees. That means two things: the system can rebuild itself, and <code>dnf install</code> still reaches the Fedora package ecosystem when you need something Nerv does not build. Packages are signed, and the machine refuses unsigned ones.</p>
-    </div>
-    <div class="table-scroll">
-      <table class="data">
-        <thead><tr><th scope="col">Component</th><th scope="col">Version</th><th scope="col">Notes</th></tr></thead>
-        <tbody>
-          <tr><td><code>rpm</code></td><td>6.0.2</td><td>musl; OpenPGP through rpm-sequoia, no gpgme chain</td></tr>
-          <tr><td><code>libsolv</code></td><td>0.7.40</td><td>built against librpm, comps enabled</td></tr>
-          <tr><td><code>librepo</code></td><td>1.21.1</td><td><code>USE_GPGME=OFF</code></td></tr>
-          <tr><td><code>dnf5</code></td><td>5.4.6.0</td><td>links libdnf5, librpm, libc++, libunwind and musl, no glibc</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</section>
-
-<section class="section section--subtle">
-  <div class="wrap">
-    <h2 class="section-title">Kernel and driver</h2>
-    <div class="prose">
-      <p>Nerv runs the newest released kernel and takes a stable update within days. The <span class="kw kw--nvidia">NVIDIA</span> driver is the latest release, built from NVIDIA's open kernel modules with Nerv's patches, and signed with a key that never enters the build chroot. Unsigned modules do not load.</p>
-      <p>One of those patches charges GPU memory to the cgroup of the process that allocated it. On a unified-memory machine that matters: a container or service with a memory limit gets <code>CUDA_ERROR_OUT_OF_MEMORY</code> at its limit, and nothing is killed. A runaway GPU allocation cannot take the machine down.</p>
-    </div>
-  </div>
-</section>
-
-<section class="section">
-  <div class="wrap">
-    <h2 class="section-title">A scheduler that knows what a watt costs</h2>
-    <div class="prose">
-      <p>The <span class="kw kw--nvidia">GB10</span> has ten Cortex-X925 performance cores at up to 3.9&nbsp;GHz and ten Cortex-A725 efficiency cores at up to 2.8&nbsp;GHz. On stock kernels, energy-aware scheduling is off on this chip: the firmware reports slightly different capacities for cores that are identical, the kernel refuses to build an energy model, and the one cluster it does model gets a made-up power curve.</p>
-      <p>Nerv measured each cluster at the wall and ships that table as the kernel's energy model. An X925 core draws 10.3&times; the power for 2.83&times; the clock; the stock curve said 1.13&times;. With a real model, the scheduler keeps light, periodic work on the efficiency cores, for 3.6&times; lower CPU energy than <span class="kw kw--nvidia">DGX OS</span> on the same workload. A saturating benchmark took 9.28&nbsp;s on Nerv and 9.31&nbsp;s on DGX OS.</p>
+      <p><span class="kw kw--nerv">S2</span> talks to the <span class="kw kw--nvidia">CUDA</span> driver API and nothing above it: no cudart, no cuBLAS, no nvcc. Its kernels come from its own PTX generator, written in Rust. A model is two files: the weights, stored in the order the kernels read them, and a plan holding every allocation, every kernel as a cubin and every step's launches. At load, S2 captures each step as a CUDA graph, which takes under a second for all 128 steps. A model is serving 10 seconds after S2 starts, where <span class="kw kw--tool">vLLM</span> takes 7 minutes.</p>
+      <p>The KV cache is paged from one pool, 64 positions to a page, out to a 262,144-token context. Finished sessions are kept as snapshots a new request can resume from. Speculative decoding uses block drafters, with acceptance decided on the GPU. At 64 concurrent sessions S2 serves 493 tokens per second, 1.5&times; vLLM and over 6&times; llama.cpp.</p>
     </div>
     <figure class="diagram">
-      <svg viewBox="0 0 960 440" role="img" aria-label="Power per core against clock, measured at the wall: an X925 core draws 10.3 times the power for 2.83 times the clock, while the stock kernel's curve claims 1.13 times.">
-        <g font-family="var(--font-mono)" font-size="13">
-          <g stroke="var(--border)">
-            <line x1="80" y1="380" x2="900" y2="380"/><line x1="80" y1="316" x2="900" y2="316"/><line x1="80" y1="252" x2="900" y2="252"/><line x1="80" y1="188" x2="900" y2="188"/><line x1="80" y1="124" x2="900" y2="124"/><line x1="80" y1="60" x2="900" y2="60"/>
-          </g>
-          <g fill="var(--text-secondary)" font-size="11.5" text-anchor="end">
-            <text x="70" y="384">0 W</text><text x="70" y="320">1</text><text x="70" y="256">2</text><text x="70" y="192">3</text><text x="70" y="128">4</text><text x="70" y="64">5 W</text>
-          </g>
-          <g fill="var(--text-secondary)" font-size="11.5" text-anchor="middle">
-            <text x="80" y="402">0</text><text x="285" y="402">1 GHz</text><text x="490" y="402">2 GHz</text><text x="695" y="402">3 GHz</text><text x="900" y="402">4 GHz</text>
-          </g>
-          <text x="80" y="36" fill="var(--text-secondary)" font-size="12">power per core, measured at the wall</text>
-          <!-- stock curve, scaled to the measured 1378 MHz point -->
-          <polyline points="362.5,351.2 655.6,348.7 799.6,347.6" fill="none" stroke="var(--text-secondary)" stroke-width="2" stroke-dasharray="6 5"/>
-          <text x="810" y="352" fill="var(--text-secondary)" font-size="12">stock kernel</text>
-          <text x="810" y="368" fill="var(--text-secondary)" font-size="12">1.13×</text>
-          <!-- A725 measured -->
-          <polyline points="149.3,377.4 367.8,369.8 655.6,337.8" fill="none" stroke="var(--accent-cyan)" stroke-width="2.5"/>
-          <g fill="var(--accent-cyan)"><circle cx="149.3" cy="377.4" r="4"/><circle cx="367.8" cy="369.8" r="4"/><circle cx="655.6" cy="337.8" r="4"/></g>
-          <text x="560" y="318" fill="var(--accent-cyan)" font-weight="600">A725, measured</text>
-          <!-- X925 measured -->
-          <polyline points="362.5,351.2 621,237.3 879.5,83.7" fill="none" stroke="var(--brand)" stroke-width="2.5"/>
-          <g fill="var(--brand)"><circle cx="362.5" cy="351.2" r="4"/><circle cx="621" cy="237.3" r="4"/><circle cx="879.5" cy="83.7" r="4"/></g>
-          <text x="400" y="150" fill="var(--brand)" font-weight="600">X925, measured</text>
-          <text x="400" y="168" fill="var(--brand)">10.3× the power</text>
-          <text x="400" y="186" fill="var(--brand)">for 2.83× the clock</text>
+      <svg viewBox="0 0 960 640" role="img" aria-label="Prefill and decode throughput against vLLM, Atlas and llama.cpp. S2 is fastest in every case: 2,840 tokens per second prefill at 8k, and 493.4 decode at 64 sessions against vLLM's 329.0. It loads the model in 10 seconds, against 7 minutes for vLLM.">
+        <g font-family="var(--font-mono)" font-size="12.5">
+          <text x="16" y="28" fill="var(--text)" font-weight="600" font-size="14">Prefill, tokens per second</text>
+          <text x="16" y="62" fill="var(--text-secondary)">8k prompt</text>
+          <text x="16" y="87" fill="var(--brand)" font-weight="600">S2</text>
+          <rect x="116" y="74" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 8k prompt: 2,840 tok/s</title></rect>
+          <text x="404.0" y="87" fill="var(--text)" font-weight="600">2,840</text>
+          <text x="16" y="115" fill="var(--text-secondary)">vLLM NVFP4</text>
+          <rect x="116" y="102" width="226.1" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4, 8k prompt: 2,293 tok/s</title></rect>
+          <text x="350.1" y="115" fill="var(--text)">2,293</text>
+          <text x="16" y="143" fill="var(--text-secondary)">Atlas</text>
+          <rect x="116" y="130" width="86.5" height="18" rx="3" fill="var(--border-strong)"><title>Atlas, 8k prompt: 877 tok/s</title></rect>
+          <text x="210.5" y="143" fill="var(--text)">877</text>
+          <text x="16" y="171" fill="var(--text-secondary)">llama.cpp</text>
+          <rect x="116" y="158" width="78.0" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp, 8k prompt: 791 tok/s</title></rect>
+          <text x="202.0" y="171" fill="var(--text)">791</text>
+          <text x="16" y="210" fill="var(--text-secondary)">32k prompt</text>
+          <text x="16" y="235" fill="var(--brand)" font-weight="600">S2</text>
+          <rect x="116" y="222" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 32k prompt: 2,412 tok/s</title></rect>
+          <text x="404.0" y="235" fill="var(--text)" font-weight="600">2,412</text>
+          <text x="16" y="263" fill="var(--text-secondary)">vLLM NVFP4</text>
+          <rect x="116" y="250" width="230.0" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4, 32k prompt: 1,981 tok/s</title></rect>
+          <text x="354.0" y="263" fill="var(--text)">1,981</text>
+          <text x="16" y="291" fill="var(--text-secondary)">Atlas</text>
+          <rect x="116" y="278" width="88.9" height="18" rx="3" fill="var(--border-strong)"><title>Atlas, 32k prompt: 766 tok/s</title></rect>
+          <text x="212.9" y="291" fill="var(--text)">766</text>
+          <text x="16" y="319" fill="var(--text-secondary)">llama.cpp</text>
+          <rect x="116" y="306" width="87.8" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp, 32k prompt: 756 tok/s</title></rect>
+          <text x="211.8" y="319" fill="var(--text)">756</text>
+          <text x="16" y="358" fill="var(--text-secondary)">131k prompt</text>
+          <text x="16" y="383" fill="var(--brand)" font-weight="600">S2</text>
+          <rect x="116" y="370" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 131k prompt: 1,390 tok/s</title></rect>
+          <text x="404.0" y="383" fill="var(--text)" font-weight="600">1,390</text>
+          <text x="16" y="411" fill="var(--text-secondary)">vLLM NVFP4</text>
+          <rect x="116" y="398" width="239.7" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4, 131k prompt: 1,190 tok/s</title></rect>
+          <text x="363.7" y="411" fill="var(--text)">1,190</text>
+          <text x="16" y="439" fill="var(--text-secondary)">Atlas</text>
+          <text x="116" y="439" fill="var(--text-secondary)" font-size="11.5">no result</text>
+          <text x="16" y="467" fill="var(--text-secondary)">llama.cpp</text>
+          <text x="116" y="467" fill="var(--text-secondary)" font-size="11.5">no result</text>
+          <text x="488" y="28" fill="var(--text)" font-weight="600" font-size="14">Decode, tokens per second</text>
+          <text x="488" y="62" fill="var(--text-secondary)">1 session</text>
+          <text x="488" y="87" fill="var(--brand)" font-weight="600">S2</text>
+          <rect x="588" y="74" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 1 session: 15.3 tok/s</title></rect>
+          <text x="876.0" y="87" fill="var(--text)" font-weight="600">15.3</text>
+          <text x="488" y="115" fill="var(--text-secondary)">vLLM NVFP4</text>
+          <rect x="588" y="102" width="206.8" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4, 1 session: 11.3 tok/s</title></rect>
+          <text x="802.8" y="115" fill="var(--text)">11.3</text>
+          <text x="488" y="143" fill="var(--text-secondary)">Atlas</text>
+          <rect x="588" y="130" width="265.4" height="18" rx="3" fill="var(--border-strong)"><title>Atlas, 1 session: 14.5 tok/s</title></rect>
+          <text x="861.4" y="143" fill="var(--text)">14.5</text>
+          <text x="488" y="171" fill="var(--text-secondary)">llama.cpp</text>
+          <rect x="588" y="158" width="214.1" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp, 1 session: 11.7 tok/s</title></rect>
+          <text x="810.1" y="171" fill="var(--text)">11.7</text>
+          <text x="488" y="210" fill="var(--text-secondary)">4 sessions</text>
+          <text x="488" y="235" fill="var(--brand)" font-weight="600">S2</text>
+          <rect x="588" y="222" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 4 sessions: 56.7 tok/s</title></rect>
+          <text x="876.0" y="235" fill="var(--text)" font-weight="600">56.7</text>
+          <text x="488" y="263" fill="var(--text-secondary)">vLLM NVFP4</text>
+          <rect x="588" y="250" width="208.9" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4, 4 sessions: 42.3 tok/s</title></rect>
+          <text x="804.9" y="263" fill="var(--text)">42.3</text>
+          <text x="488" y="291" fill="var(--text-secondary)">Atlas</text>
+          <rect x="588" y="278" width="256.3" height="18" rx="3" fill="var(--border-strong)"><title>Atlas, 4 sessions: 51.9 tok/s</title></rect>
+          <text x="852.3" y="291" fill="var(--text)">51.9</text>
+          <text x="488" y="319" fill="var(--text-secondary)">llama.cpp</text>
+          <rect x="588" y="306" width="187.2" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp, 4 sessions: 37.9 tok/s</title></rect>
+          <text x="783.2" y="319" fill="var(--text)">37.9</text>
+          <text x="488" y="358" fill="var(--text-secondary)">16 sessions</text>
+          <text x="488" y="383" fill="var(--brand)" font-weight="600">S2</text>
+          <rect x="588" y="370" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 16 sessions: 195.0 tok/s</title></rect>
+          <text x="876.0" y="383" fill="var(--text)" font-weight="600">195.0</text>
+          <text x="488" y="411" fill="var(--text-secondary)">vLLM NVFP4</text>
+          <rect x="588" y="398" width="203.0" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4, 16 sessions: 141.4 tok/s</title></rect>
+          <text x="799.0" y="411" fill="var(--text)">141.4</text>
+          <text x="488" y="439" fill="var(--text-secondary)">Atlas</text>
+          <rect x="588" y="426" width="195.9" height="18" rx="3" fill="var(--border-strong)"><title>Atlas, 16 sessions: 136.4 tok/s</title></rect>
+          <text x="791.9" y="439" fill="var(--text)">136.4</text>
+          <text x="488" y="467" fill="var(--text-secondary)">llama.cpp</text>
+          <rect x="588" y="454" width="79.8" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp, 16 sessions: 55.6 tok/s</title></rect>
+          <text x="675.8" y="467" fill="var(--text)">55.6</text>
+          <text x="488" y="506" fill="var(--text-secondary)">64 sessions</text>
+          <text x="488" y="531" fill="var(--brand)" font-weight="600">S2</text>
+          <rect x="588" y="518" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 64 sessions: 493.4 tok/s</title></rect>
+          <text x="876.0" y="531" fill="var(--text)" font-weight="600">493.4</text>
+          <text x="488" y="559" fill="var(--text-secondary)">vLLM NVFP4</text>
+          <rect x="588" y="546" width="186.7" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4, 64 sessions: 329.0 tok/s</title></rect>
+          <text x="782.7" y="559" fill="var(--text)">329.0</text>
+          <text x="488" y="587" fill="var(--text-secondary)">Atlas</text>
+          <text x="588" y="587" fill="var(--text-secondary)" font-size="11.5">supports at most 16</text>
+          <text x="488" y="615" fill="var(--text-secondary)">llama.cpp</text>
+          <rect x="588" y="602" width="45.3" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp, 64 sessions: 79.9 tok/s</title></rect>
+          <text x="641.3" y="615" fill="var(--text)">79.9</text>
+          <text x="16" y="506" fill="var(--text)" font-weight="600">Time to load the model</text>
+          <text x="16" y="531" fill="var(--brand)" font-weight="600">S2</text>
+          <rect x="116" y="518" width="6.7" height="18" rx="3" fill="var(--brand)"><title>S2: 10 s</title></rect>
+          <text x="130.7" y="531" fill="var(--text)" font-weight="600">10 s</text>
+          <text x="16" y="559" fill="var(--text-secondary)">vLLM NVFP4</text>
+          <rect x="116" y="546" width="280.0" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4: 7 min</title></rect>
+          <text x="404.0" y="559" fill="var(--text)">7 min</text>
+          <text x="16" y="587" fill="var(--text-secondary)">Atlas</text>
+          <rect x="116" y="574" width="25.3" height="18" rx="3" fill="var(--border-strong)"><title>Atlas: 38 s</title></rect>
+          <text x="149.3" y="587" fill="var(--text)">38 s</text>
+          <text x="16" y="615" fill="var(--text-secondary)">llama.cpp</text>
+          <rect x="116" y="602" width="48.7" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp: 1 min 13 s</title></rect>
+          <text x="172.7" y="615" fill="var(--text)">1 min 13 s</text>
         </g>
       </svg>
-    </figure>
-  </div>
-</section>
-
-<section class="section section--subtle">
-  <div class="wrap">
-    <h2 class="section-title">Boot</h2>
-    <div class="prose">
-      <p>Each slot boots from one Unified Kernel Image: kernel, initrd and command line in a single file that the firmware verifies as a unit, signed under Nerv's own Secure Boot key hierarchy rather than Microsoft's. There is no bootloader configuration to drift and nothing to edit.</p>
-      <p>The disk is encrypted and unlocks itself from the TPM against a policy signed for that exact boot image, so no passphrase is typed and no key is on disk. The passphrase remains as a fallback. The GPU's firmware loads while the disk is unlocking, not after, so the GPU is ready when userspace is.</p>
-    </div>
-    <figure class="diagram">
-      <svg viewBox="0 0 960 250" role="img" aria-label="Boot timeline from firmware hand-off: boot loader 2.17 s, kernel 1.49 s, initrd 2.62 s including the TPM unlock with the GPU firmware loading alongside it, then userspace; the login prompt appears at about 6.9 s.">
-        <g font-family="var(--font-mono)" font-size="13">
-          <!-- axis: 0..10 s over x 40..920, 88 px per second -->
-          <g stroke="var(--border)">
-            <line x1="40" y1="40" x2="40" y2="200"/><line x1="128" y1="40" x2="128" y2="200"/><line x1="216" y1="40" x2="216" y2="200"/><line x1="304" y1="40" x2="304" y2="200"/><line x1="392" y1="40" x2="392" y2="200"/><line x1="480" y1="40" x2="480" y2="200"/><line x1="568" y1="40" x2="568" y2="200"/><line x1="656" y1="40" x2="656" y2="200"/><line x1="744" y1="40" x2="744" y2="200"/><line x1="832" y1="40" x2="832" y2="200"/><line x1="920" y1="40" x2="920" y2="200"/>
-          </g>
-          <g fill="var(--text-secondary)" font-size="11.5" text-anchor="middle">
-            <text x="40" y="222">0 s</text><text x="128" y="222">1</text><text x="216" y="222">2</text><text x="304" y="222">3</text><text x="392" y="222">4</text><text x="480" y="222">5</text><text x="568" y="222">6</text><text x="656" y="222">7</text><text x="744" y="222">8</text><text x="832" y="222">9</text><text x="920" y="222">10 s</text>
-          </g>
-          <!-- stages: loader 0-2.17, kernel 2.17-3.66, initrd 3.66-6.28, userspace 6.28-9.45 -->
-          <rect x="40" y="56" width="191" height="34" rx="6" fill="var(--bg-subtle)" stroke="var(--border-strong)"/>
-          <text x="52" y="78" fill="var(--text)">boot loader 2.17 s</text>
-          <rect x="231" y="56" width="131" height="34" rx="6" fill="none" stroke="var(--accent-cyan)" stroke-width="1.5"/>
-          <text x="243" y="78" fill="var(--accent-cyan)">kernel 1.49 s</text>
-          <rect x="362" y="56" width="231" height="34" rx="6" fill="none" stroke="var(--brand)" stroke-width="2"/>
-          <text x="374" y="78" fill="var(--brand)">initrd 2.62 s</text>
-          <rect x="593" y="56" width="279" height="34" rx="6" fill="none" stroke="var(--accent-cyan)" stroke-width="1.5"/>
-          <text x="665" y="78" fill="var(--accent-cyan)">userspace 3.17 s</text>
-          <!-- parallel lanes inside the initrd -->
-          <rect x="374" y="106" width="200" height="26" rx="6" fill="none" stroke="var(--brand)" stroke-width="1.25"/>
-          <text x="384" y="124" fill="var(--text)" font-size="12">TPM unlocks the disk</text>
-          <rect x="425" y="142" width="200" height="26" rx="6" fill="none" stroke="var(--accent-green)" stroke-width="1.25"/>
-          <text x="435" y="160" fill="var(--accent-green)" font-size="12">GPU firmware loads</text>
-          <!-- login marker at 6.9 s -->
-          <line x1="647" y1="40" x2="647" y2="200" stroke="var(--brand)" stroke-width="2" stroke-dasharray="5 4"/>
-          <text x="657" y="122" fill="var(--brand)" font-weight="600">login prompt</text>
-          <text x="657" y="140" fill="var(--brand)" font-weight="600">~6.9 s</text>
-          <text x="40" y="30" fill="var(--text-secondary)" font-size="12">from firmware hand-off</text>
-        </g>
-      </svg>
+      <figcaption>Qwen3.8-27B on one GB10. Each panel has its own scale.</figcaption>
     </figure>
     <div class="prose">
-      <p>The full system target follows shortly after, because it waits for the GPU on purpose.</p>
+      <p>S2 is also the only engine we tested that loads <span class="kw kw--nvidia">NVIDIA</span>'s own NVFP4 checkpoint of Qwen 3.8 Flash-Next on one <span class="kw kw--nvidia">GB10</span>, because it keeps the model's n-gram table on disk. Stock <span class="kw kw--tool">vLLM</span> and Atlas ran out of memory or refused to load it.</p>
     </div>
   </div>
 </section>
 
-<section class="section">
-  <div class="wrap">
-    <h2 class="section-title">Keys</h2>
-    <div class="prose">
-      <p>Five keys sign or unlock different things, and each machine generates its own rather than being issued a fleet's. A machine's private keys never leave it, and its signing key doubles as its identity, so there is no central secret whose loss compromises every machine at once.</p>
-    </div>
-    <div class="table-scroll">
-      <table class="data">
-        <thead><tr><th scope="col">Key</th><th scope="col">Signs</th><th scope="col">Checked by</th></tr></thead>
-        <tbody>
-          <tr><td>UEFI db</td><td>The boot image</td><td>Firmware, every boot</td></tr>
-          <tr><td>TPM policy</td><td>The unlock policy inside the boot image</td><td>The TPM, every unlock</td></tr>
-          <tr><td>Kernel module</td><td>Out-of-tree modules, such as <span class="kw kw--nvidia">NVIDIA</span>'s</td><td>The kernel, every module load</td></tr>
-          <tr><td>OpenPGP</td><td>Packages</td><td><span class="kw kw--tool">rpm</span>, every install</td></tr>
-          <tr><td>ed25519</td><td>The installer and each generation's checksums</td><td>The bootstrap script and the installer</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</section>
-
-<section class="section section--subtle">
-  <div class="wrap">
-    <h2 class="section-title">Generations</h2>
-    <div class="prose">
-      <p>Every change to the system is a new generation: a <span class="kw kw--tool">btrfs</span> subvolume beside the running one, sealed into its own signed boot image. There is no fixed A/B pair; a machine keeps as many generations as it has reason to. A new generation boots on trial with a counter. If it fails to complete a boot three times, the machine falls back to the generation that worked, with nobody present. Only a generation that has booted becomes the default.</p>
-      <p>Before anything goes to hardware, the new generation is booted in a VM from its own boot image and driven through a real login. The mechanism is <a href="/system/">cage</a>.</p>
-    </div>
-    <figure class="diagram">
-      <svg viewBox="0 0 960 300" role="img" aria-label="A new generation is checked in a VM, then boots on trial with a counter; if it completes a boot it becomes the default, and if it fails three times the machine falls back to the generation that worked.">
-        <defs><marker id="gen-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--text-secondary)"/></marker></defs>
-        <g font-family="var(--font-mono)" font-size="13" text-anchor="middle">
-          <rect x="16" y="110" width="170" height="64" rx="8" fill="var(--bg-subtle)" stroke="var(--border-strong)"/>
-          <text x="101" y="137" fill="var(--text)" font-weight="600">generation 41</text>
-          <text x="101" y="156" fill="var(--text-secondary)" font-size="12">proven, the default</text>
-          <rect x="236" y="110" width="170" height="64" rx="8" fill="none" stroke="var(--brand)" stroke-width="2"/>
-          <text x="321" y="137" fill="var(--brand)" font-weight="600">generation 42</text>
-          <text x="321" y="156" fill="var(--text-secondary)" font-size="12">new btrfs subvolume</text>
-          <rect x="456" y="110" width="170" height="64" rx="8" fill="none" stroke="var(--accent-cyan)" stroke-width="1.5"/>
-          <text x="541" y="137" fill="var(--accent-cyan)" font-weight="600">VM login gate</text>
-          <text x="541" y="156" fill="var(--text-secondary)" font-size="12">boots its own image</text>
-          <rect x="676" y="110" width="170" height="64" rx="8" fill="none" stroke="var(--brand)" stroke-width="2"/>
-          <text x="761" y="137" fill="var(--brand)" font-weight="600">boot on trial</text>
-          <text x="761" y="156" fill="var(--text-secondary)" font-size="12">counter 3 · 2 · 1</text>
-          <rect x="676" y="20" width="270" height="52" rx="8" fill="none" stroke="var(--accent-green)" stroke-width="2"/>
-          <text x="811" y="42" fill="var(--accent-green)" font-weight="600">completes a boot</text>
-          <text x="811" y="60" fill="var(--text-secondary)" font-size="12">42 becomes the default</text>
-          <rect x="676" y="216" width="270" height="52" rx="8" fill="none" stroke="var(--text-secondary)" stroke-width="1.5"/>
-          <text x="811" y="238" fill="var(--text)" font-weight="600">fails three times</text>
-          <text x="811" y="256" fill="var(--text-secondary)" font-size="12">machine boots 41, unattended</text>
-          <g fill="none" stroke="var(--text-secondary)" stroke-width="1.25" marker-end="url(#gen-arrow)">
-            <path d="M186 142H234"/><path d="M406 142H454"/><path d="M626 142H674"/>
-            <path d="M761 110V74"/><path d="M761 174V214"/>
-            <path d="M676 242H101V176"/>
-          </g>
-          <text x="210" y="132" fill="var(--text-secondary)" font-size="11.5">update</text>
-          <text x="380" y="260" fill="var(--text-secondary)" font-size="11.5">fall back to the generation that worked</text>
-        </g>
-      </svg>
-    </figure>
-  </div>
-</section>
-
-<section class="section">
+<section class="section" id="gpu">
   <div class="wrap">
     <h2 class="section-title">The GPU boundary</h2>
     <div class="prose">
@@ -373,14 +307,14 @@ nav:   system
 
           <!-- gpu -->
           <rect x="190" y="398" width="265" height="40" rx="8" fill="none" stroke="var(--accent-green)" stroke-width="2"/>
-          <text x="322" y="423" fill="var(--accent-green)" font-weight="600">GB10 GPU</text>
+          <text x="322" y="423" fill="var(--accent-green)" font-weight="600">GB10 or GB300 GPU</text>
 
           <!-- remote -->
           <rect x="688" y="304" width="232" height="68" rx="8" fill="none" stroke="var(--brand)" stroke-width="2"/>
           <text x="804" y="331" fill="var(--brand)" font-weight="600">axon daemon</text>
           <text x="804" y="351" fill="var(--text-secondary)" font-size="12">vendor driver</text>
           <rect x="688" y="398" width="232" height="40" rx="8" fill="none" stroke="var(--text-secondary)" stroke-width="1.5"/>
-          <text x="804" y="423" fill="var(--text)" font-weight="600">GB10, RTX, Radeon</text>
+          <text x="804" y="423" fill="var(--text)" font-weight="600">GB300, RTX, Radeon</text>
 
           <!-- arrows -->
           <g fill="none" stroke="var(--text-secondary)" stroke-width="1.25" marker-end="url(#gpu-arrow)">
@@ -399,29 +333,39 @@ nav:   system
   </div>
 </section>
 
-<section class="section section--subtle">
+<section class="section section--subtle" id="remote-gpu">
   <div class="wrap">
     <h2 class="section-title">GPUs across machines</h2>
     <div class="prose">
       <p>The <span class="kw kw--nvidia">GB10</span> has no GPUDirect RDMA: its NIC cannot register GPU memory. So <span class="kw kw--nerv">axon</span> turns the problem around and keeps transfer buffers in pinned host memory the NIC can already reach, which on unified memory streams at 96% of device-memory bandwidth. A kernel signals a proxy thread, the proxy posts an RDMA write followed by an 8-byte flag, and the receiving kernel spins on that flag.</p>
       <p>On that path axon ships its own <code>libnccl.so.2</code>, covering all of <span class="kw kw--nvidia">NCCL</span> 2.32.3's API, so unmodified multi-GPU programs run collectives across two GB10s. Reductions run in rank order, so every rank gets a bit-identical result: all 84 type and operator combinations match on every rank. If a peer dies, the survivor gets <code>ncclRemoteError</code> instead of hanging.</p>
     </div>
-    <div class="table-scroll">
-      <table class="data">
-        <thead><tr><th scope="col">Between two GB10s, one cable</th><th scope="col">Median</th></tr></thead>
-        <tbody>
-          <tr><td>RDMA write, 8 bytes, one way</td><td>2.7&ndash;3.4&nbsp;&micro;s</td></tr>
-          <tr><td>RDMA write, 20&nbsp;KiB, one way</td><td>5.5&ndash;6.5&nbsp;&micro;s</td></tr>
-          <tr><td>axon call, round trip</td><td>13.5&nbsp;&micro;s</td></tr>
-          <tr><td><code>ncclAllReduce</code>, 20&nbsp;KiB f32, two ranks</td><td>13.4&ndash;15.8&nbsp;&micro;s</td></tr>
-          <tr><td><code>ncclAllReduce</code>, 320&nbsp;KiB f32, two ranks</td><td>52&ndash;59&nbsp;&micro;s</td></tr>
-        </tbody>
-      </table>
-    </div>
+    <figure class="diagram">
+      <svg viewBox="0 0 960 170" role="img" aria-label="Median latency between two GB10s on one cable: an 8-byte RDMA write in 2.7 to 3.4 microseconds one way, an axon call round trip in 13.5, a 20 KiB all-reduce in 13.4 to 15.8, and a 320 KiB all-reduce in 52 to 59.">
+        <g font-family="var(--font-mono)" font-size="12.5">
+          <text x="16" y="30" fill="var(--text)" font-weight="600">Between two GB10s on one cable, median latency</text>
+          <text x="16" y="59" fill="var(--text-secondary)">RDMA write, 8 bytes, one way</text>
+          <rect x="260" y="46" width="28.5" height="18" rx="3" fill="var(--brand)"><title>RDMA write, 8 bytes, one way: 2.7–3.4 µs</title></rect>
+          <line x1="285.2" x2="291.7" y1="55" y2="55" stroke="var(--text)" stroke-width="1.5"/>
+          <text x="299.7" y="59" fill="var(--text)" font-weight="600">2.7–3.4 µs</text>
+          <text x="16" y="87" fill="var(--text-secondary)">axon call, round trip</text>
+          <rect x="260" y="74" width="126.0" height="18" rx="3" fill="var(--brand)"><title>axon call, round trip: 13.5 µs</title></rect>
+          <text x="394.0" y="87" fill="var(--text)" font-weight="600">13.5 µs</text>
+          <text x="16" y="115" fill="var(--text-secondary)">ncclAllReduce, 20 KiB</text>
+          <rect x="260" y="102" width="136.3" height="18" rx="3" fill="var(--brand)"><title>ncclAllReduce, 20 KiB: 13.4–15.8 µs</title></rect>
+          <line x1="385.1" x2="407.5" y1="111" y2="111" stroke="var(--text)" stroke-width="1.5"/>
+          <text x="415.5" y="115" fill="var(--text)" font-weight="600">13.4–15.8 µs</text>
+          <text x="16" y="143" fill="var(--text-secondary)">ncclAllReduce, 320 KiB</text>
+          <rect x="260" y="130" width="518.0" height="18" rx="3" fill="var(--brand)"><title>ncclAllReduce, 320 KiB: 52–59 µs</title></rect>
+          <line x1="745.3" x2="810.7" y1="139" y2="139" stroke="var(--text)" stroke-width="1.5"/>
+          <text x="818.7" y="143" fill="var(--text)" font-weight="600">52–59 µs</text>
+        </g>
+      </svg>
+    </figure>
   </div>
 </section>
 
-<section class="section">
+<section class="section" id="9p">
   <div class="wrap">
     <h2 class="section-title">9P2000.L and remote execution</h2>
     <div class="prose">
@@ -429,39 +373,48 @@ nav:   system
       <p>The 9P server runs as you and is confined by the kernel, not by string checks: every lookup is <code>openat2</code> with <code>RESOLVE_BENEATH</code>, no symlinks and no magic links, and every name from the wire is a single path component. Before a program is placed, the CPU features it was built for are checked against the target's <code>AT_HWCAP</code> words, so an incompatible machine is never a candidate.</p>
     </div>
     <figure class="diagram">
-      <svg viewBox="0 0 960 320" role="img" aria-label="A program is placed on another Nerv machine at execve, after a CPU feature check. It runs on the origin's system: /usr and /etc arrive lazily from the content store with fs-verity, and the home directory is served back over 9P2000.L.">
-        <defs><marker id="rx-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--text-secondary)"/></marker></defs>
+      <svg viewBox="0 0 960 260" role="img" aria-label="A program started on your laptop runs on the twenty cores of another Nerv machine, while your terminal and files stay on the laptop and are served back over 9P2000.L.">
+        <defs><marker id="np-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--text-secondary)"/></marker></defs>
         <g font-family="var(--font-mono)" font-size="13" text-anchor="middle">
-          <rect x="16" y="16" width="400" height="288" rx="10" fill="none" stroke="var(--border-strong)" stroke-dasharray="4 4"/>
-          <text x="32" y="40" text-anchor="start" fill="var(--text-secondary)">your machine</text>
-          <rect x="544" y="16" width="400" height="288" rx="10" fill="none" stroke="var(--border-strong)" stroke-dasharray="4 4"/>
-          <text x="560" y="40" text-anchor="start" fill="var(--text-secondary)">another Nerv machine</text>
-          <rect x="40" y="60" width="352" height="52" rx="8" fill="var(--bg-subtle)" stroke="var(--border-strong)"/>
-          <text x="216" y="82" fill="var(--text)" font-weight="600">execve</text>
-          <text x="216" y="100" fill="var(--text-secondary)" font-size="12">placed once, at start; threads never move</text>
-          <rect x="40" y="148" width="352" height="52" rx="8" fill="none" stroke="var(--brand)" stroke-width="2"/>
-          <text x="216" y="170" fill="var(--brand)" font-weight="600">axon content store</text>
-          <text x="216" y="188" fill="var(--text-secondary)" font-size="12">your /usr and /etc, content-hashed</text>
-          <rect x="40" y="236" width="352" height="52" rx="8" fill="none" stroke="var(--accent-cyan)" stroke-width="1.5"/>
-          <text x="216" y="258" fill="var(--accent-cyan)" font-weight="600">9P2000.L server</text>
-          <text x="216" y="276" fill="var(--text-secondary)" font-size="12">your home, confined with openat2</text>
-          <rect x="568" y="60" width="352" height="52" rx="8" fill="none" stroke="var(--brand)" stroke-width="2"/>
-          <text x="744" y="82" fill="var(--brand)" font-weight="600">your program, on its cores</text>
-          <text x="744" y="100" fill="var(--text-secondary)" font-size="12">only if its CPU features match</text>
-          <rect x="568" y="148" width="352" height="52" rx="8" fill="none" stroke="var(--accent-cyan)" stroke-width="1.5"/>
-          <text x="744" y="170" fill="var(--accent-cyan)" font-weight="600">lazy root</text>
-          <text x="744" y="188" fill="var(--text-secondary)" font-size="12">overlayfs, fs-verity, fetched on first open</text>
-          <rect x="568" y="236" width="352" height="52" rx="8" fill="none" stroke="var(--accent-cyan)" stroke-width="1.5"/>
-          <text x="744" y="258" fill="var(--accent-cyan)" font-weight="600">v9fs mount</text>
-          <text x="744" y="276" fill="var(--text-secondary)" font-size="12">the kernel's own 9P client</text>
-          <g fill="none" stroke="var(--text-secondary)" stroke-width="1.25" marker-end="url(#rx-arrow)">
-            <path d="M392 86H566"/>
-            <path d="M392 174H566" marker-start="url(#rx-arrow)"/>
-            <path d="M392 262H566" marker-start="url(#rx-arrow)"/>
+          <rect x="16" y="16" width="330" height="228" rx="10" fill="none" stroke="var(--border-strong)" stroke-dasharray="4 4"/>
+          <text x="32" y="40" text-anchor="start" fill="var(--text-secondary)">your laptop</text>
+          <rect x="40" y="56" width="282" height="78" rx="8" fill="var(--bg-subtle)" stroke="var(--border-strong)"/>
+          <text x="56" y="82" text-anchor="start" fill="var(--text-secondary)">~/project ❯</text>
+          <text x="56" y="104" text-anchor="start" fill="var(--text)" font-weight="600">cargo build --release</text>
+          <text x="56" y="122" text-anchor="start" fill="var(--text-secondary)" font-size="12">output streams here</text>
+          <rect x="40" y="158" width="282" height="62" rx="8" fill="none" stroke="var(--accent-cyan)" stroke-width="1.5"/>
+          <text x="181" y="183" fill="var(--accent-cyan)" font-weight="600">your files</text>
+          <text x="181" y="202" fill="var(--text-secondary)" font-size="12">stay on your disk</text>
+          <rect x="614" y="16" width="330" height="228" rx="10" fill="none" stroke="var(--border-strong)" stroke-dasharray="4 4"/>
+          <text x="630" y="40" text-anchor="start" fill="var(--text-secondary)">another Nerv machine</text>
+          <rect x="638" y="56" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.85" stroke="var(--brand)"/>
+          <rect x="696" y="56" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.85" stroke="var(--brand)"/>
+          <rect x="754" y="56" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.85" stroke="var(--brand)"/>
+          <rect x="812" y="56" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.85" stroke="var(--brand)"/>
+          <rect x="870" y="56" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.85" stroke="var(--brand)"/>
+          <rect x="638" y="96" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.85" stroke="var(--brand)"/>
+          <rect x="696" y="96" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.85" stroke="var(--brand)"/>
+          <rect x="754" y="96" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.85" stroke="var(--brand)"/>
+          <rect x="812" y="96" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.85" stroke="var(--brand)"/>
+          <rect x="870" y="96" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.85" stroke="var(--brand)"/>
+          <rect x="638" y="136" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.45" stroke="var(--brand)"/>
+          <rect x="696" y="136" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.45" stroke="var(--brand)"/>
+          <rect x="754" y="136" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.45" stroke="var(--brand)"/>
+          <rect x="812" y="136" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.45" stroke="var(--brand)"/>
+          <rect x="870" y="136" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.45" stroke="var(--brand)"/>
+          <rect x="638" y="176" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.45" stroke="var(--brand)"/>
+          <rect x="696" y="176" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.45" stroke="var(--brand)"/>
+          <rect x="754" y="176" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.45" stroke="var(--brand)"/>
+          <rect x="812" y="176" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.45" stroke="var(--brand)"/>
+          <rect x="870" y="176" width="48" height="30" rx="5" fill="var(--brand)" fill-opacity="0.45" stroke="var(--brand)"/>
+          <text x="779" y="230" fill="var(--text-secondary)" font-size="12">20 cores, busy with your build</text>
+          <g fill="none" stroke="var(--text-secondary)" stroke-width="1.5">
+            <path d="M322 95H612" marker-end="url(#np-arrow)"/>
+            <path d="M324 189H612" marker-start="url(#np-arrow)" marker-end="url(#np-arrow)"/>
           </g>
-          <text x="480" y="78" fill="var(--text-secondary)" font-size="11.5">AT_HWCAP check</text>
-          <text x="480" y="166" fill="var(--text-secondary)" font-size="11.5">files on demand</text>
-          <text x="480" y="254" fill="var(--text-secondary)" font-size="11.5">9P2000.L</text>
+          <text x="468" y="85" fill="var(--brand)" font-weight="600">runs on its cores</text>
+          <text x="468" y="179" fill="var(--accent-cyan)" font-weight="600">9P2000.L</text>
+          <text x="468" y="211" fill="var(--text-secondary)" font-size="12">files served on demand</text>
         </g>
       </svg>
     </figure>
@@ -479,30 +432,7 @@ nav:   system
   </div>
 </section>
 
-<section class="section section--subtle">
-  <div class="wrap">
-    <h2 class="section-title">S2, the inference engine</h2>
-    <div class="prose">
-      <p><span class="kw kw--nerv">S2</span> talks to the <span class="kw kw--nvidia">CUDA</span> driver API and nothing above it: no cudart, no cuBLAS, no nvcc. Its kernels come from its own PTX generator, written in Rust. A model is two files: the weights, stored in the order the kernels read them, and a plan holding every allocation, every kernel as a cubin and every step's launches. At load, S2 captures each step as a CUDA graph, which takes under a second for all 128 steps.</p>
-      <p>The KV cache is paged from one pool, 64 positions to a page, out to a 262,144-token context. Finished sessions are kept as snapshots a new request can resume from. Speculative decoding uses block drafters, with acceptance decided on the GPU.</p>
-    </div>
-    <div class="table-scroll">
-      <table class="data">
-        <thead><tr><th scope="col">Qwen3.8-27B, one GB10</th><th scope="col">S2</th><th scope="col">vLLM 0.27.1</th></tr></thead>
-        <tbody>
-          <tr><td>Prefill, 8k prompt</td><td>2,615&nbsp;tok/s</td><td>2,293&nbsp;tok/s</td></tr>
-          <tr><td>Prefill, 32k prompt</td><td>2,204&nbsp;tok/s</td><td>1,981&nbsp;tok/s</td></tr>
-          <tr><td>Prefill, 131k prompt</td><td>1,257&nbsp;tok/s</td><td>1,190&nbsp;tok/s</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="prose">
-      <p>S2 is also the only engine we tested that loads <span class="kw kw--nvidia">NVIDIA</span>'s own NVFP4 checkpoint of Qwen 3.8 Flash-Next on one <span class="kw kw--nvidia">GB10</span>, because it keeps the model's n-gram table on disk. Stock <span class="kw kw--tool">vLLM</span> and Atlas ran out of memory or refused to load it.</p>
-    </div>
-  </div>
-</section>
-
-<section class="section">
+<section class="section section--subtle" id="plexus">
   <div class="wrap">
     <h2 class="section-title">Plexus, remote access</h2>
     <div class="prose">
@@ -510,38 +440,242 @@ nav:   system
       <p>Access is a grant, not a network location. Grants expire, and revoking one ends active sessions. Each fleet chooses its connection policy, direct with relay fallback or approved relays only, and Plexus never relaxes it on its own: a path failure, a stale policy or a roaming laptop fails visibly instead of quietly falling back to something weaker. A central management layer for GPU provisioning, enrolment and fleet policy comes next.</p>
     </div>
     <figure class="diagram">
-      <svg viewBox="0 0 960 330" role="img" aria-label="Two Nerv machines behind NATs connect directly over WireGuard after hole punching; when they cannot, an approved relay forwards their ciphertext without knowing whose fleet it carries.">
-        <defs><marker id="px-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--text-secondary)"/></marker><marker id="px-arrow-s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="3.5" markerHeight="3.5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--brand)"/></marker></defs>
+      <svg viewBox="0 0 960 420" role="img" aria-label="Plexus connects a laptop in a hotel to the GPUs at home, which are linked together, and to six GB300 systems in a datacenter, over WireGuard.">
+        <defs><marker id="pl-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--brand)"/></marker></defs>
         <g font-family="var(--font-mono)" font-size="13" text-anchor="middle">
-          <rect x="16" y="90" width="250" height="150" rx="10" fill="none" stroke="var(--border-strong)" stroke-dasharray="4 4"/>
-          <text x="32" y="234" text-anchor="start" fill="var(--text-secondary)" font-size="11.5">home, behind NAT</text>
-          <rect x="40" y="114" width="202" height="88" rx="8" fill="none" stroke="var(--brand)" stroke-width="2"/>
-          <text x="141" y="140" fill="var(--brand)" font-weight="600">your GB10</text>
-          <text x="141" y="160" fill="var(--text-secondary)" font-size="12">device identity,</text>
-          <text x="141" y="176" fill="var(--text-secondary)" font-size="12">not an address</text>
-          <rect x="694" y="90" width="250" height="150" rx="10" fill="none" stroke="var(--border-strong)" stroke-dasharray="4 4"/>
-          <text x="928" y="234" text-anchor="end" fill="var(--text-secondary)" font-size="11.5">hotel, behind NAT</text>
-          <rect x="718" y="114" width="202" height="88" rx="8" fill="none" stroke="var(--brand)" stroke-width="2"/>
-          <text x="819" y="140" fill="var(--brand)" font-weight="600">your laptop</text>
-          <text x="819" y="160" fill="var(--text-secondary)" font-size="12">granted, revocable,</text>
-          <text x="819" y="176" fill="var(--text-secondary)" font-size="12">expiring access</text>
-          <rect x="330" y="16" width="300" height="56" rx="8" fill="none" stroke="var(--accent-cyan)" stroke-width="1.5"/>
-          <text x="480" y="40" fill="var(--accent-cyan)" font-weight="600">your authority</text>
-          <text x="480" y="59" fill="var(--text-secondary)" font-size="12">grants, policy, private discovery</text>
-          <rect x="330" y="258" width="300" height="56" rx="8" fill="none" stroke="var(--text-secondary)" stroke-width="1.5"/>
-          <text x="480" y="282" fill="var(--text)" font-weight="600">approved relay</text>
-          <text x="480" y="301" fill="var(--text-secondary)" font-size="12">forwards ciphertext, sees no fleet</text>
-          <g fill="none" stroke="var(--text-secondary)" stroke-width="1.25">
-            <path d="M244 158H714" stroke="var(--brand)" stroke-width="2.5" marker-end="url(#px-arrow-s)" marker-start="url(#px-arrow-s)"/>
-            <path d="M210 202V286H328" stroke-dasharray="5 4" marker-end="url(#px-arrow)"/>
-            <path d="M750 202V286H632" stroke-dasharray="5 4" marker-end="url(#px-arrow)"/>
-            <path d="M330 44H141V112" marker-end="url(#px-arrow)"/>
-            <path d="M630 44H819V112" marker-end="url(#px-arrow)"/>
+          <rect x="16" y="150" width="200" height="120" rx="10" fill="none" stroke="var(--border-strong)" stroke-dasharray="4 4"/>
+          <text x="32" y="174" text-anchor="start" fill="var(--text-secondary)">hotel</text>
+          <rect x="40" y="186" width="152" height="60" rx="8" fill="var(--bg-subtle)" stroke="var(--border-strong)"/>
+          <text x="116" y="212" fill="var(--text)" font-weight="600">your laptop</text>
+          <text x="116" y="230" fill="var(--text-secondary)" font-size="12">behind hotel NAT</text>
+          <rect x="400" y="16" width="544" height="150" rx="10" fill="none" stroke="var(--border-strong)" stroke-dasharray="4 4"/>
+          <text x="416" y="40" text-anchor="start" fill="var(--text-secondary)">home</text>
+          <rect x="424" y="60" width="144" height="56" rx="8" fill="none" stroke="var(--accent-green)" stroke-width="1.5"/>
+          <text x="496" y="84" fill="var(--text)" font-weight="600">DGX Spark</text>
+          <text x="496" y="102" fill="var(--accent-green)" font-size="12">GB10</text>
+          <rect x="600" y="60" width="144" height="56" rx="8" fill="none" stroke="var(--accent-green)" stroke-width="1.5"/>
+          <text x="672" y="84" fill="var(--text)" font-weight="600">DGX Spark</text>
+          <text x="672" y="102" fill="var(--accent-green)" font-size="12">GB10</text>
+          <rect x="776" y="60" width="144" height="56" rx="8" fill="none" stroke="var(--accent-green)" stroke-width="1.5"/>
+          <text x="848" y="84" fill="var(--text)" font-weight="600">desktop PC</text>
+          <text x="848" y="102" fill="var(--accent-green)" font-size="12">RTX GPU</text>
+          <g stroke="var(--accent-green)" stroke-width="2"><path d="M568 88H600"/><path d="M744 88H776"/></g>
+          <text x="672" y="146" fill="var(--text-secondary)" font-size="11.5">linked together, one pool of GPUs</text>
+          <rect x="400" y="236" width="544" height="168" rx="10" fill="none" stroke="var(--border-strong)" stroke-dasharray="4 4"/>
+          <text x="416" y="260" text-anchor="start" fill="var(--text-secondary)">datacenter</text>
+          <rect x="424" y="276" width="144" height="44" rx="8" fill="none" stroke="var(--accent-green)" stroke-width="1.5"/>
+          <text x="496" y="303" fill="var(--accent-green)" font-weight="600">GB300 · 1</text>
+          <rect x="600" y="276" width="144" height="44" rx="8" fill="none" stroke="var(--accent-green)" stroke-width="1.5"/>
+          <text x="672" y="303" fill="var(--accent-green)" font-weight="600">GB300 · 2</text>
+          <rect x="776" y="276" width="144" height="44" rx="8" fill="none" stroke="var(--accent-green)" stroke-width="1.5"/>
+          <text x="848" y="303" fill="var(--accent-green)" font-weight="600">GB300 · 3</text>
+          <rect x="424" y="336" width="144" height="44" rx="8" fill="none" stroke="var(--accent-green)" stroke-width="1.5"/>
+          <text x="496" y="363" fill="var(--accent-green)" font-weight="600">GB300 · 4</text>
+          <rect x="600" y="336" width="144" height="44" rx="8" fill="none" stroke="var(--accent-green)" stroke-width="1.5"/>
+          <text x="672" y="363" fill="var(--accent-green)" font-weight="600">GB300 · 5</text>
+          <rect x="776" y="336" width="144" height="44" rx="8" fill="none" stroke="var(--accent-green)" stroke-width="1.5"/>
+          <text x="848" y="363" fill="var(--accent-green)" font-weight="600">GB300 · 6</text>
+          <g fill="none" stroke="var(--brand)" stroke-width="2" marker-end="url(#pl-arrow)" marker-start="url(#pl-arrow)">
+            <path d="M192 200C300 200 300 91 398 91"/>
+            <path d="M192 232C300 232 300 320 398 320"/>
+            <path d="M920 168V234"/>
           </g>
-          <text x="480" y="148" fill="var(--brand)" font-weight="600">WireGuard, direct after hole punching</text>
-          <text x="480" y="244" fill="var(--text-secondary)" font-size="11.5">fallback only where policy allows</text>
+          <text x="250" y="104" fill="var(--brand)" font-weight="600">Plexus</text>
+          <text x="250" y="120" fill="var(--text-secondary)" font-size="11.5">WireGuard, direct</text>
+          <text x="250" y="334" fill="var(--brand)" font-weight="600">Plexus</text>
+          <text x="250" y="350" fill="var(--text-secondary)" font-size="11.5">revocable grant</text>
+          <text x="910" y="205" text-anchor="end" fill="var(--brand)" font-size="11.5" font-weight="600">Plexus</text>
         </g>
       </svg>
     </figure>
+  </div>
+</section>
+
+<section class="section" id="scheduler">
+  <div class="wrap">
+    <h2 class="section-title">A scheduler that knows what a watt costs</h2>
+    <div class="prose">
+      <p>The <span class="kw kw--nvidia">GB10</span> has ten Cortex-X925 performance cores at up to 3.9&nbsp;GHz and ten Cortex-A725 efficiency cores at up to 2.8&nbsp;GHz. On stock kernels, energy-aware scheduling is off on this chip: the firmware reports slightly different capacities for cores that are identical, the kernel refuses to build an energy model, and the one cluster it does model gets a made-up power curve.</p>
+      <p>Nerv measured each cluster at the wall and ships that table as the kernel's energy model. An X925 core draws 10.3&times; the power for 2.83&times; the clock; the stock curve said 1.13&times;. With a real model, the scheduler keeps light, periodic work on the efficiency cores, for 3.6&times; lower CPU energy than <span class="kw kw--nvidia">DGX OS</span> on the same workload. A saturating benchmark took 9.28&nbsp;s on Nerv and 9.31&nbsp;s on DGX OS.</p>
+    </div>
+    <figure class="diagram">
+      <svg viewBox="0 0 960 440" role="img" aria-label="Power per core against clock, measured at the wall: an X925 core draws 10.3 times the power for 2.83 times the clock, while the stock kernel's curve claims 1.13 times.">
+        <g font-family="var(--font-mono)" font-size="13">
+          <g stroke="var(--border)">
+            <line x1="80" y1="380" x2="900" y2="380"/><line x1="80" y1="316" x2="900" y2="316"/><line x1="80" y1="252" x2="900" y2="252"/><line x1="80" y1="188" x2="900" y2="188"/><line x1="80" y1="124" x2="900" y2="124"/><line x1="80" y1="60" x2="900" y2="60"/>
+          </g>
+          <g fill="var(--text-secondary)" font-size="11.5" text-anchor="end">
+            <text x="70" y="384">0 W</text><text x="70" y="320">1</text><text x="70" y="256">2</text><text x="70" y="192">3</text><text x="70" y="128">4</text><text x="70" y="64">5 W</text>
+          </g>
+          <g fill="var(--text-secondary)" font-size="11.5" text-anchor="middle">
+            <text x="80" y="402">0</text><text x="285" y="402">1 GHz</text><text x="490" y="402">2 GHz</text><text x="695" y="402">3 GHz</text><text x="900" y="402">4 GHz</text>
+          </g>
+          <text x="80" y="36" fill="var(--text-secondary)" font-size="12">power per core, measured at the wall</text>
+          <!-- stock curve, scaled to the measured 1378 MHz point -->
+          <polyline points="362.5,351.2 655.6,348.7 799.6,347.6" fill="none" stroke="var(--text-secondary)" stroke-width="2" stroke-dasharray="6 5"/>
+          <text x="810" y="352" fill="var(--text-secondary)" font-size="12">stock kernel</text>
+          <text x="810" y="368" fill="var(--text-secondary)" font-size="12">1.13×</text>
+          <!-- A725 measured -->
+          <polyline points="149.3,377.4 367.8,369.8 655.6,337.8" fill="none" stroke="var(--accent-cyan)" stroke-width="2.5"/>
+          <g fill="var(--accent-cyan)"><circle cx="149.3" cy="377.4" r="4"/><circle cx="367.8" cy="369.8" r="4"/><circle cx="655.6" cy="337.8" r="4"/></g>
+          <text x="560" y="318" fill="var(--accent-cyan)" font-weight="600">A725, measured</text>
+          <!-- X925 measured -->
+          <polyline points="362.5,351.2 621,237.3 879.5,83.7" fill="none" stroke="var(--brand)" stroke-width="2.5"/>
+          <g fill="var(--brand)"><circle cx="362.5" cy="351.2" r="4"/><circle cx="621" cy="237.3" r="4"/><circle cx="879.5" cy="83.7" r="4"/></g>
+          <text x="400" y="150" fill="var(--brand)" font-weight="600">X925, measured</text>
+          <text x="400" y="168" fill="var(--brand)">10.3× the power</text>
+          <text x="400" y="186" fill="var(--brand)">for 2.83× the clock</text>
+        </g>
+      </svg>
+    </figure>
+  </div>
+</section>
+
+<section class="section section--subtle" id="generations">
+  <div class="wrap">
+    <h2 class="section-title">Generations</h2>
+    <div class="prose">
+      <p>Every change to the system is a new generation: a <span class="kw kw--tool">btrfs</span> subvolume beside the running one, sealed into its own signed boot image. There is no fixed A/B pair; a machine keeps as many generations as it has reason to. A new generation boots on trial with a counter. If it fails to complete a boot three times, the machine falls back to the generation that worked, with nobody present. Only a generation that has booted becomes the default.</p>
+      <p>Before anything goes to hardware, the new generation is booted in a VM from its own boot image and driven through a real login. The mechanism is cage.</p>
+    </div>
+    <figure class="diagram">
+      <svg viewBox="0 0 960 300" role="img" aria-label="A new generation is checked in a VM, then boots on trial with a counter; if it completes a boot it becomes the default, and if it fails three times the machine falls back to the generation that worked.">
+        <defs><marker id="gen-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--text-secondary)"/></marker></defs>
+        <g font-family="var(--font-mono)" font-size="13" text-anchor="middle">
+          <rect x="16" y="110" width="170" height="64" rx="8" fill="var(--bg-subtle)" stroke="var(--border-strong)"/>
+          <text x="101" y="137" fill="var(--text)" font-weight="600">generation 41</text>
+          <text x="101" y="156" fill="var(--text-secondary)" font-size="12">proven, the default</text>
+          <rect x="236" y="110" width="170" height="64" rx="8" fill="none" stroke="var(--brand)" stroke-width="2"/>
+          <text x="321" y="137" fill="var(--brand)" font-weight="600">generation 42</text>
+          <text x="321" y="156" fill="var(--text-secondary)" font-size="12">new btrfs subvolume</text>
+          <rect x="456" y="110" width="170" height="64" rx="8" fill="none" stroke="var(--accent-cyan)" stroke-width="1.5"/>
+          <text x="541" y="137" fill="var(--accent-cyan)" font-weight="600">VM login gate</text>
+          <text x="541" y="156" fill="var(--text-secondary)" font-size="12">boots its own image</text>
+          <rect x="676" y="110" width="170" height="64" rx="8" fill="none" stroke="var(--brand)" stroke-width="2"/>
+          <text x="761" y="137" fill="var(--brand)" font-weight="600">boot on trial</text>
+          <text x="761" y="156" fill="var(--text-secondary)" font-size="12">counter 3 · 2 · 1</text>
+          <rect x="676" y="20" width="270" height="52" rx="8" fill="none" stroke="var(--accent-green)" stroke-width="2"/>
+          <text x="811" y="42" fill="var(--accent-green)" font-weight="600">completes a boot</text>
+          <text x="811" y="60" fill="var(--text-secondary)" font-size="12">42 becomes the default</text>
+          <rect x="676" y="216" width="270" height="52" rx="8" fill="none" stroke="var(--text-secondary)" stroke-width="1.5"/>
+          <text x="811" y="238" fill="var(--text)" font-weight="600">fails three times</text>
+          <text x="811" y="256" fill="var(--text-secondary)" font-size="12">machine boots 41, unattended</text>
+          <g fill="none" stroke="var(--text-secondary)" stroke-width="1.25" marker-end="url(#gen-arrow)">
+            <path d="M186 142H234"/><path d="M406 142H454"/><path d="M626 142H674"/>
+            <path d="M761 110V74"/><path d="M761 174V214"/>
+            <path d="M676 242H101V176"/>
+          </g>
+          <text x="210" y="132" fill="var(--text-secondary)" font-size="11.5">update</text>
+          <text x="380" y="260" fill="var(--text-secondary)" font-size="11.5">fall back to the generation that worked</text>
+        </g>
+      </svg>
+    </figure>
+  </div>
+</section>
+
+<section class="section" id="boot">
+  <div class="wrap">
+    <h2 class="section-title">Boot</h2>
+    <div class="prose">
+      <p>Each slot boots from one Unified Kernel Image: kernel, initrd and command line in a single file that the firmware verifies as a unit, signed under Nerv's own Secure Boot key hierarchy rather than Microsoft's. There is no bootloader configuration to drift and nothing to edit.</p>
+      <p>The disk is encrypted and unlocks itself from the TPM against a policy signed for that exact boot image, so no passphrase is typed and no key is on disk. The passphrase remains as a fallback. The GPU's firmware loads while the disk is unlocking, not after, so the GPU is ready when userspace is.</p>
+    </div>
+    <figure class="diagram">
+      <svg viewBox="0 0 960 250" role="img" aria-label="Boot timeline from firmware hand-off: boot loader 2.17 s, kernel 1.49 s, initrd 2.62 s including the TPM unlock with the GPU firmware loading alongside it, then userspace; the login prompt appears at about 6.9 s.">
+        <g font-family="var(--font-mono)" font-size="13">
+          <!-- axis: 0..10 s over x 40..920, 88 px per second -->
+          <g stroke="var(--border)">
+            <line x1="40" y1="40" x2="40" y2="200"/><line x1="128" y1="40" x2="128" y2="200"/><line x1="216" y1="40" x2="216" y2="200"/><line x1="304" y1="40" x2="304" y2="200"/><line x1="392" y1="40" x2="392" y2="200"/><line x1="480" y1="40" x2="480" y2="200"/><line x1="568" y1="40" x2="568" y2="200"/><line x1="656" y1="40" x2="656" y2="200"/><line x1="744" y1="40" x2="744" y2="200"/><line x1="832" y1="40" x2="832" y2="200"/><line x1="920" y1="40" x2="920" y2="200"/>
+          </g>
+          <g fill="var(--text-secondary)" font-size="11.5" text-anchor="middle">
+            <text x="40" y="222">0 s</text><text x="128" y="222">1</text><text x="216" y="222">2</text><text x="304" y="222">3</text><text x="392" y="222">4</text><text x="480" y="222">5</text><text x="568" y="222">6</text><text x="656" y="222">7</text><text x="744" y="222">8</text><text x="832" y="222">9</text><text x="920" y="222">10 s</text>
+          </g>
+          <!-- stages: loader 0-2.17, kernel 2.17-3.66, initrd 3.66-6.28, userspace 6.28-9.45 -->
+          <rect x="40" y="56" width="191" height="34" rx="6" fill="var(--bg-subtle)" stroke="var(--border-strong)"/>
+          <text x="52" y="78" fill="var(--text)">boot loader 2.17 s</text>
+          <rect x="231" y="56" width="131" height="34" rx="6" fill="none" stroke="var(--accent-cyan)" stroke-width="1.5"/>
+          <text x="243" y="78" fill="var(--accent-cyan)">kernel 1.49 s</text>
+          <rect x="362" y="56" width="231" height="34" rx="6" fill="none" stroke="var(--brand)" stroke-width="2"/>
+          <text x="374" y="78" fill="var(--brand)">initrd 2.62 s</text>
+          <rect x="593" y="56" width="279" height="34" rx="6" fill="none" stroke="var(--accent-cyan)" stroke-width="1.5"/>
+          <text x="665" y="78" fill="var(--accent-cyan)">userspace 3.17 s</text>
+          <!-- parallel lanes inside the initrd -->
+          <rect x="374" y="106" width="200" height="26" rx="6" fill="none" stroke="var(--brand)" stroke-width="1.25"/>
+          <text x="384" y="124" fill="var(--text)" font-size="12">TPM unlocks the disk</text>
+          <rect x="425" y="142" width="200" height="26" rx="6" fill="none" stroke="var(--accent-green)" stroke-width="1.25"/>
+          <text x="435" y="160" fill="var(--accent-green)" font-size="12">GPU firmware loads</text>
+          <!-- login marker at 6.9 s -->
+          <line x1="647" y1="40" x2="647" y2="200" stroke="var(--brand)" stroke-width="2" stroke-dasharray="5 4"/>
+          <text x="657" y="122" fill="var(--brand)" font-weight="600">login prompt</text>
+          <text x="657" y="140" fill="var(--brand)" font-weight="600">~6.9 s</text>
+          <text x="40" y="30" fill="var(--text-secondary)" font-size="12">from firmware hand-off</text>
+        </g>
+      </svg>
+    </figure>
+    <div class="prose">
+      <p>The full system target follows shortly after, because it waits for the GPU on purpose.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle" id="keys">
+  <div class="wrap">
+    <h2 class="section-title">Keys</h2>
+    <div class="prose">
+      <p>Five keys sign or unlock different things, and each machine generates its own rather than being issued a fleet's. A machine's private keys never leave it, and its signing key doubles as its identity, so there is no central secret whose loss compromises every machine at once.</p>
+    </div>
+    <div class="table-scroll">
+      <table class="data">
+        <thead><tr><th scope="col">Key</th><th scope="col">Signs</th><th scope="col">Checked by</th></tr></thead>
+        <tbody>
+          <tr><td>UEFI db</td><td>The boot image</td><td>Firmware, every boot</td></tr>
+          <tr><td>TPM policy</td><td>The unlock policy inside the boot image</td><td>The TPM, every unlock</td></tr>
+          <tr><td>Kernel module</td><td>Out-of-tree modules, such as <span class="kw kw--nvidia">NVIDIA</span>'s</td><td>The kernel, every module load</td></tr>
+          <tr><td>OpenPGP</td><td>Packages</td><td><span class="kw kw--tool">rpm</span>, every install</td></tr>
+          <tr><td>ed25519</td><td>The installer and each generation's checksums</td><td>The bootstrap script and the installer</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="kernel">
+  <div class="wrap">
+    <h2 class="section-title">Kernel and driver</h2>
+    <div class="prose">
+      <p>Nerv runs the newest released kernel and takes a stable update within days. The <span class="kw kw--nvidia">NVIDIA</span> driver is the latest release, built from NVIDIA's open kernel modules with Nerv's patches, and signed with a key that never enters the build chroot. Unsigned modules do not load.</p>
+      <p>One of those patches charges GPU memory to the cgroup of the process that allocated it. On a unified-memory machine that matters: a container or service with a memory limit gets <code>CUDA_ERROR_OUT_OF_MEMORY</code> at its limit, and nothing is killed. A runaway GPU allocation cannot take the machine down.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle" id="compiler">
+  <div class="wrap">
+    <h2 class="section-title">One compiler, hardening nobody can turn off</h2>
+    <div class="prose">
+      <p>Every package is built with <span class="kw kw--tool">LLVM</span> 22 and <span class="kw kw--tool">clang</span>, linked with <span class="kw kw--tool">lld</span>, with <span class="kw kw--tool">ThinLTO</span> and tuning for the <span class="kw kw--nvidia">GB10</span>'s Cortex-X925 and A725 cores. <code>-O3</code>, the stack protector, ARM branch protection (PAC and BTI), full RELRO, a non-executable stack and <code>_FORTIFY_SOURCE=3</code> are appended after each package's own flags, where the last flag wins. A package cannot opt out by passing <code>-O0 -fno-stack-protector</code>: the enforced flags still win, and the build audits every ELF and refuses to publish one that lacks them. The few exemptions are listed in the tree, each with its reason.</p>
+      <p><span class="kw kw--tool">musl</span> implements no fortified functions, so <code>_FORTIFY_SOURCE</code> is silently inert on other musl systems. Nerv ships fortify headers in every build root, so every package is fortified apart from the listed exemptions.</p>
+      <p>Builds run in a pure-musl chroot composed from Nerv's own repository, never a <span class="kw kw--tool">glibc</span> build root, because a musl binary built inside a glibc environment picks up glibc-shaped answers that surface as bugs much later.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="packaging">
+  <div class="wrap">
+    <h2 class="section-title">Packaging</h2>
+    <div class="prose">
+      <p><span class="kw kw--tool">rpm</span>, <span class="kw kw--tool">libsolv</span>, <span class="kw kw--tool">librepo</span> and <span class="kw kw--tool">dnf5</span> are built against <span class="kw kw--tool">musl</span> and run with no <span class="kw kw--tool">glibc</span> anywhere in their dependency trees. That means two things: the system can rebuild itself, and <code>dnf install</code> still reaches the Fedora package ecosystem when you need something Nerv does not build. Packages are signed, and the machine refuses unsigned ones.</p>
+    </div>
+    <div class="table-scroll">
+      <table class="data">
+        <thead><tr><th scope="col">Component</th><th scope="col">Version</th><th scope="col">Notes</th></tr></thead>
+        <tbody>
+          <tr><td><code>rpm</code></td><td>6.0.2</td><td>musl; OpenPGP through rpm-sequoia, no gpgme chain</td></tr>
+          <tr><td><code>libsolv</code></td><td>0.7.40</td><td>built against librpm, comps enabled</td></tr>
+          <tr><td><code>librepo</code></td><td>1.21.1</td><td><code>USE_GPGME=OFF</code></td></tr>
+          <tr><td><code>dnf5</code></td><td>5.4.6.0</td><td>links libdnf5, librpm, libc++, libunwind and musl, no glibc</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </section>

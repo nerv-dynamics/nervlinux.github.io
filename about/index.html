@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Nerv Linux — About</title>
-<meta name="description" content="Nerv Linux is built by Nerv Dynamics AB. Who builds it, and why the whole base is built from source.">
+<meta name="description" content="Nerv Linux is made by a group of hackers from the dark forests of Sweden, and its long-term development is sponsored by Nerv Dynamics AB.">
 <link rel="canonical" href="https://nervlinux.org/about/">
 <meta property="og:title" content="Nerv Linux — About">
-<meta property="og:description" content="Nerv Linux is built by Nerv Dynamics AB. Who builds it, and why the whole base is built from source.">
+<meta property="og:description" content="Nerv Linux is made by a group of hackers from the dark forests of Sweden, and its long-term development is sponsored by Nerv Dynamics AB.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://nervlinux.org/about/">
 <link rel="icon" href="/assets/favicon.png" sizes="32x32">
@@ -36,11 +36,14 @@
       <img class="logo" src="/assets/nerv-wordmark.png" alt="Nerv Linux" width="600" height="149">
     </a>
     <nav class="masthead__nav" aria-label="Primary">
+      <div class="masthead__links" id="primary-links">
       <a href="/system/">System</a>
-      <a href="/features/">Features</a>
+      <a href="/desktop/">Desktop</a>
       <a href="/enterprise/">Enterprise</a>
-      <a href="/about/" aria-current="page">About</a>
+      <a href="/community/">Community</a>
       <a href="/handbook/">Handbook</a>
+      <a href="/about/" aria-current="page">About</a>
+      </div>
       <button class="theme-toggle" id="theme-toggle" type="button"
               aria-label="Switch to light theme" title="Switch theme">
         <svg class="icon icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
@@ -54,81 +57,29 @@
           </g>
         </svg>
       </button>
+      <button class="menu-toggle" id="menu-toggle" type="button"
+              aria-label="Menu" aria-expanded="false" aria-controls="primary-links">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+          <path class="menu-toggle__open" d="M4 7h16M4 12h16M4 17h16"/>
+          <path class="menu-toggle__close" d="M6 6l12 12M18 6L6 18"/>
+        </svg>
+      </button>
     </nav>
   </div>
 </header>
 
 <main id="main">
-<section class="section section--head">
+<section class="section section--head forest on-dark">
   <div class="wrap">
-    <p class="crumb">Nerv&nbsp;Dynamics&nbsp;AB</p>
     <h1 class="page-title">The system remembers.</h1>
-    <p class="page-lede">
-      Nerv Linux is built by Nerv Dynamics AB. This page is who that is, and
-      why a company this small decided to build an operating system from the C
-      library up.
-    </p>
   </div>
 </section>
 
 <section class="section">
   <div class="wrap">
-    <h2 class="section-title">Why build the whole base</h2>
     <div class="prose">
-      <p>
-        Because the alternative is to inherit decisions. A distribution
-        assembled from another project&rsquo;s choices carries that
-        project&rsquo;s roadmap, its licensing, its allocator, and its idea of
-        what a userland is for. None of those were chosen for a machine with
-        128&nbsp;GB of unified memory and an accelerator that outweighs the
-        CPU, because none of them were chosen for any machine in particular.
-      </p>
-      <p>
-        A system that knows its hardware by part number inherits a freedom it
-        did nothing to earn. The only interesting question is what it spends
-        that freedom on. The answer is the reason this company exists: a coherent
-        base, a boundary with authority over compute, and a machine that can
-        account for itself.
-      </p>
-      <p class="doclink">
-        The argument in full is the handbook&rsquo;s first chapter:
-        <a href="/handbook/machine/why-an-operating-system-still/">Why an
-        operating system, still &rarr;</a>
-      </p>
-    </div>
-  </div>
-</section>
-
-<section class="section section--subtle">
-  <div class="wrap">
-    <h2 class="section-title">What the name means</h2>
-    <div class="prose">
-      <p>
-        <strong>The system remembers.</strong> The line describes the software
-        literally. The machine keeps its own record: what it was composed from,
-        which generation you chose, which bytes are yours and which are
-        rebuildable residue, and where a given piece of work actually ran.
-        Those properties are why this system exists at all.
-      </p>
-      <p>
-        The other half of the promise is more useful day to day:
-        <strong>you can ask it why.</strong> A machine that records what it did
-        can answer questions about itself. Without that record you operate by
-        inference.
-      </p>
-    </div>
-  </div>
-</section>
-
-<section class="section">
-  <div class="wrap">
-    <h2 class="section-title">Who</h2>
-    <div class="prose">
-      <p>
-        Nerv Dynamics AB is a Swedish limited company. Development happens on
-        self-hosted infrastructure, against a canary machine that is the same
-        hardware the system targets.
-      </p>
+      <p>Nerv Linux is made by a group of hackers from the dark forests of Sweden who love computers, unix, HPC and GPU programming, and gibbing noobs in Quake.</p>
+      <p>Its long-term development is sponsored by Nerv Dynamics AB, a limited company based in Stockholm.</p>
     </div>
   </div>
 </section>
@@ -139,7 +90,7 @@
     <div class="footer__base">
       <p>Copyright &copy; 2026 Nerv Dynamics AB. Nerv Linux is free software; each
          package carries the licence of its upstream source.</p>
-      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell and GB10 are
+      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell, GB10 and GB300 are
          trademarks of NVIDIA Corporation. Linux is a registered trademark of
          Linus Torvalds. Nerv Linux is not affiliated with, endorsed by, or
          sponsored by either.</p>
@@ -162,6 +113,52 @@
       root.setAttribute('data-theme', next);
       try { localStorage.setItem('nerv-theme', next); } catch (e) {}
       label();
+    });
+  })();
+  (function () {
+    // Phone menu: the nav links fold into a panel under the masthead.
+    var btn = document.getElementById('menu-toggle');
+    var head = btn.closest('.masthead');
+    btn.addEventListener('click', function () {
+      var open = head.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  })();
+  (function () {
+    // On phones a tapped diagram opens full screen, large, to pan and zoom.
+    var narrow = window.matchMedia('(max-width: 760px)');
+    function close(z) { z.remove(); document.body.classList.remove('has-zoom'); }
+    document.querySelectorAll('.diagram').forEach(function (fig) {
+      fig.addEventListener('click', function () {
+        var svg = fig.querySelector('svg');
+        if (!narrow.matches || !svg) return;
+        var z = document.createElement('div');
+        z.className = 'zoom'; z.setAttribute('role', 'dialog'); z.setAttribute('aria-label', svg.getAttribute('aria-label') || 'Diagram');
+        z.appendChild(svg.cloneNode(true));
+        var b = document.createElement('button');
+        b.className = 'zoom__close'; b.type = 'button'; b.setAttribute('aria-label', 'Close');
+        b.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+        b.addEventListener('click', function () { close(z); });
+        z.appendChild(b);
+        document.body.appendChild(z); document.body.classList.add('has-zoom');
+        document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { close(z); document.removeEventListener('keydown', esc); } });
+      });
+    });
+  })();
+  (function () {
+    // The handbook contents start folded on narrow screens, open on wide ones.
+    if (window.matchMedia('(max-width: 960px)').matches)
+      document.querySelectorAll('.hb-nav__box').forEach(function (d) { d.open = false; });
+  })();
+  (function () {
+    // Narrow tables read as stacked cards; each cell carries its column name.
+    document.querySelectorAll('table.data').forEach(function (t) {
+      var heads = Array.prototype.map.call(t.querySelectorAll('thead th'), function (th) { return th.textContent.trim(); });
+      t.querySelectorAll('tbody tr').forEach(function (tr) {
+        Array.prototype.forEach.call(tr.children, function (td, i) {
+          if (heads[i]) td.setAttribute('data-label', heads[i]);
+        });
+      });
     });
   })();
 </script>

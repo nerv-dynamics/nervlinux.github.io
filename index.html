@@ -36,11 +36,14 @@
       <img class="logo" src="/assets/nerv-wordmark.png" alt="Nerv Linux" width="600" height="149">
     </a>
     <nav class="masthead__nav" aria-label="Primary">
+      <div class="masthead__links" id="primary-links">
       <a href="/system/">System</a>
-      <a href="/features/">Features</a>
+      <a href="/desktop/">Desktop</a>
       <a href="/enterprise/">Enterprise</a>
-      <a href="/about/">About</a>
+      <a href="/community/">Community</a>
       <a href="/handbook/">Handbook</a>
+      <a href="/about/">About</a>
+      </div>
       <button class="theme-toggle" id="theme-toggle" type="button"
               aria-label="Switch to light theme" title="Switch theme">
         <svg class="icon icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
@@ -52,6 +55,13 @@
             <path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4"/>
             <path d="M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/>
           </g>
+        </svg>
+      </button>
+      <button class="menu-toggle" id="menu-toggle" type="button"
+              aria-label="Menu" aria-expanded="false" aria-controls="primary-links">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+          <path class="menu-toggle__open" d="M4 7h16M4 12h16M4 17h16"/>
+          <path class="menu-toggle__close" d="M6 6l12 12M18 6L6 18"/>
         </svg>
       </button>
     </nav>
@@ -80,7 +90,7 @@
     </ul>
 
     <div class="actions">
-      <a class="btn btn--primary" href="/features/">What it does</a>
+      <a class="btn btn--primary" href="/system/">What it does</a>
       <a class="btn btn--ghost" href="/enterprise/">For fleets</a>
     </div>
   </div>
@@ -109,35 +119,35 @@
         <span class="figure__n">10&nbsp;&micro;s</span>
         <p class="figure__what">
           latency to a second GB10 machine. No clustering code needed.
-          <a href="/system/">axon &rarr;</a>
+          <a href="/system/#remote-gpu">axon &rarr;</a>
         </p>
       </div>
       <div class="figure">
         <span class="figure__n">4&times;</span>
         <p class="figure__what">
           faster than other state of the art inference engines.
-          <a href="/system/">S2 &rarr;</a>
+          <a href="/system/#s2">S2 &rarr;</a>
         </p>
       </div>
       <div class="figure">
         <span class="figure__n">100%</span>
         <p class="figure__what">
           Vulkan speed without extra buffering on shared memory.
-          <a href="/system/">axon &rarr;</a>
+          <a href="/system/#gpu">axon &rarr;</a>
         </p>
       </div>
       <div class="figure">
         <span class="figure__n">3.6&times;</span>
         <p class="figure__what">
           lower CPU energy from scheduler optimization.
-          <a href="/system/">System &rarr;</a>
+          <a href="/system/#scheduler">Scheduler &rarr;</a>
         </p>
       </div>
       <div class="figure">
         <span class="figure__n">0 GPL-3</span>
         <p class="figure__what">
           packages in the core system. Always the latest NVIDIA driver.
-          <a href="/enterprise/">Licensing &rarr;</a>
+          <a href="/enterprise/#hardware">Licensing &rarr;</a>
         </p>
       </div>
     </div>
@@ -192,7 +202,7 @@
     </h2>
     <figure class="shot">
       <img src="/assets/shots/desktop.png" alt="The Nerv desktop: axon and cage dashboards beside fastfetch">
-      <figcaption>A modern unix userland, a cohesive colorscheme called Myelin, a font called Ashinoko, and a minimalist desktop for power users.</figcaption>
+      <figcaption>A modern unix userland, a cohesive colorscheme called Myelin, a font called Ashinoko, and a minimalist desktop for power users. <a href="/desktop/">Desktop &rarr;</a></figcaption>
     </figure>
   </div>
 </section>
@@ -203,7 +213,7 @@
     <div class="footer__base">
       <p>Copyright &copy; 2026 Nerv Dynamics AB. Nerv Linux is free software; each
          package carries the licence of its upstream source.</p>
-      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell and GB10 are
+      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell, GB10 and GB300 are
          trademarks of NVIDIA Corporation. Linux is a registered trademark of
          Linus Torvalds. Nerv Linux is not affiliated with, endorsed by, or
          sponsored by either.</p>
@@ -226,6 +236,52 @@
       root.setAttribute('data-theme', next);
       try { localStorage.setItem('nerv-theme', next); } catch (e) {}
       label();
+    });
+  })();
+  (function () {
+    // Phone menu: the nav links fold into a panel under the masthead.
+    var btn = document.getElementById('menu-toggle');
+    var head = btn.closest('.masthead');
+    btn.addEventListener('click', function () {
+      var open = head.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  })();
+  (function () {
+    // On phones a tapped diagram opens full screen, large, to pan and zoom.
+    var narrow = window.matchMedia('(max-width: 760px)');
+    function close(z) { z.remove(); document.body.classList.remove('has-zoom'); }
+    document.querySelectorAll('.diagram').forEach(function (fig) {
+      fig.addEventListener('click', function () {
+        var svg = fig.querySelector('svg');
+        if (!narrow.matches || !svg) return;
+        var z = document.createElement('div');
+        z.className = 'zoom'; z.setAttribute('role', 'dialog'); z.setAttribute('aria-label', svg.getAttribute('aria-label') || 'Diagram');
+        z.appendChild(svg.cloneNode(true));
+        var b = document.createElement('button');
+        b.className = 'zoom__close'; b.type = 'button'; b.setAttribute('aria-label', 'Close');
+        b.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+        b.addEventListener('click', function () { close(z); });
+        z.appendChild(b);
+        document.body.appendChild(z); document.body.classList.add('has-zoom');
+        document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { close(z); document.removeEventListener('keydown', esc); } });
+      });
+    });
+  })();
+  (function () {
+    // The handbook contents start folded on narrow screens, open on wide ones.
+    if (window.matchMedia('(max-width: 960px)').matches)
+      document.querySelectorAll('.hb-nav__box').forEach(function (d) { d.open = false; });
+  })();
+  (function () {
+    // Narrow tables read as stacked cards; each cell carries its column name.
+    document.querySelectorAll('table.data').forEach(function (t) {
+      var heads = Array.prototype.map.call(t.querySelectorAll('thead th'), function (th) { return th.textContent.trim(); });
+      t.querySelectorAll('tbody tr').forEach(function (tr) {
+        Array.prototype.forEach.call(tr.children, function (td, i) {
+          if (heads[i]) td.setAttribute('data-label', heads[i]);
+        });
+      });
     });
   })();
 </script>

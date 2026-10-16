@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Nerv Linux — Install</title>
-<meta name="description" content="Installing Nerv needs two machines: the one you are sitting at, and the one you are installing. Nothing is written to removable media, and nothing is typed into the target. The machine you are...">
+<meta name="description" content="From a bare box to a running machine over the network — one command on a machine you already have, and no USB stick.">
 <link rel="canonical" href="https://nervlinux.org/handbook/machine/install/">
 <meta property="og:title" content="Nerv Linux — Install">
-<meta property="og:description" content="Installing Nerv needs two machines: the one you are sitting at, and the one you are installing. Nothing is written to removable media, and nothing is typed into the target. The machine you are...">
+<meta property="og:description" content="From a bare box to a running machine over the network — one command on a machine you already have, and no USB stick.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://nervlinux.org/handbook/machine/install/">
 <link rel="icon" href="/assets/favicon.png" sizes="32x32">
@@ -36,11 +36,14 @@
       <img class="logo" src="/assets/nerv-wordmark.png" alt="Nerv Linux" width="600" height="149">
     </a>
     <nav class="masthead__nav" aria-label="Primary">
+      <div class="masthead__links" id="primary-links">
       <a href="/system/">System</a>
-      <a href="/features/">Features</a>
+      <a href="/desktop/">Desktop</a>
       <a href="/enterprise/">Enterprise</a>
-      <a href="/about/">About</a>
+      <a href="/community/">Community</a>
       <a href="/handbook/" aria-current="page">Handbook</a>
+      <a href="/about/">About</a>
+      </div>
       <button class="theme-toggle" id="theme-toggle" type="button"
               aria-label="Switch to light theme" title="Switch theme">
         <svg class="icon icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
@@ -54,18 +57,45 @@
           </g>
         </svg>
       </button>
+      <button class="menu-toggle" id="menu-toggle" type="button"
+              aria-label="Menu" aria-expanded="false" aria-controls="primary-links">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+          <path class="menu-toggle__open" d="M4 7h16M4 12h16M4 17h16"/>
+          <path class="menu-toggle__close" d="M6 6l12 12M18 6L6 18"/>
+        </svg>
+      </button>
     </nav>
   </div>
 </header>
 
 <main id="main">
 <section class="section section--head">
-  <div class="wrap">
-    <p class="crumb"><a href="/handbook/">Handbook</a></p>
-    <div class="essay">
-<hr class="rule">
-<p>title:    Install kind:     use one-line: From a bare box to a running machine over the network — one command on a machine you already have, and no USB stick.</p>
-<hr class="rule">
+  <div class="wrap hb">
+    <nav class="hb-nav" aria-label="Handbook">
+<details class="hb-nav__box" open>
+<summary class="hb-nav__summary">Contents</summary>
+<a class="hb-nav__home" href="/handbook/">The Nerv Handbook</a>
+<p class="hb-nav__part">Getting started</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/why-an-operating-system-still/">Why an operating system, still</a>
+</li>
+<li><a href="/handbook/machine/install/" aria-current="page">Install</a>
+<ol class="hb-nav__sections">
+<li><a href="#start-the-installer">Start the installer</a></li>
+<li><a href="#boot-the-target">Boot the target</a></li>
+<li><a href="#configure-it">Configure it</a></li>
+<li><a href="#watch-it">Watch it</a></li>
+<li><a href="#reboot-into-it">Reboot into it</a></li>
+<li><a href="#secure-boot-after-the-install">Secure Boot, after the install</a></li>
+<li><a href="#if-the-install-fails">If the install fails</a></li>
+<li><a href="#what-a-virtual-machine-cannot-show-you">What a virtual machine cannot show you</a></li>
+</ol>
+</li>
+<li><a href="/handbook/machine/the-first-hour/">The first hour</a>
+</li>
+</ol>
+</details></nav>
+    <div class="hb__main">
+      <div class="essay">
 <h1 class="page-title">Install</h1>
 <p>Installing Nerv needs two machines: the one you are sitting at, and the one you are installing. Nothing is written to removable media, and nothing is typed into the target. The machine you are sitting at becomes the installer; the target boots from it over the network.</p>
 <p>You need:</p>
@@ -81,10 +111,12 @@
 :: signature verified
 :: starting the installer</pre>
 <p>That is the whole bootstrap, and it is short on purpose: it contains no install logic, so it can be read in full before it is run. Everything it fetches afterwards is checked against the key printed in the script itself. Read it first if you like — <code>curl http://&lt;host&gt;/install.sh</code> alone prints it.</p>
-<p>A dashboard opens. Its header is the two ways a target can reach it — the first needs nothing set anywhere, the second is the pair of values a DHCP server asks for:</p>
+<p>That includes the generation. Before anything is written to a disk, the installer checks the signature on the file that says what the generation contains, and <strong>refuses it outright if it does not verify</strong> — there is no override, because a truncated download and a tampered one look identical at that point. One consequence you can meet in practice: a generation published before this check existed carries no such signature and will be refused, so an old one has to be republished before you can install from it.</p>
+<p>A dashboard opens. Its header is the two ways a target can reach it — the first needs nothing set anywhere, the second is the pair of values a DHCP server asks for — and what a target that boots now will install:</p>
 <pre class="term term__body">  Nerv Linux - Netboot Server
   IPv6 - no configuration needed - [fd00:6e65:7276::1]
   IPv4 - set DHCP 66 to 10.0.0.5 and 67 to nerv-installer.efi
+  Serving - gb10 2026-09-23 · kernel 7.2.7 · workstation
 
 ┌ Machines connected: 0 ─────────────────────────────────────────────┐
 │  No machines visible                                               │
@@ -115,6 +147,32 @@
 </div>
 <p>On a UniFi this is <em>Network → Advanced → Network Boot</em>; on dnsmasq it is <code>dhcp-boot</code>.</p>
 <p>Worth knowing: <strong>a boot filename applies to the whole network</strong>, so anything else that netboots while it is set also reaches this installer. Undo it when you are finished.</p>
+<h3 id="what-to-turn-off-in-the-firmware-first" class="sub-title">What to turn off in the firmware first</h3>
+<p>Two settings are worth changing while you are in there, because the firmware is the one part of the boot the machine cannot improve for you. On this board it is the largest phase of the boot by some margin, and nothing below it can start until it is done.</p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">setting</th><th scope="col">why</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><strong>Quiet boot</strong> (the vendor logo) — off</td><td>Drawing a logo means bringing up the display before anything needs it, and it hides the firmware's own progress while it does. Turning it off both removes the work and lets you see where the time goes.</td>
+</tr>
+<tr>
+<td><strong>Network boot / PXE option ROMs</strong> — off, once installed</td><td>Every enabled ROM is initialised at power-on and torn down again at hand-off. Leave them on until the network install is finished; turn them off afterwards.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Both are worth measuring rather than sensing, and the machine keeps the number for you. The firmware writes its own elapsed time into an EFI variable before the boot loader starts:</p>
+<pre class="term term__body">$ doas cat /sys/firmware/efi/efivars/LoaderTimeInitUSec-4a67b082-0a4c-41cf-b6c7-440b29bb8c4f \
+    | tail -c +5 | tr -d '\0'
+9802453</pre>
+<p>Microseconds, from power-on to the loader's first instruction — 9.8 seconds on that machine, of a 19.5 second boot. Read it before the change and after. Anything that moves that number is real; anything that does not, is not, however different it feels.</p>
+<p><code>systemd-analyze</code> prints the same figure as its <code>firmware</code> term, alongside every phase that follows it:</p>
+<pre class="term term__body">$ doas systemd-analyze
+Startup finished in 9.802s (firmware) + 2.167s (loader) + 1.472s (kernel)
+  + 2.794s (initrd) + 3.243s (userspace) = 19.537s</pre>
 <h3 id="why-it-asks-for-a-password" class="sub-title">Why it asks for a password</h3>
 <p>The two ports a firmware asks on — <code>69</code> and <code>547</code> — are privileged, so the last step needs root. The download and the signature check happen as you, before that; only the verified binary is run with privilege.</p>
 <p>The target appears on the dashboard when it has booted and reported itself:</p>
@@ -122,7 +180,7 @@
 ▌ 52:54:00:12:34:56  qemu-aarch 1      booted 3/11   waiting 2m  ██████──────</pre>
 <p>It will wait there indefinitely. <strong>Nothing is written to the disk until you launch the install</strong>, and a machine that is waiting has not been touched.</p>
 <h2 id="configure-it" class="section-title">Configure it</h2>
-<p>Press <code>⏎</code> on the machine. The pane shows what it reported about itself — cores, memory, whether it has a TPM, and each disk it found — and the settings the install will use:</p>
+<p>Press <code>⏎</code> on the machine. The pane shows what it reported about itself — cores, memory, whether it has a TPM, whether its firmware will take a Secure Boot key, and each disk it found — and the settings the install will use:</p>
 <pre class="term term__body">┌ configure ─────────────────────────────────────────────────────────┐
 │▌hostname    -                                                      │
 │ disk        /dev/nvme0n1                                           │
@@ -137,6 +195,11 @@
 └────────────────────────────────────────────────────────────────────┘
   ↑↓ field   ⏎ edit/toggle   i INSTALL   esc back</pre>
 <p>Set at minimum a <strong>hostname</strong> and an <strong>account</strong> — a user with either a password or an SSH key. An account with neither is refused: it produces a machine nobody can log into.</p>
+<p>The <strong>keymap</strong> is set once here and holds everywhere. Two namespaces name the same keys and they do not agree: the kernel's virtual console calls Dvorak <code>dvorak</code>, while XKB has no layout by that name at all — it is layout <code>us</code>, variant <code>dvorak</code>. The installer looks the console name up in systemd's <code>kbd-model-map</code> and writes all three keys to <code>/etc/vconsole.conf</code>:</p>
+<pre class="term term__body">KEYMAP=dvorak
+XKBLAYOUT=us
+XKBVARIANT=dvorak</pre>
+<p><code>KEYMAP</code> is what <code>systemd-vconsole-setup</code> applies to the kernel VT — early boot, emergency mode, anything before a userspace terminal. <code>XKBLAYOUT</code> and <code>XKBVARIANT</code> are what the kmscon console and any Wayland compositor read. Naming only the console layout to an XKB consumer does not fall back to something sensible; it fails the whole keymap compile (<code>[XKB-822] Failed to compile keymap</code>) and leaves you at a dead keyboard.</p>
 <p>Which <strong>profile</strong> is installed is a setting of the installer rather than of the machine, on the <code>s</code> page: <code>core</code>, <code>workstation</code>, <code>workstation-gui</code> or <code>dev</code>.</p>
 <p>Press <code>i</code> to install. That is the only destructive action in this chapter, and it is the first moment anything is written to the target.</p>
 <h2 id="watch-it" class="section-title">Watch it</h2>
@@ -149,11 +212,39 @@
 <p>You do not need to change anything in the target's firmware first. The install put the new system's boot entry ahead of the network entry it arrived on, so it boots from its own disk from here on.</p>
 <p>Then log in over the network, with the account you configured:</p>
 <pre class="term term__body">$ ssh &lt;user&gt;@&lt;hostname&gt;</pre>
+<h2 id="secure-boot-after-the-install" class="section-title">Secure Boot, after the install</h2>
+<p><code>secure boot yes</code> means the machine makes its own key, signs what it boots with it, and enrols that key into the firmware. The firmware takes a new key only in <strong>setup mode</strong>, with no platform key enrolled, so the installer asks it first: <strong>a machine whose firmware already holds a platform key is refused before anything is written to its disk</strong>, with what to clear. The configure pane shows the answer before you press <code>i</code>, as <code>secure boot ready (setup mode)</code> or <code>secure boot keys enrolled: clear them to sign</code>.</p>
+<p>If the firmware takes the check and then refuses the enrolment anyway, the install fails and says so. By then the disk is written and bootable, so that costs you the exit status and not the install: you can fix the cause and enrol afterwards with the command below.</p>
+<p>One case is not a failure. A firmware that implements no Secure Boot at all has nothing to enrol into, and the install says that and continues — there is no key you can give a board that does not have the feature.</p>
+<p>Enrolling does not by itself make the machine enforce. <code>SecureBoot</code> reads 0 until the firmware re-evaluates it at the next boot, and only if Secure Boot is switched on in the firmware setup menu.</p>
+<p>Ask the machine itself:</p>
+<pre class="term term__body">$ doas nerv-install secureboot
+firmware
+  SetupMode        1 — no platform key, so key variables may be written directly
+  SecureBoot       0 — not enforcing
+  PK               absent
+  KEK              2 certificates, this machine's: NO
+  db               4 certificates, this machine's: NO
+
+this machine
+  key directory    /etc/nerv/secureboot
+  db certificate   SHA256 5E:AD:0D:06:…
+  esp              /efi
+  artifact         /efi/EFI/Linux/nerv.efi
+                     signed, and carries this machine's certificate</pre>
+<p>That is a machine trusting Microsoft's keys and not its own — an older install, or one whose firmware has no Secure Boot. To enrol, or to run the writes again after fixing whatever the firmware objected to:</p>
+<pre class="term term__body">$ doas nerv-install secureboot --enrol --yes</pre>
+<p>It writes db, then KEK, then PK. <strong>PK is what leaves setup mode</strong>, so it goes last: writing it is the moment the firmware starts enforcing, and from then on the machine boots only what this key signed.</p>
+<blockquote class="note"><p><strong>Read this before you enrol: an enforcing machine cannot be netbooted.</strong> db ends up holding this machine's key and nothing else — not Microsoft's, not the build host's. That is the point; it means no key exists anywhere that can boot your whole fleet. The netboot installer is signed by nobody for the same reason, so a machine that is enforcing refuses it: ``<code> invalid signature detected </code>`` That is the firmware working, not a broken image. <strong>To reinstall an enrolled machine, clear its Secure Boot keys in the firmware menu first</strong> — the entry is usually <em>Erase all Secure Boot settings</em>, <em>Delete PK</em> or <em>Reset to Setup Mode</em>. Switching Secure Boot off is not enough: it stops enforcement and leaves the keys, and the new install's key cannot go in while the old one is there. Then netboot and install as normal, and switch Secure Boot back on. One trip to the firmware per reinstall. It does not affect ordinary upgrades. A running machine updates into its other slot over the network and never netboots, so the firmware is not involved. Check the artifact lines say <em>carries this machine's certificate</em> first — the command</p></blockquote>
+<p>refuses outright if there is nothing signed on the ESP to boot.</p>
+<p>If the firmware will not take them, the command says which variable it refused and how far it got, and the certificates are on the ESP under <code>nerv/secureboot/</code> for a firmware key-management menu to import by hand.</p>
 <h2 id="if-the-install-fails" class="section-title">If the install fails</h2>
 <p>The row turns red and names the phase it stopped in, and the machine is left alone — it does not reboot, so the console keeps the reason. <code>r</code> is refused on a machine whose install failed, because rebooting it would boot whatever was on the disk before.</p>
 <p>Reconfigure and press <code>i</code> again. A launch applies to one install: a machine that boots the installer again waits for a new one rather than repeating the last.</p>
 <h2 id="what-a-virtual-machine-cannot-show-you" class="section-title">What a virtual machine cannot show you</h2>
-<p>A VM is a complete rehearsal of everything above except encryption. No emulator implements the drive-native encryption Nerv uses, so a virtual target must be configured with <code>encrypt</code> off, and that one path is only ever exercised on real hardware.</p>
+<p>A VM is a complete rehearsal of everything above except the TPM. Encryption itself is real in a guest — it is ordinary dm-crypt — but a machine unlocks itself with a TPM keyslot, and a guest has no TPM unless one is arranged for it. So a virtual target is configured with <code>encrypt</code> off, and that one path is only ever exercised on real hardware.</p>
+      </div>
+      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/why-an-operating-system-still/"><span>Previous</span>Why an operating system, still</a><a class="hb-pager__next" href="/handbook/machine/the-first-hour/"><span>Next</span>The first hour</a></nav>
     </div>
   </div>
 </section>
@@ -164,7 +255,7 @@
     <div class="footer__base">
       <p>Copyright &copy; 2026 Nerv Dynamics AB. Nerv Linux is free software; each
          package carries the licence of its upstream source.</p>
-      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell and GB10 are
+      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell, GB10 and GB300 are
          trademarks of NVIDIA Corporation. Linux is a registered trademark of
          Linus Torvalds. Nerv Linux is not affiliated with, endorsed by, or
          sponsored by either.</p>
@@ -187,6 +278,52 @@
       root.setAttribute('data-theme', next);
       try { localStorage.setItem('nerv-theme', next); } catch (e) {}
       label();
+    });
+  })();
+  (function () {
+    // Phone menu: the nav links fold into a panel under the masthead.
+    var btn = document.getElementById('menu-toggle');
+    var head = btn.closest('.masthead');
+    btn.addEventListener('click', function () {
+      var open = head.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  })();
+  (function () {
+    // On phones a tapped diagram opens full screen, large, to pan and zoom.
+    var narrow = window.matchMedia('(max-width: 760px)');
+    function close(z) { z.remove(); document.body.classList.remove('has-zoom'); }
+    document.querySelectorAll('.diagram').forEach(function (fig) {
+      fig.addEventListener('click', function () {
+        var svg = fig.querySelector('svg');
+        if (!narrow.matches || !svg) return;
+        var z = document.createElement('div');
+        z.className = 'zoom'; z.setAttribute('role', 'dialog'); z.setAttribute('aria-label', svg.getAttribute('aria-label') || 'Diagram');
+        z.appendChild(svg.cloneNode(true));
+        var b = document.createElement('button');
+        b.className = 'zoom__close'; b.type = 'button'; b.setAttribute('aria-label', 'Close');
+        b.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+        b.addEventListener('click', function () { close(z); });
+        z.appendChild(b);
+        document.body.appendChild(z); document.body.classList.add('has-zoom');
+        document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { close(z); document.removeEventListener('keydown', esc); } });
+      });
+    });
+  })();
+  (function () {
+    // The handbook contents start folded on narrow screens, open on wide ones.
+    if (window.matchMedia('(max-width: 960px)').matches)
+      document.querySelectorAll('.hb-nav__box').forEach(function (d) { d.open = false; });
+  })();
+  (function () {
+    // Narrow tables read as stacked cards; each cell carries its column name.
+    document.querySelectorAll('table.data').forEach(function (t) {
+      var heads = Array.prototype.map.call(t.querySelectorAll('thead th'), function (th) { return th.textContent.trim(); });
+      t.querySelectorAll('tbody tr').forEach(function (tr) {
+        Array.prototype.forEach.call(tr.children, function (td, i) {
+          if (heads[i]) td.setAttribute('data-label', heads[i]);
+        });
+      });
     });
   })();
 </script>

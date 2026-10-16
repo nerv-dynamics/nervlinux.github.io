@@ -30,6 +30,21 @@ nerv-workstation-1.0.0-4.nerv.noarch       # installed
 package nerv-workstation is not installed  # core only
 ```
 
+## The console
+
+What you logged into is `kmscon`, on **tty1**, and it is the only console: there is no getty
+behind it, so a boot lands on the login prompt rather than on a VT something has to switch to.
+It renders through DRM rather than the kernel's text console, which is what lets it use Nerv's
+own font and palette — Ashinoko Sans Mono, Nerv's typeface, and Myelin, its colour scheme.
+
+Switching virtual terminals is **Ctrl+Alt+F1** through **Ctrl+Alt+F12**. Plain Alt+F*n* is the
+kernel's chord and does nothing here: kmscon reads the keyboard itself and turns the kernel's
+own key handling off on its VT. Ctrl+Alt is also what a Wayland compositor uses, so the chord
+does not change depending on what is in front of you.
+
+Nothing needs to be switched to for a second shell — `tmux` is installed on workstation, and
+`60-nerv-tmux.fish` is one of the files below.
+
 ## The shell
 
 `fish`, and it is configured system-wide rather than per user. The configuration is seven files
@@ -114,6 +129,42 @@ The prefix is the default `C-b`. What is different:
 
 The mouse works — click a pane to focus it, drag a border to resize.
 
+There are two status bars, and they answer different questions.
+
+The **upper** one opens with the machine's hostname, so on a desk with more than one of these
+you can never mistake which box a terminal is on. The block changes colour rather than adding
+words: yellow while the prefix key is pressed and tmux is waiting for a command, pink in copy
+mode, where keys scroll the pane instead of reaching the program in it. Then the windows, and
+at the right edge what the hardware is doing — how long the machine has been up, how hot it
+is, and what it is drawing. There is no clock, on the grounds that every screen already has
+one.
+
+The **lower** one opens with the machine's LAN address — the one you would `ssh` to. Then the
+sessions, which are clickable: the one you are in is on a grey block, the others on the bar
+itself. At the right, `CPU`, `GPU` and memory.
+
+Both right-hand groups come from `axon --format=tmux --fields=…`, which is also how you
+can ask for something else:
+
+```
+$ axon --format=tmux --fields=cpu,gpu,mem
+$ axon --help              # the field list
+```
+
+`axon` on its own opens the full picture: every machine in the compute fabric, each GPU's
+load, memory, power and heat as it moves, and what is using them. `?` inside it lists the
+keys; `q` leaves.
+
+Three things about those figures are worth knowing, and all three are properties of the
+board rather than choices about the bar. The **temperature is one figure** because a GB10
+is a superchip: the ACPI thermal zones and the GPU's own sensor are the same die, about a
+degree apart, so a CPU and a GPU temperature would be one fact printed twice. The
+**memory is one pool** — the kernel's `MemTotal` and the GPU's `memory.total` are the same
+121.6 GiB — so the used figure is of the whole machine, not of a card. And the GPU figures
+are there only for a member of the `video` group, which is who may use the GPU at all; the account
+the installer creates is one, and another is added with `doas usermod -aG video <user>` and a fresh
+login.
+
 ## The editor
 
 `nvim`, configured from a kickstart-derived Lua config seeded into your home the first time your
@@ -140,6 +191,7 @@ Three places, and which you use decides whether your change survives.
 | the system tmux config | `/etc/tmux.conf` |
 | the prompt | `/etc/xdg/starship.toml` |
 | kernel and module hardening | `/etc/sysctl.d/`, `/etc/modprobe.d/` |
+| how much swap the machine gets | `/etc/nerv/swap.conf` — see *Swap* below |
 
 **Edit any of them.** Everything above is shipped `%config(noreplace)`: when an update carries a
 new default for a file you have changed, rpm keeps your version and writes the new one beside it
@@ -195,6 +247,128 @@ That is a deliberate choice and worth knowing rather than discovering: on a sing
 machine with an encrypted disk, a password prompt on every privileged command defends against
 someone who is already logged in as you. If that is not your threat model, remove `nopass` —
 in your own copy of the file, since this one is owned by the package.
+
+## Swap
+
+The machine has 16 GiB of swap, on by the time you log in.
+
+```
+$ swapon --show
+NAME               TYPE SIZE USED PRIO
+/var/swap/swapfile file  16G   0B   -1
+```
+
+It sits in its own btrfs subvolume, `@swap`, and that placement is load-bearing rather than
+tidy: btrfs refuses to snapshot a subvolume that holds an active swapfile, and every system
+update snapshots the system you are running. A swapfile anywhere inside the system would
+therefore break updates the moment it was switched on. **Do not create one there.** One
+swapfile, in `@swap`, shared by every version of the system on the disk.
+
+`swappiness` is 10, not the usual 60. Swap here is what the machine reaches for when something
+has gone wrong, not a tier it pages into routinely.
+
+**To change the size**, put it in a file of your own:
+
+```
+$ printf 'NERV_SWAP_SIZE=32g\n' | doas tee /etc/nerv/swap.conf
+$ doas swapoff /var/swap/swapfile && doas rm /var/swap/swapfile
+$ doas nerv-swap
+nerv-swap: creating a 32g swapfile at /var/swap/swapfile
+nerv-swap: /var/swap/swapfile is on
+```
+
+`/etc/nerv/swap.conf` is not shipped by any package, which is the point: there is nothing for
+an update to replace, so the file is yours alone. The board's default lives in
+`/etc/nerv/platform`, which **is** replaced by updates — it states what the hardware is, so it
+has to be. Do not put your override there; it will be discarded.
+
+## Nothing takes the machine's last memory
+
+**The promise:** however much the GPU is asked for, the machine keeps 2 GiB to itself. An
+allocation of GPU memory, or of host memory pinned for the GPU, that would leave less is
+refused, and the program sees an ordinary CUDA out-of-memory — exactly what a full GPU says.
+You stay able to log in and stop whatever asked.
+
+**Its condition:** it covers what programs ask the GPU for. A program's own heap is ordinary
+memory, and the kernel's to manage.
+
+**What would disprove it:** the machine stalling for memory while GPU sessions hold it. That is a
+bug worth reporting.
+
+## Running something risky on the GPU
+
+Work you do not trust yet — a benchmark, a probe, anything whose memory appetite you are still
+measuring — goes in `gpu-test.slice`:
+
+```
+$ doas systemd-run --slice=gpu-test --scope ./my-experiment
+```
+
+**The promise:** an allocation inside that slice is refused rather than granted at the
+machine's expense. CUDA reports an ordinary out-of-memory and the program can handle it or
+die; nothing outside the slice is disturbed.
+
+**Its conditions**, both of which matter:
+
+- It applies only to what you put in it. Nothing else on this machine is capped, deliberately —
+  a cap on your login session would also refuse a model you meant to load.
+- The cap is 8 GiB, and it covers GPU memory as well as ordinary memory, because on this board
+  they are the same memory.
+
+**What would disprove it:** a program in the slice growing past 8 GiB. If you see that, the
+accounting is not working and it is a bug worth reporting, not a limit worth raising.
+
+## The allocator, and how to ask it what it is doing
+
+Every program on this machine gets its memory from `umalloc` — a hardened build of mimalloc that
+*is* the C library's `malloc`, rather than something a particular program was linked against. You
+do not choose it and cannot avoid it; it is as much a part of `libc` as `printf`.
+
+**The promise:** a large class of heap bugs — a double free, a write past the end of a block, a
+free list an attacker has learned to steer — ends in the program dying rather than in the program
+doing what the attacker wanted. Guard pages sit between heap regions, free lists are encrypted,
+and placement is randomised.
+
+Specifically, each of these kills the process at the moment it happens rather than being absorbed:
+freeing the same pointer twice, freeing a pointer into the middle of a block, freeing an address
+that never came from `malloc` (a stack variable, say), overwriting a free-list link, and writing
+through a pointer after it was freed.
+
+The compiler helps too. Every package is built with `_FORTIFY_SOURCE=3`, a stack protector,
+branch protection and read-only relocations, so a `memcpy` past the end of a known-size buffer
+stops the program rather than corrupting it. musl does not implement fortification itself — Nerv
+supplies it as overlay headers — and before that was done, this machine had none of it, silently.
+
+**Its conditions:**
+
+- It protects against corruption of the *allocator's own* bookkeeping. A program that overwrites
+  its own data inside one valid allocation is doing something the allocator cannot see.
+- A program with a latent heap bug that used to run will now stop running. That is the feature,
+  and it is the same trade every hardened allocator makes: the alternative is a program
+  continuing on a heap whose shape somebody else chose.
+- It costs a few percent, and the direction depends on the program: against glibc's allocator it
+  is about 4% faster on one standard benchmark and 8% slower on another. Allocation is a small
+  share of most programs' time, so this is a fraction of a percent of anything you will notice.
+  The trade was made deliberately, measured rather than assumed, and is not configurable
+  per-program.
+
+It answers questions if you ask. Any of mimalloc's options can be set in the environment under
+either spelling — `umalloc_` is the one that matches this system, `mimalloc_` keeps upstream's
+documentation usable:
+
+```
+$ umalloc_verbose=1 some-program
+umalloc: process init: 0xFDB17C
+umalloc: reserved 1048576 KiB memory
+...
+umalloc: process done: 0xFDB17C
+```
+
+`umalloc_show_stats=1` prints a breakdown at exit instead of the whole verbose log. Both write to
+standard error, so they will not corrupt a program's output if you are piping it somewhere.
+
+**What would disprove it:** a program that writes past the end of a block and carries on as if
+nothing happened. That is worth reporting.
 
 ## Checking the machine is well
 

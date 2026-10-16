@@ -236,7 +236,18 @@ img { max-width: 100%; height: auto; display: block; }
   width: 100%; height: 100%; object-fit: cover; object-position: center;
 }
 .herobig__photo .slot { height: 100%; border-left: 0; }
-@media (max-width: 899px) { .herobig__photo { display: none; } }
+/* Below 900px the photo moves under the text as a band that fades in from
+   the gradient above it, instead of disappearing. */
+@media (max-width: 899px) {
+  .herobig::after { display: none; }
+  .herobig__inner { padding-bottom: var(--s-6); }
+  .herobig__photo {
+    position: relative; width: 100%; height: clamp(240px, 70vw, 420px);
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,.6) 22%, rgba(0,0,0,1) 40%);
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,.6) 22%, rgba(0,0,0,1) 40%);
+  }
+  .herobig__photo img { object-position: center 12%; }
+}
 .herobig__title {
   font-size: var(--t-display);
   font-weight: var(--w-display);
@@ -395,7 +406,7 @@ img { max-width: 100%; height: auto; display: block; }
 .term .c-fg { color: var(--nerv-fg); }
 
 /* --- Tables -------------------------------------------------------------- */
-.table-scroll { overflow-x: auto; margin-block: var(--s-6); }
+.table-scroll { overflow-x: auto; margin-block: var(--s-6); scrollbar-color: var(--border-strong) transparent; }
 .table-scroll:last-child { margin-bottom: 0; }
 table.data { width: 100%; border-collapse: collapse; font-size: var(--t-sm); }
 table.data th, table.data td {
@@ -454,10 +465,17 @@ table.data td code { font-size: var(--t-xs); background: var(--bg-sunken); paddi
   .section { padding-block: var(--s-8); }
   .page-title { font-size: var(--t-2xl); }
 }
-@media (max-width: 700px) {
-  .masthead__nav a { display: none; }
-  .masthead__nav a[aria-current="page"] { display: inline-block; }
+.masthead__links { display: flex; align-items: center; gap: var(--s-1); }
+.menu-toggle {
+  display: none; align-items: center; justify-content: center;
+  margin-left: var(--s-2); width: 34px; height: 34px;
+  background: none; border: 1px solid var(--border-interactive); color: var(--text); cursor: pointer;
 }
+.menu-toggle__close { display: none; }
+.masthead.is-open .menu-toggle__open { display: none; }
+.masthead.is-open .menu-toggle__close { display: inline; }
+
+
 
 /* --- Handbook chapters --------------------------------------------------- */
 /* mdrender.py emits these. They exist here rather than in the renderer so a
@@ -639,3 +657,133 @@ blockquote.note p { margin: 0; }
 }
 .figure__what { font-size: var(--t-sm); color: var(--text-secondary); line-height: var(--lh-body); }
 .figure__what a { color: var(--brand); }
+
+/* Desktop page: Myelin accents and an Ashinoko specimen. */
+.swatches { list-style: none; margin: var(--s-6) 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: var(--s-4); }
+.swatch { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+.swatch__chip { height: 56px; border-radius: 4px; }
+.swatch__name { grid-column: 1 / -1; font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-secondary); margin-top: var(--s-2); }
+.specimen { margin-top: var(--s-6); display: grid; gap: var(--s-3); }
+.specimen__line { margin: 0; font-size: clamp(1.1rem, 2.4vw, 1.6rem); color: var(--text); overflow-wrap: anywhere; }
+.section--head .shot { margin-top: var(--s-7); }
+.diagram + .prose { margin-top: var(--s-7); }
+.specimen__line--big { font-size: clamp(1.5rem, 4vw, 2.6rem); letter-spacing: 0.04em; }
+
+/* About: the forest band. The photo stays dark in both themes, so the title
+   is set on-dark and a gradient pulls the bottom edge into the page. */
+.forest {
+  min-height: clamp(320px, 42vw, 560px);
+  display: flex; align-items: center; text-align: center;
+  background:
+    linear-gradient(to bottom, rgb(0 0 0 / 0.35), rgb(0 0 0 / 0.05) 40%, rgb(0 0 0 / 0.55)),
+    url("/assets/photos/sweden.jpg") center 60% / cover no-repeat;
+}
+.forest .wrap { width: 100%; }
+.forest .page-title { margin-bottom: 0; color: #fff; text-shadow: 0 2px 24px rgb(0 0 0 / 0.5); }
+
+/* Section titles with a leading line icon (Community). */
+.section-title--icon { display: flex; align-items: center; gap: 0.5em; }
+.section-icon { width: 1.1em; height: 1.1em; flex: none; color: var(--brand); }
+
+/* --- Handbook: contents on the left, the chapter beside it -------------- */
+.hb { display: grid; grid-template-columns: 15rem minmax(0, 1fr); gap: var(--s-9); align-items: start; }
+.hb__main .essay { margin-inline: 0; }
+.hb-nav { position: sticky; top: calc(56px + var(--s-6)); max-height: calc(100vh - 56px - var(--s-8)); overflow-y: auto; font-size: var(--t-sm); }
+.hb-nav__summary { display: none; }
+.hb-nav__home { display: block; font-weight: 600; color: var(--text); margin-bottom: var(--s-5); }
+.hb-nav__part {
+  font-family: var(--font-mono); font-size: var(--t-xs); letter-spacing: .08em; text-transform: uppercase;
+  color: var(--text-tertiary); margin: var(--s-5) 0 var(--s-2);
+}
+.hb-nav__list, .hb-nav__sections { list-style: none; margin: 0; padding: 0; }
+.hb-nav__list > li > a { display: block; padding: var(--s-2) var(--s-3); color: var(--text-secondary); border-left: 2px solid var(--border); }
+.hb-nav__list > li > a:hover { color: var(--text); text-decoration: none; border-left-color: var(--text-secondary); }
+.hb-nav__list > li > a[aria-current="page"] { color: var(--text); font-weight: 600; border-left-color: var(--brand); }
+.hb-nav__sections { border-left: 2px solid var(--border); padding: 0 0 var(--s-2); }
+.hb-nav__sections a { display: block; padding: var(--s-1) var(--s-3) var(--s-1) var(--s-5); color: var(--text-tertiary); font-size: var(--t-xs); line-height: 1.4; }
+.hb-nav__sections a:hover { color: var(--text); text-decoration: none; }
+
+.hb-toc { list-style: none; padding: 0; margin: 0 0 var(--s-6); }
+.hb-toc li { padding: var(--s-4) 0; border-bottom: 1px solid var(--border); margin: 0; }
+.hb-toc a { font-family: var(--font-sans); font-weight: 600; font-size: var(--t-lg); }
+.hb-toc p { margin: var(--s-2) 0 0; color: var(--text-secondary); }
+
+.hb-pager { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4); max-width: 40rem; margin-top: var(--s-9); padding-top: var(--s-6); border-top: 1px solid var(--border); }
+.hb-pager a { display: block; padding: var(--s-4); border: 1px solid var(--border); color: var(--text); font-weight: 600; }
+.hb-pager a:hover { border-color: var(--text-secondary); text-decoration: none; }
+.hb-pager span { display: block; font-family: var(--font-mono); font-size: var(--t-xs); font-weight: 400; letter-spacing: .08em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: var(--s-1); }
+.hb-pager__next { text-align: right; grid-column: 2; }
+
+@media (max-width: 960px) {
+  .hb { grid-template-columns: minmax(0, 1fr); gap: var(--s-6); }
+  .hb-nav { position: static; max-height: none; overflow: visible; border: 1px solid var(--border); padding: 0 var(--s-4); }
+  .hb-nav__summary { display: block; cursor: pointer; padding: var(--s-3) 0; font-weight: 600; color: var(--text); }
+  .hb-nav__box[open] { padding-bottom: var(--s-4); }
+  .hb-nav__home { margin-top: var(--s-2); }
+}
+
+/* --- Phones ------------------------------------------------------------- */
+/* Last in the file so it wins over the component rules above it. */
+@media (max-width: 760px) {
+  /* The links fold into a panel under the masthead. */
+  .menu-toggle { display: inline-flex; }
+  .masthead__links {
+    display: none; position: absolute; top: 56px; left: 0; right: 0;
+    flex-direction: column; align-items: stretch; gap: 0;
+    background: var(--bg-subtle); border-bottom: 1px solid var(--border);
+    padding: var(--s-2) var(--gutter) var(--s-4);
+  }
+  .masthead.is-open .masthead__links { display: flex; }
+  .masthead__links a { padding: var(--s-3) 0; font-size: var(--t-base); border-bottom: 1px solid var(--border); }
+  .masthead__links a:last-child { border-bottom: 0; }
+  .masthead__nav a[aria-current="page"] { box-shadow: inset 3px 0 0 var(--brand); padding-left: var(--s-3); }
+
+  /* Diagrams are drawn at 960 wide; below this they scroll sideways at a
+     readable size instead of shrinking their labels to nothing. */
+  .diagram { position: relative; cursor: zoom-in; }
+  .diagram figcaption { font-size: var(--t-sm); }
+  .diagram::after {
+    content: ""; position: absolute; top: 0; right: 0; width: 30px; height: 30px;
+    background: var(--bg-subtle) center / 16px no-repeat;
+    border: 1px solid var(--border-interactive);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5L21 21M10.5 7.5v6M7.5 10.5h6'/%3E%3C/svg%3E");
+  }
+
+  /* Tables become one card per row, each value labelled with its column. */
+  table.data thead { display: none; }
+  table.data, table.data tbody, table.data td { display: block; width: 100%; }
+  table.data tr { padding: var(--s-3) 0; border-bottom: 1px solid var(--border); display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); column-gap: var(--s-4); }
+  table.data td:first-child { grid-column: 1 / -1; }
+  table.data td { border: 0; padding: var(--s-1) 0; }
+  table.data td[data-label]::before {
+    content: attr(data-label); display: block;
+    font-family: var(--font-mono); font-size: var(--t-xs); letter-spacing: .06em;
+    text-transform: uppercase; color: var(--text-tertiary);
+  }
+  table.data td:first-child { font-weight: 600; color: var(--text); }
+  table.data td:first-child::before { display: none; }
+
+  /* The headline figures sit two to a row. */
+  .figures { grid-template-columns: 1fr 1fr; }
+  .figure { padding: var(--s-4); }
+  .figure:last-child:nth-child(odd) { grid-column: 1 / -1; }
+
+  .shot figcaption, .bleed .shot figcaption { font-size: var(--t-sm); letter-spacing: 0; }
+}
+
+/* Diagram viewer: a tapped diagram opens full screen at a readable size and
+   pans in both directions; pinch zoom works on top of that. */
+.zoom {
+  position: fixed; inset: 0; z-index: 100; background: var(--bg);
+  overflow: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+}
+.zoom svg { display: block; width: 1100px; max-width: none; height: auto; padding: 64px 16px 24px; }
+.zoom__close {
+  position: fixed; top: 12px; right: 12px; z-index: 101;
+  width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center;
+  background: var(--bg-subtle); color: var(--text); border: 1px solid var(--border-interactive); cursor: pointer;
+}
+body.has-zoom { overflow: hidden; }
+
+/* Dark scrollbars on everything that scrolls sideways. */
+pre, .table-scroll, .diagram { scrollbar-color: var(--border-strong) transparent; }

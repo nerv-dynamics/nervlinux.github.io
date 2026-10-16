@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Nerv Linux — The Nerv Handbook</title>
-<meta name="description" content="The published manual: what this machine promises and how to use it. Read DISCIPLINE.md before adding a chapter.">
+<title>Nerv Linux — Handbook</title>
+<meta name="description" content="The Nerv Handbook: how to install Nerv, use it every day, and run it across many machines.">
 <link rel="canonical" href="https://nervlinux.org/handbook/">
-<meta property="og:title" content="Nerv Linux — The Nerv Handbook">
-<meta property="og:description" content="The published manual: what this machine promises and how to use it. Read DISCIPLINE.md before adding a chapter.">
+<meta property="og:title" content="Nerv Linux — Handbook">
+<meta property="og:description" content="The Nerv Handbook: how to install Nerv, use it every day, and run it across many machines.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://nervlinux.org/handbook/">
 <link rel="icon" href="/assets/favicon.png" sizes="32x32">
@@ -36,11 +36,14 @@
       <img class="logo" src="/assets/nerv-wordmark.png" alt="Nerv Linux" width="600" height="149">
     </a>
     <nav class="masthead__nav" aria-label="Primary">
+      <div class="masthead__links" id="primary-links">
       <a href="/system/">System</a>
-      <a href="/features/">Features</a>
+      <a href="/desktop/">Desktop</a>
       <a href="/enterprise/">Enterprise</a>
-      <a href="/about/">About</a>
+      <a href="/community/">Community</a>
       <a href="/handbook/" aria-current="page">Handbook</a>
+      <a href="/about/">About</a>
+      </div>
       <button class="theme-toggle" id="theme-toggle" type="button"
               aria-label="Switch to light theme" title="Switch theme">
         <svg class="icon icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
@@ -54,109 +57,44 @@
           </g>
         </svg>
       </button>
+      <button class="menu-toggle" id="menu-toggle" type="button"
+              aria-label="Menu" aria-expanded="false" aria-controls="primary-links">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+          <path class="menu-toggle__open" d="M4 7h16M4 12h16M4 17h16"/>
+          <path class="menu-toggle__close" d="M6 6l12 12M18 6L6 18"/>
+        </svg>
+      </button>
     </nav>
   </div>
 </header>
 
 <main id="main">
 <section class="section section--head">
-  <div class="wrap">
-    <p class="crumb"><a href="/handbook/">Handbook</a></p>
-    <div class="essay">
+  <div class="wrap hb">
+    <nav class="hb-nav" aria-label="Handbook">
+<details class="hb-nav__box" open>
+<summary class="hb-nav__summary">Contents</summary>
+<a class="hb-nav__home" href="/handbook/">The Nerv Handbook</a>
+<p class="hb-nav__part">Getting started</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/why-an-operating-system-still/">Why an operating system, still</a>
+</li>
+<li><a href="/handbook/machine/install/">Install</a>
+</li>
+<li><a href="/handbook/machine/the-first-hour/">The first hour</a>
+</li>
+</ol>
+</details></nav>
+    <div class="hb__main">
+      <div class="essay">
 <h1 class="page-title">The Nerv Handbook</h1>
-<p>The published manual: what this machine promises and how to use it. Read <code>DISCIPLINE.md</code> before adding a chapter.</p>
-<p><strong>This is the public tree.</strong> <code>docs/</code> is the private one and is never published — mechanism, measurements, and rejected alternatives live there. The line between them is one sentence: <em>publish the promise and its conditions, withhold the argument and the wounds.</em></p>
-<h2 id="status-of-this-table-of-contents" class="section-title">Status of this table of contents</h2>
-<p><strong>It is a frame, not a claim.</strong> A slot below with no link is a chapter that has not been written, because the thing it would describe is not yet running on the canary. The frame exists so that a new capability has an obvious home and so gaps are visible; the prose arrives when the machine does.</p>
-<p>Chapter count is a health metric. It rises when the canary learns something new, not when someone has an idea.</p>
-<h2 id="structure" class="section-title">Structure</h2>
-<p>Two kinds of chapter, and the split is what keeps the manual from drifting into five copies of the same explanation:</p>
-<ul class="list">
-<li><strong>Ideas</strong> (Part II) explain one promise of the machine, exactly once. Every mechanism has one home here, and everything else cites it.</li>
-<li><strong>Uses</strong> (Part III) are organised by what you are trying to do. Goals, steps, expected output, links — and no machinery.</li>
-</ul>
-<h2 id="part-i-this-machine" class="section-title">Part I — This machine</h2>
-<div class="table-scroll">
-<table class="data">
-<tbody>
-<tr>
-<td><a href="/handbook/machine/why-an-operating-system-still/"><strong>Why an operating system, still</strong></a></td><td>The argument. What Unix asserted and why it fit the machine it was built for, what changed about the machine, and the duty that is still unserved. No products, no verbs — the position this whole system is an answer to. <strong>The website's Design page is built from this chapter.</strong></td>
-</tr>
-<tr>
-<td><strong>What Nerv is</strong></td><td>The promises, what they cost, and what would disprove them. The chapter to read before deciding whether this machine is for you.</td>
-</tr>
-<tr>
-<td><a href="/handbook/machine/install/"><strong>Install</strong></a></td><td>From a bare box to an encrypted, attested workstation, over the network. No USB stick.</td>
-</tr>
-<tr>
-<td><a href="/handbook/machine/the-first-hour/"><strong>The first hour</strong></a></td><td>The shell and the userland, where things live, and how to change a setting so it survives an update.</td>
-</tr>
-</tbody>
-</table>
-</div>
-<h2 id="part-ii-five-ideas" class="section-title">Part II — Five ideas</h2>
-<div class="table-scroll">
-<table class="data">
-<tbody>
-<tr>
-<td><strong>Generations</strong></td><td>Every change to the system is a transaction: try it, prove it, keep it — or it rolls itself back.</td>
-</tr>
-<tr>
-<td><strong>The compute fabric</strong></td><td>One boundary governs compute: your GPU, someone else's across the network, memory, and where programs run. Every program is a client, and everything is accounted.</td>
-</tr>
-<tr>
-<td><strong>What the machine remembers</strong></td><td>The log, the facts, and <code>why</code>: the questions your machine can answer about itself and about your data — and when it will decline to answer.</td>
-</tr>
-<tr>
-<td><strong>Yours and not yours</strong></td><td>Your work, rebuildable residue, and unexplained bytes — and what follows you to the next machine.</td>
-</tr>
-<tr>
-<td><strong>The chain of trust</strong></td><td>What is verified between power-on and a prompt, and precisely what that does not defend against.</td>
-</tr>
-</tbody>
-</table>
-</div>
-<p>Five is the budget. A sixth idea requires retiring one.</p>
-<h2 id="part-iii-ways-of-using-it" class="section-title">Part III — Ways of using it</h2>
-<div class="table-scroll">
-<table class="data">
-<tbody>
-<tr>
-<td><strong>AI development</strong></td><td>Models, capabilities, and building against the machine's own store and fabric.</td>
-</tr>
-<tr>
-<td><strong>Gaming</strong></td><td>Steam, titles built for x86, and borrowing a faster GPU from across the room.</td>
-</tr>
-<tr>
-<td><strong>Running the world's software</strong></td><td>Fedora packages, containers, k3s — anything built for glibc.</td>
-</tr>
-<tr>
-<td><strong>Offloading and fleets</strong></td><td>Putting work on other machines, and several boxes acting as one.</td>
-</tr>
-<tr>
-<td><strong>Building your own</strong></td><td>Packaging software for your machine, and owning the stack.</td>
-</tr>
-</tbody>
-</table>
-</div>
-<h2 id="part-iv-when-it-breaks" class="section-title">Part IV — When it breaks</h2>
-<div class="table-scroll">
-<table class="data">
-<tbody>
-<tr>
-<td><strong>Recovery</strong></td><td>Rollback, the rescue slot, the morning it will not boot, the forgotten passphrase. Written for someone having a bad day.</td>
-</tr>
-<tr>
-<td><strong>Asking why</strong></td><td>From a symptom to a cause, using the machine's own record.</td>
-</tr>
-</tbody>
-</table>
-</div>
-<h2 id="part-v-reference" class="section-title">Part V — Reference</h2>
-<p>Generated per generation from the surface manifest — every verb, flag, exit code, config key and event schema. Never hand-written, and therefore never stale.</p>
-<h2 id="two-reading-orders" class="section-title">Two reading orders</h2>
-<p><strong>You own the machine:</strong> Install → The first hour → whichever Part III chapter you bought it for, following links backward into Part II when a promise needs explaining.</p>
-<p><strong>You are deciding whether to:</strong> What Nerv is → Generations → then run that chapter's demonstration in a VM: apply an update, break the slot, watch the machine repair itself. Then The chain of trust.</p>
+<p class="lead">How to install Nerv, use it every day, and run it across many machines.</p>
+<h2 class="section-title">Getting started</h2><ol class="hb-toc">
+<li><a href="/handbook/machine/why-an-operating-system-still/">Why an operating system, still</a><p>What Unix asserted, what changed about the machine underneath it, and the duty that is still unserved.</p></li>
+<li><a href="/handbook/machine/install/">Install</a><p>From a bare box to a running machine over the network — one command on a machine you already have, and no USB stick.</p></li>
+<li><a href="/handbook/machine/the-first-hour/">The first hour</a><p>The shell you land in, the tools that replace the ones you know, where the defaults live, and how to change one so it survives an update.</p></li>
+</ol>
+      </div>
+      
     </div>
   </div>
 </section>
@@ -167,7 +105,7 @@
     <div class="footer__base">
       <p>Copyright &copy; 2026 Nerv Dynamics AB. Nerv Linux is free software; each
          package carries the licence of its upstream source.</p>
-      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell and GB10 are
+      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell, GB10 and GB300 are
          trademarks of NVIDIA Corporation. Linux is a registered trademark of
          Linus Torvalds. Nerv Linux is not affiliated with, endorsed by, or
          sponsored by either.</p>
@@ -190,6 +128,52 @@
       root.setAttribute('data-theme', next);
       try { localStorage.setItem('nerv-theme', next); } catch (e) {}
       label();
+    });
+  })();
+  (function () {
+    // Phone menu: the nav links fold into a panel under the masthead.
+    var btn = document.getElementById('menu-toggle');
+    var head = btn.closest('.masthead');
+    btn.addEventListener('click', function () {
+      var open = head.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  })();
+  (function () {
+    // On phones a tapped diagram opens full screen, large, to pan and zoom.
+    var narrow = window.matchMedia('(max-width: 760px)');
+    function close(z) { z.remove(); document.body.classList.remove('has-zoom'); }
+    document.querySelectorAll('.diagram').forEach(function (fig) {
+      fig.addEventListener('click', function () {
+        var svg = fig.querySelector('svg');
+        if (!narrow.matches || !svg) return;
+        var z = document.createElement('div');
+        z.className = 'zoom'; z.setAttribute('role', 'dialog'); z.setAttribute('aria-label', svg.getAttribute('aria-label') || 'Diagram');
+        z.appendChild(svg.cloneNode(true));
+        var b = document.createElement('button');
+        b.className = 'zoom__close'; b.type = 'button'; b.setAttribute('aria-label', 'Close');
+        b.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+        b.addEventListener('click', function () { close(z); });
+        z.appendChild(b);
+        document.body.appendChild(z); document.body.classList.add('has-zoom');
+        document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { close(z); document.removeEventListener('keydown', esc); } });
+      });
+    });
+  })();
+  (function () {
+    // The handbook contents start folded on narrow screens, open on wide ones.
+    if (window.matchMedia('(max-width: 960px)').matches)
+      document.querySelectorAll('.hb-nav__box').forEach(function (d) { d.open = false; });
+  })();
+  (function () {
+    // Narrow tables read as stacked cards; each cell carries its column name.
+    document.querySelectorAll('table.data').forEach(function (t) {
+      var heads = Array.prototype.map.call(t.querySelectorAll('thead th'), function (th) { return th.textContent.trim(); });
+      t.querySelectorAll('tbody tr').forEach(function (tr) {
+        Array.prototype.forEach.call(tr.children, function (td, i) {
+          if (heads[i]) td.setAttribute('data-label', heads[i]);
+        });
+      });
     });
   })();
 </script>

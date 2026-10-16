@@ -6,6 +6,7 @@ frame lands.
 | file | what | spec |
 | --- | --- | --- |
 | `hero.jpg` | a person and the machine, right-weighted | 3:2, 2100×1400, **graded** |
+| `sweden.jpg` | misty Swedish forest, About page band; taken by Robert Luciani (Nerv Dynamics AB), added 2026-10-15 | 2243×980, not yet graded |
 
 Unlike `assets/shots/`, everything here goes through `./grade.sh`. See
 `docs/imagery.md` for the art direction, the masking constraint on the hero

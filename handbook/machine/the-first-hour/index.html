@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Nerv Linux — The first hour</title>
-<meta name="description" content="You have logged in. This chapter is what is under your hands, and how to change it.">
+<meta name="description" content="The shell you land in, the tools that replace the ones you know, where the defaults live, and how to change one so it survives an update.">
 <link rel="canonical" href="https://nervlinux.org/handbook/machine/the-first-hour/">
 <meta property="og:title" content="Nerv Linux — The first hour">
-<meta property="og:description" content="You have logged in. This chapter is what is under your hands, and how to change it.">
+<meta property="og:description" content="The shell you land in, the tools that replace the ones you know, where the defaults live, and how to change one so it survives an update.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://nervlinux.org/handbook/machine/the-first-hour/">
 <link rel="icon" href="/assets/favicon.png" sizes="32x32">
@@ -36,11 +36,14 @@
       <img class="logo" src="/assets/nerv-wordmark.png" alt="Nerv Linux" width="600" height="149">
     </a>
     <nav class="masthead__nav" aria-label="Primary">
+      <div class="masthead__links" id="primary-links">
       <a href="/system/">System</a>
-      <a href="/features/">Features</a>
+      <a href="/desktop/">Desktop</a>
       <a href="/enterprise/">Enterprise</a>
-      <a href="/about/">About</a>
+      <a href="/community/">Community</a>
       <a href="/handbook/" aria-current="page">Handbook</a>
+      <a href="/about/">About</a>
+      </div>
       <button class="theme-toggle" id="theme-toggle" type="button"
               aria-label="Switch to light theme" title="Switch theme">
         <svg class="icon icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
@@ -54,18 +57,51 @@
           </g>
         </svg>
       </button>
+      <button class="menu-toggle" id="menu-toggle" type="button"
+              aria-label="Menu" aria-expanded="false" aria-controls="primary-links">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+          <path class="menu-toggle__open" d="M4 7h16M4 12h16M4 17h16"/>
+          <path class="menu-toggle__close" d="M6 6l12 12M18 6L6 18"/>
+        </svg>
+      </button>
     </nav>
   </div>
 </header>
 
 <main id="main">
 <section class="section section--head">
-  <div class="wrap">
-    <p class="crumb"><a href="/handbook/">Handbook</a></p>
-    <div class="essay">
-<hr class="rule">
-<p>title:    The first hour one-line: The shell you land in, the tools that replace the ones you know, where the defaults live, and how to change one so it survives an update. kind:     use</p>
-<hr class="rule">
+  <div class="wrap hb">
+    <nav class="hb-nav" aria-label="Handbook">
+<details class="hb-nav__box" open>
+<summary class="hb-nav__summary">Contents</summary>
+<a class="hb-nav__home" href="/handbook/">The Nerv Handbook</a>
+<p class="hb-nav__part">Getting started</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/why-an-operating-system-still/">Why an operating system, still</a>
+</li>
+<li><a href="/handbook/machine/install/">Install</a>
+</li>
+<li><a href="/handbook/machine/the-first-hour/" aria-current="page">The first hour</a>
+<ol class="hb-nav__sections">
+<li><a href="#what-you-got">What you got</a></li>
+<li><a href="#the-console">The console</a></li>
+<li><a href="#the-shell">The shell</a></li>
+<li><a href="#the-tools-that-replace-the-ones-you-know">The tools that replace the ones you know</a></li>
+<li><a href="#the-prompt-history-and-jumping-about">The prompt, history and jumping about</a></li>
+<li><a href="#tmux">tmux</a></li>
+<li><a href="#the-editor">The editor</a></li>
+<li><a href="#where-the-defaults-live-and-how-to-change-one">Where the defaults live, and how to change one</a></li>
+<li><a href="#becoming-root">Becoming root</a></li>
+<li><a href="#swap">Swap</a></li>
+<li><a href="#nothing-takes-the-machines-last-memory">Nothing takes the machine's last memory</a></li>
+<li><a href="#running-something-risky-on-the-gpu">Running something risky on the GPU</a></li>
+<li><a href="#the-allocator-and-how-to-ask-it-what-it-is-doing">The allocator, and how to ask it what it is doing</a></li>
+<li><a href="#checking-the-machine-is-well">Checking the machine is well</a></li>
+</ol>
+</li>
+</ol>
+</details></nav>
+    <div class="hb__main">
+      <div class="essay">
 <h1 class="page-title">The first hour</h1>
 <p>You have logged in. This chapter is what is under your hands, and how to change it.</p>
 <h2 id="what-you-got" class="section-title">What you got</h2>
@@ -76,6 +112,10 @@
 <pre class="term term__body">$ rpm -q nerv-workstation
 nerv-workstation-1.0.0-4.nerv.noarch       # installed
 package nerv-workstation is not installed  # core only</pre>
+<h2 id="the-console" class="section-title">The console</h2>
+<p>What you logged into is <code>kmscon</code>, on <strong>tty1</strong>, and it is the only console: there is no getty behind it, so a boot lands on the login prompt rather than on a VT something has to switch to. It renders through DRM rather than the kernel's text console, which is what lets it use Nerv's own font and palette — Ashinoko Sans Mono, Nerv's typeface, and Myelin, its colour scheme.</p>
+<p>Switching virtual terminals is <strong>Ctrl+Alt+F1</strong> through <strong>Ctrl+Alt+F12</strong>. Plain Alt+F*n* is the kernel's chord and does nothing here: kmscon reads the keyboard itself and turns the kernel's own key handling off on its VT. Ctrl+Alt is also what a Wayland compositor uses, so the chord does not change depending on what is in front of you.</p>
+<p>Nothing needs to be switched to for a second shell — <code>tmux</code> is installed on workstation, and <code>60-nerv-tmux.fish</code> is one of the files below.</p>
 <h2 id="the-shell" class="section-title">The shell</h2>
 <p><code>fish</code>, and it is configured system-wide rather than per user. The configuration is seven files in <code>/etc/fish/conf.d/</code>, loaded in numeric order:</p>
 <pre class="term term__body">$ ls /etc/fish/conf.d/
@@ -184,6 +224,14 @@ command -q bat; and alias cat 'bat --style=plain --paging=never'</pre>
 </table>
 </div>
 <p>The mouse works — click a pane to focus it, drag a border to resize.</p>
+<p>There are two status bars, and they answer different questions.</p>
+<p>The <strong>upper</strong> one opens with the machine's hostname, so on a desk with more than one of these you can never mistake which box a terminal is on. The block changes colour rather than adding words: yellow while the prefix key is pressed and tmux is waiting for a command, pink in copy mode, where keys scroll the pane instead of reaching the program in it. Then the windows, and at the right edge what the hardware is doing — how long the machine has been up, how hot it is, and what it is drawing. There is no clock, on the grounds that every screen already has one.</p>
+<p>The <strong>lower</strong> one opens with the machine's LAN address — the one you would <code>ssh</code> to. Then the sessions, which are clickable: the one you are in is on a grey block, the others on the bar itself. At the right, <code>CPU</code>, <code>GPU</code> and memory.</p>
+<p>Both right-hand groups come from <code>axon --format=tmux --fields=…</code>, which is also how you can ask for something else:</p>
+<pre class="term term__body">$ axon --format=tmux --fields=cpu,gpu,mem
+$ axon --help              # the field list</pre>
+<p><code>axon</code> on its own opens the full picture: every machine in the compute fabric, each GPU's load, memory, power and heat as it moves, and what is using them. <code>?</code> inside it lists the keys; <code>q</code> leaves.</p>
+<p>Three things about those figures are worth knowing, and all three are properties of the board rather than choices about the bar. The <strong>temperature is one figure</strong> because a GB10 is a superchip: the ACPI thermal zones and the GPU's own sensor are the same die, about a degree apart, so a CPU and a GPU temperature would be one fact printed twice. The <strong>memory is one pool</strong> — the kernel's <code>MemTotal</code> and the GPU's <code>memory.total</code> are the same 121.6 GiB — so the used figure is of the whole machine, not of a card. And the GPU figures are there only for a member of the <code>video</code> group, which is who may use the GPU at all; the account the installer creates is one, and another is added with <code>doas usermod -aG video &lt;user&gt;</code> and a fresh login.</p>
 <h2 id="the-editor" class="section-title">The editor</h2>
 <p><code>nvim</code>, configured from a kickstart-derived Lua config seeded into your home the first time your account is created:</p>
 <pre class="term term__body">$ ls ~/.config/nvim/
@@ -215,6 +263,9 @@ after  doc  init.lua  lsp</pre>
 <tr>
 <td>kernel and module hardening</td><td><code>/etc/sysctl.d/</code>, <code>/etc/modprobe.d/</code></td>
 </tr>
+<tr>
+<td>how much swap the machine gets</td><td><code>/etc/nerv/swap.conf</code> — see <em>Swap</em> below</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -236,6 +287,53 @@ $</pre>
 <p><strong>No password.</strong> Your account was put in <code>wheel</code> at install time, and <code>/etc/doas.conf</code> is:</p>
 <pre class="term term__body">permit nopass keepenv :wheel</pre>
 <p>That is a deliberate choice and worth knowing rather than discovering: on a single-operator machine with an encrypted disk, a password prompt on every privileged command defends against someone who is already logged in as you. If that is not your threat model, remove <code>nopass</code> — in your own copy of the file, since this one is owned by the package.</p>
+<h2 id="swap" class="section-title">Swap</h2>
+<p>The machine has 16 GiB of swap, on by the time you log in.</p>
+<pre class="term term__body">$ swapon --show
+NAME               TYPE SIZE USED PRIO
+/var/swap/swapfile file  16G   0B   -1</pre>
+<p>It sits in its own btrfs subvolume, <code>@swap</code>, and that placement is load-bearing rather than tidy: btrfs refuses to snapshot a subvolume that holds an active swapfile, and every system update snapshots the system you are running. A swapfile anywhere inside the system would therefore break updates the moment it was switched on. <strong>Do not create one there.</strong> One swapfile, in <code>@swap</code>, shared by every version of the system on the disk.</p>
+<p><code>swappiness</code> is 10, not the usual 60. Swap here is what the machine reaches for when something has gone wrong, not a tier it pages into routinely.</p>
+<p><strong>To change the size</strong>, put it in a file of your own:</p>
+<pre class="term term__body">$ printf 'NERV_SWAP_SIZE=32g\n' | doas tee /etc/nerv/swap.conf
+$ doas swapoff /var/swap/swapfile &amp;&amp; doas rm /var/swap/swapfile
+$ doas nerv-swap
+nerv-swap: creating a 32g swapfile at /var/swap/swapfile
+nerv-swap: /var/swap/swapfile is on</pre>
+<p><code>/etc/nerv/swap.conf</code> is not shipped by any package, which is the point: there is nothing for an update to replace, so the file is yours alone. The board's default lives in <code>/etc/nerv/platform</code>, which <strong>is</strong> replaced by updates — it states what the hardware is, so it has to be. Do not put your override there; it will be discarded.</p>
+<h2 id="nothing-takes-the-machines-last-memory" class="section-title">Nothing takes the machine's last memory</h2>
+<p><strong>The promise:</strong> however much the GPU is asked for, the machine keeps 2 GiB to itself. An allocation of GPU memory, or of host memory pinned for the GPU, that would leave less is refused, and the program sees an ordinary CUDA out-of-memory — exactly what a full GPU says. You stay able to log in and stop whatever asked.</p>
+<p><strong>Its condition:</strong> it covers what programs ask the GPU for. A program's own heap is ordinary memory, and the kernel's to manage.</p>
+<p><strong>What would disprove it:</strong> the machine stalling for memory while GPU sessions hold it. That is a bug worth reporting.</p>
+<h2 id="running-something-risky-on-the-gpu" class="section-title">Running something risky on the GPU</h2>
+<p>Work you do not trust yet — a benchmark, a probe, anything whose memory appetite you are still measuring — goes in <code>gpu-test.slice</code>:</p>
+<pre class="term term__body">$ doas systemd-run --slice=gpu-test --scope ./my-experiment</pre>
+<p><strong>The promise:</strong> an allocation inside that slice is refused rather than granted at the machine's expense. CUDA reports an ordinary out-of-memory and the program can handle it or die; nothing outside the slice is disturbed.</p>
+<p><strong>Its conditions</strong>, both of which matter:</p>
+<ul class="list">
+<li>It applies only to what you put in it. Nothing else on this machine is capped, deliberately — a cap on your login session would also refuse a model you meant to load.</li>
+<li>The cap is 8 GiB, and it covers GPU memory as well as ordinary memory, because on this board they are the same memory.</li>
+</ul>
+<p><strong>What would disprove it:</strong> a program in the slice growing past 8 GiB. If you see that, the accounting is not working and it is a bug worth reporting, not a limit worth raising.</p>
+<h2 id="the-allocator-and-how-to-ask-it-what-it-is-doing" class="section-title">The allocator, and how to ask it what it is doing</h2>
+<p>Every program on this machine gets its memory from <code>umalloc</code> — a hardened build of mimalloc that <em>is</em> the C library's <code>malloc</code>, rather than something a particular program was linked against. You do not choose it and cannot avoid it; it is as much a part of <code>libc</code> as <code>printf</code>.</p>
+<p><strong>The promise:</strong> a large class of heap bugs — a double free, a write past the end of a block, a free list an attacker has learned to steer — ends in the program dying rather than in the program doing what the attacker wanted. Guard pages sit between heap regions, free lists are encrypted, and placement is randomised.</p>
+<p>Specifically, each of these kills the process at the moment it happens rather than being absorbed: freeing the same pointer twice, freeing a pointer into the middle of a block, freeing an address that never came from <code>malloc</code> (a stack variable, say), overwriting a free-list link, and writing through a pointer after it was freed.</p>
+<p>The compiler helps too. Every package is built with <code>_FORTIFY_SOURCE=3</code>, a stack protector, branch protection and read-only relocations, so a <code>memcpy</code> past the end of a known-size buffer stops the program rather than corrupting it. musl does not implement fortification itself — Nerv supplies it as overlay headers — and before that was done, this machine had none of it, silently.</p>
+<p><strong>Its conditions:</strong></p>
+<ul class="list">
+<li>It protects against corruption of the <em>allocator's own</em> bookkeeping. A program that overwrites its own data inside one valid allocation is doing something the allocator cannot see.</li>
+<li>A program with a latent heap bug that used to run will now stop running. That is the feature, and it is the same trade every hardened allocator makes: the alternative is a program continuing on a heap whose shape somebody else chose.</li>
+<li>It costs a few percent, and the direction depends on the program: against glibc's allocator it is about 4% faster on one standard benchmark and 8% slower on another. Allocation is a small share of most programs' time, so this is a fraction of a percent of anything you will notice. The trade was made deliberately, measured rather than assumed, and is not configurable per-program.</li>
+</ul>
+<p>It answers questions if you ask. Any of mimalloc's options can be set in the environment under either spelling — <code>umalloc_</code> is the one that matches this system, <code>mimalloc_</code> keeps upstream's documentation usable:</p>
+<pre class="term term__body">$ umalloc_verbose=1 some-program
+umalloc: process init: 0xFDB17C
+umalloc: reserved 1048576 KiB memory
+...
+umalloc: process done: 0xFDB17C</pre>
+<p><code>umalloc_show_stats=1</code> prints a breakdown at exit instead of the whole verbose log. Both write to standard error, so they will not corrupt a program's output if you are piping it somewhere.</p>
+<p><strong>What would disprove it:</strong> a program that writes past the end of a block and carries on as if nothing happened. That is worth reporting.</p>
 <h2 id="checking-the-machine-is-well" class="section-title">Checking the machine is well</h2>
 <p>Every package that ships a program also ships a check that exercises it, and <code>cage check</code> runs them all. It needs no privileges:</p>
 <pre class="term term__body">$ cage check
@@ -245,6 +343,8 @@ $</pre>
   ...
 :: 34 ok, 0 failed, 5 n/a  (36 package checks in /usr/libexec/nerv/check)</pre>
 <p>A <code>failed</code> line names the package and prints why. That is the first thing to run when something feels wrong, and the last thing to run after changing anything.</p>
+      </div>
+      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/install/"><span>Previous</span>Install</a></nav>
     </div>
   </div>
 </section>
@@ -255,7 +355,7 @@ $</pre>
     <div class="footer__base">
       <p>Copyright &copy; 2026 Nerv Dynamics AB. Nerv Linux is free software; each
          package carries the licence of its upstream source.</p>
-      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell and GB10 are
+      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell, GB10 and GB300 are
          trademarks of NVIDIA Corporation. Linux is a registered trademark of
          Linus Torvalds. Nerv Linux is not affiliated with, endorsed by, or
          sponsored by either.</p>
@@ -278,6 +378,52 @@ $</pre>
       root.setAttribute('data-theme', next);
       try { localStorage.setItem('nerv-theme', next); } catch (e) {}
       label();
+    });
+  })();
+  (function () {
+    // Phone menu: the nav links fold into a panel under the masthead.
+    var btn = document.getElementById('menu-toggle');
+    var head = btn.closest('.masthead');
+    btn.addEventListener('click', function () {
+      var open = head.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  })();
+  (function () {
+    // On phones a tapped diagram opens full screen, large, to pan and zoom.
+    var narrow = window.matchMedia('(max-width: 760px)');
+    function close(z) { z.remove(); document.body.classList.remove('has-zoom'); }
+    document.querySelectorAll('.diagram').forEach(function (fig) {
+      fig.addEventListener('click', function () {
+        var svg = fig.querySelector('svg');
+        if (!narrow.matches || !svg) return;
+        var z = document.createElement('div');
+        z.className = 'zoom'; z.setAttribute('role', 'dialog'); z.setAttribute('aria-label', svg.getAttribute('aria-label') || 'Diagram');
+        z.appendChild(svg.cloneNode(true));
+        var b = document.createElement('button');
+        b.className = 'zoom__close'; b.type = 'button'; b.setAttribute('aria-label', 'Close');
+        b.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+        b.addEventListener('click', function () { close(z); });
+        z.appendChild(b);
+        document.body.appendChild(z); document.body.classList.add('has-zoom');
+        document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { close(z); document.removeEventListener('keydown', esc); } });
+      });
+    });
+  })();
+  (function () {
+    // The handbook contents start folded on narrow screens, open on wide ones.
+    if (window.matchMedia('(max-width: 960px)').matches)
+      document.querySelectorAll('.hb-nav__box').forEach(function (d) { d.open = false; });
+  })();
+  (function () {
+    // Narrow tables read as stacked cards; each cell carries its column name.
+    document.querySelectorAll('table.data').forEach(function (t) {
+      var heads = Array.prototype.map.call(t.querySelectorAll('thead th'), function (th) { return th.textContent.trim(); });
+      t.querySelectorAll('tbody tr').forEach(function (tr) {
+        Array.prototype.forEach.call(tr.children, function (td, i) {
+          if (heads[i]) td.setAttribute('data-label', heads[i]);
+        });
+      });
     });
   })();
 </script>

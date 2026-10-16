@@ -1,0 +1,114 @@
+<!--
+title: Desktop
+desc:  The Nerv desktop: Umbriel and Noctalia on Wayland, the Myelin colour scheme, the Ashinoko typeface, and a modern unix userland.
+slug:  desktop
+nav:   desktop
+-->
+
+<section class="section section--head">
+  <div class="wrap">
+    <h1 class="page-title">Desktop</h1>
+    <p class="page-lede">Nerv is the computer you sit in front of, not only the one you deploy to. Everything you see is built by Nerv on musl, from the compositor and the terminal to the colours and the typeface.</p>
+    <figure class="shot">
+      <img src="/assets/shots/desktop.png" alt="The Nerv desktop: axon and cage dashboards beside fastfetch">
+    </figure>
+  </div>
+</section>
+
+<section class="section section--subtle" id="wayland">
+  <div class="wrap">
+    <h2 class="section-title">A minimalist desktop for power users</h2>
+    <div class="prose">
+      <p>The compositor is <span class="kw kw--tool">Umbriel</span>, built on <span class="kw kw--tool">wlroots</span>. <span class="kw kw--tool">Noctalia</span> draws the bar, the launcher, notifications and the wallpaper, and <span class="kw kw--tool">foot</span> is the terminal. It is all Wayland, with nothing on screen you did not ask for, and a program that crashes takes down its own connection to the GPU, never the desktop.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="myelin">
+  <div class="wrap">
+    <h2 class="section-title">Myelin, a colour scheme that was designed</h2>
+    <div class="prose">
+      <p>You read your screen for hours a day, and most colour schemes were picked by eye on one monitor. They look pleasant and fail the people who need them most: dim comments vanish in daylight, one accent shouts while another disappears, and the light mode is an afterthought nobody can read. OneDark, one of the most popular schemes there is, draws its comments at 2.3:1, under the 3:1 floor for an interface border, let alone text. Swap in a white background and every one of its accents falls between 1.7:1 and 3.1:1.</p>
+      <p>Myelin keeps OneDark's hues and solves everything else from contrast targets. Every pair of colours is checked twice: against WCAG&nbsp;2, the measure accessibility law is written against, and against APCA, which models how people actually perceive contrast and is much stricter about light text on dark grounds. All seven accents sit at exactly the same perceived contrast in both modes, so no hue shouts over another and syntax highlighting reads as structure instead of noise. The ten greys are exactly neutral, so nothing casts warm or cool against an accent. Blue is the interface colour and red is reserved for the brand and destructive actions, because a red switch reads as an error.</p>
+      <p>One palette covers the terminal, the kernel console, Neovim, graphical applications and the browser. Every program Nerv ships takes its colours from it, and the build refuses any file that carries its own copy of a colour. This website is Myelin too.</p>
+    </div>
+    <ul class="swatches">
+      <li class="swatch"><span class="swatch__chip" style="background: var(--myelin-red)"></span><span class="swatch__chip" style="background: var(--myelin-red-bright)"></span><span class="swatch__name">red</span></li>
+      <li class="swatch"><span class="swatch__chip" style="background: var(--myelin-orange)"></span><span class="swatch__chip" style="background: var(--myelin-orange-bright)"></span><span class="swatch__name">orange</span></li>
+      <li class="swatch"><span class="swatch__chip" style="background: var(--myelin-yellow)"></span><span class="swatch__chip" style="background: var(--myelin-yellow-bright)"></span><span class="swatch__name">yellow</span></li>
+      <li class="swatch"><span class="swatch__chip" style="background: var(--myelin-green)"></span><span class="swatch__chip" style="background: var(--myelin-green-bright)"></span><span class="swatch__name">green</span></li>
+      <li class="swatch"><span class="swatch__chip" style="background: var(--myelin-cyan)"></span><span class="swatch__chip" style="background: var(--myelin-cyan-bright)"></span><span class="swatch__name">cyan</span></li>
+      <li class="swatch"><span class="swatch__chip" style="background: var(--myelin-blue)"></span><span class="swatch__chip" style="background: var(--myelin-blue-bright)"></span><span class="swatch__name">blue</span></li>
+      <li class="swatch"><span class="swatch__chip" style="background: var(--myelin-magenta)"></span><span class="swatch__chip" style="background: var(--myelin-magenta-bright)"></span><span class="swatch__name">magenta</span></li>
+    </ul>
+    <div class="table-scroll">
+      <table class="data">
+        <thead><tr><th scope="col">Dark mode, on its own background</th><th scope="col">OneDark</th><th scope="col">Myelin</th></tr></thead>
+        <tbody>
+          <tr><td>Body text, APCA</td><td>Lc&nbsp;56, under the floor for body text</td><td>Lc&nbsp;85</td></tr>
+          <tr><td>Comments and dim text</td><td>2.3:1</td><td>at least 4.5:1 on every ground</td></tr>
+          <tr><td>Red</td><td>4.4:1</td><td>Lc&nbsp;61, like every other accent</td></tr>
+          <tr><td>Accents in light mode</td><td>1.7&ndash;3.1:1</td><td>Lc&nbsp;61, and running text at 4.5:1</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle" id="ashinoko">
+  <div class="wrap">
+    <h2 class="section-title">Ashinoko, a typeface for people who read code all day</h2>
+    <div class="prose">
+      <p>Ashinoko is generated, not drawn. <span class="kw kw--tool">Iosevka</span> is a parametric typeface: a build plan chooses every glyph's shape, the weights, the widths and the metrics, and the build turns that plan into outlines. Ashinoko is that plan, kept in Nerv's tree and rebuilt like any other package, so every decision about a letter is written down with its reason and can be changed with one line.</p>
+      <p>Those decisions are about telling characters apart at a glance. Zero is slashed and never mistaken for O. One, lowercase l and capital I each have a distinct shape. D is shaped so it never reads as O at small sizes, where <code>TODO</code> in many fonts turns into <code>TOOO</code>. The m has a short middle leg so its strokes never blend into a block. Stock Iosevka is narrow and spiky; Ashinoko is wider and calmer, for long reading rather than for fitting the most columns on screen.</p>
+      <p>One plan produces four families with the same proportions: Sans Mono for the terminal, editor and console, Sans for the desktop, Serif for documents and the handbook, and Serif Mono with slab serifs. The Mono face is also compiled into the kernel, so the first line printed at boot is already in Ashinoko.</p>
+    </div>
+    <div class="specimen">
+      <p class="specimen__line specimen__line--big" style="font-family: var(--font-mono)">0O 1lI rn m TODO {} () [] =&gt; != &lt;=</p>
+      <p class="specimen__line" style="font-family: var(--font-sans)">Ashinoko Sans &mdash; The quick brown fox jumps over the lazy dog</p>
+      <p class="specimen__line" style="font-family: var(--font-serif)">Ashinoko Serif &mdash; The quick brown fox jumps over the lazy dog</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="userland">
+  <div class="wrap">
+    <h2 class="section-title">A modern unix userland</h2>
+    <div class="prose">
+      <p>The interactive defaults are fast Rust tools, while <code>/bin/sh</code> is dash and the classic commands stay where scripts expect them, so nothing you already wrote changes.</p>
+    </div>
+    <div class="table-scroll">
+      <table class="data">
+        <thead><tr><th scope="col">Instead of</th><th scope="col">Nerv ships</th><th scope="col">What you get</th></tr></thead>
+        <tbody>
+          <tr><td><code>bash</code></td><td><code>fish + starship</code></td><td>autosuggestions, syntax highlighting, a fast prompt</td></tr>
+          <tr><td><code>GNU coreutils</code></td><td><code>uutils</code></td><td>the same commands, rewritten in Rust</td></tr>
+          <tr><td><code>ls</code></td><td><code>eza</code></td><td>git status and tree views</td></tr>
+          <tr><td><code>cat</code></td><td><code>bat</code></td><td>syntax highlighting and paging</td></tr>
+          <tr><td><code>grep</code></td><td><code>ripgrep</code></td><td>recursive by default, respects .gitignore</td></tr>
+          <tr><td><code>find</code></td><td><code>fd</code></td><td>short invocations, respects .gitignore</td></tr>
+          <tr><td><code>sed</code></td><td><code>sd</code></td><td>plain regular expressions, no escaping maze</td></tr>
+          <tr><td><code>cd</code></td><td><code>zoxide</code></td><td>jump to directories by how often you use them</td></tr>
+          <tr><td><code>history</code></td><td><code>atuin</code></td><td>searchable shell history across sessions</td></tr>
+          <tr><td><code>top</code></td><td><code>btop</code></td><td>per-core, per-process and GPU history</td></tr>
+          <tr><td><code>ps</code></td><td><code>procs</code></td><td>search and tree views</td></tr>
+          <tr><td><code>du / df</code></td><td><code>dust / duf</code></td><td>sorted, readable disk usage</td></tr>
+          <tr><td><code>diff</code></td><td><code>delta</code></td><td>syntax-aware side-by-side diffs</td></tr>
+          <tr><td><code>time</code></td><td><code>hyperfine</code></td><td>repeated runs with statistics</td></tr>
+          <tr><td><code>man</code></td><td><code>tealdeer</code></td><td>short, practical examples</td></tr>
+          <tr><td><code>curl</code></td><td><code>xh</code></td><td>HTTP with a friendlier command line</td></tr>
+          <tr><td><code>vim</code></td><td><code>neovim</code></td><td>configured with LSP and tree-sitter</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle" id="software">
+  <div class="wrap">
+    <h2 class="section-title">Install anything</h2>
+    <div class="prose">
+      <p>The base system is built on musl, but you are not limited to what Nerv builds. <code>dnf install</code> reaches the whole Fedora package collection, and pip wheels, CUDA toolkits and vendor binaries run on a glibc runtime that sits beside the base without a container or a chroot. PyTorch and your own <span class="kw kw--nvidia">CUDA</span> code run unmodified, and a notebook that allocates too much GPU memory gets an out-of-memory error at its limit instead of taking the machine down.</p>
+    </div>
+  </div>
+</section>

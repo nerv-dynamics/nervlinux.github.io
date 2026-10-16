@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Nerv Linux — Why an operating system, still</title>
-<meta name="description" content="The argument this whole system is an answer to. It describes a duty, not a product — every promise the rest of this book makes is discharging something claimed here, and if a promise elsewhere...">
+<meta name="description" content="What Unix asserted, what changed about the machine underneath it, and the duty that is still unserved.">
 <link rel="canonical" href="https://nervlinux.org/handbook/machine/why-an-operating-system-still/">
 <meta property="og:title" content="Nerv Linux — Why an operating system, still">
-<meta property="og:description" content="The argument this whole system is an answer to. It describes a duty, not a product — every promise the rest of this book makes is discharging something claimed here, and if a promise elsewhere...">
+<meta property="og:description" content="What Unix asserted, what changed about the machine underneath it, and the duty that is still unserved.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://nervlinux.org/handbook/machine/why-an-operating-system-still/">
 <link rel="icon" href="/assets/favicon.png" sizes="32x32">
@@ -36,11 +36,14 @@
       <img class="logo" src="/assets/nerv-wordmark.png" alt="Nerv Linux" width="600" height="149">
     </a>
     <nav class="masthead__nav" aria-label="Primary">
+      <div class="masthead__links" id="primary-links">
       <a href="/system/">System</a>
-      <a href="/features/">Features</a>
+      <a href="/desktop/">Desktop</a>
       <a href="/enterprise/">Enterprise</a>
-      <a href="/about/">About</a>
+      <a href="/community/">Community</a>
       <a href="/handbook/" aria-current="page">Handbook</a>
+      <a href="/about/">About</a>
+      </div>
       <button class="theme-toggle" id="theme-toggle" type="button"
               aria-label="Switch to light theme" title="Switch theme">
         <svg class="icon icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
@@ -54,18 +57,44 @@
           </g>
         </svg>
       </button>
+      <button class="menu-toggle" id="menu-toggle" type="button"
+              aria-label="Menu" aria-expanded="false" aria-controls="primary-links">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+          <path class="menu-toggle__open" d="M4 7h16M4 12h16M4 17h16"/>
+          <path class="menu-toggle__close" d="M6 6l12 12M18 6L6 18"/>
+        </svg>
+      </button>
     </nav>
   </div>
 </header>
 
 <main id="main">
 <section class="section section--head">
-  <div class="wrap">
-    <p class="crumb"><a href="/handbook/">Handbook</a></p>
-    <div class="essay">
-<hr class="rule">
-<p>title:    Why an operating system, still kind:     position one-line: What Unix asserted, what changed about the machine underneath it, and the duty that is still unserved.</p>
-<hr class="rule">
+  <div class="wrap hb">
+    <nav class="hb-nav" aria-label="Handbook">
+<details class="hb-nav__box" open>
+<summary class="hb-nav__summary">Contents</summary>
+<a class="hb-nav__home" href="/handbook/">The Nerv Handbook</a>
+<p class="hb-nav__part">Getting started</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/why-an-operating-system-still/" aria-current="page">Why an operating system, still</a>
+<ol class="hb-nav__sections">
+<li><a href="#what-unix-asserted">What Unix asserted</a></li>
+<li><a href="#what-the-gnu-project-achieved">What the GNU project achieved</a></li>
+<li><a href="#what-changed-the-machine">What changed: the machine</a></li>
+<li><a href="#the-four-duties">The four duties</a></li>
+<li><a href="#what-follows">What follows</a></li>
+<li><a href="#the-role-and-the-thesis">The role, and the thesis</a></li>
+<li><a href="#what-this-is-not">What this is not</a></li>
+</ol>
+</li>
+<li><a href="/handbook/machine/install/">Install</a>
+</li>
+<li><a href="/handbook/machine/the-first-hour/">The first hour</a>
+</li>
+</ol>
+</details></nav>
+    <div class="hb__main">
+      <div class="essay">
 <h1 class="page-title">Why an operating system, still</h1>
 <p>The argument this whole system is an answer to. It describes a duty, not a product — every promise the rest of this book makes is discharging something claimed here, and if a promise elsewhere cannot be justified against this chapter, one of the two is wrong.</p>
 <p>Deliberately contains no solutions. What Nerv <em>does</em> about any of this is the rest of the book.</p>
@@ -150,6 +179,8 @@
 <p>And stated with its falsifier, because a promise with no conditions is marketing: if compute returns to the process model through the vendor's door rather than the kernel's — if running local models excellently never comes to require the operating system's cooperation — then the thesis was wrong, and what remains is a coherent Unix and nothing more. That is the test. It is written here to be checked, not defended.</p>
 <h2 id="what-this-is-not" class="section-title">What this is not</h2>
 <p>Not an easy system, and not a hostile one — the difficulty budget is spent on the machine being knowable, not on the user proving themselves. Not a Unix clone; the clone was built and won. Not a collection of preferences: every choice here should be answerable with a measurement or an argument, and where it is answerable with neither, that is recorded rather than defended.</p>
+      </div>
+      <nav class="hb-pager" aria-label="Chapters"><span></span><a class="hb-pager__next" href="/handbook/machine/install/"><span>Next</span>Install</a></nav>
     </div>
   </div>
 </section>
@@ -160,7 +191,7 @@
     <div class="footer__base">
       <p>Copyright &copy; 2026 Nerv Dynamics AB. Nerv Linux is free software; each
          package carries the licence of its upstream source.</p>
-      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell and GB10 are
+      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell, GB10 and GB300 are
          trademarks of NVIDIA Corporation. Linux is a registered trademark of
          Linus Torvalds. Nerv Linux is not affiliated with, endorsed by, or
          sponsored by either.</p>
@@ -183,6 +214,52 @@
       root.setAttribute('data-theme', next);
       try { localStorage.setItem('nerv-theme', next); } catch (e) {}
       label();
+    });
+  })();
+  (function () {
+    // Phone menu: the nav links fold into a panel under the masthead.
+    var btn = document.getElementById('menu-toggle');
+    var head = btn.closest('.masthead');
+    btn.addEventListener('click', function () {
+      var open = head.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  })();
+  (function () {
+    // On phones a tapped diagram opens full screen, large, to pan and zoom.
+    var narrow = window.matchMedia('(max-width: 760px)');
+    function close(z) { z.remove(); document.body.classList.remove('has-zoom'); }
+    document.querySelectorAll('.diagram').forEach(function (fig) {
+      fig.addEventListener('click', function () {
+        var svg = fig.querySelector('svg');
+        if (!narrow.matches || !svg) return;
+        var z = document.createElement('div');
+        z.className = 'zoom'; z.setAttribute('role', 'dialog'); z.setAttribute('aria-label', svg.getAttribute('aria-label') || 'Diagram');
+        z.appendChild(svg.cloneNode(true));
+        var b = document.createElement('button');
+        b.className = 'zoom__close'; b.type = 'button'; b.setAttribute('aria-label', 'Close');
+        b.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+        b.addEventListener('click', function () { close(z); });
+        z.appendChild(b);
+        document.body.appendChild(z); document.body.classList.add('has-zoom');
+        document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { close(z); document.removeEventListener('keydown', esc); } });
+      });
+    });
+  })();
+  (function () {
+    // The handbook contents start folded on narrow screens, open on wide ones.
+    if (window.matchMedia('(max-width: 960px)').matches)
+      document.querySelectorAll('.hb-nav__box').forEach(function (d) { d.open = false; });
+  })();
+  (function () {
+    // Narrow tables read as stacked cards; each cell carries its column name.
+    document.querySelectorAll('table.data').forEach(function (t) {
+      var heads = Array.prototype.map.call(t.querySelectorAll('thead th'), function (th) { return th.textContent.trim(); });
+      t.querySelectorAll('tbody tr').forEach(function (tr) {
+        Array.prototype.forEach.call(tr.children, function (td, i) {
+          if (heads[i]) td.setAttribute('data-label', heads[i]);
+        });
+      });
     });
   })();
 </script>
