@@ -235,24 +235,15 @@ def handbook_link(source, href):
     return url + (f"#{anchor}" if anchor else "")
 
 
-def front_matter(text):
-    """Split a chapter's leading `---` block into (keys, rest).
-
-    The keys are flat `name: value` pairs; an indented line continues the
-    value above it, which is how a long one-line wraps in the source."""
-    m = re.match(r"\A---\n(.*?)\n---\n", text, re.S)
-    if not m:
-        return {}, text
-    keys, last = {}, None
-    for line in m.group(1).split("\n"):
-        if line[:1].isspace() and last:
-            keys[last] += " " + line.strip()
-            continue
-        k, sep, v = line.partition(":")
-        if sep:
-            last = k.strip()
-            keys[last] = v.strip()
-    return keys, text[m.end():]
+def first_paragraph(text):
+    """The paragraph under a chapter's heading, as plain text. It is the
+    chapter's description on the handbook index and in <meta>."""
+    for block in re.split(r"\n\s*\n", text):
+        block = block.strip()
+        if block and not block.startswith(("#", "```", "|", "-", ">")):
+            block = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", block)
+            return re.sub(r"[`*_]", "", " ".join(block.split()))
+    return ""
 
 
 def handbook_pages():
@@ -263,11 +254,12 @@ def handbook_pages():
     for path in sorted(HANDBOOK.rglob("*.md")):
         if path.name in HANDBOOK_SKIP:
             continue
-        keys, text = front_matter(path.read_text())
-
+        # Chapters carry no front matter; a copy synced from before that
+        # change may, and it must not become the description.
+        text = re.sub(r"\A---\n.*?\n---\n", "", path.read_text(), flags=re.S)
         m = re.search(r"^#\s+(.*)$", text, re.M)
-        title = keys.get("title") or (m.group(1).strip() if m else path.stem.replace("-", " "))
-        desc = keys.get("one-line", "")
+        title = m.group(1).strip() if m else path.stem.replace("-", " ")
+        desc = first_paragraph(text)
 
         try:
             body = mdrender.render(text, link=lambda h, s=path: handbook_link(s, h))
@@ -365,22 +357,6 @@ HANDBOOK_WRAP = """<section class="section section--head">
 </section>"""
 
 
-REDIRECT = """<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<title>Moved</title>
-<link rel="canonical" href="https://nervlinux.org{to}">
-<meta http-equiv="refresh" content="0; url={to}">
-<meta name="robots" content="noindex">
-</head>
-<body>
-<p>This page moved to <a href="{to}">{to}</a>.</p>
-</body>
-</html>
-"""
-
-
 def render_nav(current):
     out = []
     for key, href, label in NAV:
@@ -438,16 +414,6 @@ def main():
     for page in pages:
         meta, body = parse(page.read_text())
         slug = meta.get("slug", "").strip(" /")
-
-        # A renamed page leaves its old URL behind as a redirect. GitHub Pages
-        # serves no redirect rules, so the only mechanism available is a page
-        # that refreshes — plus a canonical link, so search engines follow the
-        # move rather than indexing two copies.
-        if "redirect" in meta:
-            dest = ROOT / slug / "index.html"
-            write(dest, REDIRECT.format(to=meta["redirect"]))
-            print(f"  {page.name:20} -> {dest.relative_to(ROOT)}  (redirect)")
-            continue
 
         # The brand leads every title; the page name qualifies it.
         name = meta.get("title", "").strip()
