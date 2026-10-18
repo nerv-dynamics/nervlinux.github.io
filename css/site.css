@@ -424,6 +424,34 @@ table.data td code { font-size: var(--t-xs); background: var(--bg-sunken); paddi
 .col-classic { color: var(--text-tertiary); }
 .col-nerv { color: var(--accent-green); font-weight: 600; }
 
+/* --- Benchmark small multiples ------------------------------------------- */
+.bench {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--s-4) var(--s-6); margin-block: var(--s-6);
+}
+.bench__group {
+  grid-column: 1 / -1; margin: var(--s-3) 0 0; padding-bottom: var(--s-2);
+  font-family: var(--font-mono); font-size: var(--t-xs); font-weight: 400;
+  letter-spacing: var(--tracking-caps); text-transform: uppercase;
+  color: var(--brand); border-bottom: 1px solid var(--border-strong);
+}
+.bench__group:first-child { margin-top: 0; }
+.bench__tile { min-width: 0; }
+.bench__title { margin: 0 0 var(--s-2); font-size: var(--t-sm); font-weight: 600; color: var(--text); }
+.bench__title span { font-weight: 400; font-size: var(--t-xs); color: var(--text-tertiary); white-space: nowrap; }
+.bench__row {
+  display: grid; grid-template-columns: 6.5rem 1fr; align-items: center; gap: var(--s-2);
+  font-family: var(--font-mono); font-size: var(--t-xs); line-height: 1; margin-bottom: 4px;
+}
+.bench__name { color: var(--text-secondary); }
+.bench__track { display: flex; align-items: center; gap: var(--s-2); min-width: 0; height: 14px; }
+.bench__bar { height: 12px; border-radius: 0 3px 3px 0; background: var(--border-strong); flex: none; min-width: 2px; }
+.bench__val { color: var(--text); white-space: nowrap; }
+.bench__none { color: var(--text-tertiary); }
+.bench__row--nerv .bench__name { color: var(--brand); font-weight: 600; }
+.bench__row--nerv .bench__bar { background: var(--brand); }
+.bench__row--nerv .bench__val { font-weight: 600; }
+
 /* --- Misc content -------------------------------------------------------- */
 .list { margin: 0 0 var(--s-4); padding-left: var(--s-5); }
 .list li { margin-bottom: var(--s-2); }
@@ -642,6 +670,8 @@ blockquote.note p { margin: 0; }
 
 /* --- Proof strip: the numbers, without the paragraphs ------------------- */
 .poster .figures { margin-bottom: var(--s-10); }
+.poster .figures:has(+ .figures--second) { margin-bottom: 0; }
+.figures--second { border-top: 0; }
 .figures {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   border-top: 1px solid var(--border); border-left: 1px solid var(--border);

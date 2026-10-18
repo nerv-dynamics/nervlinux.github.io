@@ -115,21 +115,46 @@ nav:   system
     <h2 class="section-title">umalloc, the allocator</h2>
     <div class="prose">
       <p>Nerv ships with <span class="kw kw--nerv">umalloc</span>, a forked version of <span class="kw kw--tool">mimalloc</span> in its most hardened mode and with a number of additional modifications, all built into the C library rather than linked by programs that opt in. Normally this sort of security hardening costs performance, but on Nerv it's practically free. Programs get guard pages and randomised placement, CPU-accelerated pointer authentication (PAC) keyed on each slot's own address, and more.</p>
-      <p>Graded against <span class="kw kw--tool">glibc</span>'s <span class="kw kw--tool">ptmalloc</span> on 33 attack cases, scored on what an attacker can actually obtain:</p>
+      <p>Measured against <span class="kw kw--tool">glibc</span> 2.39 and <span class="kw kw--tool">mozjemalloc</span>, the allocator Firefox ships with everywhere else:</p>
     </div>
-    <div class="table-scroll">
-      <table class="data">
-        <thead><tr><th scope="col"></th><th scope="col">glibc ptmalloc</th><th scope="col">umalloc</th></tr></thead>
-        <tbody>
-          <tr><td>Exploit outcomes conceded</td><td>8 of 33</td><td>3 of 33</td></tr>
-          <tr><td>Address reuse after free, then malloc</td><td>100%</td><td>0%</td></tr>
-          <tr><td>Heap layout replayed across runs</td><td>96%</td><td>0%</td></tr>
-          <tr><td>Address entropy</td><td>21 bits</td><td>27 bits</td></tr>
-          <tr><td>Heap pointers in fresh 2&nbsp;KiB allocations</td><td>63 of 64</td><td>0 of 64</td></tr>
-          <tr><td>espresso (mimalloc-bench)</td><td>baseline</td><td>4.36% faster</td></tr>
-          <tr><td>cfrac (mimalloc-bench)</td><td>baseline</td><td>7.97% slower</td></tr>
-        </tbody>
-      </table>
+    <div class="bench" role="group" aria-label="umalloc against glibc 2.39 and mozjemalloc. Each chart has its own scale.">
+      <h3 class="bench__group">Performance</h3>
+      <div class="bench__tile"><p class="bench__title">Firefox JetStream 3 <span>higher is better</span></p>
+        <div class="bench__row bench__row--nerv"><span class="bench__name">umalloc</span><span class="bench__track"><span class="bench__bar" style="width:calc((100% - 6.5rem) * 0.987)" title="umalloc, Firefox JetStream 3: 183.7"></span><span class="bench__val">183.7</span></span></div>
+        <div class="bench__row"><span class="bench__name">glibc 2.39</span><span class="bench__track"><span class="bench__bar" style="width:calc((100% - 6.5rem) * 1.000)" title="glibc 2.39, Firefox JetStream 3: 186.1"></span><span class="bench__val">186.1</span></span></div>
+        <div class="bench__row"><span class="bench__name">mozjemalloc</span><span class="bench__track"><span class="bench__bar" style="width:calc((100% - 6.5rem) * 1.000)" title="mozjemalloc, Firefox JetStream 3: 186.1"></span><span class="bench__val">186.1</span></span></div>
+      </div>
+      <div class="bench__tile"><p class="bench__title">Mixed sizes and lifetimes <span>higher is better</span></p>
+        <div class="bench__row bench__row--nerv"><span class="bench__name">umalloc</span><span class="bench__track"><span class="bench__bar" style="width:calc((100% - 6.5rem) * 1.000)" title="umalloc, Mixed sizes and lifetimes: 30 M ops/s"></span><span class="bench__val">30&nbsp;M&nbsp;ops/s</span></span></div>
+        <div class="bench__row"><span class="bench__name">glibc 2.39</span><span class="bench__track"><span class="bench__bar" style="width:calc((100% - 6.5rem) * 0.667)" title="glibc 2.39, Mixed sizes and lifetimes: 20.0 M ops/s"></span><span class="bench__val">20.0&nbsp;M&nbsp;ops/s</span></span></div>
+        <div class="bench__row"><span class="bench__name">mozjemalloc</span><span class="bench__track"><span class="bench__bar" style="width:calc((100% - 6.5rem) * 0.197)" title="mozjemalloc, Mixed sizes and lifetimes: 5.9 M ops/s"></span><span class="bench__val">5.9&nbsp;M&nbsp;ops/s</span></span></div>
+      </div>
+      <div class="bench__tile"><p class="bench__title">16 processes at once <span>higher is better</span></p>
+        <div class="bench__row bench__row--nerv"><span class="bench__name">umalloc</span><span class="bench__track"><span class="bench__bar" style="width:calc((100% - 6.5rem) * 1.000)" title="umalloc, 16 processes at once: 258 M ops/s"></span><span class="bench__val">258&nbsp;M&nbsp;ops/s</span></span></div>
+        <div class="bench__row"><span class="bench__name">glibc 2.39</span><span class="bench__track"><span class="bench__bar" style="width:calc((100% - 6.5rem) * 0.484)" title="glibc 2.39, 16 processes at once: 125 M ops/s"></span><span class="bench__val">125&nbsp;M&nbsp;ops/s</span></span></div>
+        <div class="bench__row"><span class="bench__name">mozjemalloc</span><span class="bench__track"><span class="bench__bar" style="width:calc((100% - 6.5rem) * 0.736)" title="mozjemalloc, 16 processes at once: 190 M ops/s"></span><span class="bench__val">190&nbsp;M&nbsp;ops/s</span></span></div>
+      </div>
+      <div class="bench__tile"><p class="bench__title">Firefox memory during Speedometer <span>lower is better</span></p>
+        <div class="bench__row bench__row--nerv"><span class="bench__name">umalloc</span><span class="bench__track"><span class="bench__bar" style="width:calc((100% - 6.5rem) * 0.813)" title="umalloc, Firefox memory during Speedometer: 1553 MiB"></span><span class="bench__val">1553&nbsp;MiB</span></span></div>
+        <div class="bench__row"><span class="bench__name">glibc 2.39</span><span class="bench__track"><span class="bench__bar" style="width:calc((100% - 6.5rem) * 1.000)" title="glibc 2.39, Firefox memory during Speedometer: 1910 MiB"></span><span class="bench__val">1910&nbsp;MiB</span></span></div>
+        <div class="bench__row"><span class="bench__name">mozjemalloc</span><span class="bench__track"><span class="bench__bar" style="width:calc((100% - 6.5rem) * 0.842)" title="mozjemalloc, Firefox memory during Speedometer: 1609 MiB"></span><span class="bench__val">1609&nbsp;MiB</span></span></div>
+      </div>
+      <h3 class="bench__group">Security, 33 heap attacks</h3>
+      <div class="bench__tile"><p class="bench__title">Attacks detected <span>higher is better</span></p>
+        <div class="bench__row bench__row--nerv"><span class="bench__name">umalloc</span><span class="bench__track"><span class="bench__bar" style="width:calc((100% - 6.5rem) * 1.000)" title="umalloc, Attacks detected: 17"></span><span class="bench__val">17</span></span></div>
+        <div class="bench__row"><span class="bench__name">glibc 2.39</span><span class="bench__track"><span class="bench__bar" style="width:calc((100% - 6.5rem) * 0.765)" title="glibc 2.39, Attacks detected: 13"></span><span class="bench__val">13</span></span></div>
+        <div class="bench__row"><span class="bench__name">mozjemalloc</span><span class="bench__track"><span class="bench__bar" style="width:calc((100% - 6.5rem) * 0.588)" title="mozjemalloc, Attacks detected: 10"></span><span class="bench__val">10</span></span></div>
+      </div>
+      <div class="bench__tile"><p class="bench__title">Attacks that succeeded <span>lower is better</span></p>
+        <div class="bench__row bench__row--nerv"><span class="bench__name">umalloc</span><span class="bench__track"><span class="bench__bar" style="width:calc((100% - 6.5rem) * 0.125)" title="umalloc, Attacks that succeeded: 1"></span><span class="bench__val">1</span></span></div>
+        <div class="bench__row"><span class="bench__name">glibc 2.39</span><span class="bench__track"><span class="bench__bar" style="width:calc((100% - 6.5rem) * 1.000)" title="glibc 2.39, Attacks that succeeded: 8"></span><span class="bench__val">8</span></span></div>
+        <div class="bench__row"><span class="bench__name">mozjemalloc</span><span class="bench__track"><span class="bench__bar" style="width:calc((100% - 6.5rem) * 0.375)" title="mozjemalloc, Attacks that succeeded: 3"></span><span class="bench__val">3</span></span></div>
+      </div>
+      <div class="bench__tile"><p class="bench__title">Heap address entropy <span>higher is better</span></p>
+        <div class="bench__row bench__row--nerv"><span class="bench__name">umalloc</span><span class="bench__track"><span class="bench__bar" style="width:calc((100% - 6.5rem) * 0.943)" title="umalloc, Heap address entropy: 33 bits"></span><span class="bench__val">33&nbsp;bits</span></span></div>
+        <div class="bench__row"><span class="bench__name">glibc 2.39</span><span class="bench__track"><span class="bench__bar" style="width:calc((100% - 6.5rem) * 1.000)" title="glibc 2.39, Heap address entropy: 35 bits"></span><span class="bench__val">35&nbsp;bits</span></span></div>
+        <div class="bench__row"><span class="bench__name">mozjemalloc</span><span class="bench__track"><span class="bench__bar" style="width:calc((100% - 6.5rem) * 0.857)" title="mozjemalloc, Heap address entropy: 30 bits"></span><span class="bench__val">30&nbsp;bits</span></span></div>
+      </div>
     </div>
   </div>
 </section>
@@ -139,10 +164,10 @@ nav:   system
     <h2 class="section-title">S2, the inference engine</h2>
     <div class="prose">
       <p><span class="kw kw--nerv">S2</span> talks to the <span class="kw kw--nvidia">CUDA</span> driver API and nothing above it: no cudart, no cuBLAS, no nvcc. Its kernels come from its own PTX generator, written in Rust. A model is two files: the weights, stored in the order the kernels read them, and a plan holding every allocation, every kernel as a cubin and every step's launches. At load, S2 captures each step as a CUDA graph, which takes under a second for all 128 steps. A model is serving 10 seconds after S2 starts, where <span class="kw kw--tool">vLLM</span> takes 7 minutes.</p>
-      <p>The KV cache is paged from one pool, 64 positions to a page, out to a 262,144-token context. Finished sessions are kept as snapshots a new request can resume from. Speculative decoding uses block drafters, with acceptance decided on the GPU. At 64 concurrent sessions S2 serves 493 tokens per second, 1.5&times; vLLM and over 6&times; llama.cpp.</p>
+      <p>The KV cache is paged from one pool, 64 positions to a page, out to a 262,144-token context. Finished sessions are kept as snapshots a new request can resume from. Speculative decoding uses block drafters, with acceptance decided on the GPU. At 64 concurrent sessions S2 serves 566 tokens per second, 1.7&times; vLLM and 7&times; llama.cpp. A single user gets 57, twice what Atlas and vLLM reach with MTP speculative decoding.</p>
     </div>
     <figure class="diagram">
-      <svg viewBox="0 0 960 640" role="img" aria-label="Prefill and decode throughput against vLLM, Atlas and llama.cpp. S2 is fastest in every case: 2,840 tokens per second prefill at 8k, and 493.4 decode at 64 sessions against vLLM's 329.0. It loads the model in 10 seconds, against 7 minutes for vLLM.">
+      <svg viewBox="0 0 960 640" role="img" aria-label="Prefill and decode throughput against vLLM, Atlas and llama.cpp. S2 is fastest in every case: 2,840 tokens per second prefill at 8k, and 566 decode at 64 sessions against vLLM's 329. It loads the model in 10 seconds, against 7 minutes for vLLM.">
         <g font-family="var(--font-mono)" font-size="12.5">
           <text x="16" y="28" fill="var(--text)" font-weight="600" font-size="14">Prefill, tokens per second</text>
           <text x="16" y="62" fill="var(--text-secondary)">8k prompt</text>
@@ -185,55 +210,55 @@ nav:   system
           <text x="488" y="28" fill="var(--text)" font-weight="600" font-size="14">Decode, tokens per second</text>
           <text x="488" y="62" fill="var(--text-secondary)">1 session</text>
           <text x="488" y="87" fill="var(--brand)" font-weight="600">S2</text>
-          <rect x="588" y="74" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 1 session: 15.3 tok/s</title></rect>
-          <text x="876.0" y="87" fill="var(--text)" font-weight="600">15.3</text>
+          <rect x="588" y="74" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 1 session: 57 tok/s</title></rect>
+          <text x="876.0" y="87" fill="var(--text)" font-weight="600">57</text>
           <text x="488" y="115" fill="var(--text-secondary)">vLLM NVFP4</text>
-          <rect x="588" y="102" width="206.8" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4, 1 session: 11.3 tok/s</title></rect>
-          <text x="802.8" y="115" fill="var(--text)">11.3</text>
+          <rect x="588" y="102" width="127.7" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4 with MTP, 1 session: 26 tok/s</title></rect>
+          <text x="723.7" y="115" fill="var(--text)">26</text>
           <text x="488" y="143" fill="var(--text-secondary)">Atlas</text>
-          <rect x="588" y="130" width="265.4" height="18" rx="3" fill="var(--border-strong)"><title>Atlas, 1 session: 14.5 tok/s</title></rect>
-          <text x="861.4" y="143" fill="var(--text)">14.5</text>
+          <rect x="588" y="130" width="152.3" height="18" rx="3" fill="var(--border-strong)"><title>Atlas with MTP, 1 session: 31 tok/s</title></rect>
+          <text x="748.3" y="143" fill="var(--text)">31</text>
           <text x="488" y="171" fill="var(--text-secondary)">llama.cpp</text>
-          <rect x="588" y="158" width="214.1" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp, 1 session: 11.7 tok/s</title></rect>
-          <text x="810.1" y="171" fill="var(--text)">11.7</text>
+          <rect x="588" y="158" width="57.5" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp, 1 session: 11.7 tok/s</title></rect>
+          <text x="653.5" y="171" fill="var(--text)">11.7</text>
           <text x="488" y="210" fill="var(--text-secondary)">4 sessions</text>
           <text x="488" y="235" fill="var(--brand)" font-weight="600">S2</text>
-          <rect x="588" y="222" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 4 sessions: 56.7 tok/s</title></rect>
-          <text x="876.0" y="235" fill="var(--text)" font-weight="600">56.7</text>
+          <rect x="588" y="222" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 4 sessions: 196 tok/s</title></rect>
+          <text x="876.0" y="235" fill="var(--text)" font-weight="600">196</text>
           <text x="488" y="263" fill="var(--text-secondary)">vLLM NVFP4</text>
-          <rect x="588" y="250" width="208.9" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4, 4 sessions: 42.3 tok/s</title></rect>
-          <text x="804.9" y="263" fill="var(--text)">42.3</text>
+          <rect x="588" y="250" width="60.4" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4, 4 sessions: 42.3 tok/s</title></rect>
+          <text x="656.4" y="263" fill="var(--text)">42.3</text>
           <text x="488" y="291" fill="var(--text-secondary)">Atlas</text>
-          <rect x="588" y="278" width="256.3" height="18" rx="3" fill="var(--border-strong)"><title>Atlas, 4 sessions: 51.9 tok/s</title></rect>
-          <text x="852.3" y="291" fill="var(--text)">51.9</text>
+          <rect x="588" y="278" width="74.1" height="18" rx="3" fill="var(--border-strong)"><title>Atlas, 4 sessions: 51.9 tok/s</title></rect>
+          <text x="670.1" y="291" fill="var(--text)">51.9</text>
           <text x="488" y="319" fill="var(--text-secondary)">llama.cpp</text>
-          <rect x="588" y="306" width="187.2" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp, 4 sessions: 37.9 tok/s</title></rect>
-          <text x="783.2" y="319" fill="var(--text)">37.9</text>
+          <rect x="588" y="306" width="54.1" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp, 4 sessions: 37.9 tok/s</title></rect>
+          <text x="650.1" y="319" fill="var(--text)">37.9</text>
           <text x="488" y="358" fill="var(--text-secondary)">16 sessions</text>
           <text x="488" y="383" fill="var(--brand)" font-weight="600">S2</text>
-          <rect x="588" y="370" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 16 sessions: 195.0 tok/s</title></rect>
-          <text x="876.0" y="383" fill="var(--text)" font-weight="600">195.0</text>
+          <rect x="588" y="370" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 16 sessions: 451 tok/s</title></rect>
+          <text x="876.0" y="383" fill="var(--text)" font-weight="600">451</text>
           <text x="488" y="411" fill="var(--text-secondary)">vLLM NVFP4</text>
-          <rect x="588" y="398" width="203.0" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4, 16 sessions: 141.4 tok/s</title></rect>
-          <text x="799.0" y="411" fill="var(--text)">141.4</text>
+          <rect x="588" y="398" width="87.8" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4, 16 sessions: 141.4 tok/s</title></rect>
+          <text x="683.8" y="411" fill="var(--text)">141.4</text>
           <text x="488" y="439" fill="var(--text-secondary)">Atlas</text>
-          <rect x="588" y="426" width="195.9" height="18" rx="3" fill="var(--border-strong)"><title>Atlas, 16 sessions: 136.4 tok/s</title></rect>
-          <text x="791.9" y="439" fill="var(--text)">136.4</text>
+          <rect x="588" y="426" width="84.7" height="18" rx="3" fill="var(--border-strong)"><title>Atlas, 16 sessions: 136.4 tok/s</title></rect>
+          <text x="680.7" y="439" fill="var(--text)">136.4</text>
           <text x="488" y="467" fill="var(--text-secondary)">llama.cpp</text>
-          <rect x="588" y="454" width="79.8" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp, 16 sessions: 55.6 tok/s</title></rect>
-          <text x="675.8" y="467" fill="var(--text)">55.6</text>
+          <rect x="588" y="454" width="34.5" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp, 16 sessions: 55.6 tok/s</title></rect>
+          <text x="630.5" y="467" fill="var(--text)">55.6</text>
           <text x="488" y="506" fill="var(--text-secondary)">64 sessions</text>
           <text x="488" y="531" fill="var(--brand)" font-weight="600">S2</text>
-          <rect x="588" y="518" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 64 sessions: 493.4 tok/s</title></rect>
-          <text x="876.0" y="531" fill="var(--text)" font-weight="600">493.4</text>
+          <rect x="588" y="518" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 64 sessions: 566 tok/s</title></rect>
+          <text x="876.0" y="531" fill="var(--text)" font-weight="600">566</text>
           <text x="488" y="559" fill="var(--text-secondary)">vLLM NVFP4</text>
-          <rect x="588" y="546" width="186.7" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4, 64 sessions: 329.0 tok/s</title></rect>
-          <text x="782.7" y="559" fill="var(--text)">329.0</text>
+          <rect x="588" y="546" width="162.8" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4, 64 sessions: 329.0 tok/s</title></rect>
+          <text x="758.8" y="559" fill="var(--text)">329.0</text>
           <text x="488" y="587" fill="var(--text-secondary)">Atlas</text>
-          <text x="588" y="587" fill="var(--text-secondary)" font-size="11.5">supports at most 16</text>
+          <text x="588" y="587" fill="var(--text-secondary)" font-size="11.5">did not run</text>
           <text x="488" y="615" fill="var(--text-secondary)">llama.cpp</text>
-          <rect x="588" y="602" width="45.3" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp, 64 sessions: 79.9 tok/s</title></rect>
-          <text x="641.3" y="615" fill="var(--text)">79.9</text>
+          <rect x="588" y="602" width="39.5" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp, 64 sessions: 79.9 tok/s</title></rect>
+          <text x="635.5" y="615" fill="var(--text)">79.9</text>
           <text x="16" y="506" fill="var(--text)" font-weight="600">Time to load the model</text>
           <text x="16" y="531" fill="var(--brand)" font-weight="600">S2</text>
           <rect x="116" y="518" width="6.7" height="18" rx="3" fill="var(--brand)"><title>S2: 10 s</title></rect>
@@ -249,7 +274,7 @@ nav:   system
           <text x="172.7" y="615" fill="var(--text)">1 min 13 s</text>
         </g>
       </svg>
-      <figcaption>Qwen3.8-27B on one GB10. Each panel has its own scale.</figcaption>
+      <figcaption>Qwen3.8-27B on one GB10, thinking off. At 1 session, vLLM and Atlas run with MTP. Each panel has its own scale.</figcaption>
     </figure>
     <div class="prose">
       <p>S2 is also the only engine we tested that loads <span class="kw kw--nvidia">NVIDIA</span>'s own NVFP4 checkpoint of Qwen 3.8 Flash-Next on one <span class="kw kw--nvidia">GB10</span>, because it keeps the model's n-gram table on disk. Stock <span class="kw kw--tool">vLLM</span> and Atlas ran out of memory or refused to load it.</p>
@@ -653,7 +678,7 @@ nav:   system
   <div class="wrap">
     <h2 class="section-title">One compiler, hardening nobody can turn off</h2>
     <div class="prose">
-      <p>Every package is built with <span class="kw kw--tool">LLVM</span> 22 and <span class="kw kw--tool">clang</span>, linked with <span class="kw kw--tool">lld</span>, with <span class="kw kw--tool">ThinLTO</span> and tuning for the <span class="kw kw--nvidia">GB10</span>'s Cortex-X925 and A725 cores. <code>-O3</code>, the stack protector, ARM branch protection (PAC and BTI), full RELRO, a non-executable stack and <code>_FORTIFY_SOURCE=3</code> are appended after each package's own flags, where the last flag wins. A package cannot opt out by passing <code>-O0 -fno-stack-protector</code>: the enforced flags still win, and the build audits every ELF and refuses to publish one that lacks them. The few exemptions are listed in the tree, each with its reason.</p>
+      <p>Every package Nerv compiles is built with <span class="kw kw--tool">LLVM</span> 22 and linked with <span class="kw kw--tool">lld</span>, for the <span class="kw kw--nvidia">GB10</span>'s Cortex-X925. Programs get LTO, <code>-O3</code>, ARM branch protection (PAC and BTI), full RELRO, <code>_FORTIFY_SOURCE=3</code>, a stack protector and a non-executable stack by default.</p>
       <p><span class="kw kw--tool">musl</span> implements no fortified functions, so <code>_FORTIFY_SOURCE</code> is silently inert on other musl systems. Nerv ships fortify headers in every build root, so every package is fortified apart from the listed exemptions.</p>
       <p>Builds run in a pure-musl chroot composed from Nerv's own repository, never a <span class="kw kw--tool">glibc</span> build root, because a musl binary built inside a glibc environment picks up glibc-shaped answers that surface as bugs much later.</p>
     </div>
@@ -676,6 +701,15 @@ nav:   system
           <tr><td><code>dnf5</code></td><td>5.4.6.0</td><td>links libdnf5, librpm, libc++, libunwind and musl, no glibc</td></tr>
         </tbody>
       </table>
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle" id="containers">
+  <div class="wrap">
+    <h2 class="section-title">Containers</h2>
+    <div class="prose">
+      <p>Small by construction. Nerv's base image, <span class="kw kw--nerv">nerv-minimal</span>, is 87&nbsp;MB with a shell, coreutils and <span class="kw kw--tool">dnf</span>, 40% smaller than <span class="kw kw--tool">fedora-minimal</span>'s 146&nbsp;MB. It is built from the same signed packages as the machine, and every container you build on it starts from fewer than 1,400 files. For a single program, <span class="kw kw--nerv">nerv-static</span> is 1.8&nbsp;MB: <span class="kw kw--tool">musl</span>, the CA certificates and time zones, with no shell, no package manager and nothing to exploit. It's smaller than Google's <span class="kw kw--tool">distroless/static</span> and still runs any program built on Nerv.</p>
     </div>
   </div>
 </section>
