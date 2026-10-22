@@ -151,10 +151,12 @@ On a GB10:
 
 ```
 $ ls ~/.config/nvim/
-colors  doc  init.lua  lsp  lua  nvim-pack-lock.json
+colors  doc  init.lua  lsp  lua
 ```
 
 `lsp/` holds one file per language server. The configuration is **yours**: it was copied, not linked, so edit it freely and nothing will overwrite it.
+
+Its plugins come with the system, already built, in `/usr/share/nvim/site/pack/nerv/opt/`, so the editor works offline from the first start and the plugins update with the rest of the machine. Plugins of your own can be added with `vim.pack.add()` in your `init.lua`.
 
 ## Where the defaults live, and how to change one
 
@@ -240,36 +242,57 @@ No package ships `/etc/nerv/swap.conf`, so no update replaces it. The board's de
 
 ## The machine keeps its last memory
 
-The GPU can never take the machine's last 2 GiB. A GPU allocation, or host memory pinned for the GPU, that would leave less is refused, and the program gets an ordinary CUDA out-of-memory error, exactly what a full GPU says. You can always still log in and stop whatever asked.
+Everything you run shares one memory limit: your programs, and the GPU memory they use, whoever asked for it. On a GB10 the limit is 90% of the machine, so about 12 GiB is always left for the system itself — the kernel, logins, `ssh`, the journal. Past the limit, a GPU allocation fails with an ordinary out-of-memory error, which is what a full GPU says, and a program growing its own memory past it is stopped. You can always still log in and stop whatever asked.
 
-This covers what programs ask the GPU for. A program's own heap is ordinary memory, managed by the kernel.
+```
+$ systemctl show user.slice -p MemoryMax
+MemoryMax=117517119488
+```
+
+That is the only memory reserve on the machine. Services you add to the system yourself run in the system's share, not under the limit.
 
 ## Running something risky on the GPU
 
-Put work you do not trust yet — a benchmark, a probe, anything whose memory appetite you are still finding out — in `gpu-test.slice`:
+Give work you do not trust yet — a benchmark, a probe, anything whose memory appetite you are still finding out — a limit of its own:
 
 ```
-$ doas systemd-run --slice=gpu-test --scope ./my-experiment
+$ doas systemd-run --scope --slice=user-test -p MemoryMax=20G ./my-experiment
 ```
 
-Inside the slice, memory is capped at 8 GiB, counting GPU memory, because on a GB10 they are the same memory. An allocation past the cap is refused with an ordinary out-of-memory error, and nothing outside the slice is disturbed. Only what you put in the slice is capped; your login session is not, so a model you mean to load is never refused.
+The limit holds the program's own memory and, separately, the GPU memory it uses: past 20 GiB of either, the allocation is refused with an ordinary out-of-memory error, and nothing else on the machine is disturbed. Choose the number per run.
+
+Set the limit through `doas systemd-run`, not `systemd-run --user`. A scope your own user manager makes is private to you, so its limit cannot reach the GPU memory the program uses: `journalctl -u axon` says so, and only the machine's limit applies there.
 
 ## The allocator
 
-Every program on the machine gets its memory from `umalloc`, a hardened build of mimalloc that is the C library's `malloc`. It is part of `libc`, like `printf`.
+Every program on the machine gets its memory from `umalloc`, Nerv's hardened allocator, which is the C library's `malloc`. It is part of `libc`, like `printf`. Firefox uses it too: Nerv builds the browser without its own allocator.
 
 Heap bugs end with the program stopping, not with the program doing what an attacker wanted. Guard pages sit between heap regions, free lists are encrypted, and placement is randomised. Each of these kills the process the moment it happens: freeing the same pointer twice, freeing a pointer into the middle of a block, freeing an address that never came from `malloc`, overwriting a free-list link, and writing through a pointer after it was freed.
 
+Freed memory goes back to the system on its own, after a short delay, while a program keeps allocating. A program that goes quiet can hand it back at once with `malloc_trim(0)`. The system's services do that under memory pressure, and Firefox does it when a tab goes idle or into the background: after a page lets go of a few hundred megabytes, an idle Firefox holds about 9% less memory than it would without it.
+
 The compiler adds to it. Every package is built with `_FORTIFY_SOURCE=3`, a stack protector, branch protection and read-only relocations, so a `memcpy` past the end of a buffer of known size stops the program instead of corrupting it. Nerv supplies the fortified headers for musl itself.
 
-`umalloc` guards its own bookkeeping; a program that overwrites its own data inside one valid allocation is outside what an allocator can see. A program with a latent heap bug stops instead of carrying on. Against glibc's allocator, `umalloc` is about 4% faster on one standard benchmark and 8% slower on another, a fraction of a percent of anything you will notice.
+`umalloc` guards its own bookkeeping; a program that overwrites its own data inside one valid allocation is outside what an allocator can see. A program with a latent heap bug stops instead of carrying on. Of the 33 heap attacks Nerv tests against, glibc's allocator lets 8 succeed and `umalloc` lets 3.
 
-It reports what it is doing when you ask. mimalloc's options are read from the environment under either prefix, `umalloc_` or `mimalloc_`:
+It is fast as well. Measured on a GB10 against glibc 2.39's allocator and musl's own, with the same programs built the same way for each:
+
+| | `umalloc` against glibc | `umalloc` against musl's own |
+| --- | --- | --- |
+| a single-threaded program that allocates constantly (cfrac) | the same | 20% faster |
+| another (espresso) | 7% faster | 47% faster |
+| threads freeing each other's memory (xmalloc-test) | 3× faster | 116× faster |
+| mixed-size threaded stress (mstress) | 1.8× faster | 33× faster |
+| server-style threads (larson, glibc-thread) | 12–21% slower | 400× faster or more |
+| twenty clang processes compiling at once | | 8% faster |
+
+It reports what it is doing when you ask. Its options are read from the environment under either prefix, `umalloc_` or `mimalloc_`:
 
 ```
 $ umalloc_verbose=1 ls
-umalloc: process init: 0x428F0
-v3.3.2 (built on Sep 19 2026, 15:15:36)
+umalloc: process init: 0x75B2EC
+umalloc: reserved 1048576 KiB memory
+v3.5.4
 option 'show_errors': 0
 ...
 ```

@@ -99,6 +99,12 @@
 <li><a href="#checking-the-machine-is-well">Checking the machine is well</a></li>
 </ol>
 </li>
+<li><a href="/handbook/machine/software/">Software</a>
+</li>
+</ol>
+<p class="hb-nav__part">Five ideas</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/generations/">Generations</a>
+</li>
 </ol>
 </details></nav>
     <div class="hb__main">
@@ -286,8 +292,9 @@ $ axon --help              # the field list</pre>
 <h2 id="the-editor" class="section-title">The editor</h2>
 <p><code>nvim</code>, with a kickstart-based Lua configuration copied into your home when your account is created:</p>
 <pre class="term term__body">$ ls ~/.config/nvim/
-colors  doc  init.lua  lsp  lua  nvim-pack-lock.json</pre>
+colors  doc  init.lua  lsp  lua</pre>
 <p><code>lsp/</code> holds one file per language server. The configuration is <strong>yours</strong>: it was copied, not linked, so edit it freely and nothing will overwrite it.</p>
+<p>Its plugins come with the system, already built, in <code>/usr/share/nvim/site/pack/nerv/opt/</code>, so the editor works offline from the first start and the plugins update with the rest of the machine. Plugins of your own can be added with <code>vim.pack.add()</code> in your <code>init.lua</code>.</p>
 <h2 id="where-the-defaults-live-and-how-to-change-one" class="section-title">Where the defaults live, and how to change one</h2>
 <div class="table-scroll">
 <table class="data">
@@ -352,21 +359,54 @@ nerv-swap: creating a 32g swapfile at /var/swap/swapfile
 nerv-swap: /var/swap/swapfile is on</pre>
 <p>No package ships <code>/etc/nerv/swap.conf</code>, so no update replaces it. The board's default lives in <code>/etc/nerv/platform</code>, which updates do replace, because it describes the hardware; a change made there is lost.</p>
 <h2 id="the-machine-keeps-its-last-memory" class="section-title">The machine keeps its last memory</h2>
-<p>The GPU can never take the machine's last 2 GiB. A GPU allocation, or host memory pinned for the GPU, that would leave less is refused, and the program gets an ordinary CUDA out-of-memory error, exactly what a full GPU says. You can always still log in and stop whatever asked.</p>
-<p>This covers what programs ask the GPU for. A program's own heap is ordinary memory, managed by the kernel.</p>
+<p>Everything you run shares one memory limit: your programs, and the GPU memory they use, whoever asked for it. On a GB10 the limit is 90% of the machine, so about 12 GiB is always left for the system itself — the kernel, logins, <code>ssh</code>, the journal. Past the limit, a GPU allocation fails with an ordinary out-of-memory error, which is what a full GPU says, and a program growing its own memory past it is stopped. You can always still log in and stop whatever asked.</p>
+<pre class="term term__body">$ systemctl show user.slice -p MemoryMax
+MemoryMax=117517119488</pre>
+<p>That is the only memory reserve on the machine. Services you add to the system yourself run in the system's share, not under the limit.</p>
 <h2 id="running-something-risky-on-the-gpu" class="section-title">Running something risky on the GPU</h2>
-<p>Put work you do not trust yet — a benchmark, a probe, anything whose memory appetite you are still finding out — in <code>gpu-test.slice</code>:</p>
-<pre class="term term__body">$ doas systemd-run --slice=gpu-test --scope ./my-experiment</pre>
-<p>Inside the slice, memory is capped at 8 GiB, counting GPU memory, because on a GB10 they are the same memory. An allocation past the cap is refused with an ordinary out-of-memory error, and nothing outside the slice is disturbed. Only what you put in the slice is capped; your login session is not, so a model you mean to load is never refused.</p>
+<p>Give work you do not trust yet — a benchmark, a probe, anything whose memory appetite you are still finding out — a limit of its own:</p>
+<pre class="term term__body">$ doas systemd-run --scope --slice=user-test -p MemoryMax=20G ./my-experiment</pre>
+<p>The limit holds the program's own memory and, separately, the GPU memory it uses: past 20 GiB of either, the allocation is refused with an ordinary out-of-memory error, and nothing else on the machine is disturbed. Choose the number per run.</p>
+<p>Set the limit through <code>doas systemd-run</code>, not <code>systemd-run --user</code>. A scope your own user manager makes is private to you, so its limit cannot reach the GPU memory the program uses: <code>journalctl -u axon</code> says so, and only the machine's limit applies there.</p>
 <h2 id="the-allocator" class="section-title">The allocator</h2>
-<p>Every program on the machine gets its memory from <code>umalloc</code>, a hardened build of mimalloc that is the C library's <code>malloc</code>. It is part of <code>libc</code>, like <code>printf</code>.</p>
+<p>Every program on the machine gets its memory from <code>umalloc</code>, Nerv's hardened allocator, which is the C library's <code>malloc</code>. It is part of <code>libc</code>, like <code>printf</code>. Firefox uses it too: Nerv builds the browser without its own allocator.</p>
 <p>Heap bugs end with the program stopping, not with the program doing what an attacker wanted. Guard pages sit between heap regions, free lists are encrypted, and placement is randomised. Each of these kills the process the moment it happens: freeing the same pointer twice, freeing a pointer into the middle of a block, freeing an address that never came from <code>malloc</code>, overwriting a free-list link, and writing through a pointer after it was freed.</p>
+<p>Freed memory goes back to the system on its own, after a short delay, while a program keeps allocating. A program that goes quiet can hand it back at once with <code>malloc_trim(0)</code>. The system's services do that under memory pressure, and Firefox does it when a tab goes idle or into the background: after a page lets go of a few hundred megabytes, an idle Firefox holds about 9% less memory than it would without it.</p>
 <p>The compiler adds to it. Every package is built with <code>_FORTIFY_SOURCE=3</code>, a stack protector, branch protection and read-only relocations, so a <code>memcpy</code> past the end of a buffer of known size stops the program instead of corrupting it. Nerv supplies the fortified headers for musl itself.</p>
-<p><code>umalloc</code> guards its own bookkeeping; a program that overwrites its own data inside one valid allocation is outside what an allocator can see. A program with a latent heap bug stops instead of carrying on. Against glibc's allocator, <code>umalloc</code> is about 4% faster on one standard benchmark and 8% slower on another, a fraction of a percent of anything you will notice.</p>
-<p>It reports what it is doing when you ask. mimalloc's options are read from the environment under either prefix, <code>umalloc_</code> or <code>mimalloc_</code>:</p>
+<p><code>umalloc</code> guards its own bookkeeping; a program that overwrites its own data inside one valid allocation is outside what an allocator can see. A program with a latent heap bug stops instead of carrying on. Of the 33 heap attacks Nerv tests against, glibc's allocator lets 8 succeed and <code>umalloc</code> lets 3.</p>
+<p>It is fast as well. Measured on a GB10 against glibc 2.39's allocator and musl's own, with the same programs built the same way for each:</p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col"></th><th scope="col"><code>umalloc</code> against glibc</th><th scope="col"><code>umalloc</code> against musl's own</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>a single-threaded program that allocates constantly (cfrac)</td><td>the same</td><td>20% faster</td>
+</tr>
+<tr>
+<td>another (espresso)</td><td>7% faster</td><td>47% faster</td>
+</tr>
+<tr>
+<td>threads freeing each other's memory (xmalloc-test)</td><td>3× faster</td><td>116× faster</td>
+</tr>
+<tr>
+<td>mixed-size threaded stress (mstress)</td><td>1.8× faster</td><td>33× faster</td>
+</tr>
+<tr>
+<td>server-style threads (larson, glibc-thread)</td><td>12–21% slower</td><td>400× faster or more</td>
+</tr>
+<tr>
+<td>twenty clang processes compiling at once</td><td></td><td>8% faster</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>It reports what it is doing when you ask. Its options are read from the environment under either prefix, <code>umalloc_</code> or <code>mimalloc_</code>:</p>
 <pre class="term term__body">$ umalloc_verbose=1 ls
-umalloc: process init: 0x428F0
-v3.3.2 (built on Sep 19 2026, 15:15:36)
+umalloc: process init: 0x75B2EC
+umalloc: reserved 1048576 KiB memory
+v3.5.4
 option 'show_errors': 0
 ...</pre>
 <p><code>umalloc_show_stats=1</code> prints a summary at exit instead. Both write to standard error, so they never mix into a program's output.</p>
@@ -379,7 +419,7 @@ option 'show_errors': 0
 :: 76 ok, 0 failed, 2 n/a  (78 package checks in /usr/libexec/nerv/check)</pre>
 <p>It lists only what did not pass; <code>cage check --verbose</code> lists every check. A <code>FAIL</code> line names the package and says why. Run it first when something feels wrong, and last after changing anything.</p>
       </div>
-      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/install/"><span>Previous</span>Install</a></nav>
+      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/install/"><span>Previous</span>Install</a><a class="hb-pager__next" href="/handbook/machine/software/"><span>Next</span>Software</a></nav>
     </div>
   </div>
 </section>

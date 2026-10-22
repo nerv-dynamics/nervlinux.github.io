@@ -200,6 +200,10 @@ HANDBOOK_TOC = [
         "machine/why-an-operating-system-still",
         "machine/install",
         "machine/the-first-hour",
+        "machine/software",
+    ]),
+    ("Five ideas", [
+        "machine/generations",
     ]),
 ]
 

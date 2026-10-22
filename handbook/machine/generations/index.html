@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nerv Linux — Generations</title>
+<meta name="description" content="The system lives in slots, and an update never touches the one you are running. It builds a new slot beside it, proves that slot boots to a login, and puts it on trial: if it never completes a boot, the machine goes back to the one before by itself, and cage rollback goes back on your word.">
+<link rel="canonical" href="https://nervlinux.org/handbook/machine/generations/">
+<meta property="og:title" content="Nerv Linux — Generations">
+<meta property="og:description" content="The system lives in slots, and an update never touches the one you are running. It builds a new slot beside it, proves that slot boots to a login, and puts it on trial: if it never completes a boot, the machine goes back to the one before by itself, and cage rollback goes back on your word.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nervlinux.org/handbook/machine/generations/">
+<link rel="icon" href="/assets/favicon.png" sizes="32x32">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/nerv-square.png">
+<link rel="preload" href="/fonts/ashinoko-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/palette.css">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/site.css">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('nerv-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="masthead__inner">
+    <a class="masthead__brand" href="/" aria-label="Nerv Linux — home">
+      <img class="logo" src="/assets/nerv-wordmark.png" alt="Nerv Linux" width="600" height="149">
+    </a>
+    <nav class="masthead__nav" aria-label="Primary">
+      <div class="masthead__links" id="primary-links">
+      <a href="/system/">System</a>
+      <a href="/desktop/">Desktop</a>
+      <a href="/enterprise/">Enterprise</a>
+      <a href="/community/">Community</a>
+      <a href="/handbook/" aria-current="page">Handbook</a>
+      <a href="/about/">About</a>
+      </div>
+      <button class="theme-toggle" id="theme-toggle" type="button"
+              aria-label="Switch to light theme" title="Switch theme">
+        <svg class="icon icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path fill="currentColor" d="M20.7 14.6A8.6 8.6 0 0 1 9.4 3.3a8.7 8.7 0 1 0 11.3 11.3Z"/>
+        </svg>
+        <svg class="icon icon--sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2" fill="currentColor"/>
+          <g stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+            <path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4"/>
+            <path d="M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/>
+          </g>
+        </svg>
+      </button>
+      <button class="menu-toggle" id="menu-toggle" type="button"
+              aria-label="Menu" aria-expanded="false" aria-controls="primary-links">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+          <path class="menu-toggle__open" d="M4 7h16M4 12h16M4 17h16"/>
+          <path class="menu-toggle__close" d="M6 6l12 12M18 6L6 18"/>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="section section--head">
+  <div class="wrap hb">
+    <nav class="hb-nav" aria-label="Handbook">
+<details class="hb-nav__box" open>
+<summary class="hb-nav__summary">Contents</summary>
+<a class="hb-nav__home" href="/handbook/">The Nerv Handbook</a>
+<p class="hb-nav__part">Getting started</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/why-an-operating-system-still/">Why an operating system, still</a>
+</li>
+<li><a href="/handbook/machine/install/">Install</a>
+</li>
+<li><a href="/handbook/machine/the-first-hour/">The first hour</a>
+</li>
+<li><a href="/handbook/machine/software/">Software</a>
+</li>
+</ol>
+<p class="hb-nav__part">Five ideas</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/generations/" aria-current="page">Generations</a>
+<ol class="hb-nav__sections">
+<li><a href="#what-a-slot-is">What a slot is</a></li>
+<li><a href="#seeing-the-slots">Seeing the slots</a></li>
+<li><a href="#cage-update-or-dnf">cage update or dnf</a></li>
+<li><a href="#updating">Updating</a></li>
+<li><a href="#when-an-update-is-waiting">When an update is waiting</a></li>
+<li><a href="#the-first-boot-of-a-new-slot">The first boot of a new slot</a></li>
+<li><a href="#rolling-back">Rolling back</a></li>
+<li><a href="#trying-a-change">Trying a change</a></li>
+<li><a href="#what-follows-you-to-the-next-slot">What follows you to the next slot</a></li>
+<li><a href="#the-rescue-slot">The rescue slot</a></li>
+<li><a href="#cleaning-up">Cleaning up</a></li>
+</ol>
+</li>
+</ol>
+</details></nav>
+    <div class="hb__main">
+      <div class="essay">
+<h1 class="page-title">Generations</h1>
+<p>The system lives in slots, and an update never touches the one you are running. It builds a new slot beside it, proves that slot boots to a login, and puts it on trial: if it never completes a boot, the machine goes back to the one before by itself, and <code>cage rollback</code> goes back on your word.</p>
+<h2 id="what-a-slot-is" class="section-title">What a slot is</h2>
+<p>A slot is a whole system: <code>/usr</code>, <code>/etc</code> and <code>/var</code>, with its own kernel and initrd sealed into one signed boot image. Slots sit side by side on the same encrypted disk, as btrfs snapshots of each other, so a new one costs no space until it changes.</p>
+<p>Your home directory is not in any slot. <code>/home</code> lives beside them and every slot mounts the same one, so booting another slot changes the system and never your files.</p>
+<p><code>cage</code> is the one command that manages them. On its own it opens a dashboard of every slot, its kernel and its boot state; <code>?</code> lists the keys. The rest of this chapter uses its verbs, which ask for <code>doas</code> themselves when they need it.</p>
+<h2 id="seeing-the-slots" class="section-title">Seeing the slots</h2>
+<pre class="term term__body">$ cage list
+SLOT             ROLE      KERNEL   ARTIFACT   BOOT-COUNTER         FLAGS
+@home            foreign   ?        none       -
+@nerv            stable    7.2.8    uki        blessed              booted,default
+@nerv-rescue     rescue    7.2.8    uki        blessed
+@swap            foreign   ?        none       -</pre>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">role</th><th scope="col"></th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code>stable</code></td><td>the default: what the machine boots when nothing is on trial</td>
+</tr>
+<tr>
+<td><code>preferred</code></td><td>a slot on trial, booted ahead of the default</td>
+</tr>
+<tr>
+<td><code>rescue</code></td><td>the slot made at install, never updated — see <a href="#the-rescue-slot">The rescue slot</a></td>
+</tr>
+<tr>
+<td><code>staging</code></td><td>a slot that is neither: an older system, or one being built</td>
+</tr>
+<tr>
+<td><code>foreign</code></td><td>not a system: <code>@home</code> and <code>@swap</code>, which every slot shares</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code>blessed</code> means the slot has completed a boot, or never needed to prove one. <code>3 tries left</code> means it is on trial. <code>booted</code> marks the slot you are running.</p>
+<h2 id="cage-update-or-dnf" class="section-title"><code>cage update</code> or <code>dnf</code></h2>
+<p><strong>Updating the system is always <code>cage update</code>.</strong> <code>dnf</code> installs and removes packages, and refuses <code>dnf upgrade</code> with a pointer here. <a href="/handbook/machine/software/">Software</a> has what each kind of package allows, and what happens to a package installed while an update waits for its reboot.</p>
+<h2 id="updating" class="section-title">Updating</h2>
+<pre class="term term__body">$ cage update
+:: snapshot @nerv → @nerv-20261017-1226
+...
+:: the gate: booting the new slot and driving a real login…
+:: validate PASS — …
+:: promoted @nerv-20261017-1226 → preferred [nerv-20261017-1226+3.efi], falling back to [nerv.efi]
+::   boot-counted (3 tries left): if it never completes a boot, systemd-boot falls back to the default slot on its own
+:: @nerv-20261017-1226 is promoted and boots at the next reboot. If it never completes a boot, the machine falls back to @nerv by itself.</pre>
+<p>In order, it:</p>
+<ol class="list">
+<li>snapshots the slot the machine boots into a new one, named for the date and time</li>
+<li>runs <code>dnf upgrade</code> inside the new slot</li>
+<li>seals it: builds its initrd and signs its boot image</li>
+<li>boots that image in a virtual machine and logs in to it, as a person would</li>
+<li>promotes it, so it boots at the next reboot, on trial</li>
+</ol>
+<p>The running system is never changed, and nothing reboots. If anything fails, the new slot is left for you to look at and the machine still boots what it booted before. When there is nothing to upgrade, <code>cage update</code> says so and leaves no slot behind.</p>
+<p>Reboot when it suits you:</p>
+<pre class="term term__body">$ doas reboot</pre>
+<h2 id="when-an-update-is-waiting" class="section-title">When an update is waiting</h2>
+<p>The lower tmux bar watches the two things that only change with a reboot: the kernel and the NVIDIA driver.</p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">the bar's left end</th><th scope="col"></th>
+</tr></thead>
+<tbody>
+<tr>
+<td>the LAN address, in blue</td><td>the machine runs what it will keep running</td>
+</tr>
+<tr>
+<td><code>↑ L 7.2.10  N 610.60</code>, in red</td><td>a newer kernel or driver is in the repositories</td>
+</tr>
+<tr>
+<td><code>⟳ L 7.2.10</code>, in amber</td><td>one is installed in the next slot and waits for a reboot</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The repositories are asked a few minutes after boot and every six hours after that. To ask now:</p>
+<pre class="term term__body">$ cage updates</pre>
+<h2 id="the-first-boot-of-a-new-slot" class="section-title">The first boot of a new slot</h2>
+<p>A promoted slot boots on trial, with three tries. It is blessed the first time it comes all the way up, and from then on it boots like any other.</p>
+<p><strong>If it never completes a boot</strong> — a kernel that hangs, a system that never starts — every attempt spends a try. After three, the machine boots the default slot by itself, the one you were running before the update. Nothing needs to be typed, and the failed slot is left on the disk.</p>
+<p>The slot you updated from stays the default until the next update proves its successor. That update makes today's slot the default, so the machine always has a slot that has booted to fall back to.</p>
+<h2 id="rolling-back" class="section-title">Rolling back</h2>
+<pre class="term term__body">$ cage rollback
+:: rolled back: nerv-20261017-1226.efi is no longer preferred; the machine boots nerv.efi</pre>
+<p>The next reboot runs the slot you had before the last update. This works whether the newer slot failed or simply turned out to be worse: it stays on the disk, and <code>cage promote &lt;slot&gt;</code> brings it back.</p>
+<p>With nothing on trial, <code>cage rollback</code> returns the default to the slot it replaced.</p>
+<h2 id="trying-a-change" class="section-title">Trying a change</h2>
+<p>To make a change you may want to undo — a package you are unsure of, an experiment with the system — put it in a slot of its own and boot that once:</p>
+<pre class="term term__body">$ cage try -- dnf install some-package
+...
+:: staged + boot-once @try-4211. reboot to test, then `cage promote @try-4211` if good.</pre>
+<p>The next reboot runs the new slot, one time. Whatever happens in it, the reboot after returns to your usual system. If you want to keep it, promote it:</p>
+<pre class="term term__body">$ cage promote @try-4211</pre>
+<p><code>cage try --validate -- …</code> also boots it in a virtual machine first, as <code>cage update</code> does.</p>
+<h2 id="what-follows-you-to-the-next-slot" class="section-title">What follows you to the next slot</h2>
+<p>A new slot is a copy of the system at the moment it was made. <code>/home</code> is not in any slot, so your files need nothing. Changes you make to <code>/etc</code> and <code>/var</code> after an update is staged are carried to the new slot when the machine shuts down, and a package you install goes straight into it: <a href="/handbook/machine/software/#after-an-update-before-the-reboot">After an update, before the reboot</a> has the rules.</p>
+<p>Anything elsewhere in the system — <code>/opt</code>, <code>/srv</code>, <code>/root</code> — stays in the slot it was written to. Keep your work in <code>/home</code>.</p>
+<h2 id="the-rescue-slot" class="section-title">The rescue slot</h2>
+<p>The installer makes <code>@nerv-rescue</code>, a copy of the system as it was installed. No update touches it, it has no boot counter, and nothing cleans it up: it is the floor under every other slot.</p>
+<p>To bring it up to date with the system you run now:</p>
+<pre class="term term__body">$ cage rescue --rebuild</pre>
+<p>The new rescue slot is built and sealed before the old one is removed, so the machine is never without one.</p>
+<h2 id="cleaning-up" class="section-title">Cleaning up</h2>
+<p>Every update leaves the previous slot on the disk. <code>cage gc</code> keeps the two most recent of those and shows what it would remove:</p>
+<pre class="term term__body">$ cage gc
+  would remove: @nerv-20261003-0912 (nerv-20261003-0912.efi)
+:: dry-run — pass --yes to actually delete the above.
+$ cage gc --yes</pre>
+<p>It never removes the running slot, the default, a slot on trial or the rescue slot.</p>
+      </div>
+      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/software/"><span>Previous</span>Software</a></nav>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__base">
+      <p>Copyright &copy; 2026 Nerv Dynamics AB. Nerv Linux is free software under the
+         Apache License 2.0. Software from other projects keeps its upstream licence.</p>
+      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell, GB10 and GB300 are
+         trademarks of NVIDIA Corporation. Linux is a registered trademark of
+         Linus Torvalds. Nerv Linux is not affiliated with, endorsed by, or
+         sponsored by either.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var btn = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    function label() {
+      var dark = root.getAttribute('data-theme') !== 'light';
+      btn.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+    }
+    label();
+    btn.addEventListener('click', function () {
+      // Dark is the default, so anything that isn't explicitly light is dark.
+      var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('nerv-theme', next); } catch (e) {}
+      label();
+    });
+  })();
+  (function () {
+    // Phone menu: the nav links fold into a panel under the masthead.
+    var btn = document.getElementById('menu-toggle');
+    var head = btn.closest('.masthead');
+    btn.addEventListener('click', function () {
+      var open = head.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  })();
+  (function () {
+    // On phones a tapped diagram opens full screen, large, to pan and zoom.
+    var narrow = window.matchMedia('(max-width: 760px)');
+    function close(z) { z.remove(); document.body.classList.remove('has-zoom'); }
+    document.querySelectorAll('.diagram').forEach(function (fig) {
+      fig.addEventListener('click', function () {
+        var svg = fig.querySelector('svg');
+        if (!narrow.matches || !svg) return;
+        var z = document.createElement('div');
+        z.className = 'zoom'; z.setAttribute('role', 'dialog'); z.setAttribute('aria-label', svg.getAttribute('aria-label') || 'Diagram');
+        z.appendChild(svg.cloneNode(true));
+        var b = document.createElement('button');
+        b.className = 'zoom__close'; b.type = 'button'; b.setAttribute('aria-label', 'Close');
+        b.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+        b.addEventListener('click', function () { close(z); });
+        z.appendChild(b);
+        document.body.appendChild(z); document.body.classList.add('has-zoom');
+        document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { close(z); document.removeEventListener('keydown', esc); } });
+      });
+    });
+  })();
+  (function () {
+    // The handbook contents start folded on narrow screens, open on wide ones.
+    if (window.matchMedia('(max-width: 960px)').matches)
+      document.querySelectorAll('.hb-nav__box').forEach(function (d) { d.open = false; });
+  })();
+  (function () {
+    // Narrow tables read as stacked cards; each cell carries its column name.
+    document.querySelectorAll('table.data').forEach(function (t) {
+      var heads = Array.prototype.map.call(t.querySelectorAll('thead th'), function (th) { return th.textContent.trim(); });
+      t.querySelectorAll('tbody tr').forEach(function (tr) {
+        Array.prototype.forEach.call(tr.children, function (td, i) {
+          if (heads[i]) td.setAttribute('data-label', heads[i]);
+        });
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>

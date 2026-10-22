@@ -25,13 +25,14 @@ Two kinds of chapter, and the split is what keeps the manual from drifting into 
 | **What Nerv is** | What you get, and what it costs. The chapter to read before deciding whether this machine is for you. |
 | [**Install**](machine/install.md) | From a bare box to an encrypted, attested workstation, over the network. |
 | [**The first hour**](machine/the-first-hour.md) | The shell and the userland, where things live, and how to change a setting so it survives an update. |
+| [**Software**](machine/software.md) | Installing and removing programs, Nerv's own and Fedora's, and how an update treats them and your changes to them. |
 | **The desktop** | Umbriel, Noctalia and foot, for machines that install one. |
 
 ## Part II — Five ideas
 
 | | |
 | --- | --- |
-| **Generations** | Every change to the system is a transaction: try it, prove it, keep it — or it rolls itself back. |
+| [**Generations**](machine/generations.md) | Every update is a transaction: built beside the running system, proved, kept — or it rolls itself back. |
 | **The compute fabric** | One boundary governs compute: your GPU, someone else's across the network, memory, and where programs run. Every program is a client, and everything is accounted. GPUs on several machines work together through the standard NCCL library. |
 | **What the machine remembers** | The log, the facts, and `why`: the questions your machine can answer about itself and about your data — and when it will decline to answer. |
 | **Yours and not yours** | Your work, rebuildable residue, and unexplained bytes — and what follows you to the next machine. |
@@ -62,6 +63,6 @@ Every Nerv tool documents itself: `<tool> --help` lists every flag, and `tldr <t
 
 ## Two reading orders
 
-**You own the machine:** Install → The first hour → whichever Part III chapter you bought it for, following links backward into Part II when something needs explaining.
+**You own the machine:** Install → The first hour → Software → whichever Part III chapter you bought it for, following links backward into Part II when something needs explaining.
 
-**You are deciding whether to:** What Nerv is → Generations → then run that chapter's demonstration in a VM: apply an update, break the slot, watch the machine repair itself. Then The chain of trust.
+**You are deciding whether to:** What Nerv is → Generations → then try it on your own machine, if you want to: apply an update, then roll it back. Then The chain of trust.

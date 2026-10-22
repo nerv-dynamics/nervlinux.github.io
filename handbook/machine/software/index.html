@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nerv Linux — Software</title>
+<meta name="description" content="Installing and removing programs with dnf: Nerv's own packages and the whole of Fedora's, the three kinds of package and what each allows, where a package's settings live, and what happens to a package you install or a file you change once an update is waiting for its reboot.">
+<link rel="canonical" href="https://nervlinux.org/handbook/machine/software/">
+<meta property="og:title" content="Nerv Linux — Software">
+<meta property="og:description" content="Installing and removing programs with dnf: Nerv's own packages and the whole of Fedora's, the three kinds of package and what each allows, where a package's settings live, and what happens to a package you install or a file you change once an update is waiting for its reboot.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nervlinux.org/handbook/machine/software/">
+<link rel="icon" href="/assets/favicon.png" sizes="32x32">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/nerv-square.png">
+<link rel="preload" href="/fonts/ashinoko-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/palette.css">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/site.css">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('nerv-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="masthead__inner">
+    <a class="masthead__brand" href="/" aria-label="Nerv Linux — home">
+      <img class="logo" src="/assets/nerv-wordmark.png" alt="Nerv Linux" width="600" height="149">
+    </a>
+    <nav class="masthead__nav" aria-label="Primary">
+      <div class="masthead__links" id="primary-links">
+      <a href="/system/">System</a>
+      <a href="/desktop/">Desktop</a>
+      <a href="/enterprise/">Enterprise</a>
+      <a href="/community/">Community</a>
+      <a href="/handbook/" aria-current="page">Handbook</a>
+      <a href="/about/">About</a>
+      </div>
+      <button class="theme-toggle" id="theme-toggle" type="button"
+              aria-label="Switch to light theme" title="Switch theme">
+        <svg class="icon icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path fill="currentColor" d="M20.7 14.6A8.6 8.6 0 0 1 9.4 3.3a8.7 8.7 0 1 0 11.3 11.3Z"/>
+        </svg>
+        <svg class="icon icon--sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2" fill="currentColor"/>
+          <g stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+            <path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4"/>
+            <path d="M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/>
+          </g>
+        </svg>
+      </button>
+      <button class="menu-toggle" id="menu-toggle" type="button"
+              aria-label="Menu" aria-expanded="false" aria-controls="primary-links">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+          <path class="menu-toggle__open" d="M4 7h16M4 12h16M4 17h16"/>
+          <path class="menu-toggle__close" d="M6 6l12 12M18 6L6 18"/>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="section section--head">
+  <div class="wrap hb">
+    <nav class="hb-nav" aria-label="Handbook">
+<details class="hb-nav__box" open>
+<summary class="hb-nav__summary">Contents</summary>
+<a class="hb-nav__home" href="/handbook/">The Nerv Handbook</a>
+<p class="hb-nav__part">Getting started</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/why-an-operating-system-still/">Why an operating system, still</a>
+</li>
+<li><a href="/handbook/machine/install/">Install</a>
+</li>
+<li><a href="/handbook/machine/the-first-hour/">The first hour</a>
+</li>
+<li><a href="/handbook/machine/software/" aria-current="page">Software</a>
+<ol class="hb-nav__sections">
+<li><a href="#two-sources-one-command">Two sources, one command</a></li>
+<li><a href="#finding-a-package">Finding a package</a></li>
+<li><a href="#installing-and-removing">Installing and removing</a></li>
+<li><a href="#three-kinds-of-package">Three kinds of package</a></li>
+<li><a href="#updating">Updating</a></li>
+<li><a href="#where-a-packages-settings-live">Where a package's settings live</a></li>
+<li><a href="#after-an-update-before-the-reboot">After an update, before the reboot</a></li>
+</ol>
+</li>
+</ol>
+<p class="hb-nav__part">Five ideas</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/generations/">Generations</a>
+</li>
+</ol>
+</details></nav>
+    <div class="hb__main">
+      <div class="essay">
+<h1 class="page-title">Software</h1>
+<p>Installing and removing programs with <code>dnf</code>: Nerv's own packages and the whole of Fedora's, the three kinds of package and what each allows, where a package's settings live, and what happens to a package you install or a file you change once an update is waiting for its reboot.</p>
+<h2 id="two-sources-one-command" class="section-title">Two sources, one command</h2>
+<p><code>dnf</code> installs from two places, and both are on from the start:</p>
+<div class="table-scroll">
+<table class="data">
+<tbody>
+<tr>
+<td><strong>Nerv</strong></td><td>the system itself and the tools it ships, built by Nerv against its own C library, musl</td>
+</tr>
+<tr>
+<td><strong>Fedora</strong></td><td>tens of thousands of packages more, Fedora's own builds, for glibc</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>You do not choose between them. Ask for a program by its usual name and <code>dnf</code> takes Nerv's build when Nerv has one, and Fedora's when it does not:</p>
+<pre class="term term__body">$ doas dnf install fuzzel
+Package      Arch    Version         Repository       Size
+Installing:
+ nerv-fuzzel aarch64 0:1.11.1-2.nerv nerv-stable 300.4 KiB
+...
+$ doas dnf install htop
+Package     Arch    Version         Repository          Size
+Installing:
+ htop       aarch64 0:3.4.1-3.fc44  fedora         488.3 KiB
+...</pre>
+<p>A Fedora program runs on the glibc runtime Nerv keeps beside musl, and its libraries live in <code>/usr/lib64</code>, apart from Nerv's in <code>/usr/lib</code>. The two never load each other's libraries, so a Fedora package can be installed and removed without touching anything Nerv ships.</p>
+<p>Fedora's packages are signed by Fedora and checked against its keys before they are installed, as Nerv's are against Nerv's.</p>
+<h2 id="finding-a-package" class="section-title">Finding a package</h2>
+<pre class="term term__body">$ dnf search ripgrep
+$ dnf info htop
+Name           : htop
+Version        : 3.4.1
+Release        : 3.fc44
+Repository     : fedora
+...</pre>
+<p><code>Repository</code> says where a package comes from, and so does the release: <code>.nerv</code> is Nerv's build, <code>.fc44</code> is Fedora's. The first <code>dnf</code> you run without <code>doas</code> asks to import the repositories' signing keys; answer <code>y</code>.</p>
+<h2 id="installing-and-removing" class="section-title">Installing and removing</h2>
+<pre class="term term__body">$ doas dnf install htop
+$ doas dnf remove htop</pre>
+<p>Removing a program removes it and whatever it alone brought in, and nothing else. A tool that came with your profile can be removed like any other.</p>
+<h2 id="three-kinds-of-package" class="section-title">Three kinds of package</h2>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">kind</th><th scope="col">what it is</th><th scope="col"><code>dnf</code></th>
+</tr></thead>
+<tbody>
+<tr>
+<td><strong>the base system</strong></td><td><code>nerv-core</code> and what it requires: the shell, the libraries, the services that make the machine run</td><td>refuses to remove it</td>
+</tr>
+<tr>
+<td><strong>the boot</strong></td><td>the kernel, the GPU driver, systemd, the initrd tools, cryptsetup and the platform package</td><td>refuses to change it; <code>cage update</code> does</td>
+</tr>
+<tr>
+<td><strong>everything else</strong></td><td>the tools in your profile, and anything you install</td><td>installs and removes freely</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>The base system</strong> is protected, because removing any part of it takes the rest with it. <code>dnf</code> stops before it changes anything:</p>
+<pre class="term term__body">$ doas dnf remove nerv-fish
+Failed to resolve the transaction:
+Problem 1: The operation would result in broken dependencies for the following protected packages: nerv-core
+Problem 2: installed package nerv-core-1.0.0-24.nerv.noarch requires nerv-fish, but none of the providers can be installed</pre>
+<p>It is a warning, not a lock. <code>--setopt=protected_packages=</code> lifts it for one command, and <code>dnf</code> then lists everything that would go, which for any part of the base system is most of the machine.</p>
+<p><strong>The boot</strong> cannot change in a running system: a slot boots the kernel and initrd sealed into its own image, so a new kernel installed beside it would never run. <code>dnf</code> refuses before downloading anything, and names the way that works:</p>
+<pre class="term term__body">$ doas dnf install nerv-kernel
+...
+nerv: this transaction changes the boot path (nerv-kernel). A slot boots the kernel and initrd sealed into its own UKI, so this cannot be applied to a running or sealed slot.
+      Run `cage update`: it builds a new slot, upgrades it, seals it, proves it boots and promotes it. Nothing has been changed.</pre>
+<h2 id="updating" class="section-title">Updating</h2>
+<p><strong>Updating is <code>cage update</code></strong>, for Nerv's packages and Fedora's alike. It builds the new system beside the one you are running, so there is always one to go back to; <a href="/handbook/machine/generations/">Generations</a> is the whole of it.</p>
+<p><code>dnf upgrade</code> does not update this machine, and says so:</p>
+<pre class="term term__body">$ doas dnf upgrade
+nerv: `dnf upgrade` does not update this machine; `cage update` does. It builds a new slot, upgrades it, seals it, proves it boots and promotes it, and the running slot stays there to go back to.
+      Run `cage update`. Nothing has been changed.</pre>
+<h2 id="where-a-packages-settings-live" class="section-title">Where a package's settings live</h2>
+<p>A package puts its settings in <code>/etc</code>, and they are yours to edit. An update never overwrites a file you have changed: it keeps yours and writes its new default beside it as <code>.rpmnew</code>. <a href="/handbook/machine/the-first-hour/#where-the-defaults-live-and-how-to-change-one">Where the defaults live</a> has the details and the files Nerv ships.</p>
+<p>Everything a package puts in <code>/usr</code> belongs to the package, and the next update replaces it. Change behaviour in <code>/etc</code>, or in your home directory, never in <code>/usr</code>.</p>
+<h2 id="after-an-update-before-the-reboot" class="section-title">After an update, before the reboot</h2>
+<p>Once an update is staged, the machine has two systems: the one you are running, and the one it boots next. What you do in between goes where it will last.</p>
+<p><strong>A package you install goes into the next system.</strong> Anything installed into the running one would be gone after the reboot, so <code>dnf</code> sends it ahead and says so:</p>
+<pre class="term term__body">$ doas dnf install htop
+nerv: this machine boots @nerv-20261017-1226 from now on, so this transaction goes there (/mnt/nerv-top/@nerv-20261017-1226).
+      The running slot is unchanged; the change is live after the reboot.
+...</pre>
+<p>The program appears after the reboot, not before. To use it now as well, reboot first.</p>
+<p><strong>A file you change in <code>/etc</code> follows you.</strong> Edit it in the running system as usual. When the machine shuts down, every change you made to <code>/etc</code> and <code>/var</code> since the update was staged is carried to the next system:</p>
+<ul class="list">
+<li>a file you changed and the update did not is copied across</li>
+<li>a file the update changed and you did not keeps the update's version</li>
+<li>a file you both changed keeps the update's version, and yours is saved beside it as <code>&lt;file&gt;.cage-running</code>, to merge by hand</li>
+</ul>
+<p>What was carried, and every conflict, is listed in the next system:</p>
+<pre class="term term__body">$ cat /var/lib/cage/carryover.log</pre>
+<p>Look for conflicts after the reboot:</p>
+<pre class="term term__body">$ find /etc -name '*.cage-running'</pre>
+<p>Logs, service state and databases in <code>/var</code> come with it. <code>/var/tmp</code> and <code>/var/cache</code> are not carried, and neither is anything outside <code>/etc</code> and <code>/var</code>. Your home directory needs nothing: every system mounts the same one.</p>
+      </div>
+      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/the-first-hour/"><span>Previous</span>The first hour</a><a class="hb-pager__next" href="/handbook/machine/generations/"><span>Next</span>Generations</a></nav>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__base">
+      <p>Copyright &copy; 2026 Nerv Dynamics AB. Nerv Linux is free software under the
+         Apache License 2.0. Software from other projects keeps its upstream licence.</p>
+      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell, GB10 and GB300 are
+         trademarks of NVIDIA Corporation. Linux is a registered trademark of
+         Linus Torvalds. Nerv Linux is not affiliated with, endorsed by, or
+         sponsored by either.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var btn = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    function label() {
+      var dark = root.getAttribute('data-theme') !== 'light';
+      btn.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+    }
+    label();
+    btn.addEventListener('click', function () {
+      // Dark is the default, so anything that isn't explicitly light is dark.
+      var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('nerv-theme', next); } catch (e) {}
+      label();
+    });
+  })();
+  (function () {
+    // Phone menu: the nav links fold into a panel under the masthead.
+    var btn = document.getElementById('menu-toggle');
+    var head = btn.closest('.masthead');
+    btn.addEventListener('click', function () {
+      var open = head.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  })();
+  (function () {
+    // On phones a tapped diagram opens full screen, large, to pan and zoom.
+    var narrow = window.matchMedia('(max-width: 760px)');
+    function close(z) { z.remove(); document.body.classList.remove('has-zoom'); }
+    document.querySelectorAll('.diagram').forEach(function (fig) {
+      fig.addEventListener('click', function () {
+        var svg = fig.querySelector('svg');
+        if (!narrow.matches || !svg) return;
+        var z = document.createElement('div');
+        z.className = 'zoom'; z.setAttribute('role', 'dialog'); z.setAttribute('aria-label', svg.getAttribute('aria-label') || 'Diagram');
+        z.appendChild(svg.cloneNode(true));
+        var b = document.createElement('button');
+        b.className = 'zoom__close'; b.type = 'button'; b.setAttribute('aria-label', 'Close');
+        b.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+        b.addEventListener('click', function () { close(z); });
+        z.appendChild(b);
+        document.body.appendChild(z); document.body.classList.add('has-zoom');
+        document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { close(z); document.removeEventListener('keydown', esc); } });
+      });
+    });
+  })();
+  (function () {
+    // The handbook contents start folded on narrow screens, open on wide ones.
+    if (window.matchMedia('(max-width: 960px)').matches)
+      document.querySelectorAll('.hb-nav__box').forEach(function (d) { d.open = false; });
+  })();
+  (function () {
+    // Narrow tables read as stacked cards; each cell carries its column name.
+    document.querySelectorAll('table.data').forEach(function (t) {
+      var heads = Array.prototype.map.call(t.querySelectorAll('thead th'), function (th) { return th.textContent.trim(); });
+      t.querySelectorAll('tbody tr').forEach(function (tr) {
+        Array.prototype.forEach.call(tr.children, function (td, i) {
+          if (heads[i]) td.setAttribute('data-label', heads[i]);
+        });
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>

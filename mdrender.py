@@ -17,7 +17,8 @@ WHY NOT A LIBRARY
 
   The corpus was surveyed before this was written. It uses: code spans, bold,
   tables, fenced code, h1-h3, unordered lists, italic, horizontal rules,
-  blockquotes and links. No images, no raw HTML, no ordered lists. Anything
+  blockquotes and links; ordered lists came later, flat, for steps that
+  happen in sequence. No images, no raw HTML. Anything
   outside that set raises rather than being silently dropped, because a
   chapter that renders wrong is worse than a build that stops.
 
@@ -224,10 +225,16 @@ def render(text, link=lambda h: h):
             i = _list_end(lines, i)
             continue
 
-        if re.match(r"^\s*\d+\.\s+", line):
+        # --- ordered list -----------------------------------------------
+        if re.match(r"^\d+\.\s+", line):
+            out.append(_ordered(lines, i, link))
+            i = _ordered_end(lines, i)
+            continue
+
+        if re.match(r"^\s+\d+\.\s+", line):
             raise MarkdownError(
-                f"line {i + 1}: ordered lists are not implemented — the handbook "
-                f"corpus had none. Add support here rather than around it.")
+                f"line {i + 1}: nested ordered lists are not implemented — steps "
+                f"in the handbook are flat. Add support here rather than around it.")
 
         if re.match(r"^!\[", stripped):
             raise MarkdownError(
@@ -270,6 +277,35 @@ def _list_end(lines, start):
         else:
             break
     return i
+
+
+def _ordered_end(lines, start):
+    i = start
+    while i < len(lines):
+        if re.match(r"^\d+\.\s+", lines[i]):
+            i += 1
+        elif lines[i].strip() and _item_indent(lines[i]) > 0 \
+                and not _starts_block(lines[i], lines, i):
+            i += 1            # a continuation line of the previous item
+        else:
+            break
+    return i
+
+
+def _ordered(lines, start, link):
+    """A flat numbered list: steps, in order. The numbers are the browser's,
+    so a list that starts anywhere but 1 says so with `start`."""
+    items = []
+    for line in lines[start:_ordered_end(lines, start)]:
+        m = re.match(r"^(\d+)\.\s+(.*)$", line)
+        if m:
+            items.append([int(m.group(1)), m.group(2).strip()])
+        else:
+            items[-1][1] += " " + line.strip()
+    first = items[0][0]
+    attr = f' start="{first}"' if first != 1 else ""
+    lis = "\n".join(f"<li>{_inline(t, link)}</li>" for _, t in items)
+    return f'<ol class="list"{attr}>\n{lis}\n</ol>'
 
 
 def _list(lines, start, link):
