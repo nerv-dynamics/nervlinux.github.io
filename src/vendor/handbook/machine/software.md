@@ -14,10 +14,10 @@ Installing and removing programs with `dnf`: Nerv's own packages and the whole o
 You do not choose between them. Ask for a program by its usual name and `dnf` takes Nerv's build when Nerv has one, and Fedora's when it does not:
 
 ```
-$ doas dnf install fuzzel
-Package      Arch    Version         Repository       Size
+$ doas dnf install wireguard-tools
+Package               Arch    Version               Repository       Size
 Installing:
- nerv-fuzzel aarch64 0:1.11.1-2.nerv nerv-stable 300.4 KiB
+ nerv-wireguard-tools aarch64 0:1.0.20260223-2.nerv nerv-stable 108.5 KiB
 ...
 $ doas dnf install htop
 Package     Arch    Version         Repository          Size
@@ -29,6 +29,16 @@ Installing:
 A Fedora program runs on the glibc runtime Nerv keeps beside musl, and its libraries live in `/usr/lib64`, apart from Nerv's in `/usr/lib`. The two never load each other's libraries, so a Fedora package can be installed and removed without touching anything Nerv ships.
 
 Fedora's packages are signed by Fedora and checked against its keys before they are installed, as Nerv's are against Nerv's.
+
+## Programs from elsewhere
+
+A program built for glibc that does not come from Fedora, a vendor's binary or the one an installer script unpacks, runs on the same glibc runtime as Fedora's packages. The runtime is a package of its own:
+
+```
+$ doas dnf install nerv-glibc-compat
+```
+
+Without it, such a program fails as though the file did not exist, although it is plainly there: what is missing is the glibc loader it names. The program must be built for Arm, `aarch64`, as everything on the machine is; a build for x86 does not run. A program that needs more of glibc's libraries than the runtime carries usually has them in Fedora, and `dnf provides` finds which package.
 
 ## Finding a package
 
@@ -78,8 +88,10 @@ It is a warning, not a lock. `--setopt=protected_packages=` lifts it for one com
 $ doas dnf install nerv-kernel
 ...
 nerv: this transaction changes the boot path (nerv-kernel). A slot boots the kernel and initrd sealed into its own UKI, so this cannot be applied to a running or sealed slot.
-      Run `cage update`: it builds a new slot, upgrades it, seals it, proves it boots and promotes it. Nothing has been changed.
+      Run `cage update`: it builds a new slot, upgrades it, seals it, tests it where it can and promotes it. Nothing has been changed.
 ```
+
+**A service you install** -- a database, a CI runner, anything with a unit of its own -- runs confined, in a domain for software Nerv does not ship. It keeps its own files, uses the network, runs as its own users and builds what it builds; it is kept from the machine's keys and account secrets, its disks and the GPU's device nodes, and changes the installed system only the way you do, through `doas`. A service that expects one of those is refused, and the refusal is in the journal: `journalctl -g 'avc: +denied'`.
 
 ## Updating
 
@@ -89,7 +101,7 @@ nerv: this transaction changes the boot path (nerv-kernel). A slot boots the ker
 
 ```
 $ doas dnf upgrade
-nerv: `dnf upgrade` does not update this machine; `cage update` does. It builds a new slot, upgrades it, seals it, proves it boots and promotes it, and the running slot stays there to go back to.
+nerv: `dnf upgrade` does not update this machine; `cage update` does. It builds a new slot, upgrades it, seals it, tests it where it can and promotes it, and the running slot stays there to go back to.
       Run `cage update`. Nothing has been changed.
 ```
 

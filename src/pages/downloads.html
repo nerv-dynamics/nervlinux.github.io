@@ -1,0 +1,54 @@
+<!--
+title: Downloads
+desc:  Install Nerv Linux, and download Plexus for Windows and Linux, the Plexus edge services and S2, signed and with checksums.
+slug:  downloads
+nav:   downloads
+-->
+
+<section class="section section--head">
+  <div class="wrap">
+    <h1 class="page-title">Downloads</h1>
+    <div class="prose">
+      <p>To install Nerv Linux, run this in a Linux terminal on the same network as the machine, and follow the handbook from there.</p>
+    </div>
+    <div class="cmd">
+      <pre class="term term__body"><span class="c-grey" aria-hidden="true">$ </span><code id="install-cmd">curl -fsSL https://nervlinux.org/install.sh | sh</code></pre>
+      <button class="btn btn--blue cmd__copy" type="button" data-copy="install-cmd">Copy</button>
+    </div>
+    <div class="actions">
+      <a class="btn btn--blue" href="/handbook/machine/install/">Read the install guide</a>
+    </div>
+    <script>
+      document.querySelectorAll('[data-copy]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var text = document.getElementById(b.dataset.copy).textContent;
+          navigator.clipboard.writeText(text).then(function () {
+            b.textContent = 'Copied';
+            setTimeout(function () { b.textContent = 'Copy'; }, 1500);
+          }, function () { b.textContent = 'Select and copy'; });
+        });
+      });
+    </script>
+  </div>
+</section>
+
+<!-- releases -->
+
+<section class="section" id="verify">
+  <div class="wrap">
+    <h2 class="section-title">Downloading and checking a file</h2>
+    <div class="prose">
+      <p>Every file is served from <code>repo.nervlinux.org</code>, and each product's <code>latest/</code> directory is always its newest stable version, so a script can fetch it with <code>curl</code> and no version number:</p>
+<pre class="term term__body">$ curl -fLO https://repo.nervlinux.org/releases/stable/plexus/latest/plexus-client-linux-x64.tar.gz
+$ curl -fLO https://repo.nervlinux.org/releases/stable/plexus/latest/SHA256SUMS
+$ curl -fLO https://repo.nervlinux.org/releases/stable/plexus/latest/SHA256SUMS.asc</pre>
+      <p><code>SHA256SUMS.asc</code> is signed by the Nerv release key, the key that signs the Nerv repository. Check the signature, then the file against it:</p>
+<pre class="term term__body">$ curl -fLO https://repo.nervlinux.org/keys/RPM-GPG-KEY-nerv
+$ sq verify --signer-file RPM-GPG-KEY-nerv --signature-file SHA256SUMS.asc SHA256SUMS
+$ sha256sum -c --ignore-missing SHA256SUMS</pre>
+      <p>With GnuPG, <code>gpg --import RPM-GPG-KEY-nerv</code> and then <code>gpg --verify SHA256SUMS.asc SHA256SUMS</code>. On Windows, GnuPG comes with Gpg4win, and <code>Get-FileHash</code> prints a file's SHA-256 to compare with its line in <code>SHA256SUMS</code>.</p>
+      <p>The Windows installer is not yet signed for Windows itself, so Windows names no publisher for it and warns before it runs. The signature above is what says it is ours.</p>
+      <p>New versions reach <code>releases/testing/</code> first, signed by Nerv's build key, <code>RPM-GPG-KEY-nerv-ci</code>, and move here once they have been tested.</p>
+    </div>
+  </div>
+</section>

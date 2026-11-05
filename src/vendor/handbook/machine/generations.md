@@ -52,8 +52,8 @@ In order, it:
 
 1. snapshots the slot the machine boots into a new one, named for the date and time
 2. runs `dnf upgrade` inside the new slot
-3. seals it: builds its initrd and signs its boot image
-4. boots that image in a virtual machine and logs in to it, as a person would
+3. seals it: labels its files for SELinux, builds its initrd and signs its boot image
+4. boots that image in a virtual machine and logs in to it, as a person would. The `workstation`, `workstation-gui` and `dev` profiles carry what this needs (`nerv-qemu` and `nerv-aavmf`); a `core` machine does not, so it says so and skips this step, and the slot goes on trial with nothing tested before the reboot
 5. promotes it, so it boots at the next reboot, on trial
 
 The running system is never changed, and nothing reboots. If anything fails, the new slot is left for you to look at and the machine still boots what it booted before. When there is nothing to upgrade, `cage update` says so and leaves no slot behind.
@@ -82,9 +82,11 @@ $ cage updates
 
 ## The first boot of a new slot
 
-A promoted slot boots on trial, with three tries. It is blessed the first time it comes all the way up, and from then on it boots like any other.
+A promoted slot boots on trial, with three tries. It is blessed the first time it comes all the way up — to multi-user, with no unit failed — and from then on it boots like any other.
 
-**If it never completes a boot** — a kernel that hangs, a system that never starts — every attempt spends a try. After three, the machine boots the default slot by itself, the one you were running before the update. Nothing needs to be typed, and the failed slot is left on the disk.
+**If it never completes a boot** — a kernel that hangs, a system that never starts, a disk it cannot unlock, a unit that fails — every attempt spends a try. A boot on trial that is not blessed within five minutes restarts the machine, and a kernel that stops entirely is reset by the hardware watchdog, so a try is spent whether or not anyone is there. After three, the machine boots the default slot by itself, the one you were running before the update. Nothing needs to be typed, and the failed slot is left on the disk, with the journal of each failed attempt: `journalctl -b -1` from the slot you are back on.
+
+The five minutes are for a boot on trial only. A blessed slot waits at the passphrase prompt for as long as it takes. To keep a trial boot that has failed running while you look at it, stop its deadline: `doas systemctl stop nerv-trial-deadline.timer`.
 
 The slot you updated from stays the default until the next update proves its successor. That update makes today's slot the default, so the machine always has a slot that has booted to fall back to.
 
@@ -115,7 +117,7 @@ The next reboot runs the new slot, one time. Whatever happens in it, the reboot 
 $ cage promote @try-4211
 ```
 
-`cage try --validate -- …` also boots it in a virtual machine first, as `cage update` does.
+`cage try --validate -- …` also boots it in a virtual machine first, as `cage update` does where it can.
 
 ## What follows you to the next slot
 

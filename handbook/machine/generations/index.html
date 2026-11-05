@@ -42,6 +42,7 @@
       <a href="/enterprise/">Enterprise</a>
       <a href="/community/">Community</a>
       <a href="/handbook/" aria-current="page">Handbook</a>
+      <a href="/downloads/">Downloads</a>
       <a href="/about/">About</a>
       </div>
       <button class="theme-toggle" id="theme-toggle" type="button"
@@ -75,14 +76,24 @@
 <details class="hb-nav__box" open>
 <summary class="hb-nav__summary">Contents</summary>
 <a class="hb-nav__home" href="/handbook/">The Nerv Handbook</a>
-<p class="hb-nav__part">Getting started</p><ol class="hb-nav__list">
+<p class="hb-nav__part">This machine</p><ol class="hb-nav__list">
 <li><a href="/handbook/machine/why-an-operating-system-still/">Why an operating system, still</a>
+</li>
+<li><a href="/handbook/machine/what-nerv-is/">What Nerv is</a>
 </li>
 <li><a href="/handbook/machine/install/">Install</a>
 </li>
 <li><a href="/handbook/machine/the-first-hour/">The first hour</a>
 </li>
 <li><a href="/handbook/machine/software/">Software</a>
+</li>
+<li><a href="/handbook/machine/containers/">Containers</a>
+</li>
+<li><a href="/handbook/machine/desktop/">The desktop</a>
+</li>
+<li><a href="/handbook/machine/networking/">Networking</a>
+</li>
+<li><a href="/handbook/machine/accounts-and-keys/">Accounts and keys</a>
 </li>
 </ol>
 <p class="hb-nav__part">Five ideas</p><ol class="hb-nav__list">
@@ -100,6 +111,32 @@
 <li><a href="#the-rescue-slot">The rescue slot</a></li>
 <li><a href="#cleaning-up">Cleaning up</a></li>
 </ol>
+</li>
+<li><a href="/handbook/machine/compute-fabric/">The compute fabric</a>
+</li>
+<li><a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a>
+</li>
+<li><a href="/handbook/machine/yours-and-not-yours/">Yours and not yours</a>
+</li>
+<li><a href="/handbook/machine/chain-of-trust/">The chain of trust</a>
+</li>
+</ol>
+<p class="hb-nav__part">Ways of using it</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/ai-development/">AI development</a>
+</li>
+<li><a href="/handbook/machine/gaming/">Gaming</a>
+</li>
+<li><a href="/handbook/machine/offloading-and-fleets/">Offloading and fleets</a>
+</li>
+<li><a href="/handbook/machine/plexus/">Plexus</a>
+</li>
+<li><a href="/handbook/machine/building-your-own/">Building your own</a>
+</li>
+</ol>
+<p class="hb-nav__part">When it breaks</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/recovery/">Recovery</a>
+</li>
+<li><a href="/handbook/machine/asking-why/">Asking why</a>
 </li>
 </ol>
 </details></nav>
@@ -158,8 +195,8 @@ SLOT             ROLE      KERNEL   ARTIFACT   BOOT-COUNTER         FLAGS
 <ol class="list">
 <li>snapshots the slot the machine boots into a new one, named for the date and time</li>
 <li>runs <code>dnf upgrade</code> inside the new slot</li>
-<li>seals it: builds its initrd and signs its boot image</li>
-<li>boots that image in a virtual machine and logs in to it, as a person would</li>
+<li>seals it: labels its files for SELinux, builds its initrd and signs its boot image</li>
+<li>boots that image in a virtual machine and logs in to it, as a person would. The <code>workstation</code>, <code>workstation-gui</code> and <code>dev</code> profiles carry what this needs (<code>nerv-qemu</code> and <code>nerv-aavmf</code>); a <code>core</code> machine does not, so it says so and skips this step, and the slot goes on trial with nothing tested before the reboot</li>
 <li>promotes it, so it boots at the next reboot, on trial</li>
 </ol>
 <p>The running system is never changed, and nothing reboots. If anything fails, the new slot is left for you to look at and the machine still boots what it booted before. When there is nothing to upgrade, <code>cage update</code> says so and leaves no slot behind.</p>
@@ -188,8 +225,9 @@ SLOT             ROLE      KERNEL   ARTIFACT   BOOT-COUNTER         FLAGS
 <p>The repositories are asked a few minutes after boot and every six hours after that. To ask now:</p>
 <pre class="term term__body">$ cage updates</pre>
 <h2 id="the-first-boot-of-a-new-slot" class="section-title">The first boot of a new slot</h2>
-<p>A promoted slot boots on trial, with three tries. It is blessed the first time it comes all the way up, and from then on it boots like any other.</p>
-<p><strong>If it never completes a boot</strong> — a kernel that hangs, a system that never starts — every attempt spends a try. After three, the machine boots the default slot by itself, the one you were running before the update. Nothing needs to be typed, and the failed slot is left on the disk.</p>
+<p>A promoted slot boots on trial, with three tries. It is blessed the first time it comes all the way up — to multi-user, with no unit failed — and from then on it boots like any other.</p>
+<p><strong>If it never completes a boot</strong> — a kernel that hangs, a system that never starts, a disk it cannot unlock, a unit that fails — every attempt spends a try. A boot on trial that is not blessed within five minutes restarts the machine, and a kernel that stops entirely is reset by the hardware watchdog, so a try is spent whether or not anyone is there. After three, the machine boots the default slot by itself, the one you were running before the update. Nothing needs to be typed, and the failed slot is left on the disk, with the journal of each failed attempt: <code>journalctl -b -1</code> from the slot you are back on.</p>
+<p>The five minutes are for a boot on trial only. A blessed slot waits at the passphrase prompt for as long as it takes. To keep a trial boot that has failed running while you look at it, stop its deadline: <code>doas systemctl stop nerv-trial-deadline.timer</code>.</p>
 <p>The slot you updated from stays the default until the next update proves its successor. That update makes today's slot the default, so the machine always has a slot that has booted to fall back to.</p>
 <h2 id="rolling-back" class="section-title">Rolling back</h2>
 <pre class="term term__body">$ cage rollback
@@ -203,7 +241,7 @@ SLOT             ROLE      KERNEL   ARTIFACT   BOOT-COUNTER         FLAGS
 :: staged + boot-once @try-4211. reboot to test, then `cage promote @try-4211` if good.</pre>
 <p>The next reboot runs the new slot, one time. Whatever happens in it, the reboot after returns to your usual system. If you want to keep it, promote it:</p>
 <pre class="term term__body">$ cage promote @try-4211</pre>
-<p><code>cage try --validate -- …</code> also boots it in a virtual machine first, as <code>cage update</code> does.</p>
+<p><code>cage try --validate -- …</code> also boots it in a virtual machine first, as <code>cage update</code> does where it can.</p>
 <h2 id="what-follows-you-to-the-next-slot" class="section-title">What follows you to the next slot</h2>
 <p>A new slot is a copy of the system at the moment it was made. <code>/home</code> is not in any slot, so your files need nothing. Changes you make to <code>/etc</code> and <code>/var</code> after an update is staged are carried to the new slot when the machine shuts down, and a package you install goes straight into it: <a href="/handbook/machine/software/#after-an-update-before-the-reboot">After an update, before the reboot</a> has the rules.</p>
 <p>Anything elsewhere in the system — <code>/opt</code>, <code>/srv</code>, <code>/root</code> — stays in the slot it was written to. Keep your work in <code>/home</code>.</p>
@@ -220,7 +258,7 @@ SLOT             ROLE      KERNEL   ARTIFACT   BOOT-COUNTER         FLAGS
 $ cage gc --yes</pre>
 <p>It never removes the running slot, the default, a slot on trial or the rescue slot.</p>
       </div>
-      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/software/"><span>Previous</span>Software</a></nav>
+      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/accounts-and-keys/"><span>Previous</span>Accounts and keys</a><a class="hb-pager__next" href="/handbook/machine/compute-fabric/"><span>Next</span>The compute fabric</a></nav>
     </div>
   </div>
 </section>

@@ -285,6 +285,13 @@ img { max-width: 100%; height: auto; display: block; }
 
 /* --- Buttons ------------------------------------------------------------- */
 .actions { display: flex; flex-wrap: wrap; gap: var(--s-3); }
+.page-lede + .prose, .prose + .actions { margin-top: var(--s-6); }
+.prose pre.term { margin-block: var(--s-4); }
+/* A command with a copy button beside it. */
+.cmd { display: flex; gap: var(--s-3); margin-top: var(--s-6); }
+.cmd .term { flex: 1; margin: 0; overflow-x: auto; }
+.cmd__copy { flex: none; }
+.cmd + .actions { margin-top: var(--s-4); }
 .btn {
   display: inline-flex; align-items: center;
   padding: var(--s-3) var(--s-6);
@@ -298,6 +305,10 @@ img { max-width: 100%; height: auto; display: block; }
    second one. */
 .btn--primary { background: var(--brand); color: var(--text-on-brand); }
 .btn--primary:hover { background: color-mix(in srgb, var(--brand) 84%, var(--myelin-fg)); }
+/* Downloads: Myelin's blue, which has an -ink variant for a fill like the brand. */
+.btn--blue { background: var(--accent-blue); color: var(--myelin-on-ink); }
+.btn--blue:hover { background: color-mix(in srgb, var(--accent-blue) 84%, var(--myelin-fg)); }
+.btn--off, .btn--off:hover { background: var(--bg-sunken); color: var(--text-tertiary); cursor: default; }
 .btn--ghost {
   border-color: color-mix(in srgb, var(--text) 45%, transparent);
   color: var(--text);

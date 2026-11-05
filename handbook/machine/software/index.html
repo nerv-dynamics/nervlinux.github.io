@@ -42,6 +42,7 @@
       <a href="/enterprise/">Enterprise</a>
       <a href="/community/">Community</a>
       <a href="/handbook/" aria-current="page">Handbook</a>
+      <a href="/downloads/">Downloads</a>
       <a href="/about/">About</a>
       </div>
       <button class="theme-toggle" id="theme-toggle" type="button"
@@ -75,8 +76,10 @@
 <details class="hb-nav__box" open>
 <summary class="hb-nav__summary">Contents</summary>
 <a class="hb-nav__home" href="/handbook/">The Nerv Handbook</a>
-<p class="hb-nav__part">Getting started</p><ol class="hb-nav__list">
+<p class="hb-nav__part">This machine</p><ol class="hb-nav__list">
 <li><a href="/handbook/machine/why-an-operating-system-still/">Why an operating system, still</a>
+</li>
+<li><a href="/handbook/machine/what-nerv-is/">What Nerv is</a>
 </li>
 <li><a href="/handbook/machine/install/">Install</a>
 </li>
@@ -85,6 +88,7 @@
 <li><a href="/handbook/machine/software/" aria-current="page">Software</a>
 <ol class="hb-nav__sections">
 <li><a href="#two-sources-one-command">Two sources, one command</a></li>
+<li><a href="#programs-from-elsewhere">Programs from elsewhere</a></li>
 <li><a href="#finding-a-package">Finding a package</a></li>
 <li><a href="#installing-and-removing">Installing and removing</a></li>
 <li><a href="#three-kinds-of-package">Three kinds of package</a></li>
@@ -93,9 +97,43 @@
 <li><a href="#after-an-update-before-the-reboot">After an update, before the reboot</a></li>
 </ol>
 </li>
+<li><a href="/handbook/machine/containers/">Containers</a>
+</li>
+<li><a href="/handbook/machine/desktop/">The desktop</a>
+</li>
+<li><a href="/handbook/machine/networking/">Networking</a>
+</li>
+<li><a href="/handbook/machine/accounts-and-keys/">Accounts and keys</a>
+</li>
 </ol>
 <p class="hb-nav__part">Five ideas</p><ol class="hb-nav__list">
 <li><a href="/handbook/machine/generations/">Generations</a>
+</li>
+<li><a href="/handbook/machine/compute-fabric/">The compute fabric</a>
+</li>
+<li><a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a>
+</li>
+<li><a href="/handbook/machine/yours-and-not-yours/">Yours and not yours</a>
+</li>
+<li><a href="/handbook/machine/chain-of-trust/">The chain of trust</a>
+</li>
+</ol>
+<p class="hb-nav__part">Ways of using it</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/ai-development/">AI development</a>
+</li>
+<li><a href="/handbook/machine/gaming/">Gaming</a>
+</li>
+<li><a href="/handbook/machine/offloading-and-fleets/">Offloading and fleets</a>
+</li>
+<li><a href="/handbook/machine/plexus/">Plexus</a>
+</li>
+<li><a href="/handbook/machine/building-your-own/">Building your own</a>
+</li>
+</ol>
+<p class="hb-nav__part">When it breaks</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/recovery/">Recovery</a>
+</li>
+<li><a href="/handbook/machine/asking-why/">Asking why</a>
 </li>
 </ol>
 </details></nav>
@@ -118,10 +156,10 @@
 </table>
 </div>
 <p>You do not choose between them. Ask for a program by its usual name and <code>dnf</code> takes Nerv's build when Nerv has one, and Fedora's when it does not:</p>
-<pre class="term term__body">$ doas dnf install fuzzel
-Package      Arch    Version         Repository       Size
+<pre class="term term__body">$ doas dnf install wireguard-tools
+Package               Arch    Version               Repository       Size
 Installing:
- nerv-fuzzel aarch64 0:1.11.1-2.nerv nerv-stable 300.4 KiB
+ nerv-wireguard-tools aarch64 0:1.0.20260223-2.nerv nerv-stable 108.5 KiB
 ...
 $ doas dnf install htop
 Package     Arch    Version         Repository          Size
@@ -130,6 +168,10 @@ Installing:
 ...</pre>
 <p>A Fedora program runs on the glibc runtime Nerv keeps beside musl, and its libraries live in <code>/usr/lib64</code>, apart from Nerv's in <code>/usr/lib</code>. The two never load each other's libraries, so a Fedora package can be installed and removed without touching anything Nerv ships.</p>
 <p>Fedora's packages are signed by Fedora and checked against its keys before they are installed, as Nerv's are against Nerv's.</p>
+<h2 id="programs-from-elsewhere" class="section-title">Programs from elsewhere</h2>
+<p>A program built for glibc that does not come from Fedora, a vendor's binary or the one an installer script unpacks, runs on the same glibc runtime as Fedora's packages. The runtime is a package of its own:</p>
+<pre class="term term__body">$ doas dnf install nerv-glibc-compat</pre>
+<p>Without it, such a program fails as though the file did not exist, although it is plainly there: what is missing is the glibc loader it names. The program must be built for Arm, <code>aarch64</code>, as everything on the machine is; a build for x86 does not run. A program that needs more of glibc's libraries than the runtime carries usually has them in Fedora, and <code>dnf provides</code> finds which package.</p>
 <h2 id="finding-a-package" class="section-title">Finding a package</h2>
 <pre class="term term__body">$ dnf search ripgrep
 $ dnf info htop
@@ -172,12 +214,13 @@ Problem 2: installed package nerv-core-1.0.0-24.nerv.noarch requires nerv-fish, 
 <pre class="term term__body">$ doas dnf install nerv-kernel
 ...
 nerv: this transaction changes the boot path (nerv-kernel). A slot boots the kernel and initrd sealed into its own UKI, so this cannot be applied to a running or sealed slot.
-      Run `cage update`: it builds a new slot, upgrades it, seals it, proves it boots and promotes it. Nothing has been changed.</pre>
+      Run `cage update`: it builds a new slot, upgrades it, seals it, tests it where it can and promotes it. Nothing has been changed.</pre>
+<p><strong>A service you install</strong> -- a database, a CI runner, anything with a unit of its own -- runs confined, in a domain for software Nerv does not ship. It keeps its own files, uses the network, runs as its own users and builds what it builds; it is kept from the machine's keys and account secrets, its disks and the GPU's device nodes, and changes the installed system only the way you do, through <code>doas</code>. A service that expects one of those is refused, and the refusal is in the journal: <code>journalctl -g 'avc: +denied'</code>.</p>
 <h2 id="updating" class="section-title">Updating</h2>
 <p><strong>Updating is <code>cage update</code></strong>, for Nerv's packages and Fedora's alike. It builds the new system beside the one you are running, so there is always one to go back to; <a href="/handbook/machine/generations/">Generations</a> is the whole of it.</p>
 <p><code>dnf upgrade</code> does not update this machine, and says so:</p>
 <pre class="term term__body">$ doas dnf upgrade
-nerv: `dnf upgrade` does not update this machine; `cage update` does. It builds a new slot, upgrades it, seals it, proves it boots and promotes it, and the running slot stays there to go back to.
+nerv: `dnf upgrade` does not update this machine; `cage update` does. It builds a new slot, upgrades it, seals it, tests it where it can and promotes it, and the running slot stays there to go back to.
       Run `cage update`. Nothing has been changed.</pre>
 <h2 id="where-a-packages-settings-live" class="section-title">Where a package's settings live</h2>
 <p>A package puts its settings in <code>/etc</code>, and they are yours to edit. An update never overwrites a file you have changed: it keeps yours and writes its new default beside it as <code>.rpmnew</code>. <a href="/handbook/machine/the-first-hour/#where-the-defaults-live-and-how-to-change-one">Where the defaults live</a> has the details and the files Nerv ships.</p>
@@ -202,7 +245,7 @@ nerv: this machine boots @nerv-20261017-1226 from now on, so this transaction go
 <pre class="term term__body">$ find /etc -name '*.cage-running'</pre>
 <p>Logs, service state and databases in <code>/var</code> come with it. <code>/var/tmp</code> and <code>/var/cache</code> are not carried, and neither is anything outside <code>/etc</code> and <code>/var</code>. Your home directory needs nothing: every system mounts the same one.</p>
       </div>
-      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/the-first-hour/"><span>Previous</span>The first hour</a><a class="hb-pager__next" href="/handbook/machine/generations/"><span>Next</span>Generations</a></nav>
+      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/the-first-hour/"><span>Previous</span>The first hour</a><a class="hb-pager__next" href="/handbook/machine/containers/"><span>Next</span>Containers</a></nav>
     </div>
   </div>
 </section>

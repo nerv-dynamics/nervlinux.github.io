@@ -42,6 +42,7 @@
       <a href="/enterprise/">Enterprise</a>
       <a href="/community/">Community</a>
       <a href="/handbook/" aria-current="page">Handbook</a>
+      <a href="/downloads/">Downloads</a>
       <a href="/about/">About</a>
       </div>
       <button class="theme-toggle" id="theme-toggle" type="button"
@@ -75,7 +76,7 @@
 <details class="hb-nav__box" open>
 <summary class="hb-nav__summary">Contents</summary>
 <a class="hb-nav__home" href="/handbook/">The Nerv Handbook</a>
-<p class="hb-nav__part">Getting started</p><ol class="hb-nav__list">
+<p class="hb-nav__part">This machine</p><ol class="hb-nav__list">
 <li><a href="/handbook/machine/why-an-operating-system-still/" aria-current="page">Why an operating system, still</a>
 <ol class="hb-nav__sections">
 <li><a href="#what-unix-asserted">What Unix asserted</a></li>
@@ -87,15 +88,51 @@
 <li><a href="#what-nerv-is">What Nerv is</a></li>
 </ol>
 </li>
+<li><a href="/handbook/machine/what-nerv-is/">What Nerv is</a>
+</li>
 <li><a href="/handbook/machine/install/">Install</a>
 </li>
 <li><a href="/handbook/machine/the-first-hour/">The first hour</a>
 </li>
 <li><a href="/handbook/machine/software/">Software</a>
 </li>
+<li><a href="/handbook/machine/containers/">Containers</a>
+</li>
+<li><a href="/handbook/machine/desktop/">The desktop</a>
+</li>
+<li><a href="/handbook/machine/networking/">Networking</a>
+</li>
+<li><a href="/handbook/machine/accounts-and-keys/">Accounts and keys</a>
+</li>
 </ol>
 <p class="hb-nav__part">Five ideas</p><ol class="hb-nav__list">
 <li><a href="/handbook/machine/generations/">Generations</a>
+</li>
+<li><a href="/handbook/machine/compute-fabric/">The compute fabric</a>
+</li>
+<li><a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a>
+</li>
+<li><a href="/handbook/machine/yours-and-not-yours/">Yours and not yours</a>
+</li>
+<li><a href="/handbook/machine/chain-of-trust/">The chain of trust</a>
+</li>
+</ol>
+<p class="hb-nav__part">Ways of using it</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/ai-development/">AI development</a>
+</li>
+<li><a href="/handbook/machine/gaming/">Gaming</a>
+</li>
+<li><a href="/handbook/machine/offloading-and-fleets/">Offloading and fleets</a>
+</li>
+<li><a href="/handbook/machine/plexus/">Plexus</a>
+</li>
+<li><a href="/handbook/machine/building-your-own/">Building your own</a>
+</li>
+</ol>
+<p class="hb-nav__part">When it breaks</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/recovery/">Recovery</a>
+</li>
+<li><a href="/handbook/machine/asking-why/">Asking why</a>
 </li>
 </ol>
 </details></nav>
@@ -155,7 +192,7 @@
 <p>A few convictions fall out of those duties, and they shape most of what you will find in Nerv.</p>
 <p>The first is that a thing should be shaped correctly from the beginning, or not exist yet. Something that works today but has the wrong shape is not a step towards the right thing. It is something that will eventually have to be removed, and by the time that becomes obvious, something else depends on it. "Get it working first" usually produces a different artifact that happens to give the same output, and the road from there to the right design tends to be demolition. That is why we ask what the right shape is before we ask what makes it run, because the second question is far easier and will quietly answer the first one if you let it.</p>
 <p>The second is that the interchange format should be a typed record with a stable schema, with text as one way of rendering it. Text was universal because in 1973 there was nothing else, and that constraint is long gone. In a sense this is the very same argument Unix made, just a few generations later.</p>
-<p>The third is that the operator's surface and the user's surface are different things. Conflating the two is a big part of what makes a general-purpose distribution so hard to administer. The shell is a user program, and an excellent one, but it is where you compose the system's tools rather than something those tools depend on. In practice that means no tool in Nerv requires a shell, a display or a human. Every command runs with stdin closed and no terminal attached, emits typed output, and exits with an honest status. The one narrow exception is a human needed as an authentication factor, which is a security mechanism rather than an interactive dependency.</p>
+<p>The third is that the operator's surface and the user's surface are different things. Conflating the two is a big part of what makes a general-purpose distribution so hard to administer. The shell is a user program, and an excellent one, but it is where you compose the system's tools rather than something those tools depend on. In practice that means no tool in Nerv requires a shell, a display or a human. Every command runs with stdin closed and no terminal attached, emits typed output, and exits with an honest status. The one narrow exception is a human needed as an authentication factor, which is a security mechanism rather than an interactive dependency. One operator is not the same as one user, either. The operator is whoever is responsible for the machine, and other people may have accounts on it as users without becoming operators.</p>
 <p>The fourth is that a submission boundary is the natural unit of remoting. What one machine can hand to another is anything addressed through a queue that is coarser than the network is slow, such as command submission, block I/O or starting a service. What can't be handed over is anything addressed at load/store granularity, because there is no interface to intercept and no latency budget to hide behind. So the line is not drawn around a particular device, but around whether its interface is coarser than the wire. That is why the GPU, swap and service placement turn out to be the same problem, while coherent shared memory is an entirely different one.</p>
 <h2 id="the-role-and-the-thesis" class="section-title">The role, and the thesis</h2>
 <p>A system built for one board and one operator can't set a standard, and it shouldn't try. Every return in the table above was standardised by people who came later and argued from a working example that already existed. KMS was one driver before it was universal, and cgroups were one company's patches before systemd came along. The role we can play is the other half of that story, which is to be the working example. We ship the policy that has no standard yet, on the one machine where it can be shipped whole, and leave the argument about generalising it to whoever wants to have it.</p>
@@ -163,7 +200,7 @@
 <h2 id="what-nerv-is" class="section-title">What Nerv is</h2>
 <p>Inspired by FreeBSD, Fedora, and others that have carried the spirit of unix into the present, we hope that Nerv can serve as a test-bed for modern computing. In practice, that is a system built from scratch on musl and LLVM for NVIDIA's Grace Blackwell machines, in which the GPU is a device the operating system owns, and every layer, from the C library to the kernel, is something we can rebuild and explain.</p>
       </div>
-      <nav class="hb-pager" aria-label="Chapters"><span></span><a class="hb-pager__next" href="/handbook/machine/install/"><span>Next</span>Install</a></nav>
+      <nav class="hb-pager" aria-label="Chapters"><span></span><a class="hb-pager__next" href="/handbook/machine/what-nerv-is/"><span>Next</span>What Nerv is</a></nav>
     </div>
   </div>
 </section>

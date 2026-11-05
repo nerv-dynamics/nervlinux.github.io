@@ -42,6 +42,7 @@
       <a href="/enterprise/">Enterprise</a>
       <a href="/community/">Community</a>
       <a href="/handbook/" aria-current="page">Handbook</a>
+      <a href="/downloads/">Downloads</a>
       <a href="/about/">About</a>
       </div>
       <button class="theme-toggle" id="theme-toggle" type="button"
@@ -75,8 +76,10 @@
 <details class="hb-nav__box" open>
 <summary class="hb-nav__summary">Contents</summary>
 <a class="hb-nav__home" href="/handbook/">The Nerv Handbook</a>
-<p class="hb-nav__part">Getting started</p><ol class="hb-nav__list">
+<p class="hb-nav__part">This machine</p><ol class="hb-nav__list">
 <li><a href="/handbook/machine/why-an-operating-system-still/">Why an operating system, still</a>
+</li>
+<li><a href="/handbook/machine/what-nerv-is/">What Nerv is</a>
 </li>
 <li><a href="/handbook/machine/install/" aria-current="page">Install</a>
 <ol class="hb-nav__sections">
@@ -93,9 +96,43 @@
 </li>
 <li><a href="/handbook/machine/software/">Software</a>
 </li>
+<li><a href="/handbook/machine/containers/">Containers</a>
+</li>
+<li><a href="/handbook/machine/desktop/">The desktop</a>
+</li>
+<li><a href="/handbook/machine/networking/">Networking</a>
+</li>
+<li><a href="/handbook/machine/accounts-and-keys/">Accounts and keys</a>
+</li>
 </ol>
 <p class="hb-nav__part">Five ideas</p><ol class="hb-nav__list">
 <li><a href="/handbook/machine/generations/">Generations</a>
+</li>
+<li><a href="/handbook/machine/compute-fabric/">The compute fabric</a>
+</li>
+<li><a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a>
+</li>
+<li><a href="/handbook/machine/yours-and-not-yours/">Yours and not yours</a>
+</li>
+<li><a href="/handbook/machine/chain-of-trust/">The chain of trust</a>
+</li>
+</ol>
+<p class="hb-nav__part">Ways of using it</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/ai-development/">AI development</a>
+</li>
+<li><a href="/handbook/machine/gaming/">Gaming</a>
+</li>
+<li><a href="/handbook/machine/offloading-and-fleets/">Offloading and fleets</a>
+</li>
+<li><a href="/handbook/machine/plexus/">Plexus</a>
+</li>
+<li><a href="/handbook/machine/building-your-own/">Building your own</a>
+</li>
+</ol>
+<p class="hb-nav__part">When it breaks</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/recovery/">Recovery</a>
+</li>
+<li><a href="/handbook/machine/asking-why/">Asking why</a>
 </li>
 </ol>
 </details></nav>
@@ -139,6 +176,7 @@
 <pre class="term term__body">  MACHINE            PLATFORM   DISKS  PHASE         LAST SEEN   PROGRESS
 ▌ 4c:bb:47:12:34:56  gb10       1      booted 3/11   waiting 2m  ██████──────</pre>
 <p>It waits there indefinitely. <strong>Nothing is written to the disk until you launch the install.</strong></p>
+<p>A row that turns <strong><code>blocked</code></strong> has fetched the installer, booted it, and cannot get back to this machine. Its pane names what is in the way: a firewall on the operator machine, or on Windows the firewall in front of WSL. Nothing has to be opened in advance; the dashboard says so when, and only if, a target is actually turned away.</p>
 <h3 id="if-the-target-is-on-another-network-or-its-firmware-has-no-i" class="sub-title">If the target is on another network, or its firmware has no IPv6</h3>
 <p>Then the network carries the answer, in two fields every DHCP server has, whether a home router or a corporate one:</p>
 <div class="table-scroll">
@@ -225,10 +263,14 @@ XKBVARIANT=dvorak</pre>
 </tbody>
 </table>
 </div>
+<p>The same page sets the <strong>upstream</strong>, where the installer fetches generations from. It is Nerv's repository, <code>http://repo.nervlinux.org</code>, until you set another: a mirror of your own, on a network that never reaches ours, works the same way. It is plain <code>http://</code> on purpose: every generation is checked against the signature key built into the installer, whoever serves it, so an <code>https://</code> address is refused when you enter it. The page remembers only what you change.</p>
 <p>Press <code>i</code> to install. It is the only destructive action in this chapter, and the first moment anything is written to the target.</p>
 <h2 id="watch-it" class="section-title">Watch it</h2>
 <p>The row tracks the install through eleven phases. It takes a few minutes, most of them spent transferring and unpacking the system:</p>
 <pre class="term term__body">▌ 4c:bb:47:12:34:56  gb10       1      done 11/11    1s          ████████████</pre>
+<p>While it installs, the target's own screen shows the disk's recovery passphrase, twice:</p>
+<pre class="term term__body">RECOVERY PASSPHRASE: never stored, never sent, not recoverable</pre>
+<p><strong>Write it down.</strong> The TPM unlocks the disk at every boot, and the passphrase is the way in on the day it does not; no copy of it exists anywhere else. <a href="/handbook/machine/recovery/#a-forgotten-passphrase">A forgotten passphrase</a> says what it is for, and how a fleet recovery key stands behind it.</p>
 <p>At <code>done 11/11</code> the disk is bootable and the machine <strong>stays on the list</strong>, still reporting. It does not reboot until you say so.</p>
 <h2 id="reboot-into-it" class="section-title">Reboot into it</h2>
 <p>Press <code>r</code>. The target takes the order on its next poll and boots the system you just installed:</p>
@@ -264,7 +306,7 @@ this machine
 <p>The row turns red and names the phase it stopped in. The machine does not reboot, so its console keeps the reason, and <code>r</code> is refused, because rebooting would boot whatever was on the disk before.</p>
 <p>Reconfigure and press <code>i</code> again. A launch applies to one install: a machine that boots the installer again waits for a new launch rather than repeating the last one.</p>
       </div>
-      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/why-an-operating-system-still/"><span>Previous</span>Why an operating system, still</a><a class="hb-pager__next" href="/handbook/machine/the-first-hour/"><span>Next</span>The first hour</a></nav>
+      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/what-nerv-is/"><span>Previous</span>What Nerv is</a><a class="hb-pager__next" href="/handbook/machine/the-first-hour/"><span>Next</span>The first hour</a></nav>
     </div>
   </div>
 </section>

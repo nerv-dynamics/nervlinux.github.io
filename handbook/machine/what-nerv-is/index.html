@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nerv Linux — What Nerv is</title>
+<meta name="description" content="Nerv is a Linux distribution built from source for NVIDIA's Grace Blackwell machines. Like FreeBSD's base system, it is one tree, built together and versioned together; like Fedora, it is RPM-based and takes up new things early.">
+<link rel="canonical" href="https://nervlinux.org/handbook/machine/what-nerv-is/">
+<meta property="og:title" content="Nerv Linux — What Nerv is">
+<meta property="og:description" content="Nerv is a Linux distribution built from source for NVIDIA's Grace Blackwell machines. Like FreeBSD's base system, it is one tree, built together and versioned together; like Fedora, it is RPM-based and takes up new things early.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nervlinux.org/handbook/machine/what-nerv-is/">
+<link rel="icon" href="/assets/favicon.png" sizes="32x32">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/nerv-square.png">
+<link rel="preload" href="/fonts/ashinoko-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/palette.css">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/site.css">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('nerv-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="masthead__inner">
+    <a class="masthead__brand" href="/" aria-label="Nerv Linux — home">
+      <img class="logo" src="/assets/nerv-wordmark.png" alt="Nerv Linux" width="600" height="149">
+    </a>
+    <nav class="masthead__nav" aria-label="Primary">
+      <div class="masthead__links" id="primary-links">
+      <a href="/system/">System</a>
+      <a href="/desktop/">Desktop</a>
+      <a href="/enterprise/">Enterprise</a>
+      <a href="/community/">Community</a>
+      <a href="/handbook/" aria-current="page">Handbook</a>
+      <a href="/downloads/">Downloads</a>
+      <a href="/about/">About</a>
+      </div>
+      <button class="theme-toggle" id="theme-toggle" type="button"
+              aria-label="Switch to light theme" title="Switch theme">
+        <svg class="icon icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path fill="currentColor" d="M20.7 14.6A8.6 8.6 0 0 1 9.4 3.3a8.7 8.7 0 1 0 11.3 11.3Z"/>
+        </svg>
+        <svg class="icon icon--sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2" fill="currentColor"/>
+          <g stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+            <path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4"/>
+            <path d="M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/>
+          </g>
+        </svg>
+      </button>
+      <button class="menu-toggle" id="menu-toggle" type="button"
+              aria-label="Menu" aria-expanded="false" aria-controls="primary-links">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+          <path class="menu-toggle__open" d="M4 7h16M4 12h16M4 17h16"/>
+          <path class="menu-toggle__close" d="M6 6l12 12M18 6L6 18"/>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="section section--head">
+  <div class="wrap hb">
+    <nav class="hb-nav" aria-label="Handbook">
+<details class="hb-nav__box" open>
+<summary class="hb-nav__summary">Contents</summary>
+<a class="hb-nav__home" href="/handbook/">The Nerv Handbook</a>
+<p class="hb-nav__part">This machine</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/why-an-operating-system-still/">Why an operating system, still</a>
+</li>
+<li><a href="/handbook/machine/what-nerv-is/" aria-current="page">What Nerv is</a>
+<ol class="hb-nav__sections">
+<li><a href="#where-it-departs">Where it departs</a></li>
+<li><a href="#standard-underneath-modern-at-the-prompt">Standard underneath, modern at the prompt</a></li>
+<li><a href="#daring-to-learn">Daring to learn</a></li>
+<li><a href="#the-machines-it-runs-on">The machines it runs on</a></li>
+<li><a href="#licence">Licence</a></li>
+</ol>
+</li>
+<li><a href="/handbook/machine/install/">Install</a>
+</li>
+<li><a href="/handbook/machine/the-first-hour/">The first hour</a>
+</li>
+<li><a href="/handbook/machine/software/">Software</a>
+</li>
+<li><a href="/handbook/machine/containers/">Containers</a>
+</li>
+<li><a href="/handbook/machine/desktop/">The desktop</a>
+</li>
+<li><a href="/handbook/machine/networking/">Networking</a>
+</li>
+<li><a href="/handbook/machine/accounts-and-keys/">Accounts and keys</a>
+</li>
+</ol>
+<p class="hb-nav__part">Five ideas</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/generations/">Generations</a>
+</li>
+<li><a href="/handbook/machine/compute-fabric/">The compute fabric</a>
+</li>
+<li><a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a>
+</li>
+<li><a href="/handbook/machine/yours-and-not-yours/">Yours and not yours</a>
+</li>
+<li><a href="/handbook/machine/chain-of-trust/">The chain of trust</a>
+</li>
+</ol>
+<p class="hb-nav__part">Ways of using it</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/ai-development/">AI development</a>
+</li>
+<li><a href="/handbook/machine/gaming/">Gaming</a>
+</li>
+<li><a href="/handbook/machine/offloading-and-fleets/">Offloading and fleets</a>
+</li>
+<li><a href="/handbook/machine/plexus/">Plexus</a>
+</li>
+<li><a href="/handbook/machine/building-your-own/">Building your own</a>
+</li>
+</ol>
+<p class="hb-nav__part">When it breaks</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/recovery/">Recovery</a>
+</li>
+<li><a href="/handbook/machine/asking-why/">Asking why</a>
+</li>
+</ol>
+</details></nav>
+    <div class="hb__main">
+      <div class="essay">
+<h1 class="page-title">What Nerv is</h1>
+<p>Nerv is a Linux distribution built from source for NVIDIA's Grace Blackwell machines. Like FreeBSD's base system, it is one tree, built together and versioned together; like Fedora, it is RPM-based and takes up new things early.</p>
+<div class="table-scroll">
+<table class="data">
+<tbody>
+<tr>
+<td>C library</td><td>musl, with <code>umalloc</code> as its <code>malloc</code></td>
+</tr>
+<tr>
+<td>Toolchain</td><td>LLVM: clang and lld, with libc++ for C++</td>
+</tr>
+<tr>
+<td>Kernel</td><td>Linux, kept current</td>
+</tr>
+<tr>
+<td>Init</td><td>systemd</td>
+</tr>
+<tr>
+<td><code>/bin/sh</code></td><td><code>dash</code></td>
+</tr>
+<tr>
+<td>Core utilities</td><td>uutils coreutils, and busybox for the rest of POSIX</td>
+</tr>
+<tr>
+<td>Login shell</td><td><code>fish</code></td>
+</tr>
+<tr>
+<td>Becoming root</td><td><code>doas</code></td>
+</tr>
+<tr>
+<td>Packages</td><td>RPM and dnf5, Nerv's repository beside Fedora's</td>
+</tr>
+<tr>
+<td>Root filesystem</td><td>btrfs, one subvolume per generation, on LUKS unlocked by the TPM</td>
+</tr>
+<tr>
+<td>Boot</td><td>a signed unified kernel image</td>
+</tr>
+<tr>
+<td>Mandatory access control</td><td>SELinux, enforcing, with a policy written for Nerv</td>
+</tr>
+<tr>
+<td>Containers</td><td>podman, rootless</td>
+</tr>
+<tr>
+<td>Console</td><td>kmscon</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="where-it-departs" class="section-title">Where it departs</h2>
+<p><strong>musl, not glibc.</strong> Everything Nerv builds links against musl. A program built for glibc runs from Fedora's packages, which install beside Nerv's own, or in a container. NVIDIA's driver libraries are the one piece of glibc code in the base system. See <a href="/handbook/machine/software/">Software</a>.</p>
+<p><strong>The GPU is the operating system's.</strong> <code>libcuda.so.1</code> on a Nerv machine is axon, which forwards every driver call over a socket to the one process that holds the device. A program cannot tell the difference, a container gets the GPU by being handed that socket, and the GPU it reaches may be in another machine. <code>nvidia-smi</code> is axon too, and prints the vendor's table byte for byte.</p>
+<p><strong>A program can run on another machine.</strong> <code>axon exec --on MACHINE -- PROGRAM</code> places it on that machine's processors and GPU as it starts, and it never moves after that. It runs on the system it came from: its <code>/usr</code> and <code>/etc</code> arrive file by file as they are opened, and your home is served back to it over 9P by a process running as you. If the network drops, the program pauses at the point it needs its origin and carries on when the link returns, with its open files and locks intact. It is Plan 9's <code>cpu</code>, on Linux. See <a href="/handbook/machine/compute-fabric/">The compute fabric</a>.</p>
+<p><strong>The system is never changed in place.</strong> <code>cage update</code> builds the next root in a new subvolume beside the running one, upgrades it, labels it for SELinux, builds its initrd, signs its boot image, boots it in a virtual machine where it can, and only then makes it the default. The new slot boots on trial and falls back by itself if it never comes up. <code>dnf</code> installs and removes software, but it does not update the machine. See <a href="/handbook/machine/generations/">Generations</a>.</p>
+<p><strong>Every process is in a domain.</strong> SELinux enforces from the first boot, and nothing on the machine runs unconfined.</p>
+<p><strong>The heap defends itself.</strong> <code>umalloc</code> is a hardened allocator under every program, Firefox included: of the 33 heap attacks Nerv tests against, glibc's allocator lets 8 succeed and <code>umalloc</code> 1. See <a href="/handbook/machine/the-first-hour/#the-allocator">The allocator</a>.</p>
+<p><strong>No man pages.</strong> Every Nerv tool documents itself with <code>--help</code>, and <code>tldr</code> covers the rest, the classic tools included.</p>
+<h2 id="standard-underneath-modern-at-the-prompt" class="section-title">Standard underneath, modern at the prompt</h2>
+<p>Nerv ships every core utility in POSIX.1-2024. A script written to the standard runs as written, and the <code>core</code> profile is a complete Unix with nothing else on it.</p>
+<p>At the prompt, the <code>workstation</code> profile gives the classic names to the tools that replaced them: <code>grep</code> is ripgrep, <code>find</code> is fd, <code>sed</code> is sd, <code>ls</code> is eza, <code>du</code> is dust. Each answers the same question its predecessor did, better. <a href="/handbook/machine/the-first-hour/#the-tools-that-replace-the-ones-you-know">The first hour</a> has the full table.</p>
+<p>They are their own tools, with their own flags. Ripgrep already searches directories recursively, and its <code>-r</code> means <em>replace</em>:</p>
+<pre class="term term__body">$ grep -n TODO notes.txt
+2:TODO: renew the certificate
+$ grep -rn TODO notes.txt
+n: renew the certificate
+$ command grep -rn TODO notes.txt
+2:TODO: renew the certificate</pre>
+<p>The new names are fish aliases, and only an interactive shell reads them: a script, a <code>doas</code> command and anything a unit runs get the POSIX tools. <code>command</code> reaches the classic tool from the prompt. To keep a classic name at your own prompt, change it in your own configuration, as <a href="/handbook/machine/the-first-hour/#where-the-defaults-live-and-how-to-change-one">Where the defaults live</a> describes; an update keeps your change.</p>
+<h2 id="daring-to-learn" class="section-title">Daring to learn</h2>
+<p>Nerv expects you to learn new things. When people have thought hard about a tool and built a better one, Nerv ships the better one under the name you reach for, and the old habit gives way to a new one. Writing <code>sd old new</code> instead of <code>sed 's/old/new/'</code> is the small end of that. Generations instead of upgrades in place, a GPU governed like any other device, and tools whose output is a typed record rather than text to be parsed are the large end.</p>
+<p>Like Fedora, Nerv takes up new things early, and it goes further than most distributions do. A tool is replaced when its successor is better at the same job, and <code>workstation</code> makes the change rather than leaving it as an option to find.</p>
+<p>There is a line, and Nerv keeps to it. A new tool takes a classic name only when it answers the same question: <code>top</code> becoming <code>btop</code> is a better view of the same processes. <code>nvidia-smi</code> stays the vendor's own table, because a fleet-wide view is a different answer to a different question, and a name that means one thing at the prompt and another in a script cannot be trusted. The standard interfaces underneath stay where they are, so what changes is what you meet at the prompt, never what your scripts depend on.</p>
+<h2 id="the-machines-it-runs-on" class="section-title">The machines it runs on</h2>
+<p>Nerv runs on machines built on NVIDIA's GB10, the Grace Blackwell chip in the DGX Spark and its siblings from other makers, and nothing else. One platform is what lets it treat the GPU as its own. RTX Spark and GB300 are on the roadmap. It installs over the network, from a second computer beside the one you are installing; see <a href="/handbook/machine/install/">Install</a>.</p>
+<h2 id="licence" class="section-title">Licence</h2>
+<p>Nerv is open source under Apache-2.0, from the base system and its kernel patches to axon, cage and S2; patches to other projects keep those projects' licences. Every package is built from source, and nothing in Nerv calls home.</p>
+      </div>
+      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/why-an-operating-system-still/"><span>Previous</span>Why an operating system, still</a><a class="hb-pager__next" href="/handbook/machine/install/"><span>Next</span>Install</a></nav>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__base">
+      <p>Copyright &copy; 2026 Nerv Dynamics AB. Nerv Linux is free software under the
+         Apache License 2.0. Software from other projects keeps its upstream licence.</p>
+      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell, GB10 and GB300 are
+         trademarks of NVIDIA Corporation. Linux is a registered trademark of
+         Linus Torvalds. Nerv Linux is not affiliated with, endorsed by, or
+         sponsored by either.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var btn = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    function label() {
+      var dark = root.getAttribute('data-theme') !== 'light';
+      btn.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+    }
+    label();
+    btn.addEventListener('click', function () {
+      // Dark is the default, so anything that isn't explicitly light is dark.
+      var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('nerv-theme', next); } catch (e) {}
+      label();
+    });
+  })();
+  (function () {
+    // Phone menu: the nav links fold into a panel under the masthead.
+    var btn = document.getElementById('menu-toggle');
+    var head = btn.closest('.masthead');
+    btn.addEventListener('click', function () {
+      var open = head.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  })();
+  (function () {
+    // On phones a tapped diagram opens full screen, large, to pan and zoom.
+    var narrow = window.matchMedia('(max-width: 760px)');
+    function close(z) { z.remove(); document.body.classList.remove('has-zoom'); }
+    document.querySelectorAll('.diagram').forEach(function (fig) {
+      fig.addEventListener('click', function () {
+        var svg = fig.querySelector('svg');
+        if (!narrow.matches || !svg) return;
+        var z = document.createElement('div');
+        z.className = 'zoom'; z.setAttribute('role', 'dialog'); z.setAttribute('aria-label', svg.getAttribute('aria-label') || 'Diagram');
+        z.appendChild(svg.cloneNode(true));
+        var b = document.createElement('button');
+        b.className = 'zoom__close'; b.type = 'button'; b.setAttribute('aria-label', 'Close');
+        b.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+        b.addEventListener('click', function () { close(z); });
+        z.appendChild(b);
+        document.body.appendChild(z); document.body.classList.add('has-zoom');
+        document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { close(z); document.removeEventListener('keydown', esc); } });
+      });
+    });
+  })();
+  (function () {
+    // The handbook contents start folded on narrow screens, open on wide ones.
+    if (window.matchMedia('(max-width: 960px)').matches)
+      document.querySelectorAll('.hb-nav__box').forEach(function (d) { d.open = false; });
+  })();
+  (function () {
+    // Narrow tables read as stacked cards; each cell carries its column name.
+    document.querySelectorAll('table.data').forEach(function (t) {
+      var heads = Array.prototype.map.call(t.querySelectorAll('thead th'), function (th) { return th.textContent.trim(); });
+      t.querySelectorAll('tbody tr').forEach(function (tr) {
+        Array.prototype.forEach.call(tr.children, function (td, i) {
+          if (heads[i]) td.setAttribute('data-label', heads[i]);
+        });
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>

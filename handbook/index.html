@@ -42,6 +42,7 @@
       <a href="/enterprise/">Enterprise</a>
       <a href="/community/">Community</a>
       <a href="/handbook/" aria-current="page">Handbook</a>
+      <a href="/downloads/">Downloads</a>
       <a href="/about/">About</a>
       </div>
       <button class="theme-toggle" id="theme-toggle" type="button"
@@ -75,8 +76,10 @@
 <details class="hb-nav__box" open>
 <summary class="hb-nav__summary">Contents</summary>
 <a class="hb-nav__home" href="/handbook/">The Nerv Handbook</a>
-<p class="hb-nav__part">Getting started</p><ol class="hb-nav__list">
+<p class="hb-nav__part">This machine</p><ol class="hb-nav__list">
 <li><a href="/handbook/machine/why-an-operating-system-still/">Why an operating system, still</a>
+</li>
+<li><a href="/handbook/machine/what-nerv-is/">What Nerv is</a>
 </li>
 <li><a href="/handbook/machine/install/">Install</a>
 </li>
@@ -84,9 +87,43 @@
 </li>
 <li><a href="/handbook/machine/software/">Software</a>
 </li>
+<li><a href="/handbook/machine/containers/">Containers</a>
+</li>
+<li><a href="/handbook/machine/desktop/">The desktop</a>
+</li>
+<li><a href="/handbook/machine/networking/">Networking</a>
+</li>
+<li><a href="/handbook/machine/accounts-and-keys/">Accounts and keys</a>
+</li>
 </ol>
 <p class="hb-nav__part">Five ideas</p><ol class="hb-nav__list">
 <li><a href="/handbook/machine/generations/">Generations</a>
+</li>
+<li><a href="/handbook/machine/compute-fabric/">The compute fabric</a>
+</li>
+<li><a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a>
+</li>
+<li><a href="/handbook/machine/yours-and-not-yours/">Yours and not yours</a>
+</li>
+<li><a href="/handbook/machine/chain-of-trust/">The chain of trust</a>
+</li>
+</ol>
+<p class="hb-nav__part">Ways of using it</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/ai-development/">AI development</a>
+</li>
+<li><a href="/handbook/machine/gaming/">Gaming</a>
+</li>
+<li><a href="/handbook/machine/offloading-and-fleets/">Offloading and fleets</a>
+</li>
+<li><a href="/handbook/machine/plexus/">Plexus</a>
+</li>
+<li><a href="/handbook/machine/building-your-own/">Building your own</a>
+</li>
+</ol>
+<p class="hb-nav__part">When it breaks</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/recovery/">Recovery</a>
+</li>
+<li><a href="/handbook/machine/asking-why/">Asking why</a>
 </li>
 </ol>
 </details></nav>
@@ -94,14 +131,34 @@
       <div class="essay">
 <h1 class="page-title">The Nerv Handbook</h1>
 <p class="lead">How to install Nerv, use it every day, and run it across many machines.</p>
-<h2 class="section-title">Getting started</h2><ol class="hb-toc">
+<h2 class="section-title">This machine</h2><ol class="hb-toc">
 <li><a href="/handbook/machine/why-an-operating-system-still/">Why an operating system, still</a><p>This chapter is about why we bothered to build an operating system at all, when perfectly good ones already exist. It is a bit of history and a bit of opinion, and it is the reasoning behind most of the decisions you will run into elsewhere in this handbook.</p></li>
+<li><a href="/handbook/machine/what-nerv-is/">What Nerv is</a><p>Nerv is a Linux distribution built from source for NVIDIA&#x27;s Grace Blackwell machines. Like FreeBSD&#x27;s base system, it is one tree, built together and versioned together; like Fedora, it is RPM-based and takes up new things early.</p></li>
 <li><a href="/handbook/machine/install/">Install</a><p>Nerv installs over the network from any Linux machine you already have: one command turns that machine into the installer, and the GB10 you are installing boots from it, with no USB stick and nothing typed into the target.</p></li>
-<li><a href="/handbook/machine/the-first-hour/">The first hour</a><p>What you have once you log in: the console and the shell, the tools that replace the ones you know, where the defaults live and how to change one so an update keeps your change, plus becoming root, swap, memory, and checking the machine is well.</p></li>
+<li><a href="/handbook/machine/the-first-hour/">The first hour</a><p>What you have once you log in: the console and the shell, the tools that replace the ones you know, where the defaults live and how to change one so an update keeps your change, plus becoming root, swap, printing, mail, memory, and checking the machine is well.</p></li>
 <li><a href="/handbook/machine/software/">Software</a><p>Installing and removing programs with dnf: Nerv&#x27;s own packages and the whole of Fedora&#x27;s, the three kinds of package and what each allows, where a package&#x27;s settings live, and what happens to a package you install or a file you change once an update is waiting for its reboot.</p></li>
+<li><a href="/handbook/machine/containers/">Containers</a><p>Running containers with podman, as yourself and without root: what every container gets by default, Nerv&#x27;s two base images and how they arrive, building on them, time zones in a container, running a container as a service, tools that expect Docker, which registries a machine pulls from and how to allow one, Fedora&#x27;s images, and the GPU inside a container.</p></li>
+<li><a href="/handbook/machine/desktop/">The desktop</a><p>Umbriel, Noctalia and foot, for machines that install one: getting a desktop, logging in, the keys you use, the shell around your windows, the browser, sound and the keyboard.</p></li>
+<li><a href="/handbook/machine/networking/">Networking</a><p>Getting on the network and letting others reach you: wired and Wi-Fi, names, the ConnectX ports, WireGuard, the firewall and SSH.</p></li>
+<li><a href="/handbook/machine/accounts-and-keys/">Accounts and keys</a><p>The people on a machine and how each proves who they are: accounts, the groups that grant the GPU, the desktop and root, security keys, the passwords you keep, and the disk&#x27;s passphrase.</p></li>
 </ol>
 <h2 class="section-title">Five ideas</h2><ol class="hb-toc">
 <li><a href="/handbook/machine/generations/">Generations</a><p>The system lives in slots, and an update never touches the one you are running. It builds a new slot beside it, proves that slot boots to a login, and puts it on trial: if it never completes a boot, the machine goes back to the one before by itself, and cage rollback goes back on your word.</p></li>
+<li><a href="/handbook/machine/compute-fabric/">The compute fabric</a><p>One boundary governs compute: your GPU, someone else&#x27;s across the network, memory, and where programs run. Every program is a client, and everything is accounted. GPUs on several machines work together through the standard NCCL library.</p></li>
+<li><a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a><p>MAGI, the machine&#x27;s database of what it knows: everything observed on it, as a record that cannot be quietly changed, the facts that follow from that record, and answers that say exactly how far they can be trusted.</p></li>
+<li><a href="/handbook/machine/yours-and-not-yours/">Yours and not yours</a><p>Your work, rebuildable residue, and unexplained bytes: Seele, which knows what on the machine is yours, what can be rebuilt, and what nothing accounts for, and what follows you to the next machine.</p></li>
+<li><a href="/handbook/machine/chain-of-trust/">The chain of trust</a><p>What is verified between power-on and a prompt, what holds the machine to its rules once it is up, and precisely what all of that does not defend against.</p></li>
+</ol>
+<h2 class="section-title">Ways of using it</h2><ol class="hb-toc">
+<li><a href="/handbook/machine/ai-development/">AI development</a><p>Running a language model on the machine with S2 and talking to it through OpenAI&#x27;s API from any program, and PyTorch and CUDA in a container.</p></li>
+<li><a href="/handbook/machine/gaming/">Gaming</a><p>Steam, titles built for x86, and borrowing a faster GPU from across the room.</p></li>
+<li><a href="/handbook/machine/offloading-and-fleets/">Offloading and fleets</a><p>Putting work on other machines, and several boxes acting as one: the targets you name, serving a machine&#x27;s GPU, running a program elsewhere, and what running a fleet for an organisation will add.</p></li>
+<li><a href="/handbook/machine/plexus/">Plexus</a><p>Reaching your machines from anywhere: one authority you run yourself, machines that enrol with it, and access that exists only where you grant it.</p></li>
+<li><a href="/handbook/machine/building-your-own/">Building your own</a><p>Packaging software for your machine, a repository to serve it from, systems of your own, and owning the stack from the source up.</p></li>
+</ol>
+<h2 class="section-title">When it breaks</h2><ol class="hb-toc">
+<li><a href="/handbook/machine/recovery/">Recovery</a><p>Rollback, the rescue slot, the morning it will not boot, the forgotten passphrase. Written for someone having a bad day: each section starts from what you see and ends with the machine working.</p></li>
+<li><a href="/handbook/machine/asking-why/">Asking why</a><p>From a symptom to a cause, using the machine&#x27;s own record: a program that stopped, a service that will not start, something that was refused, and a machine that is slow.</p></li>
 </ol>
       </div>
       

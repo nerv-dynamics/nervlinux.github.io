@@ -58,6 +58,8 @@ The target appears on the dashboard once it has booted and reported itself:
 
 It waits there indefinitely. **Nothing is written to the disk until you launch the install.**
 
+A row that turns **`blocked`** has fetched the installer, booted it, and cannot get back to this machine. Its pane names what is in the way: a firewall on the operator machine, or on Windows the firewall in front of WSL. Nothing has to be opened in advance; the dashboard says so when, and only if, a target is actually turned away.
+
 ### If the target is on another network, or its firmware has no IPv6
 
 Then the network carries the answer, in two fields every DHCP server has, whether a home router or a corporate one:
@@ -137,6 +139,8 @@ The **profile** is chosen on the installer's settings page, `s`:
 | `workstation-gui` | workstation plus the desktop: a graphical login, Umbriel, Noctalia and a terminal |
 | `dev` | core plus the musl LLVM toolchain and packaging tools, for a machine that builds Nerv packages |
 
+The same page sets the **upstream**, where the installer fetches generations from. It is Nerv's repository, `http://repo.nervlinux.org`, until you set another: a mirror of your own, on a network that never reaches ours, works the same way. It is plain `http://` on purpose: every generation is checked against the signature key built into the installer, whoever serves it, so an `https://` address is refused when you enter it. The page remembers only what you change.
+
 Press `i` to install. It is the only destructive action in this chapter, and the first moment anything is written to the target.
 
 ## Watch it
@@ -146,6 +150,14 @@ The row tracks the install through eleven phases. It takes a few minutes, most o
 ```
 ▌ 4c:bb:47:12:34:56  gb10       1      done 11/11    1s          ████████████
 ```
+
+While it installs, the target's own screen shows the disk's recovery passphrase, twice:
+
+```
+RECOVERY PASSPHRASE: never stored, never sent, not recoverable
+```
+
+**Write it down.** The TPM unlocks the disk at every boot, and the passphrase is the way in on the day it does not; no copy of it exists anywhere else. [A forgotten passphrase](recovery.md#a-forgotten-passphrase) says what it is for, and how a fleet recovery key stands behind it.
 
 At `done 11/11` the disk is bootable and the machine **stays on the list**, still reporting. It does not reboot until you say so.
 

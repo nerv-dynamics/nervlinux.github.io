@@ -1,6 +1,6 @@
 # The first hour
 
-What you have once you log in: the console and the shell, the tools that replace the ones you know, where the defaults live and how to change one so an update keeps your change, plus becoming root, swap, memory, and checking the machine is well.
+What you have once you log in: the console and the shell, the tools that replace the ones you know, where the defaults live and how to change one so an update keeps your change, plus becoming root, swap, printing, mail, memory, and checking the machine is well.
 
 ## What you got
 
@@ -212,7 +212,7 @@ $
 permit nopass keepenv :wheel
 ```
 
-On a single-operator machine with an encrypted disk, a password prompt on every privileged command only stops someone who is already logged in as you. To require one, remove `nopass` in your own copy of the file, since this one belongs to its package.
+Only the people who run the machine are in `wheel`, and the disk is encrypted, so a password prompt on every privileged command would only stop someone already logged in as you. To require one, remove `nopass` in your own copy of the file, since this one belongs to its package; a [security key](accounts-and-keys.md#security-keys) can then answer it with a touch.
 
 ## Swap
 
@@ -239,6 +239,48 @@ nerv-swap: /var/swap/swapfile is on
 ```
 
 No package ships `/etc/nerv/swap.conf`, so no update replaces it. The board's default lives in `/etc/nerv/platform`, which updates do replace, because it describes the hardware; a change made there is lost.
+
+## Printing
+
+`lp` prints on a network printer directly. There is no print server and no driver: any printer that does driverless printing (IPP Everywhere or AirPrint) takes the job as it is. Name your printers in `/etc/printers`, one per line, and the first is the default:
+
+```
+office  ipp://10.0.0.20/ipp/print
+```
+
+```
+$ lp report.pdf
+request id is office-14 (1 file)
+$ lp -n 2 -o sides=two-sided-long-edge notes.txt
+request id is office-15 (1 file)
+```
+
+Text prints as text, or typeset in Courier when the printer takes no text. Any other file prints when the printer accepts its format; otherwise `lp` refuses and lists the formats the printer does accept. `lp -w` writes to your terminal once the job has printed. Addresses are `ipp://`, since IPP over TLS is not supported.
+
+`/etc/printers` arrives as a commented template, and an update keeps your edits to it.
+
+## Sending mail
+
+`mailx` sends mail itself, over SMTP, to the mail server you name. The machine runs no mail server of its own. Name yours in `~/.mailrc`, writing an `@` in the login as `%40`:
+
+```
+set v15-compat
+set mta=smtps://you%40example.org@smtp.example.org
+set from="You <you@example.org>"
+set netrc-lookup
+```
+
+`netrc-lookup` takes the password from `~/.netrc`, which only you may read (`chmod 600`):
+
+```
+machine smtp.example.org login you@example.org password …
+```
+
+```
+$ echo "The build finished." | mailx -s "build" you@example.org
+```
+
+Without it, `mailx` asks for the password at the terminal. With the password in `~/.netrc`, scripts can send mail too, and `lp -m` mails you once a job has printed. `mailx` also reads mailboxes, Maildir folders and IMAP; `man mailx` covers all of it.
 
 ## The machine keeps its last memory
 
@@ -267,24 +309,28 @@ Set the limit through `doas systemd-run`, not `systemd-run --user`. A scope your
 
 Every program on the machine gets its memory from `umalloc`, Nerv's hardened allocator, which is the C library's `malloc`. It is part of `libc`, like `printf`. Firefox uses it too: Nerv builds the browser without its own allocator.
 
-Heap bugs end with the program stopping, not with the program doing what an attacker wanted. Guard pages sit between heap regions, free lists are encrypted, and placement is randomised. Each of these kills the process the moment it happens: freeing the same pointer twice, freeing a pointer into the middle of a block, freeing an address that never came from `malloc`, overwriting a free-list link, and writing through a pointer after it was freed.
+Heap bugs end with the program stopping, not with the program doing what an attacker wanted. Guard pages sit between heap regions, free lists are signed, and placement is randomised. Each of these kills the process the moment it happens: freeing the same pointer twice, freeing a pointer into the middle of a block, freeing an address that never came from `malloc`, overwriting a free-list link, and writing through a pointer after it was freed. The first 256 bytes of every block are overwritten as it is freed, so a program that reads a block after freeing it finds filler there, not the previous owner's data.
 
-Freed memory goes back to the system on its own, after a short delay, while a program keeps allocating. A program that goes quiet can hand it back at once with `malloc_trim(0)`. The system's services do that under memory pressure, and Firefox does it when a tab goes idle or into the background: after a page lets go of a few hundred megabytes, an idle Firefox holds about 9% less memory than it would without it.
+Freed memory goes back to the system on its own, as soon as a megabyte of it is waiting, whether or not the program allocates again: a program that frees everything it allocated is left holding a few megabytes, where glibc's allocator keeps over a hundred. `malloc_trim(0)` hands back the rest at once. The system's services do that under memory pressure, and Firefox does it when a tab goes idle or into the background: after a page lets go of a few hundred megabytes, an idle Firefox holds about 9% less memory than it would without it.
 
 The compiler adds to it. Every package is built with `_FORTIFY_SOURCE=3`, a stack protector, branch protection and read-only relocations, so a `memcpy` past the end of a buffer of known size stops the program instead of corrupting it. Nerv supplies the fortified headers for musl itself.
 
-`umalloc` guards its own bookkeeping; a program that overwrites its own data inside one valid allocation is outside what an allocator can see. A program with a latent heap bug stops instead of carrying on. Of the 33 heap attacks Nerv tests against, glibc's allocator lets 8 succeed and `umalloc` lets 3.
+`umalloc` guards its own bookkeeping; a program that overwrites its own data inside one valid allocation is outside what an allocator can see. A program with a latent heap bug stops instead of carrying on. Of the 33 heap attacks Nerv tests against, glibc's allocator lets 8 succeed, Firefox's own allocator 2 or 3, and `umalloc` 1.
 
-It is fast as well. Measured on a GB10 against glibc 2.39's allocator and musl's own, with the same programs built the same way for each:
+It is fast as well, and lean. Measured on a GB10 against glibc 2.39's allocator and against mozjemalloc, the allocator Firefox normally ships with, using the same programs built the same way for each:
 
-| | `umalloc` against glibc | `umalloc` against musl's own |
+| | `umalloc` against glibc | `umalloc` against mozjemalloc |
 | --- | --- | --- |
-| a single-threaded program that allocates constantly (cfrac) | the same | 20% faster |
-| another (espresso) | 7% faster | 47% faster |
-| threads freeing each other's memory (xmalloc-test) | 3× faster | 116× faster |
-| mixed-size threaded stress (mstress) | 1.8× faster | 33× faster |
-| server-style threads (larson, glibc-thread) | 12–21% slower | 400× faster or more |
-| twenty clang processes compiling at once | | 8% faster |
+| Firefox, Speedometer 3.1 | the same score, 19% less memory | 3.5% slower, 3% less memory |
+| Firefox, JetStream 3 | 1.3% slower, 16% less memory | 1.3% slower, 2% less memory |
+| twenty clang processes compiling at once | 4% faster | |
+| a single-threaded program that allocates constantly (cfrac) | 3% slower | 44% faster |
+| another (espresso) | 4% faster | 32% faster |
+| a realistic mix of sizes and lifetimes | 1.5× faster | 5× faster |
+| sixteen processes at once, as `make -j` runs | 2× faster | 1.3× faster |
+| threads freeing each other's memory (xmalloc-test) | 2.6× faster | over 100× faster |
+| mixed-size threaded stress (mstress) | a third slower, 44% less memory | 15× faster |
+| server-style threads (larson, glibc-thread) | 40% slower | over 300× faster |
 
 It reports what it is doing when you ask. Its options are read from the environment under either prefix, `umalloc_` or `mimalloc_`:
 
@@ -298,6 +344,8 @@ option 'show_errors': 0
 ```
 
 `umalloc_show_stats=1` prints a summary at exit instead. Both write to standard error, so they never mix into a program's output.
+
+The heap is named in the process's memory map, so how much of a program is its heap is one command away: `grep -A4 umalloc /proc/PID/smaps` lists each `[anon:umalloc]` mapping with its resident size.
 
 ## Checking the machine is well
 

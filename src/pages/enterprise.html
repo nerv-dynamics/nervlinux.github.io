@@ -1,22 +1,107 @@
 <!--
 title: Enterprise
-desc:  Nerv is open source under Apache-2.0. Organisations pay for a self-hosted management plane and for supported generations, with no DRM and nothing that calls home.
+desc:  Nerv for organisations: a self-hosted management plane for GB10 and GB300 fleets, supported generations, professional support with SLAs agreed per customer, and nothing that calls home.
 slug:  enterprise
 nav:   enterprise
 -->
 
 <section class="section section--head">
   <div class="wrap">
-    <h1 class="page-title">Nerv for organisations</h1>
+    <h1 class="page-title">Run your AI fleet on hardware you own</h1>
+    <p class="page-lede">Nerv is the operating system for NVIDIA GB10 and GB300 machines. For organisations, Nerv Dynamics adds a self-hosted management plane, supported generations that hold still for years, and support from the engineers who build the system.</p>
+    <div class="actions">
+      <a class="btn btn--primary" href="mailto:sales@nervdynamics.ai">Talk to sales</a>
+      <a class="btn btn--ghost" href="#plans">Compare plans</a>
+    </div>
   </div>
 </section>
 
-<section class="section section--subtle" id="open-source">
+<section class="section section--subtle" id="plans">
   <div class="wrap">
-    <h2 class="section-title">Open source, all of it</h2>
+    <h2 class="section-title">Community and Enterprise</h2>
     <div class="prose">
-      <p>Nerv and every tool in it are open source under Apache-2.0: the base system and its kernel patches, <span class="kw kw--nerv">umalloc</span>, <span class="kw kw--nerv">geofront</span>, <span class="kw kw--nerv">cage</span>, <span class="kw kw--nerv">nerv-install</span>, <span class="kw kw--nerv">axon</span>, 9P CPU sharing, <span class="kw kw--nerv">Plexus</span> and <span class="kw kw--nerv">S2</span>. Patches to other projects keep their original licences. Apache-2.0 includes a patent grant.</p>
-      <p>Your engineers can read every line, build it themselves and run exactly what your fleet runs. Only builds signed by Nerv Dynamics carry the Nerv name.</p>
+      <p>Nerv is free, and every part of it is open source. An Enterprise subscription adds what an organisation needs to run it in production. Each subscription is shaped to the customer: the size of the fleet, the support it needs and how long each generation is kept.</p>
+    </div>
+    <div class="table-scroll">
+      <table class="data">
+        <thead><tr><th scope="col"></th><th scope="col">Community</th><th scope="col">Enterprise</th></tr></thead>
+        <tbody>
+          <tr><td>Nerv Linux, axon, Plexus, S2</td><td>Free, Apache-2.0</td><td>The same code</td></tr>
+          <tr><td>Updates</td><td>Rolling release</td><td>Rolling release and supported generations</td></tr>
+          <tr><td>Management plane</td><td>Build and run it yourself</td><td>Supported, on your own hardware or air-gapped</td></tr>
+          <tr><td>Support</td><td>Community chat and the handbook</td><td>Professional support, with SLAs agreed per customer</td></tr>
+          <tr><td>Security advisories</td><td>Public</td><td>Early notice, with an assessment of whether each issue affects you</td></tr>
+          <tr><td>Software bill of materials</td><td>Published per generation</td><td>Signed per generation, with audit support</td></tr>
+          <tr><td>Onboarding</td><td>The handbook</td><td>Deployment, training and integration with your systems</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="support">
+  <div class="wrap">
+    <h2 class="section-title">Professional support</h2>
+    <div class="prose">
+      <p>Support comes from the engineers who build Nerv, and it covers the whole stack: the system and its kernel, the NVIDIA driver integration, axon, Plexus and S2. Response times, hours and channels are agreed in each contract, from business hours for a development fleet to round-the-clock cover for production.</p>
+    </div>
+    <div class="answers">
+      <div class="answer">
+        <p class="answer__q">Contact</p>
+        <h3>A named engineer.</h3>
+        <p>One person who knows your fleet, with a ticket queue and a shared chat channel behind them.</p>
+      </div>
+      <div class="answer">
+        <p class="answer__q">Escalation</p>
+        <h3>Straight to the code.</h3>
+        <p>An issue in Nerv is fixed in Nerv, by the people who wrote it, and the fix reaches your supported generation.</p>
+      </div>
+      <div class="answer">
+        <p class="answer__q">Advisories</p>
+        <h3>Early notice.</h3>
+        <p>Security issues are assessed against your fleet before they are public, with the fix ready to roll out.</p>
+      </div>
+      <div class="answer">
+        <p class="answer__q">Reviews</p>
+        <h3>Planned with you.</h3>
+        <p>Regular reviews of the fleet, its generations and what is coming, so upgrades are scheduled rather than discovered.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle" id="lifecycle">
+  <div class="wrap">
+    <h2 class="section-title">Supported generations</h2>
+    <div class="prose">
+      <p>A supported generation is a frozen, validated release of Nerv, kept patched for an agreed period and tested on your hardware and workloads. It changes only through your change control, while the rolling release keeps moving to the newest kernel, NVIDIA driver and packages. Security fixes are never held back from the rolling release.</p>
+    </div>
+    <figure class="diagram">
+      <svg viewBox="0 0 960 230" role="img" aria-label="The rolling release moves continuously. Supported generations branch from it and are kept patched for an agreed period, for example 12 to 36 months, overlapping so a fleet can move from one to the next on its own schedule.">
+        <g font-family="var(--font-mono)" font-size="12.5">
+          <text x="0" y="30" fill="var(--text-secondary)">rolling</text>
+          <rect x="150" y="16" width="800" height="20" fill="var(--accent-green)" opacity="0.85"/>
+          <text x="0" y="88" fill="var(--text-secondary)">generation A</text>
+          <rect x="150" y="74" width="420" height="20" fill="var(--accent-blue)" opacity="0.85"/>
+          <text x="0" y="138" fill="var(--text-secondary)">generation B</text>
+          <rect x="420" y="124" width="420" height="20" fill="var(--accent-blue)" opacity="0.85"/>
+          <text x="0" y="188" fill="var(--text-secondary)">generation C</text>
+          <rect x="690" y="174" width="260" height="20" fill="var(--accent-blue)" opacity="0.85"/>
+          <path d="M150 36V74M420 36V124M690 36V174" stroke="var(--border-strong)" stroke-dasharray="3 3"/>
+          <text x="360" y="112" fill="var(--text-tertiary)" text-anchor="middle">overlap: move when you are ready</text>
+          <text x="150" y="222" fill="var(--text-tertiary)">each kept patched for an agreed period, for example 12 to 36 months</text>
+        </g>
+      </svg>
+    </figure>
+    <div class="table-scroll">
+      <table class="data">
+        <thead><tr><th scope="col"></th><th scope="col">Rolling</th><th scope="col">Supported generation</th></tr></thead>
+        <tbody>
+          <tr><td>Updates</td><td>Continuous; everything moves forward</td><td>Frozen; security and critical fixes backported</td></tr>
+          <tr><td>Length</td><td>Always the newest</td><td>Agreed per customer, for example 12 to 36 months</td></tr>
+          <tr><td>Validation</td><td>Our test suite</td><td>Also on your hardware and your workloads</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </section>
@@ -25,18 +110,18 @@ nav:   enterprise
   <div class="wrap">
     <h2 class="section-title">The management plane</h2>
     <div class="prose">
-      <p>One place to run a fleet of <span class="kw kw--nvidia">GB10</span> and <span class="kw kw--nvidia">GB300</span> machines under one set of rules: which GPUs and CPUs serve which teams, which machines are enrolled, which generation each one runs, and what they report. It runs on your own hardware, connected or fully air-gapped, and its source is available to customers for audit.</p>
-      <p>Machines fetch signed generations and signed policy from the plane and report back. The plane sends no commands, so it has no way into a running machine, and signing rejects anything it should not offer. With a customer-held trust root, generations are signed with your key and nothing reaches your fleet without your signature.</p>
+      <p>One place to run a fleet of GB10 and GB300 machines under one set of rules: which GPUs and CPUs serve which teams, which machines are enrolled, which generation each one runs, and what they report. It runs on your own hardware, connected or fully air-gapped.</p>
+      <p>Machines fetch signed generations and signed policy from the plane and report back. The plane sends no commands, so it has no way into a running machine.</p>
     </div>
     <figure class="diagram">
-      <svg viewBox="0 0 960 340" role="img" aria-label="Machines fetch signed generations and signed policy from the self-hosted management plane and report back to it. The plane sends no commands. The customer's key signs what the fleet accepts.">
+      <svg viewBox="0 0 960 340" role="img" aria-label="Machines fetch signed generations and signed policy from the self-hosted management plane and report back to it. The plane sends no commands. Every generation the fleet accepts is signed.">
         <defs><marker id="mp-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--text-secondary)"/></marker></defs>
         <g font-family="var(--font-mono)" font-size="13" text-anchor="middle">
           <rect x="16" y="16" width="360" height="308" rx="10" fill="none" stroke="var(--border-strong)" stroke-dasharray="4 4"/>
           <text x="32" y="40" text-anchor="start" fill="var(--text-secondary)">your site, air-gapped or not</text>
           <rect x="40" y="60" width="312" height="64" rx="8" fill="none" stroke="var(--accent-cyan)" stroke-width="1.5"/>
-          <text x="196" y="87" fill="var(--accent-cyan)" font-weight="600">your signing key</text>
-          <text x="196" y="106" fill="var(--text-secondary)" font-size="12">you approve every generation</text>
+          <text x="196" y="87" fill="var(--accent-cyan)" font-weight="600">signed generations</text>
+          <text x="196" y="106" fill="var(--text-secondary)" font-size="12">from Nerv, or your own mirror</text>
           <rect x="40" y="160" width="312" height="140" rx="8" fill="none" stroke="var(--brand)" stroke-width="2"/>
           <text x="196" y="187" fill="var(--brand)" font-weight="600">management plane</text>
           <text x="196" y="212" fill="var(--text-secondary)" font-size="12">placement · quotas · enrolment</text>
@@ -44,7 +129,7 @@ nav:   enterprise
           <text x="196" y="252" fill="var(--text-secondary)" font-size="12">fleet data · compliance reports</text>
           <text x="196" y="280" fill="var(--text-secondary)" font-size="12">licence checked offline</text>
           <path d="M196 124V158" fill="none" stroke="var(--text-secondary)" stroke-width="1.25" marker-end="url(#mp-arrow)"/>
-          <text x="206" y="146" text-anchor="start" fill="var(--text-secondary)" font-size="11.5">signs</text>
+          <text x="206" y="146" text-anchor="start" fill="var(--text-secondary)" font-size="11.5">serves</text>
 
           <rect x="584" y="16" width="360" height="308" rx="10" fill="none" stroke="var(--border-strong)" stroke-dasharray="4 4"/>
           <text x="600" y="40" text-anchor="start" fill="var(--text-secondary)">the fleet</text>
@@ -77,100 +162,142 @@ nav:   enterprise
         </g>
       </svg>
     </figure>
-
     <div class="answers">
       <div class="answer">
-        <p class="answer__q">Placement</p>
+        <p class="answer__q">Enrolment <span class="pill pill--shipping">shipping</span></p>
+        <h3>One code per machine.</h3>
+        <p>A machine joins the organisation with a code an administrator approves, and keeps its own keys. Revoking one machine touches no other.</p>
+      </div>
+      <div class="answer">
+        <p class="answer__q">Placement <span class="pill pill--building">building</span></p>
         <h3>GPUs assigned, not configured.</h3>
-        <p>Assign GPUs and CPUs to teams, projects and workloads. Through <span class="kw kw--nerv">axon</span>, a fleet's accelerators become one pool that work is placed into, and local and remote are the same path.</p>
+        <p>Assign GPUs and CPUs to teams, projects and workloads. Through axon, a fleet's accelerators become one pool, and local and remote are the same path.</p>
       </div>
       <div class="answer">
-        <p class="answer__q">Quotas</p>
+        <p class="answer__q">Quotas <span class="pill pill--building">building</span></p>
         <h3>Shared GPUs, hard limits.</h3>
-        <p>Cap memory and compute per tenant on a shared GPU. A workload that reaches its limit gets an out-of-memory error there, and nothing else on the machine is affected.</p>
+        <p>Cap memory and compute per tenant on a shared GPU. A workload that reaches its limit gets an out-of-memory error, and nothing else on the machine is affected.</p>
       </div>
       <div class="answer">
-        <p class="answer__q">Enrolment</p>
-        <h3>No shared fleet secret.</h3>
-        <p>Machines join the fleet with their own keys, and new ones install themselves over the network from a machine you already have. Revoking one machine touches no other.</p>
-      </div>
-      <div class="answer">
-        <p class="answer__q">Generations</p>
+        <p class="answer__q">Generations <span class="pill pill--building">building</span></p>
         <h3>Canary by machine.</h3>
         <p>Choose which generation each machine runs and roll a new one out to canaries first. Every machine still falls back on its own if a generation fails to boot.</p>
       </div>
       <div class="answer">
-        <p class="answer__q">Access</p>
+        <p class="answer__q">Access <span class="pill pill--building">building</span></p>
         <h3>Single sign-on and an audit log.</h3>
-        <p>Roles, grants that expire, and a record of who changed what. <span class="kw kw--nerv">Plexus</span> carries remote access over your own policy, never weaker.</p>
+        <p>Roles, grants that expire, security keys, and a record of who changed what. Remote access runs over your own policy, never weaker.</p>
       </div>
       <div class="answer">
-        <p class="answer__q">Compliance</p>
+        <p class="answer__q">Reporting <span class="pill pill--design">design</span></p>
         <h3>Evidence an auditor can use.</h3>
-        <p>A software bill of materials and attestation evidence per machine. Every package records the source commit it was built from, and offline bundles carry signed generations into sites with no internet.</p>
+        <p>A software bill of materials and attestation evidence per machine, and offline bundles that carry signed generations into sites with no internet.</p>
       </div>
     </div>
   </div>
 </section>
 
-<section class="section section--subtle" id="supported-generations">
+<section class="section section--subtle" id="security">
   <div class="wrap">
-    <h2 class="section-title">Supported generations</h2>
+    <h2 class="section-title">Security and compliance</h2>
     <div class="prose">
-      <p>A supported generation is a frozen, validated release of Nerv, kept patched for an agreed period and tested on your hardware and workloads. It holds an accredited configuration still and changes only through your change control, while the rolling release keeps moving to the newest kernel, NVIDIA driver and packages.</p>
+      <p>Every Nerv machine starts from the same chain of trust, with nothing to configure: its own Secure Boot keys made at install, a disk encrypted with LUKS2 and sealed to its TPM, SELinux enforcing with no unconfined domain, and a kernel that loads only signed modules. Packages, generations and release files are all signed, and every package records the source commit it was built from.</p>
+      <p>That gives an organisation most of what European regulation asks of the software it runs. Nerv Dynamics provides the evidence, and helps map it to your own controls.</p>
     </div>
     <div class="table-scroll">
       <table class="data">
-        <thead><tr><th scope="col"></th><th scope="col">Rolling, free</th><th scope="col">Supported generation</th></tr></thead>
+        <thead><tr><th scope="col">Asks for</th><th scope="col">What Nerv provides</th></tr></thead>
         <tbody>
-          <tr><td>Updates</td><td>Continuous; everything moves forward</td><td>Frozen; security and critical fixes backported</td></tr>
-          <tr><td>Length</td><td>Always the newest</td><td>Agreed per customer, for example 12 to 36 months</td></tr>
-          <tr><td>Advisories</td><td>Public</td><td>Early notice, with an assessment of whether each issue affects you</td></tr>
-          <tr><td>Software bill of materials</td><td>Published per generation</td><td>Signed per generation, with audit support</td></tr>
-          <tr><td>Validation</td><td>Our test suite</td><td>Also on your hardware and your workloads</td></tr>
+          <tr><td>Cyber Resilience Act</td><td>A software bill of materials per generation, signed updates, a published support period and a vulnerability-handling process</td></tr>
+          <tr><td>NIS2</td><td>Supply-chain provenance down to the source commit, access control with security keys, and support in handling an incident</td></tr>
+          <tr><td>GDPR and data sovereignty</td><td>Self-hosted and air-gapped operation, no telemetry, and a vendor inside the EU</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="after-table">Security fixes are never held back from the rolling release.</p>
+    <p class="after-table"><a href="/handbook/machine/chain-of-trust/">The chain of trust, in the handbook &rarr;</a></p>
   </div>
 </section>
 
-<section class="section" id="licensing">
+<section class="section" id="hardware">
   <div class="wrap">
-    <h2 class="section-title">No DRM, nothing that calls home</h2>
+    <h2 class="section-title">Hardware and OEM</h2>
     <div class="prose">
-      <p>Licences are signed files, checked offline by the management plane, naming your organisation, the number of machines and the expiry date. A fleet that outgrows its licence gets a notice, never a shutdown, and renewal uses a signed machine count produced by the plane. Nothing in Nerv calls home, and nothing outside your site decides what your machines do.</p>
+      <p>Nerv runs on NVIDIA GB10 today, with RTX Spark and GB300 on the roadmap. It targets those platforms alone, which is how it gets its performance.</p>
+      <p>A Nerv base can be signed, locked down with Secure Boot and shipped preinstalled without triggering the installation clause in section 6 of GPL-3, because no GPL-3 package is needed to boot it. The core is Apache, MIT, BSD and 0BSD, with the GPL-2 kernel and LGPL-2.1 libraries. Preinstallation on GB10 and GB300 hardware is licensed per unit.</p>
     </div>
   </div>
 </section>
 
-<section class="section section--subtle" id="hardware">
-  <div class="wrap">
-    <h2 class="section-title">Ship it on hardware you sell</h2>
-    <div class="prose">
-      <p>A Nerv base can be signed, locked down with Secure Boot and shipped preinstalled without triggering the installation clause in section 6 of GPL-3, because no GPL-3 package is needed to boot it. The core is Apache, MIT, BSD and 0BSD, with the GPL-2 kernel and LGPL-2.1 libraries. GPL-3 software such as rsync stays available through <code>dnf install</code> for anyone who wants it.</p>
-      <p>Nerv builds its own C library, allocator, compiler, init, shell, text tools and package manager from source, so its licensing is chosen rather than inherited. Preinstallation on GB10 and GB300 hardware is licensed per unit.</p>
-    </div>
-  </div>
-</section>
-
-<section class="section" id="sovereignty">
+<section class="section section--subtle" id="sovereignty">
   <div class="wrap">
     <h2 class="section-title">Built in Sweden, held by you</h2>
     <div class="prose">
-      <p>Nerv Dynamics is a Swedish company. Keys are generated on each machine and never leave it, every package is built from source, the source is open to audit, and with a customer-held trust root your key decides what your fleet runs. Nothing about your fleet passes through anyone else, including us.</p>
+      <p>Nerv Dynamics is a Swedish company. Each machine makes its own boot and disk keys at install, every package is built from source, and the source is open to audit. Licences are signed files, checked offline, naming your organisation, the number of machines and the expiry date. A fleet that outgrows its licence gets a notice, never a shutdown. Nothing in Nerv calls home, and nothing about your fleet passes through anyone else, including us.</p>
     </div>
   </div>
 </section>
 
-<section class="section section--subtle" id="contact">
+<section class="section" id="services">
+  <div class="wrap">
+    <h2 class="section-title">Services</h2>
+    <div class="answers">
+      <div class="answer">
+        <p class="answer__q">Pilot</p>
+        <h3>On your own hardware.</h3>
+        <p>A pilot fleet installed and running on your machines and your workloads, with our engineers alongside yours.</p>
+      </div>
+      <div class="answer">
+        <p class="answer__q">Deployment</p>
+        <h3>From first install to fleet.</h3>
+        <p>Network installation, enrolment, the management plane and your mirror, set up with your team.</p>
+      </div>
+      <div class="answer">
+        <p class="answer__q">Training</p>
+        <h3>For the people who run it.</h3>
+        <p>Generations, recovery, the compute fabric and the management plane, taught on your own fleet.</p>
+      </div>
+      <div class="answer">
+        <p class="answer__q">Engineering</p>
+        <h3>Built for your workload.</h3>
+        <p>Custom generations, integration with your identity and monitoring systems, and inference tuned to your models.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--subtle" id="faq">
+  <div class="wrap">
+    <h2 class="section-title">Questions</h2>
+    <div class="answers">
+      <div class="answer">
+        <h3>Is Nerv free to use?</h3>
+        <p>Yes. Nerv and every tool in it are open source under Apache-2.0. A subscription pays for the management plane, supported generations and support, not for the right to run the system.</p>
+      </div>
+      <div class="answer">
+        <h3>Can we run it with no internet?</h3>
+        <p>Yes. The management plane runs on your own hardware, offline bundles carry signed generations into an air-gapped site, and licences are checked offline.</p>
+      </div>
+      <div class="answer">
+        <h3>What happens when a licence expires?</h3>
+        <p>You get a notice. Nothing shuts down, and the machines keep running what they run.</p>
+      </div>
+      <div class="answer">
+        <h3>Can we build it ourselves?</h3>
+        <p>Yes. Every package builds from source with the same tools we use. Only builds signed by Nerv Dynamics carry the Nerv name.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="contact">
   <div class="wrap">
     <h2 class="section-title">Talk to Nerv Dynamics</h2>
     <div class="prose">
-      <p>The management plane, supported generations and preinstallation licences are offered by Nerv Dynamics AB, which sponsors the development of Nerv Linux.</p>
+      <p>Tell us about your fleet and what it needs to run, and we will shape a subscription and a pilot around it.</p>
     </div>
     <div class="actions">
-      <a class="btn btn--primary" href="https://nervdynamics.ai">nervdynamics.ai &rarr;</a>
+      <a class="btn btn--primary" href="mailto:sales@nervdynamics.ai">sales@nervdynamics.ai</a>
+      <a class="btn btn--ghost" href="https://nervdynamics.ai">nervdynamics.ai &rarr;</a>
     </div>
   </div>
 </section>

@@ -20,10 +20,14 @@ Each page in src/pages/ starts with a metadata comment:
     -->
 """
 
+import fnmatch
 import html as _html
+import json
 import pathlib
 import re
 import sys
+import urllib.error
+import urllib.request
 
 import mdrender
 
@@ -75,7 +79,7 @@ OWNER = "Nerv Dynamics AB"
 # that would ever click it.
 SOURCE_URL = "https://github.com/nerv-dynamics"
 
-# Six items. A nav is a promise about how much there is to read, so it stays
+# Seven items. A nav is a promise about how much there is to read, so it stays
 # short even when more pages exist; anything not here is reached from the page
 # that owns it.
 NAV = [
@@ -84,8 +88,34 @@ NAV = [
     ("enterprise", "/enterprise/", "Enterprise"),
     ("community",  "/community/",  "Community"),
     ("handbook",   "/handbook/",   "Handbook"),
+    ("downloads",  "/downloads/",  "Downloads"),
     ("about",      "/about/",      "About"),
 ]
+
+# The Downloads page lists what the repo host's stable channel holds. Release
+# files go to testing when a tag is pushed and to stable when they are promoted
+# with the release key (nerv-repo, release.rs), and each product's
+# latest/release.json says what its newest stable version is. It is read when
+# the site is built and kept in src/vendor/releases.json, so a build without the
+# network shows the page the last build did. Rebuild after a promotion.
+RELEASES = "https://repo.nervlinux.org/releases/stable/"
+PRODUCTS = [
+    ("plexus", "Plexus",
+     "Joins a computer to a Nerv organisation and keeps it connected: the owner app and member service for Windows, and the client for Linux systems that are not Nerv. On Nerv, install <code>plexus-client</code> with <code>dnf</code>."),
+    ("plexus-edge", "Plexus edge",
+     "The authority and the relay an organisation runs on its own servers, for Linux on x86-64. On Nerv, install <code>plexus-host</code> or <code>plexus-relay</code> with <code>dnf</code>."),
+    ("s2", "S2",
+     "Nerv's inference engine as static binaries, for a GB10 that runs another Linux, such as DGX OS. On Nerv, install <code>nerv-s2</code> with <code>dnf</code>."),
+]
+# The files each product's section offers as buttons, with their labels; the
+# table under them lists everything the release holds.
+BUTTONS = {
+    "plexus": [("Plexus-*.msi", "Plexus {v} for Windows"), ("plexus-client-linux-x64.tar.gz", "Plexus {v} for Linux")],
+    "plexus-edge": [("plexus-host-linux-x64.tar.gz", "Host {v}"), ("plexus-relay-linux-x64.tar.gz", "Relay {v}")],
+    "s2": [("s2-linux-aarch64.tar.gz", "S2 {v} for Linux on Arm64")],
+}
+PLATFORMS = {"windows-x64": "Windows 11, x64", "linux-x64": "Linux, x86-64", "linux-aarch64": "Linux, Arm64"}
+KINDS = {"msi": "Installer", "zip": "Portable app", "tarball": "Archive", "rpm": "RPM package"}
 
 
 def write(path, text):
@@ -196,14 +226,34 @@ HANDBOOK_SKIP = {"DISCIPLINE.md", "README.md"}
 # it only ever shows chapters that exist. A chapter missing from this list is
 # still published, at the end, under "More".
 HANDBOOK_TOC = [
-    ("Getting started", [
+    ("This machine", [
         "machine/why-an-operating-system-still",
+        "machine/what-nerv-is",
         "machine/install",
         "machine/the-first-hour",
         "machine/software",
+        "machine/containers",
+        "machine/desktop",
+        "machine/networking",
+        "machine/accounts-and-keys",
     ]),
     ("Five ideas", [
         "machine/generations",
+        "machine/compute-fabric",
+        "machine/what-the-machine-remembers",
+        "machine/yours-and-not-yours",
+        "machine/chain-of-trust",
+    ]),
+    ("Ways of using it", [
+        "machine/ai-development",
+        "machine/gaming",
+        "machine/offloading-and-fleets",
+        "machine/plexus",
+        "machine/building-your-own",
+    ]),
+    ("When it breaks", [
+        "machine/recovery",
+        "machine/asking-why",
     ]),
 ]
 
@@ -261,6 +311,9 @@ def handbook_pages():
         # Chapters carry no front matter; a copy synced from before that
         # change may, and it must not become the description.
         text = re.sub(r"\A---\n.*?\n---\n", "", path.read_text(), flags=re.S)
+        # A stub is an outline for authors (DISCIPLINE.md); it is published once written.
+        if re.search(r"^<!-- stub\b", text, re.M):
+            continue
         m = re.search(r"^#\s+(.*)$", text, re.M)
         title = m.group(1).strip() if m else path.stem.replace("-", " ")
         desc = first_paragraph(text)
@@ -361,6 +414,76 @@ HANDBOOK_WRAP = """<section class="section section--head">
 </section>"""
 
 
+def fetch_releases():
+    """Each product's newest stable release.json, or None where stable has none."""
+    cache = VENDOR / "releases.json"
+    try:
+        found = {}
+        for key, _, _ in PRODUCTS:
+            try:
+                with urllib.request.urlopen(f"{RELEASES}{key}/latest/release.json", timeout=15) as r:
+                    found[key] = json.load(r)
+            except urllib.error.HTTPError as e:
+                if e.code != 404:
+                    raise
+                found[key] = None
+        write(cache, json.dumps(found, indent=2) + "\n")
+        return found
+    except (urllib.error.URLError, OSError, ValueError) as e:
+        if not cache.exists():
+            sys.exit(f"downloads: cannot read {RELEASES} ({e}) and there is no {cache.relative_to(ROOT)}")
+        print(f"  downloads: {RELEASES} unreachable ({e}); using {cache.relative_to(ROOT)}")
+        return json.loads(cache.read_text())
+
+
+def size(n):
+    for unit in ["bytes", "KB", "MB", "GB"]:
+        if n < 1000 or unit == "GB":
+            return f"{n:.0f} {unit}" if unit == "bytes" else f"{n:.1f} {unit}"
+        n /= 1000
+
+
+def render_releases():
+    releases = fetch_releases()
+    out = []
+    for i, (key, name, desc) in enumerate(PRODUCTS):
+        rel = releases.get(key)
+        subtle = " section--subtle" if i % 2 == 0 else ""
+        out.append(f'<section class="section{subtle}" id="{key}">\n  <div class="wrap">')
+        out.append(f'    <h2 class="section-title">{_html.escape(name)}</h2>')
+        out.append(f'    <div class="prose">\n      <p>{desc}</p>')
+        if not rel:
+            out.append('    </div>\n    <div class="actions">\n'
+                       f'      <span class="btn btn--blue btn--off" aria-disabled="true">{_html.escape(name)}: no release yet</span>\n'
+                       "    </div>\n  </div>\n</section>")
+            continue
+        base = f"{RELEASES}{key}/{rel['version']}/"
+        date = rel.get("built", "")[:10]
+        out.append(f"      <p>Version {_html.escape(rel['version'])}, built {_html.escape(date)}. "
+                   f'<a href="{base}SHA256SUMS">SHA256SUMS</a> and its signature '
+                   f'<a href="{base}SHA256SUMS.asc">SHA256SUMS.asc</a>.</p>\n    </div>')
+        buttons = [(f, label) for pattern, label in BUTTONS.get(key, [])
+                   for f in rel["files"] if fnmatch.fnmatch(f["name"], pattern)]
+        if buttons:
+            out.append('    <div class="actions">')
+            for f, label in buttons:
+                out.append(f'      <a class="btn btn--blue" href="{base}{_html.escape(f["name"])}">'
+                           f'{_html.escape(label.format(v=rel["version"]))}</a>')
+            out.append("    </div>")
+        out.append('    <div class="table-scroll">\n      <table class="data">')
+        out.append('        <thead><tr><th scope="col">File</th><th scope="col">For</th>'
+                   '<th scope="col">Kind</th><th scope="col">Size</th></tr></thead>\n        <tbody>')
+        for f in rel["files"]:
+            if f["kind"] not in KINDS:
+                continue
+            fn = _html.escape(f["name"])
+            out.append(f'          <tr><td><a href="{base}{fn}"><code>{fn}</code></a></td>'
+                       f'<td>{PLATFORMS.get(f["platform"], _html.escape(f["platform"]))}</td>'
+                       f'<td>{KINDS[f["kind"]]}</td><td>{size(f["size"])}</td></tr>')
+        out.append("        </tbody>\n      </table>\n    </div>\n  </div>\n</section>")
+    return "\n".join(out)
+
+
 def render_nav(current):
     out = []
     for key, href, label in NAV:
@@ -417,6 +540,8 @@ def main():
 
     for page in pages:
         meta, body = parse(page.read_text())
+        if "<!-- releases -->" in body:
+            body = body.replace("<!-- releases -->", render_releases())
         slug = meta.get("slug", "").strip(" /")
 
         # The brand leads every title; the page name qualifies it.

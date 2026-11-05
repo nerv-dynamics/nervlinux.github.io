@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nerv Linux — Downloads</title>
+<meta name="description" content="Install Nerv Linux, and download Plexus for Windows and Linux, the Plexus edge services and S2, signed and with checksums.">
+<link rel="canonical" href="https://nervlinux.org/downloads/">
+<meta property="og:title" content="Nerv Linux — Downloads">
+<meta property="og:description" content="Install Nerv Linux, and download Plexus for Windows and Linux, the Plexus edge services and S2, signed and with checksums.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nervlinux.org/downloads/">
+<link rel="icon" href="/assets/favicon.png" sizes="32x32">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/nerv-square.png">
+<link rel="preload" href="/fonts/ashinoko-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/palette.css">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/site.css">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('nerv-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="masthead__inner">
+    <a class="masthead__brand" href="/" aria-label="Nerv Linux — home">
+      <img class="logo" src="/assets/nerv-wordmark.png" alt="Nerv Linux" width="600" height="149">
+    </a>
+    <nav class="masthead__nav" aria-label="Primary">
+      <div class="masthead__links" id="primary-links">
+      <a href="/system/">System</a>
+      <a href="/desktop/">Desktop</a>
+      <a href="/enterprise/">Enterprise</a>
+      <a href="/community/">Community</a>
+      <a href="/handbook/">Handbook</a>
+      <a href="/downloads/" aria-current="page">Downloads</a>
+      <a href="/about/">About</a>
+      </div>
+      <button class="theme-toggle" id="theme-toggle" type="button"
+              aria-label="Switch to light theme" title="Switch theme">
+        <svg class="icon icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path fill="currentColor" d="M20.7 14.6A8.6 8.6 0 0 1 9.4 3.3a8.7 8.7 0 1 0 11.3 11.3Z"/>
+        </svg>
+        <svg class="icon icon--sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2" fill="currentColor"/>
+          <g stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+            <path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4"/>
+            <path d="M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/>
+          </g>
+        </svg>
+      </button>
+      <button class="menu-toggle" id="menu-toggle" type="button"
+              aria-label="Menu" aria-expanded="false" aria-controls="primary-links">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+          <path class="menu-toggle__open" d="M4 7h16M4 12h16M4 17h16"/>
+          <path class="menu-toggle__close" d="M6 6l12 12M18 6L6 18"/>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="section section--head">
+  <div class="wrap">
+    <h1 class="page-title">Downloads</h1>
+    <div class="prose">
+      <p>To install Nerv Linux, run this in a Linux terminal on the same network as the machine, and follow the handbook from there.</p>
+    </div>
+    <div class="cmd">
+      <pre class="term term__body"><span class="c-grey" aria-hidden="true">$ </span><code id="install-cmd">curl -fsSL https://nervlinux.org/install.sh | sh</code></pre>
+      <button class="btn btn--blue cmd__copy" type="button" data-copy="install-cmd">Copy</button>
+    </div>
+    <div class="actions">
+      <a class="btn btn--blue" href="/handbook/machine/install/">Read the install guide</a>
+    </div>
+    <script>
+      document.querySelectorAll('[data-copy]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var text = document.getElementById(b.dataset.copy).textContent;
+          navigator.clipboard.writeText(text).then(function () {
+            b.textContent = 'Copied';
+            setTimeout(function () { b.textContent = 'Copy'; }, 1500);
+          }, function () { b.textContent = 'Select and copy'; });
+        });
+      });
+    </script>
+  </div>
+</section>
+
+<section class="section section--subtle" id="plexus">
+  <div class="wrap">
+    <h2 class="section-title">Plexus</h2>
+    <div class="prose">
+      <p>Joins a computer to a Nerv organisation and keeps it connected: the owner app and member service for Windows, and the client for Linux systems that are not Nerv. On Nerv, install <code>plexus-client</code> with <code>dnf</code>.</p>
+      <p>Version 0.8.1, built 2026-11-05. <a href="https://repo.nervlinux.org/releases/stable/plexus/0.8.1/SHA256SUMS">SHA256SUMS</a> and its signature <a href="https://repo.nervlinux.org/releases/stable/plexus/0.8.1/SHA256SUMS.asc">SHA256SUMS.asc</a>.</p>
+    </div>
+    <div class="actions">
+      <a class="btn btn--blue" href="https://repo.nervlinux.org/releases/stable/plexus/0.8.1/Plexus-0.8.1-x64-unsigned.msi">Plexus 0.8.1 for Windows</a>
+      <a class="btn btn--blue" href="https://repo.nervlinux.org/releases/stable/plexus/0.8.1/plexus-client-linux-x64.tar.gz">Plexus 0.8.1 for Linux</a>
+    </div>
+    <div class="table-scroll">
+      <table class="data">
+        <thead><tr><th scope="col">File</th><th scope="col">For</th><th scope="col">Kind</th><th scope="col">Size</th></tr></thead>
+        <tbody>
+          <tr><td><a href="https://repo.nervlinux.org/releases/stable/plexus/0.8.1/Plexus-0.8.1-x64-unsigned.msi"><code>Plexus-0.8.1-x64-unsigned.msi</code></a></td><td>Windows 11, x64</td><td>Installer</td><td>22.7 MB</td></tr>
+          <tr><td><a href="https://repo.nervlinux.org/releases/stable/plexus/0.8.1/plexus-client-0.8.1-1.x86_64.rpm"><code>plexus-client-0.8.1-1.x86_64.rpm</code></a></td><td>Linux, x86-64</td><td>RPM package</td><td>3.1 MB</td></tr>
+          <tr><td><a href="https://repo.nervlinux.org/releases/stable/plexus/0.8.1/plexus-client-linux-x64.tar.gz"><code>plexus-client-linux-x64.tar.gz</code></a></td><td>Linux, x86-64</td><td>Archive</td><td>2.5 MB</td></tr>
+          <tr><td><a href="https://repo.nervlinux.org/releases/stable/plexus/0.8.1/plexus-owner-windows-x64.zip"><code>plexus-owner-windows-x64.zip</code></a></td><td>Windows 11, x64</td><td>Portable app</td><td>4.8 MB</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+<section class="section" id="plexus-edge">
+  <div class="wrap">
+    <h2 class="section-title">Plexus edge</h2>
+    <div class="prose">
+      <p>The authority and the relay an organisation runs on its own servers, for Linux on x86-64. On Nerv, install <code>plexus-host</code> or <code>plexus-relay</code> with <code>dnf</code>.</p>
+      <p>Version 0.8.1, built 2026-11-05. <a href="https://repo.nervlinux.org/releases/stable/plexus-edge/0.8.1/SHA256SUMS">SHA256SUMS</a> and its signature <a href="https://repo.nervlinux.org/releases/stable/plexus-edge/0.8.1/SHA256SUMS.asc">SHA256SUMS.asc</a>.</p>
+    </div>
+    <div class="actions">
+      <a class="btn btn--blue" href="https://repo.nervlinux.org/releases/stable/plexus-edge/0.8.1/plexus-host-linux-x64.tar.gz">Host 0.8.1</a>
+      <a class="btn btn--blue" href="https://repo.nervlinux.org/releases/stable/plexus-edge/0.8.1/plexus-relay-linux-x64.tar.gz">Relay 0.8.1</a>
+    </div>
+    <div class="table-scroll">
+      <table class="data">
+        <thead><tr><th scope="col">File</th><th scope="col">For</th><th scope="col">Kind</th><th scope="col">Size</th></tr></thead>
+        <tbody>
+          <tr><td><a href="https://repo.nervlinux.org/releases/stable/plexus-edge/0.8.1/plexus-host-0.8.1-1.x86_64.rpm"><code>plexus-host-0.8.1-1.x86_64.rpm</code></a></td><td>Linux, x86-64</td><td>RPM package</td><td>3.9 MB</td></tr>
+          <tr><td><a href="https://repo.nervlinux.org/releases/stable/plexus-edge/0.8.1/plexus-host-linux-x64.tar.gz"><code>plexus-host-linux-x64.tar.gz</code></a></td><td>Linux, x86-64</td><td>Archive</td><td>3.9 MB</td></tr>
+          <tr><td><a href="https://repo.nervlinux.org/releases/stable/plexus-edge/0.8.1/plexus-relay-0.8.1-1.x86_64.rpm"><code>plexus-relay-0.8.1-1.x86_64.rpm</code></a></td><td>Linux, x86-64</td><td>RPM package</td><td>3.0 MB</td></tr>
+          <tr><td><a href="https://repo.nervlinux.org/releases/stable/plexus-edge/0.8.1/plexus-relay-linux-x64.tar.gz"><code>plexus-relay-linux-x64.tar.gz</code></a></td><td>Linux, x86-64</td><td>Archive</td><td>3.0 MB</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+<section class="section section--subtle" id="s2">
+  <div class="wrap">
+    <h2 class="section-title">S2</h2>
+    <div class="prose">
+      <p>Nerv's inference engine as static binaries, for a GB10 that runs another Linux, such as DGX OS. On Nerv, install <code>nerv-s2</code> with <code>dnf</code>.</p>
+    </div>
+    <div class="actions">
+      <span class="btn btn--blue btn--off" aria-disabled="true">S2: no release yet</span>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="verify">
+  <div class="wrap">
+    <h2 class="section-title">Downloading and checking a file</h2>
+    <div class="prose">
+      <p>Every file is served from <code>repo.nervlinux.org</code>, and each product's <code>latest/</code> directory is always its newest stable version, so a script can fetch it with <code>curl</code> and no version number:</p>
+<pre class="term term__body">$ curl -fLO https://repo.nervlinux.org/releases/stable/plexus/latest/plexus-client-linux-x64.tar.gz
+$ curl -fLO https://repo.nervlinux.org/releases/stable/plexus/latest/SHA256SUMS
+$ curl -fLO https://repo.nervlinux.org/releases/stable/plexus/latest/SHA256SUMS.asc</pre>
+      <p><code>SHA256SUMS.asc</code> is signed by the Nerv release key, the key that signs the Nerv repository. Check the signature, then the file against it:</p>
+<pre class="term term__body">$ curl -fLO https://repo.nervlinux.org/keys/RPM-GPG-KEY-nerv
+$ sq verify --signer-file RPM-GPG-KEY-nerv --signature-file SHA256SUMS.asc SHA256SUMS
+$ sha256sum -c --ignore-missing SHA256SUMS</pre>
+      <p>With GnuPG, <code>gpg --import RPM-GPG-KEY-nerv</code> and then <code>gpg --verify SHA256SUMS.asc SHA256SUMS</code>. On Windows, GnuPG comes with Gpg4win, and <code>Get-FileHash</code> prints a file's SHA-256 to compare with its line in <code>SHA256SUMS</code>.</p>
+      <p>The Windows installer is not yet signed for Windows itself, so Windows names no publisher for it and warns before it runs. The signature above is what says it is ours.</p>
+      <p>New versions reach <code>releases/testing/</code> first, signed by Nerv's build key, <code>RPM-GPG-KEY-nerv-ci</code>, and move here once they have been tested.</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__base">
+      <p>Copyright &copy; 2026 Nerv Dynamics AB. Nerv Linux is free software under the
+         Apache License 2.0. Software from other projects keeps its upstream licence.</p>
+      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell, GB10 and GB300 are
+         trademarks of NVIDIA Corporation. Linux is a registered trademark of
+         Linus Torvalds. Nerv Linux is not affiliated with, endorsed by, or
+         sponsored by either.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var btn = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    function label() {
+      var dark = root.getAttribute('data-theme') !== 'light';
+      btn.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+    }
+    label();
+    btn.addEventListener('click', function () {
+      // Dark is the default, so anything that isn't explicitly light is dark.
+      var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('nerv-theme', next); } catch (e) {}
+      label();
+    });
+  })();
+  (function () {
+    // Phone menu: the nav links fold into a panel under the masthead.
+    var btn = document.getElementById('menu-toggle');
+    var head = btn.closest('.masthead');
+    btn.addEventListener('click', function () {
+      var open = head.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  })();
+  (function () {
+    // On phones a tapped diagram opens full screen, large, to pan and zoom.
+    var narrow = window.matchMedia('(max-width: 760px)');
+    function close(z) { z.remove(); document.body.classList.remove('has-zoom'); }
+    document.querySelectorAll('.diagram').forEach(function (fig) {
+      fig.addEventListener('click', function () {
+        var svg = fig.querySelector('svg');
+        if (!narrow.matches || !svg) return;
+        var z = document.createElement('div');
+        z.className = 'zoom'; z.setAttribute('role', 'dialog'); z.setAttribute('aria-label', svg.getAttribute('aria-label') || 'Diagram');
+        z.appendChild(svg.cloneNode(true));
+        var b = document.createElement('button');
+        b.className = 'zoom__close'; b.type = 'button'; b.setAttribute('aria-label', 'Close');
+        b.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+        b.addEventListener('click', function () { close(z); });
+        z.appendChild(b);
+        document.body.appendChild(z); document.body.classList.add('has-zoom');
+        document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { close(z); document.removeEventListener('keydown', esc); } });
+      });
+    });
+  })();
+  (function () {
+    // The handbook contents start folded on narrow screens, open on wide ones.
+    if (window.matchMedia('(max-width: 960px)').matches)
+      document.querySelectorAll('.hb-nav__box').forEach(function (d) { d.open = false; });
+  })();
+  (function () {
+    // Narrow tables read as stacked cards; each cell carries its column name.
+    document.querySelectorAll('table.data').forEach(function (t) {
+      var heads = Array.prototype.map.call(t.querySelectorAll('thead th'), function (th) { return th.textContent.trim(); });
+      t.querySelectorAll('tbody tr').forEach(function (tr) {
+        Array.prototype.forEach.call(tr.children, function (td, i) {
+          if (heads[i]) td.setAttribute('data-label', heads[i]);
+        });
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>

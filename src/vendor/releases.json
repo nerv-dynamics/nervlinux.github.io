@@ -1,0 +1,96 @@
+{
+  "plexus": {
+    "product": "plexus",
+    "version": "0.8.1",
+    "tag": "v0.8.1",
+    "commit": "aa9269dbe0736c3d239d390da4162e4b111017a5",
+    "built": "2026-11-05T15:05:15Z",
+    "license": "Apache-2.0",
+    "authenticode": false,
+    "served": "https://repo.nervlinux.org/releases/plexus/0.8.1/",
+    "checksums": "SHA256SUMS",
+    "signature": "SHA256SUMS.asc",
+    "key": "https://repo.nervlinux.org/keys/RPM-GPG-KEY-nerv",
+    "files": [
+      {
+        "name": "Plexus-0.8.1-x64-unsigned.BUILD.json",
+        "platform": "windows-x64",
+        "kind": "provenance",
+        "size": 1165,
+        "sha256": "08e8a84d4cf05e1611e18ae122abe612becf8c06edf668d7f988e0dedc0bbad3"
+      },
+      {
+        "name": "Plexus-0.8.1-x64-unsigned.msi",
+        "platform": "windows-x64",
+        "kind": "msi",
+        "size": 22724608,
+        "sha256": "363c3673237ae24120b7e4f54ca673509a797786e7e610e9df12dbadf1f284ce"
+      },
+      {
+        "name": "plexus-client-0.8.1-1.x86_64.rpm",
+        "platform": "linux-x64",
+        "kind": "rpm",
+        "size": 3092737,
+        "sha256": "1ed0cb6928a32ab5514ace384e8ee151885de8f81bbdc67203ab98f72ff2f9f6"
+      },
+      {
+        "name": "plexus-client-linux-x64.tar.gz",
+        "platform": "linux-x64",
+        "kind": "tarball",
+        "size": 2492295,
+        "sha256": "0ad3fe56873d12552fbd18dc583e16a2a1e69bea3cef4475e5e4eae81b2a25f7"
+      },
+      {
+        "name": "plexus-owner-windows-x64.zip",
+        "platform": "windows-x64",
+        "kind": "zip",
+        "size": 4819765,
+        "sha256": "d31e3bb01a4c52aec05a1b805e6f60b93124ef9d4427ee18ae4cd0615765be98"
+      }
+    ]
+  },
+  "plexus-edge": {
+    "product": "plexus-edge",
+    "version": "0.8.1",
+    "tag": "v0.8.1",
+    "commit": "aa9269dbe0736c3d239d390da4162e4b111017a5",
+    "built": "2026-11-05T15:05:15Z",
+    "license": "Apache-2.0",
+    "authenticode": false,
+    "served": "https://repo.nervlinux.org/releases/plexus-edge/0.8.1/",
+    "checksums": "SHA256SUMS",
+    "signature": "SHA256SUMS.asc",
+    "key": "https://repo.nervlinux.org/keys/RPM-GPG-KEY-nerv",
+    "files": [
+      {
+        "name": "plexus-host-0.8.1-1.x86_64.rpm",
+        "platform": "linux-x64",
+        "kind": "rpm",
+        "size": 3896502,
+        "sha256": "a2df264f7783b6cb177efdafd06ac357b160a27600d6f363aed135d148611758"
+      },
+      {
+        "name": "plexus-host-linux-x64.tar.gz",
+        "platform": "linux-x64",
+        "kind": "tarball",
+        "size": 3909289,
+        "sha256": "a4dfd3b0ea6c7c7d4b904dcc9769f275d24fa5e22681ef0ed05942db8eadb64e"
+      },
+      {
+        "name": "plexus-relay-0.8.1-1.x86_64.rpm",
+        "platform": "linux-x64",
+        "kind": "rpm",
+        "size": 2960532,
+        "sha256": "8f094da6d1dd9430124b8fb5279d213fe4441732359df1fe8913ed6cc4547340"
+      },
+      {
+        "name": "plexus-relay-linux-x64.tar.gz",
+        "platform": "linux-x64",
+        "kind": "tarball",
+        "size": 2973139,
+        "sha256": "d9be231a79a579ce0386b83f4f197004b8b7ac2f178873cc19a66691d53a9a9f"
+      }
+    ]
+  },
+  "s2": null
+}

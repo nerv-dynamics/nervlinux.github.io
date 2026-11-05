@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nerv Linux — Networking</title>
+<meta name="description" content="Getting on the network and letting others reach you: wired and Wi-Fi, names, the ConnectX ports, WireGuard, the firewall and SSH.">
+<link rel="canonical" href="https://nervlinux.org/handbook/machine/networking/">
+<meta property="og:title" content="Nerv Linux — Networking">
+<meta property="og:description" content="Getting on the network and letting others reach you: wired and Wi-Fi, names, the ConnectX ports, WireGuard, the firewall and SSH.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nervlinux.org/handbook/machine/networking/">
+<link rel="icon" href="/assets/favicon.png" sizes="32x32">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/nerv-square.png">
+<link rel="preload" href="/fonts/ashinoko-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/palette.css">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/site.css">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('nerv-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="masthead__inner">
+    <a class="masthead__brand" href="/" aria-label="Nerv Linux — home">
+      <img class="logo" src="/assets/nerv-wordmark.png" alt="Nerv Linux" width="600" height="149">
+    </a>
+    <nav class="masthead__nav" aria-label="Primary">
+      <div class="masthead__links" id="primary-links">
+      <a href="/system/">System</a>
+      <a href="/desktop/">Desktop</a>
+      <a href="/enterprise/">Enterprise</a>
+      <a href="/community/">Community</a>
+      <a href="/handbook/" aria-current="page">Handbook</a>
+      <a href="/downloads/">Downloads</a>
+      <a href="/about/">About</a>
+      </div>
+      <button class="theme-toggle" id="theme-toggle" type="button"
+              aria-label="Switch to light theme" title="Switch theme">
+        <svg class="icon icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path fill="currentColor" d="M20.7 14.6A8.6 8.6 0 0 1 9.4 3.3a8.7 8.7 0 1 0 11.3 11.3Z"/>
+        </svg>
+        <svg class="icon icon--sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2" fill="currentColor"/>
+          <g stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+            <path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4"/>
+            <path d="M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/>
+          </g>
+        </svg>
+      </button>
+      <button class="menu-toggle" id="menu-toggle" type="button"
+              aria-label="Menu" aria-expanded="false" aria-controls="primary-links">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+          <path class="menu-toggle__open" d="M4 7h16M4 12h16M4 17h16"/>
+          <path class="menu-toggle__close" d="M6 6l12 12M18 6L6 18"/>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="section section--head">
+  <div class="wrap hb">
+    <nav class="hb-nav" aria-label="Handbook">
+<details class="hb-nav__box" open>
+<summary class="hb-nav__summary">Contents</summary>
+<a class="hb-nav__home" href="/handbook/">The Nerv Handbook</a>
+<p class="hb-nav__part">This machine</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/why-an-operating-system-still/">Why an operating system, still</a>
+</li>
+<li><a href="/handbook/machine/what-nerv-is/">What Nerv is</a>
+</li>
+<li><a href="/handbook/machine/install/">Install</a>
+</li>
+<li><a href="/handbook/machine/the-first-hour/">The first hour</a>
+</li>
+<li><a href="/handbook/machine/software/">Software</a>
+</li>
+<li><a href="/handbook/machine/containers/">Containers</a>
+</li>
+<li><a href="/handbook/machine/desktop/">The desktop</a>
+</li>
+<li><a href="/handbook/machine/networking/" aria-current="page">Networking</a>
+<ol class="hb-nav__sections">
+<li><a href="#how-the-machine-is-configured">How the machine is configured</a></li>
+<li><a href="#wired">Wired</a></li>
+<li><a href="#wi-fi">Wi-Fi</a></li>
+<li><a href="#names">Names</a></li>
+<li><a href="#the-connectx-ports">The ConnectX ports</a></li>
+<li><a href="#wireguard">WireGuard</a></li>
+<li><a href="#the-firewall">The firewall</a></li>
+<li><a href="#logging-in-over-ssh">Logging in over SSH</a></li>
+</ol>
+</li>
+<li><a href="/handbook/machine/accounts-and-keys/">Accounts and keys</a>
+</li>
+</ol>
+<p class="hb-nav__part">Five ideas</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/generations/">Generations</a>
+</li>
+<li><a href="/handbook/machine/compute-fabric/">The compute fabric</a>
+</li>
+<li><a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a>
+</li>
+<li><a href="/handbook/machine/yours-and-not-yours/">Yours and not yours</a>
+</li>
+<li><a href="/handbook/machine/chain-of-trust/">The chain of trust</a>
+</li>
+</ol>
+<p class="hb-nav__part">Ways of using it</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/ai-development/">AI development</a>
+</li>
+<li><a href="/handbook/machine/gaming/">Gaming</a>
+</li>
+<li><a href="/handbook/machine/offloading-and-fleets/">Offloading and fleets</a>
+</li>
+<li><a href="/handbook/machine/plexus/">Plexus</a>
+</li>
+<li><a href="/handbook/machine/building-your-own/">Building your own</a>
+</li>
+</ol>
+<p class="hb-nav__part">When it breaks</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/recovery/">Recovery</a>
+</li>
+<li><a href="/handbook/machine/asking-why/">Asking why</a>
+</li>
+</ol>
+</details></nav>
+    <div class="hb__main">
+      <div class="essay">
+<h1 class="page-title">Networking</h1>
+<p>Getting on the network and letting others reach you: wired and Wi-Fi, names, the ConnectX ports, WireGuard, the firewall and SSH.</p>
+<h2 id="how-the-machine-is-configured" class="section-title">How the machine is configured</h2>
+<p>One system configures every link: <code>systemd-networkd</code>, from <code>.network</code> files. iwd joins Wi-Fi networks and does nothing else, <code>systemd-resolved</code> answers names, and nftables is the firewall. Nerv's own files are in <code>/usr/lib/systemd/network/</code>; yours go in <code>/etc/systemd/network/</code>, where a file of the same name replaces Nerv's, and an update keeps them.</p>
+<pre class="term term__body">$ networkctl
+$ networkctl status enP7s7</pre>
+<h2 id="wired" class="section-title">Wired</h2>
+<p>A cable is enough: every Ethernet port asks for an address over DHCP as soon as it has a link. Wired is preferred over Wi-Fi when both are up.</p>
+<p>The machine takes no global IPv6 address of its own accord. It keeps an IPv6 link-local address on every port, which is what netboot and the machine's own fabric use, but it ignores router advertisements, so a network whose IPv6 route goes nowhere cannot make every connection wait for a timeout first. To take IPv6 from your router, replace Nerv's file with your own copy that accepts them:</p>
+<pre class="term term__body">$ doas cp /usr/lib/systemd/network/90-nerv-wired.network /etc/systemd/network/
+$ doas sed -i 's/^IPv6AcceptRA=no/IPv6AcceptRA=yes/' /etc/systemd/network/90-nerv-wired.network
+$ doas networkctl reload</pre>
+<p>A fixed address is a file of your own, named to sort before Nerv's so it is the one that matches:</p>
+<pre class="term term__body">$ cat /etc/systemd/network/10-office.network
+[Match]
+Name=enP7s7
+
+[Network]
+Address=192.168.1.20/24
+Gateway=192.168.1.1
+DNS=192.168.1.1
+$ doas networkctl reload</pre>
+<h2 id="wi-fi" class="section-title">Wi-Fi</h2>
+<p><code>iwctl</code> is iwd's own tool. Find the networks in range and join one; iwd asks for the passphrase and remembers it:</p>
+<pre class="term term__body">$ iwctl station wlan0 scan
+$ iwctl station wlan0 get-networks
+$ iwctl station wlan0 connect "Office"</pre>
+<p>From then on the machine joins that network by itself whenever it is in range. <code>iwctl known-networks list</code> shows what it remembers, and <code>iwctl known-networks "Office" forget</code> removes one. The address and the name servers come from <code>systemd-networkd</code>, as on a cable.</p>
+<h2 id="names" class="section-title">Names</h2>
+<p>Every program asks <code>systemd-resolved</code>, which caches answers and uses the name servers each network offers. A network that offers none falls back to public resolvers, so names work out of the box. <code>resolvectl</code> shows what the machine uses and asks the way a program would:</p>
+<pre class="term term__body">$ resolvectl status
+$ resolvectl query nervlinux.org</pre>
+<p><code>dns</code>, <code>resolve</code> and <code>recurse</code>, from <code>nerv-hickory-dns</code>, go around the system resolver, which makes them the tools for asking one server directly or walking a name down from the root, and the wrong ones for asking what a program will see.</p>
+<h2 id="the-connectx-ports" class="section-title">The ConnectX ports</h2>
+<p>The GB10's ConnectX ports are the fabric between machines: the GPU of one machine reaching another's, and memory written from one to the other over RDMA. They are configured for it out of the box, with jumbo frames so RDMA can use its full packet size, link-local addresses derived from each port's hardware address, which RDMA needs to find its peer, and a DHCP address if the network offers one. A cable between two machines' ports is all the setup there is.</p>
+<p>They come up a moment after the login screen does, so an unplugged fabric cable never holds up boot.</p>
+<h2 id="wireguard" class="section-title">WireGuard</h2>
+<p>The kernel's WireGuard is configured through <code>systemd-networkd</code> like any other link, with a <code>.netdev</code> file for the interface and a <code>.network</code> file for its address. <code>wg</code> sets and shows keys and peers; there is no <code>wg-quick</code>.</p>
+<pre class="term term__body">$ wg genkey | doas tee /etc/systemd/network/wg1.key | wg pubkey
+$ doas chown root:systemd-network /etc/systemd/network/wg1.key
+$ doas chmod 640 /etc/systemd/network/wg1.key</pre>
+<pre class="term term__body">$ cat /etc/systemd/network/50-wg1.netdev
+[NetDev]
+Name=wg1
+Kind=wireguard
+
+[WireGuard]
+PrivateKeyFile=/etc/systemd/network/wg1.key
+ListenPort=51820
+
+[WireGuardPeer]
+PublicKey=&lt;the other end's public key&gt;
+Endpoint=vpn.example.org:51820
+AllowedIPs=10.8.0.0/24
+$ cat /etc/systemd/network/50-wg1.network
+[Match]
+Name=wg1
+
+[Network]
+Address=10.8.0.2/24
+$ doas networkctl reload
+$ doas wg show wg1</pre>
+<p>Plexus drives a WireGuard interface of its own, <code>wg0</code>, to reach the other machines in your fleet; leave that one to it.</p>
+<h2 id="the-firewall" class="section-title">The firewall</h2>
+<p>Nothing reaches the machine that it did not ask for. Replies to its own connections come back, ping and the IPv6 housekeeping work, and every other incoming packet is dropped. Outgoing traffic is not filtered, and the machine forwards nothing.</p>
+<p>A port opens with the package that listens on it: installing <code>nerv-ssh</code> opens 22, and removing it closes 22 again. To open a port of your own, add a rule to the <code>services</code> chain in a file under <code>/etc/nerv-firewall.d/</code> and reload:</p>
+<pre class="term term__body">$ cat /etc/nerv-firewall.d/web.nft
+add rule inet nerv services tcp dport 8080 accept
+$ doas systemctl reload nerv-firewall</pre>
+<p>Open it to one network only by naming it in the rule:</p>
+<pre class="term term__body">add rule inet nerv services ip saddr 192.168.1.0/24 tcp dport 8080 accept</pre>
+<p>Your files are loaded after the packages' and an update keeps them. The firewall is the <code>inet nerv</code> table and nothing else, so a container runtime or a VPN can add tables of its own beside it; <code>doas nft list table inet nerv</code> shows what is open.</p>
+<h2 id="logging-in-over-ssh" class="section-title">Logging in over SSH</h2>
+<p><code>sshd</code> runs on port 22, and the firewall lets it through. Log in with a key:</p>
+<pre class="term term__body">$ ssh-copy-id you@192.168.1.20
+$ ssh you@192.168.1.20</pre>
+<p><code>root</code> cannot log in over SSH; log in as yourself and use <code>doas</code>. A password works too, and five wrong ones in a row lock the account for fifteen minutes, but a key is what to use. Port forwarding, agent forwarding and X11 forwarding are off, so a service on the machine is reached through a port opened in the firewall rather than a tunnel through SSH.</p>
+<p>Your own settings go in <code>/etc/ssh/sshd_config.d/</code>, which <code>sshd</code> reads first, so a setting there wins over Nerv's:</p>
+<pre class="term term__body">$ cat /etc/ssh/sshd_config.d/10-keys-only.conf
+PasswordAuthentication no
+$ doas systemctl reload sshd</pre>
+      </div>
+      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/desktop/"><span>Previous</span>The desktop</a><a class="hb-pager__next" href="/handbook/machine/accounts-and-keys/"><span>Next</span>Accounts and keys</a></nav>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__base">
+      <p>Copyright &copy; 2026 Nerv Dynamics AB. Nerv Linux is free software under the
+         Apache License 2.0. Software from other projects keeps its upstream licence.</p>
+      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell, GB10 and GB300 are
+         trademarks of NVIDIA Corporation. Linux is a registered trademark of
+         Linus Torvalds. Nerv Linux is not affiliated with, endorsed by, or
+         sponsored by either.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var btn = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    function label() {
+      var dark = root.getAttribute('data-theme') !== 'light';
+      btn.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+    }
+    label();
+    btn.addEventListener('click', function () {
+      // Dark is the default, so anything that isn't explicitly light is dark.
+      var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('nerv-theme', next); } catch (e) {}
+      label();
+    });
+  })();
+  (function () {
+    // Phone menu: the nav links fold into a panel under the masthead.
+    var btn = document.getElementById('menu-toggle');
+    var head = btn.closest('.masthead');
+    btn.addEventListener('click', function () {
+      var open = head.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  })();
+  (function () {
+    // On phones a tapped diagram opens full screen, large, to pan and zoom.
+    var narrow = window.matchMedia('(max-width: 760px)');
+    function close(z) { z.remove(); document.body.classList.remove('has-zoom'); }
+    document.querySelectorAll('.diagram').forEach(function (fig) {
+      fig.addEventListener('click', function () {
+        var svg = fig.querySelector('svg');
+        if (!narrow.matches || !svg) return;
+        var z = document.createElement('div');
+        z.className = 'zoom'; z.setAttribute('role', 'dialog'); z.setAttribute('aria-label', svg.getAttribute('aria-label') || 'Diagram');
+        z.appendChild(svg.cloneNode(true));
+        var b = document.createElement('button');
+        b.className = 'zoom__close'; b.type = 'button'; b.setAttribute('aria-label', 'Close');
+        b.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+        b.addEventListener('click', function () { close(z); });
+        z.appendChild(b);
+        document.body.appendChild(z); document.body.classList.add('has-zoom');
+        document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { close(z); document.removeEventListener('keydown', esc); } });
+      });
+    });
+  })();
+  (function () {
+    // The handbook contents start folded on narrow screens, open on wide ones.
+    if (window.matchMedia('(max-width: 960px)').matches)
+      document.querySelectorAll('.hb-nav__box').forEach(function (d) { d.open = false; });
+  })();
+  (function () {
+    // Narrow tables read as stacked cards; each cell carries its column name.
+    document.querySelectorAll('table.data').forEach(function (t) {
+      var heads = Array.prototype.map.call(t.querySelectorAll('thead th'), function (th) { return th.textContent.trim(); });
+      t.querySelectorAll('tbody tr').forEach(function (tr) {
+        Array.prototype.forEach.call(tr.children, function (td, i) {
+          if (heads[i]) td.setAttribute('data-label', heads[i]);
+        });
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>

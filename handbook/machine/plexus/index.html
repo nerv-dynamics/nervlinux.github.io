@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nerv Linux — Plexus</title>
+<meta name="description" content="Reaching your machines from anywhere: one authority you run yourself, machines that enrol with it, and access that exists only where you grant it.">
+<link rel="canonical" href="https://nervlinux.org/handbook/machine/plexus/">
+<meta property="og:title" content="Nerv Linux — Plexus">
+<meta property="og:description" content="Reaching your machines from anywhere: one authority you run yourself, machines that enrol with it, and access that exists only where you grant it.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nervlinux.org/handbook/machine/plexus/">
+<link rel="icon" href="/assets/favicon.png" sizes="32x32">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/nerv-square.png">
+<link rel="preload" href="/fonts/ashinoko-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/palette.css">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/site.css">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('nerv-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="masthead__inner">
+    <a class="masthead__brand" href="/" aria-label="Nerv Linux — home">
+      <img class="logo" src="/assets/nerv-wordmark.png" alt="Nerv Linux" width="600" height="149">
+    </a>
+    <nav class="masthead__nav" aria-label="Primary">
+      <div class="masthead__links" id="primary-links">
+      <a href="/system/">System</a>
+      <a href="/desktop/">Desktop</a>
+      <a href="/enterprise/">Enterprise</a>
+      <a href="/community/">Community</a>
+      <a href="/handbook/" aria-current="page">Handbook</a>
+      <a href="/downloads/">Downloads</a>
+      <a href="/about/">About</a>
+      </div>
+      <button class="theme-toggle" id="theme-toggle" type="button"
+              aria-label="Switch to light theme" title="Switch theme">
+        <svg class="icon icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path fill="currentColor" d="M20.7 14.6A8.6 8.6 0 0 1 9.4 3.3a8.7 8.7 0 1 0 11.3 11.3Z"/>
+        </svg>
+        <svg class="icon icon--sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2" fill="currentColor"/>
+          <g stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+            <path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4"/>
+            <path d="M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/>
+          </g>
+        </svg>
+      </button>
+      <button class="menu-toggle" id="menu-toggle" type="button"
+              aria-label="Menu" aria-expanded="false" aria-controls="primary-links">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+          <path class="menu-toggle__open" d="M4 7h16M4 12h16M4 17h16"/>
+          <path class="menu-toggle__close" d="M6 6l12 12M18 6L6 18"/>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="section section--head">
+  <div class="wrap hb">
+    <nav class="hb-nav" aria-label="Handbook">
+<details class="hb-nav__box" open>
+<summary class="hb-nav__summary">Contents</summary>
+<a class="hb-nav__home" href="/handbook/">The Nerv Handbook</a>
+<p class="hb-nav__part">This machine</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/why-an-operating-system-still/">Why an operating system, still</a>
+</li>
+<li><a href="/handbook/machine/what-nerv-is/">What Nerv is</a>
+</li>
+<li><a href="/handbook/machine/install/">Install</a>
+</li>
+<li><a href="/handbook/machine/the-first-hour/">The first hour</a>
+</li>
+<li><a href="/handbook/machine/software/">Software</a>
+</li>
+<li><a href="/handbook/machine/containers/">Containers</a>
+</li>
+<li><a href="/handbook/machine/desktop/">The desktop</a>
+</li>
+<li><a href="/handbook/machine/networking/">Networking</a>
+</li>
+<li><a href="/handbook/machine/accounts-and-keys/">Accounts and keys</a>
+</li>
+</ol>
+<p class="hb-nav__part">Five ideas</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/generations/">Generations</a>
+</li>
+<li><a href="/handbook/machine/compute-fabric/">The compute fabric</a>
+</li>
+<li><a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a>
+</li>
+<li><a href="/handbook/machine/yours-and-not-yours/">Yours and not yours</a>
+</li>
+<li><a href="/handbook/machine/chain-of-trust/">The chain of trust</a>
+</li>
+</ol>
+<p class="hb-nav__part">Ways of using it</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/ai-development/">AI development</a>
+</li>
+<li><a href="/handbook/machine/gaming/">Gaming</a>
+</li>
+<li><a href="/handbook/machine/offloading-and-fleets/">Offloading and fleets</a>
+</li>
+<li><a href="/handbook/machine/plexus/" aria-current="page">Plexus</a>
+<ol class="hb-nav__sections">
+<li><a href="#what-plexus-does">What Plexus does</a></li>
+<li><a href="#the-authority">The authority</a></li>
+<li><a href="#your-organisations-root">Your organisation's root</a></li>
+<li><a href="#enrolling-a-machine">Enrolling a machine</a></li>
+<li><a href="#granting-access">Granting access</a></li>
+<li><a href="#the-plexus-command">The plexus command</a></li>
+<li><a href="#more-than-one-organisation">More than one organisation</a></li>
+</ol>
+</li>
+<li><a href="/handbook/machine/building-your-own/">Building your own</a>
+</li>
+</ol>
+<p class="hb-nav__part">When it breaks</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/recovery/">Recovery</a>
+</li>
+<li><a href="/handbook/machine/asking-why/">Asking why</a>
+</li>
+</ol>
+</details></nav>
+    <div class="hb__main">
+      <div class="essay">
+<h1 class="page-title">Plexus</h1>
+<p>Reaching your machines from anywhere: one authority you run yourself, machines that enrol with it, and access that exists only where you grant it.</p>
+<h2 id="what-plexus-does" class="section-title">What Plexus does</h2>
+<p>Plexus joins your machines into one private network over the kernel's WireGuard, wherever each of them is, and decides who may reach what across it. Each machine's WireGuard key is kept by its TPM. The authority hands each machine a signed policy that runs out after an hour unless renewed, so a grant you revoke stops working within minutes even on a machine that never hears about it.</p>
+<p>Being enrolled grants nothing on its own. A machine or a person reaches a service on another machine only through a grant you made, for as long as you made it for.</p>
+<p>Plexus is in active development. What follows is how it works today; details will change as it settles.</p>
+<h2 id="the-authority" class="section-title">The authority</h2>
+<p>The authority is a small service you run on a machine you control, reachable by your machines over HTTPS: <code>plexus-host</code>, from the <code>plexus-host</code> package. It keeps its state in <code>/var/lib/plexus-host/state</code> and listens on <code>127.0.0.1:18443</code>, behind a TLS reverse proxy you put in front of it.</p>
+<p>Setting it up makes the organisation, asks your root key to certify the authority, and starts it:</p>
+<pre class="term term__body">$ doas systemd-run --uid=plexus-host --pipe --wait plexus-host init /var/lib/plexus-host/state ORG DOMAIN OWNER https://plexus.example.org ROOT_PUBLIC_HEX
+$ doas systemd-run --uid=plexus-host --pipe --wait plexus-host issuer-request /var/lib/plexus-host/state request.bin
+$ doas systemd-run --uid=plexus-host --pipe --wait plexus-host issuer-install /var/lib/plexus-host/state issuer.cert
+$ doas systemctl enable --now plexus-host.service</pre>
+<p>The first owner signs in with a one-time credential the authority writes to <code>/var/lib/plexus-host/state/owner-token</code>, good for fifteen minutes, and registers a security key or a signing key for every login after.</p>
+<h2 id="your-organisations-root" class="section-title">Your organisation's root</h2>
+<p>The organisation's root key is yours, and the authority never holds it: the root certifies the authority, and the authority certifies everything else. Keep it in an SSH key on a YubiKey, with its PIN and a touch, or on a FIDO2 key, or as a software SSH key:</p>
+<pre class="term term__body">$ plexus create-root
+$ plexus issuer-certify request.bin issuer.cert</pre>
+<p>There is no recovering a lost root. Keep it as you would keep the keys to the building.</p>
+<h2 id="enrolling-a-machine" class="section-title">Enrolling a machine</h2>
+<p>On the new machine:</p>
+<pre class="term term__body">$ plexus join plexus.example.org --name gpu2</pre>
+<p>prints a code. On a machine where you are an owner, approve it:</p>
+<pre class="term term__body">$ plexus approve CODE</pre>
+<p>The new machine is a member from then on, and reaches nothing until you grant it something.</p>
+<h2 id="granting-access" class="section-title">Granting access</h2>
+<pre class="term term__body">$ plexus grant ID SOURCE UID SERVICE TARGET TTL_SECONDS
+$ plexus revoke ID</pre>
+<p>A grant names who may reach which service on which machine, and for how long, from a second to thirty days. <code>plexus fleet on</code> lets the fleet's machines reach one another for the fabric, <code>plexus retire</code> takes a machine out for good, and <code>plexus audit</code> shows what was granted and when.</p>
+<h2 id="the-plexus-command" class="section-title">The plexus command</h2>
+<p><code>plexus</code> on a terminal opens the owner console: your machines, their state, grants and relays, with every change confirmed before it is made. Every action in it is also a command, for scripts; <code>plexus help</code> lists them, and <code>plexus status --json</code> reports this machine's state. A command that changes something refuses to run without a terminal unless given <code>--yes</code>.</p>
+<h2 id="more-than-one-organisation" class="section-title">More than one organisation</h2>
+<p><code>plexus</code> keeps a context for each organisation you belong to, up to 32, in <code>~/.config/plexus/owner</code>. <code>plexus use NAME</code>, or <code>--org NAME</code> on any command, chooses one. A machine is connected to one organisation's network at a time; switching disconnects the old one first.</p>
+      </div>
+      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/offloading-and-fleets/"><span>Previous</span>Offloading and fleets</a><a class="hb-pager__next" href="/handbook/machine/building-your-own/"><span>Next</span>Building your own</a></nav>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__base">
+      <p>Copyright &copy; 2026 Nerv Dynamics AB. Nerv Linux is free software under the
+         Apache License 2.0. Software from other projects keeps its upstream licence.</p>
+      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell, GB10 and GB300 are
+         trademarks of NVIDIA Corporation. Linux is a registered trademark of
+         Linus Torvalds. Nerv Linux is not affiliated with, endorsed by, or
+         sponsored by either.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var btn = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    function label() {
+      var dark = root.getAttribute('data-theme') !== 'light';
+      btn.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+    }
+    label();
+    btn.addEventListener('click', function () {
+      // Dark is the default, so anything that isn't explicitly light is dark.
+      var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('nerv-theme', next); } catch (e) {}
+      label();
+    });
+  })();
+  (function () {
+    // Phone menu: the nav links fold into a panel under the masthead.
+    var btn = document.getElementById('menu-toggle');
+    var head = btn.closest('.masthead');
+    btn.addEventListener('click', function () {
+      var open = head.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  })();
+  (function () {
+    // On phones a tapped diagram opens full screen, large, to pan and zoom.
+    var narrow = window.matchMedia('(max-width: 760px)');
+    function close(z) { z.remove(); document.body.classList.remove('has-zoom'); }
+    document.querySelectorAll('.diagram').forEach(function (fig) {
+      fig.addEventListener('click', function () {
+        var svg = fig.querySelector('svg');
+        if (!narrow.matches || !svg) return;
+        var z = document.createElement('div');
+        z.className = 'zoom'; z.setAttribute('role', 'dialog'); z.setAttribute('aria-label', svg.getAttribute('aria-label') || 'Diagram');
+        z.appendChild(svg.cloneNode(true));
+        var b = document.createElement('button');
+        b.className = 'zoom__close'; b.type = 'button'; b.setAttribute('aria-label', 'Close');
+        b.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+        b.addEventListener('click', function () { close(z); });
+        z.appendChild(b);
+        document.body.appendChild(z); document.body.classList.add('has-zoom');
+        document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { close(z); document.removeEventListener('keydown', esc); } });
+      });
+    });
+  })();
+  (function () {
+    // The handbook contents start folded on narrow screens, open on wide ones.
+    if (window.matchMedia('(max-width: 960px)').matches)
+      document.querySelectorAll('.hb-nav__box').forEach(function (d) { d.open = false; });
+  })();
+  (function () {
+    // Narrow tables read as stacked cards; each cell carries its column name.
+    document.querySelectorAll('table.data').forEach(function (t) {
+      var heads = Array.prototype.map.call(t.querySelectorAll('thead th'), function (th) { return th.textContent.trim(); });
+      t.querySelectorAll('tbody tr').forEach(function (tr) {
+        Array.prototype.forEach.call(tr.children, function (td, i) {
+          if (heads[i]) td.setAttribute('data-label', heads[i]);
+        });
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>

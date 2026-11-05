@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nerv Linux — Offloading and fleets</title>
+<meta name="description" content="Putting work on other machines, and several boxes acting as one: the targets you name, serving a machine's GPU, running a program elsewhere, and what running a fleet for an organisation will add.">
+<link rel="canonical" href="https://nervlinux.org/handbook/machine/offloading-and-fleets/">
+<meta property="og:title" content="Nerv Linux — Offloading and fleets">
+<meta property="og:description" content="Putting work on other machines, and several boxes acting as one: the targets you name, serving a machine's GPU, running a program elsewhere, and what running a fleet for an organisation will add.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nervlinux.org/handbook/machine/offloading-and-fleets/">
+<link rel="icon" href="/assets/favicon.png" sizes="32x32">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/nerv-square.png">
+<link rel="preload" href="/fonts/ashinoko-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/palette.css">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/site.css">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('nerv-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="masthead__inner">
+    <a class="masthead__brand" href="/" aria-label="Nerv Linux — home">
+      <img class="logo" src="/assets/nerv-wordmark.png" alt="Nerv Linux" width="600" height="149">
+    </a>
+    <nav class="masthead__nav" aria-label="Primary">
+      <div class="masthead__links" id="primary-links">
+      <a href="/system/">System</a>
+      <a href="/desktop/">Desktop</a>
+      <a href="/enterprise/">Enterprise</a>
+      <a href="/community/">Community</a>
+      <a href="/handbook/" aria-current="page">Handbook</a>
+      <a href="/downloads/">Downloads</a>
+      <a href="/about/">About</a>
+      </div>
+      <button class="theme-toggle" id="theme-toggle" type="button"
+              aria-label="Switch to light theme" title="Switch theme">
+        <svg class="icon icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path fill="currentColor" d="M20.7 14.6A8.6 8.6 0 0 1 9.4 3.3a8.7 8.7 0 1 0 11.3 11.3Z"/>
+        </svg>
+        <svg class="icon icon--sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2" fill="currentColor"/>
+          <g stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+            <path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4"/>
+            <path d="M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/>
+          </g>
+        </svg>
+      </button>
+      <button class="menu-toggle" id="menu-toggle" type="button"
+              aria-label="Menu" aria-expanded="false" aria-controls="primary-links">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+          <path class="menu-toggle__open" d="M4 7h16M4 12h16M4 17h16"/>
+          <path class="menu-toggle__close" d="M6 6l12 12M18 6L6 18"/>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="section section--head">
+  <div class="wrap hb">
+    <nav class="hb-nav" aria-label="Handbook">
+<details class="hb-nav__box" open>
+<summary class="hb-nav__summary">Contents</summary>
+<a class="hb-nav__home" href="/handbook/">The Nerv Handbook</a>
+<p class="hb-nav__part">This machine</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/why-an-operating-system-still/">Why an operating system, still</a>
+</li>
+<li><a href="/handbook/machine/what-nerv-is/">What Nerv is</a>
+</li>
+<li><a href="/handbook/machine/install/">Install</a>
+</li>
+<li><a href="/handbook/machine/the-first-hour/">The first hour</a>
+</li>
+<li><a href="/handbook/machine/software/">Software</a>
+</li>
+<li><a href="/handbook/machine/containers/">Containers</a>
+</li>
+<li><a href="/handbook/machine/desktop/">The desktop</a>
+</li>
+<li><a href="/handbook/machine/networking/">Networking</a>
+</li>
+<li><a href="/handbook/machine/accounts-and-keys/">Accounts and keys</a>
+</li>
+</ol>
+<p class="hb-nav__part">Five ideas</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/generations/">Generations</a>
+</li>
+<li><a href="/handbook/machine/compute-fabric/">The compute fabric</a>
+</li>
+<li><a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a>
+</li>
+<li><a href="/handbook/machine/yours-and-not-yours/">Yours and not yours</a>
+</li>
+<li><a href="/handbook/machine/chain-of-trust/">The chain of trust</a>
+</li>
+</ol>
+<p class="hb-nav__part">Ways of using it</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/ai-development/">AI development</a>
+</li>
+<li><a href="/handbook/machine/gaming/">Gaming</a>
+</li>
+<li><a href="/handbook/machine/offloading-and-fleets/" aria-current="page">Offloading and fleets</a>
+<ol class="hb-nav__sections">
+<li><a href="#naming-your-machines">Naming your machines</a></li>
+<li><a href="#serving-a-machines-gpu">Serving a machine's GPU</a></li>
+<li><a href="#work-on-another-machine">Work on another machine</a></li>
+<li><a href="#several-machines-as-one">Several machines as one</a></li>
+<li><a href="#running-a-fleet">Running a fleet</a></li>
+</ol>
+</li>
+<li><a href="/handbook/machine/plexus/">Plexus</a>
+</li>
+<li><a href="/handbook/machine/building-your-own/">Building your own</a>
+</li>
+</ol>
+<p class="hb-nav__part">When it breaks</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/recovery/">Recovery</a>
+</li>
+<li><a href="/handbook/machine/asking-why/">Asking why</a>
+</li>
+</ol>
+</details></nav>
+    <div class="hb__main">
+      <div class="essay">
+<h1 class="page-title">Offloading and fleets</h1>
+<p>Putting work on other machines, and several boxes acting as one: the targets you name, serving a machine's GPU, running a program elsewhere, and what running a fleet for an organisation will add.</p>
+<p><a href="/handbook/machine/compute-fabric/">The compute fabric</a> explains the ideas this chapter puts to work. Which machines may reach which is <a href="/handbook/machine/plexus/">Plexus</a>'s job.</p>
+<h2 id="naming-your-machines" class="section-title">Naming your machines</h2>
+<p><code>~/.config/axon/targets</code> names the machines you use, one <code>name address</code> per line, so commands can say <code>--on gpu2</code> rather than an address:</p>
+<pre class="term term__body">$ cat ~/.config/axon/targets
+gpu2     192.168.1.31:18720
+build1   192.168.1.40:18720
+default  gpu2</pre>
+<p>A command with no target uses <code>AXON_SESSION</code> if it is set, and the target named <code>default</code> if it is not. <code>axon probe gpu2</code> asks a machine what it offers, and <code>axon</code> on its own shows every machine in the fleet, live.</p>
+<h2 id="serving-a-machines-gpu" class="section-title">Serving a machine's GPU</h2>
+<p>A fleet shares one key, which every machine proves before it is let in. Make it once, on the first machine:</p>
+<pre class="term term__body">$ doas axon fleet-key</pre>
+<p>and serve each machine's GPU to the fleet from the machine you are sitting at, as yourself rather than through <code>doas</code>:</p>
+<pre class="term term__body">$ axon serve --on gpu2</pre>
+<p>On a Nerv machine this gives its GPU service the fleet's key. A machine that does not run Nerv, a Linux workstation or server with an NVIDIA GPU, gets axon's GPU service copied across, installed and started, so its GPU joins the fleet as it is. <code>--dry-run</code> shows what would be done.</p>
+<p>Every machine in a fleet holds the same key, so taking one machine out of the fleet means making a new key for the rest.</p>
+<h2 id="work-on-another-machine" class="section-title">Work on another machine</h2>
+<pre class="term term__body">$ axon run --on gpu2 ./train</pre>
+<p>runs a program here against the GPU there: its files, its processors and its environment stay on this machine, and only the GPU work moves. <code>--on gpu2,build1</code> gives it one GPU on each.</p>
+<pre class="term term__body">$ axon exec --on build1 -- make -j64</pre>
+<p>runs the program on the other machine's processors and GPU, on this machine's system and with your home, and nothing needs installing there. It behaves as if it ran here:</p>
+<ul class="list">
+<li>it gets your environment and your working directory,</li>
+<li>your terminal is its terminal, and what you type reaches it,</li>
+<li><code>Ctrl-C</code> and the other signals reach it and every process it starts,</li>
+<li>its exit status is yours: the program's own, or 128 plus the signal that ended it. A failure of <code>axon exec</code> itself exits 255, as <code>ssh</code> does.</li>
+</ul>
+<h2 id="several-machines-as-one" class="section-title">Several machines as one</h2>
+<p>A program written for several GPUs with NCCL runs across machines as it is: give it one GPU on each with <code>axon run --on</code>, and its collectives move over the machines' ConnectX ports with RDMA. Machines joined by a cable between their ConnectX ports need nothing else (<a href="/handbook/machine/networking/#the-connectx-ports">The ConnectX ports</a>).</p>
+<h2 id="running-a-fleet" class="section-title">Running a fleet</h2>
+<p>For an organisation, a fleet is more than a key: which teams may use which GPUs, which machines are enrolled, which generation each one runs, and what they report. A management plane that does this, self-hosted and able to run air-gapped, and supported generations that stay frozen and patched for an agreed period, are in development for organisations; <a href="https://nervlinux.org/enterprise/">nervlinux.org/enterprise</a> describes them.</p>
+      </div>
+      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/gaming/"><span>Previous</span>Gaming</a><a class="hb-pager__next" href="/handbook/machine/plexus/"><span>Next</span>Plexus</a></nav>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__base">
+      <p>Copyright &copy; 2026 Nerv Dynamics AB. Nerv Linux is free software under the
+         Apache License 2.0. Software from other projects keeps its upstream licence.</p>
+      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell, GB10 and GB300 are
+         trademarks of NVIDIA Corporation. Linux is a registered trademark of
+         Linus Torvalds. Nerv Linux is not affiliated with, endorsed by, or
+         sponsored by either.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var btn = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    function label() {
+      var dark = root.getAttribute('data-theme') !== 'light';
+      btn.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+    }
+    label();
+    btn.addEventListener('click', function () {
+      // Dark is the default, so anything that isn't explicitly light is dark.
+      var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('nerv-theme', next); } catch (e) {}
+      label();
+    });
+  })();
+  (function () {
+    // Phone menu: the nav links fold into a panel under the masthead.
+    var btn = document.getElementById('menu-toggle');
+    var head = btn.closest('.masthead');
+    btn.addEventListener('click', function () {
+      var open = head.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  })();
+  (function () {
+    // On phones a tapped diagram opens full screen, large, to pan and zoom.
+    var narrow = window.matchMedia('(max-width: 760px)');
+    function close(z) { z.remove(); document.body.classList.remove('has-zoom'); }
+    document.querySelectorAll('.diagram').forEach(function (fig) {
+      fig.addEventListener('click', function () {
+        var svg = fig.querySelector('svg');
+        if (!narrow.matches || !svg) return;
+        var z = document.createElement('div');
+        z.className = 'zoom'; z.setAttribute('role', 'dialog'); z.setAttribute('aria-label', svg.getAttribute('aria-label') || 'Diagram');
+        z.appendChild(svg.cloneNode(true));
+        var b = document.createElement('button');
+        b.className = 'zoom__close'; b.type = 'button'; b.setAttribute('aria-label', 'Close');
+        b.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+        b.addEventListener('click', function () { close(z); });
+        z.appendChild(b);
+        document.body.appendChild(z); document.body.classList.add('has-zoom');
+        document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { close(z); document.removeEventListener('keydown', esc); } });
+      });
+    });
+  })();
+  (function () {
+    // The handbook contents start folded on narrow screens, open on wide ones.
+    if (window.matchMedia('(max-width: 960px)').matches)
+      document.querySelectorAll('.hb-nav__box').forEach(function (d) { d.open = false; });
+  })();
+  (function () {
+    // Narrow tables read as stacked cards; each cell carries its column name.
+    document.querySelectorAll('table.data').forEach(function (t) {
+      var heads = Array.prototype.map.call(t.querySelectorAll('thead th'), function (th) { return th.textContent.trim(); });
+      t.querySelectorAll('tbody tr').forEach(function (tr) {
+        Array.prototype.forEach.call(tr.children, function (td, i) {
+          if (heads[i]) td.setAttribute('data-label', heads[i]);
+        });
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>

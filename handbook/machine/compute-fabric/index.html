@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nerv Linux — The compute fabric</title>
+<meta name="description" content="One boundary governs compute: your GPU, someone else's across the network, memory, and where programs run. Every program is a client, and everything is accounted. GPUs on several machines work together through the standard NCCL library.">
+<link rel="canonical" href="https://nervlinux.org/handbook/machine/compute-fabric/">
+<meta property="og:title" content="Nerv Linux — The compute fabric">
+<meta property="og:description" content="One boundary governs compute: your GPU, someone else's across the network, memory, and where programs run. Every program is a client, and everything is accounted. GPUs on several machines work together through the standard NCCL library.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nervlinux.org/handbook/machine/compute-fabric/">
+<link rel="icon" href="/assets/favicon.png" sizes="32x32">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/nerv-square.png">
+<link rel="preload" href="/fonts/ashinoko-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/palette.css">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/site.css">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('nerv-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="masthead__inner">
+    <a class="masthead__brand" href="/" aria-label="Nerv Linux — home">
+      <img class="logo" src="/assets/nerv-wordmark.png" alt="Nerv Linux" width="600" height="149">
+    </a>
+    <nav class="masthead__nav" aria-label="Primary">
+      <div class="masthead__links" id="primary-links">
+      <a href="/system/">System</a>
+      <a href="/desktop/">Desktop</a>
+      <a href="/enterprise/">Enterprise</a>
+      <a href="/community/">Community</a>
+      <a href="/handbook/" aria-current="page">Handbook</a>
+      <a href="/downloads/">Downloads</a>
+      <a href="/about/">About</a>
+      </div>
+      <button class="theme-toggle" id="theme-toggle" type="button"
+              aria-label="Switch to light theme" title="Switch theme">
+        <svg class="icon icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path fill="currentColor" d="M20.7 14.6A8.6 8.6 0 0 1 9.4 3.3a8.7 8.7 0 1 0 11.3 11.3Z"/>
+        </svg>
+        <svg class="icon icon--sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2" fill="currentColor"/>
+          <g stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+            <path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4"/>
+            <path d="M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/>
+          </g>
+        </svg>
+      </button>
+      <button class="menu-toggle" id="menu-toggle" type="button"
+              aria-label="Menu" aria-expanded="false" aria-controls="primary-links">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+          <path class="menu-toggle__open" d="M4 7h16M4 12h16M4 17h16"/>
+          <path class="menu-toggle__close" d="M6 6l12 12M18 6L6 18"/>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="section section--head">
+  <div class="wrap hb">
+    <nav class="hb-nav" aria-label="Handbook">
+<details class="hb-nav__box" open>
+<summary class="hb-nav__summary">Contents</summary>
+<a class="hb-nav__home" href="/handbook/">The Nerv Handbook</a>
+<p class="hb-nav__part">This machine</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/why-an-operating-system-still/">Why an operating system, still</a>
+</li>
+<li><a href="/handbook/machine/what-nerv-is/">What Nerv is</a>
+</li>
+<li><a href="/handbook/machine/install/">Install</a>
+</li>
+<li><a href="/handbook/machine/the-first-hour/">The first hour</a>
+</li>
+<li><a href="/handbook/machine/software/">Software</a>
+</li>
+<li><a href="/handbook/machine/containers/">Containers</a>
+</li>
+<li><a href="/handbook/machine/desktop/">The desktop</a>
+</li>
+<li><a href="/handbook/machine/networking/">Networking</a>
+</li>
+<li><a href="/handbook/machine/accounts-and-keys/">Accounts and keys</a>
+</li>
+</ol>
+<p class="hb-nav__part">Five ideas</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/generations/">Generations</a>
+</li>
+<li><a href="/handbook/machine/compute-fabric/" aria-current="page">The compute fabric</a>
+<ol class="hb-nav__sections">
+<li><a href="#every-program-is-a-client">Every program is a client</a></li>
+<li><a href="#who-may-use-the-gpu">Who may use the GPU</a></li>
+<li><a href="#seeing-what-is-running">Seeing what is running</a></li>
+<li><a href="#a-gpu-on-another-machine">A GPU on another machine</a></li>
+<li><a href="#serving-this-machines-gpu">Serving this machine's GPU</a></li>
+<li><a href="#several-gpus-at-once">Several GPUs at once</a></li>
+<li><a href="#memory-and-limits">Memory and limits</a></li>
+<li><a href="#where-programs-run">Where programs run</a></li>
+<li><a href="#graphics">Graphics</a></li>
+</ol>
+</li>
+<li><a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a>
+</li>
+<li><a href="/handbook/machine/yours-and-not-yours/">Yours and not yours</a>
+</li>
+<li><a href="/handbook/machine/chain-of-trust/">The chain of trust</a>
+</li>
+</ol>
+<p class="hb-nav__part">Ways of using it</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/ai-development/">AI development</a>
+</li>
+<li><a href="/handbook/machine/gaming/">Gaming</a>
+</li>
+<li><a href="/handbook/machine/offloading-and-fleets/">Offloading and fleets</a>
+</li>
+<li><a href="/handbook/machine/plexus/">Plexus</a>
+</li>
+<li><a href="/handbook/machine/building-your-own/">Building your own</a>
+</li>
+</ol>
+<p class="hb-nav__part">When it breaks</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/recovery/">Recovery</a>
+</li>
+<li><a href="/handbook/machine/asking-why/">Asking why</a>
+</li>
+</ol>
+</details></nav>
+    <div class="hb__main">
+      <div class="essay">
+<h1 class="page-title">The compute fabric</h1>
+<p>One boundary governs compute: your GPU, someone else's across the network, memory, and where programs run. Every program is a client, and everything is accounted. GPUs on several machines work together through the standard NCCL library.</p>
+<h2 id="every-program-is-a-client" class="section-title">Every program is a client</h2>
+<p>No program on a Nerv machine loads NVIDIA's driver. <code>libcuda.so.1</code> on the default library path is axon's, and so are <code>libvulkan.so.1</code>, <code>libnvidia-ml.so.1</code> and <code>libnccl.so.2</code>. Each takes the calls a program makes and forwards them to <code>axond</code>, the one process that answers for the GPU, which starts a worker holding the vendor's libraries for that session alone.</p>
+<p>A program cannot tell the difference: the same binary, unmodified, with nothing to link against. What it gains is a boundary. A driver fault ends one session rather than the desktop beside it, the vendor's glibc libraries live in that worker and nowhere else, and every use of the GPU passes one place that knows who is using it.</p>
+<p>On the same machine the boundary costs little. A session opens <code>/run/axon/sock</code> once to hand over a region of shared memory, and every call after that crosses through it, in under two microseconds a round trip.</p>
+<h2 id="who-may-use-the-gpu" class="section-title">Who may use the GPU</h2>
+<p><code>axond</code> asks the kernel who connected and admits members of the <code>video</code> group. Everything else on the machine is refused at the socket, before a worker starts.</p>
+<p>A container gets the GPU by being handed the same socket; see <a href="/handbook/machine/containers/#the-gpu-in-a-container">The GPU in a container</a>.</p>
+<h2 id="seeing-what-is-running" class="section-title">Seeing what is running</h2>
+<p><code>axon</code> on a terminal is the fleet view: every machine this one is enrolled with, its GPUs live, what is using them, the links between them, and this machine's CPU. <code>?</code> inside lists its keys, and one of them opens a shell on any GPU. Into a pipe, it is the same fleet as one plain table, and <code>--format=csv</code>, <code>json</code> or <code>tmux</code> give the telemetry scripts and the tmux bar read.</p>
+<p><code>nvidia-smi</code> is axon as well, and prints the vendor's own table byte for byte, so scripts written for it keep working. <code>btop</code>'s GPU panel reads the same telemetry.</p>
+<h2 id="a-gpu-on-another-machine" class="section-title">A GPU on another machine</h2>
+<p><code>axon run --on</code> runs one program against a GPU in another machine. Nothing else on either machine is affected, and the program, its files and its environment stay here; only the GPU work moves.</p>
+<pre class="term term__body">$ ./driver_axpy
+device: NVIDIA GB10
+65536 elements correct
+$ axon run --on z2 ./driver_axpy
+axon: attached to NVIDIA A800 40GB Active (40441 MiB) at 172.16.0.226:18720
+device: NVIDIA A800 40GB Active
+65536 elements correct</pre>
+<p>The GPU must be one the program can drive. A CUDA program runs on NVIDIA GPUs, here or anywhere in the fleet, and not on an AMD one: axon moves the program's calls, not its meaning.</p>
+<p>A target is a <code>host:port</code>, or a name from <code>~/.config/axon/targets</code>, one <code>name address</code> per line. <code>axon probe TARGET</code> asks a machine what it offers, and its exit status says whether it answered.</p>
+<p>The network is in the way of a GPU in a way it is not of a disk, so what makes this affordable is the shape of the work. A program that records its kernels into a CUDA graph replays the whole pass in one round trip instead of one per launch, which is how inference engines already run a decode step. A kernel that does many operations per byte it moves gains the most: the GB10 runs double precision at a sixty-fourth of its single-precision rate, so a double-precision job is often faster on a data-centre GPU across the room than on the one under the desk.</p>
+<p>A session from another machine survives the connection dropping. Its worker holds the session, and takes the client back once it proves the session's token.</p>
+<h2 id="serving-this-machines-gpu" class="section-title">Serving this machine's GPU</h2>
+<pre class="term term__body">$ axon serve --on THIS-MACHINE</pre>
+<p>opens this machine's GPU to the fleet. Every connection from another machine proves the fleet's key before anything else happens, and is sealed under the session's own keys after it. Which machines may reach which is decided by Plexus, which enrols them.</p>
+<p><code>axon serve</code> also works on a machine that is not running Nerv: it copies <code>axond</code> across and provisions it there, so a GPU in a workstation or a server can join the fleet.</p>
+<h2 id="several-gpus-at-once" class="section-title">Several GPUs at once</h2>
+<pre class="term term__body">$ axon run --on local,gpu2 ./train</pre>
+<p>gives the program one GPU on each target, as CUDA devices 0, 1 and so on, in that order; <code>local</code> is this machine. NCCL is axon's too: collectives between GPUs on different machines move over the fabric with one-sided RDMA writes, and the reduction runs on the GPU, in rank order, on the caller's stream. A program written for several GPUs with NCCL runs across machines as it is.</p>
+<h2 id="memory-and-limits" class="section-title">Memory and limits</h2>
+<p>GPU memory on a GB10 is the machine's memory, so a limit on a program's memory holds its GPU memory too. Give work you do not trust yet a limit of its own, as <a href="/handbook/machine/the-first-hour/#running-something-risky-on-the-gpu">Running something risky on the GPU</a> shows; past it, an allocation is refused with an ordinary out-of-memory error, and nothing else on the machine notices.</p>
+<h2 id="where-programs-run" class="section-title">Where programs run</h2>
+<p>A program can run on another machine's processors as well as its GPU:</p>
+<pre class="term term__body">$ axon exec --on build1 -- make -j64</pre>
+<p>It is placed there once, when it starts, and never moves after that. It runs on this machine's system, not that one's: its <code>/usr</code> and <code>/etc</code> arrive file by file as they are opened, each one verified, so nothing needs installing on the other machine. Your home is served back to it over 9P by a process running as you, which the kernel confines to your home. Its terminal, its signals and its exit status are the program's own.</p>
+<p>If the network drops, the program pauses at the point it needs this machine and carries on when the link returns, with its open files and locks intact. The other machine must run the same instruction set. A program built for this machine's Arm processors runs on another Arm machine, never on an x86 one, because it is the program's own machine code that runs there. Before it is placed, the processor features it was built for are checked against the other machine's, so a program never lands where it cannot run.</p>
+<h2 id="graphics" class="section-title">Graphics</h2>
+<p>The desktop reaches the GPU the same way. Mesa on Nerv draws OpenGL through Zink, which is Vulkan, and Vulkan is axon's, so the compositor, a browser and a game are all sessions of the fabric, and a Vulkan program can run against a GPU on another machine as a CUDA one can.</p>
+      </div>
+      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/generations/"><span>Previous</span>Generations</a><a class="hb-pager__next" href="/handbook/machine/what-the-machine-remembers/"><span>Next</span>What the machine remembers</a></nav>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__base">
+      <p>Copyright &copy; 2026 Nerv Dynamics AB. Nerv Linux is free software under the
+         Apache License 2.0. Software from other projects keeps its upstream licence.</p>
+      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell, GB10 and GB300 are
+         trademarks of NVIDIA Corporation. Linux is a registered trademark of
+         Linus Torvalds. Nerv Linux is not affiliated with, endorsed by, or
+         sponsored by either.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var btn = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    function label() {
+      var dark = root.getAttribute('data-theme') !== 'light';
+      btn.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+    }
+    label();
+    btn.addEventListener('click', function () {
+      // Dark is the default, so anything that isn't explicitly light is dark.
+      var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('nerv-theme', next); } catch (e) {}
+      label();
+    });
+  })();
+  (function () {
+    // Phone menu: the nav links fold into a panel under the masthead.
+    var btn = document.getElementById('menu-toggle');
+    var head = btn.closest('.masthead');
+    btn.addEventListener('click', function () {
+      var open = head.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  })();
+  (function () {
+    // On phones a tapped diagram opens full screen, large, to pan and zoom.
+    var narrow = window.matchMedia('(max-width: 760px)');
+    function close(z) { z.remove(); document.body.classList.remove('has-zoom'); }
+    document.querySelectorAll('.diagram').forEach(function (fig) {
+      fig.addEventListener('click', function () {
+        var svg = fig.querySelector('svg');
+        if (!narrow.matches || !svg) return;
+        var z = document.createElement('div');
+        z.className = 'zoom'; z.setAttribute('role', 'dialog'); z.setAttribute('aria-label', svg.getAttribute('aria-label') || 'Diagram');
+        z.appendChild(svg.cloneNode(true));
+        var b = document.createElement('button');
+        b.className = 'zoom__close'; b.type = 'button'; b.setAttribute('aria-label', 'Close');
+        b.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+        b.addEventListener('click', function () { close(z); });
+        z.appendChild(b);
+        document.body.appendChild(z); document.body.classList.add('has-zoom');
+        document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { close(z); document.removeEventListener('keydown', esc); } });
+      });
+    });
+  })();
+  (function () {
+    // The handbook contents start folded on narrow screens, open on wide ones.
+    if (window.matchMedia('(max-width: 960px)').matches)
+      document.querySelectorAll('.hb-nav__box').forEach(function (d) { d.open = false; });
+  })();
+  (function () {
+    // Narrow tables read as stacked cards; each cell carries its column name.
+    document.querySelectorAll('table.data').forEach(function (t) {
+      var heads = Array.prototype.map.call(t.querySelectorAll('thead th'), function (th) { return th.textContent.trim(); });
+      t.querySelectorAll('tbody tr').forEach(function (tr) {
+        Array.prototype.forEach.call(tr.children, function (td, i) {
+          if (heads[i]) td.setAttribute('data-label', heads[i]);
+        });
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>
