@@ -72,12 +72,9 @@ PALETTE_NOTE = """\
 OWNER = "Nerv Dynamics AB"
 
 # The public source, or None while there is not one. Every page links to this
-# from the footer, so a wrong value is a 404 across the whole site — which is
-# what it was: github.com/nerv-dynamics/nerv-linux does not exist. The org does,
-# so that is where this points until there is a repository to name. Change it
-# the day there is one; a dead source link reads as vapour to the only audience
-# that would ever click it.
-SOURCE_URL = "https://github.com/nerv-dynamics"
+# from the footer, so a wrong value is a 404 across the whole site. Nerv's
+# public repository is on Codeberg.
+SOURCE_URL = "https://codeberg.org/nerv-dynamics/nerv-linux"
 
 # Seven items. A nav is a promise about how much there is to read, so it stays
 # short even when more pages exist; anything not here is reached from the page
