@@ -85,7 +85,7 @@
   <div class="wrap">
     <h2 class="section-title">Community and Enterprise</h2>
     <div class="prose">
-      <p>Nerv is free, and every part of it is open source. An Enterprise subscription adds what an organisation needs to run it in production. Each subscription is shaped to the customer: the size of the fleet, the support it needs and how long each generation is kept.</p>
+      <p>Nerv is free and open source under Apache-2.0. An Enterprise subscription adds what an organisation needs to run it in production, the management plane among it. Each subscription is shaped to the customer: the size of the fleet, the support it needs and how long each generation is kept.</p>
     </div>
     <div class="table-scroll">
       <table class="data">
@@ -93,7 +93,7 @@
         <tbody>
           <tr><td>Nerv Linux, axon, Plexus, S2</td><td>Free, Apache-2.0</td><td>The same code</td></tr>
           <tr><td>Updates</td><td>Rolling release</td><td>Rolling release and supported generations</td></tr>
-          <tr><td>Management plane</td><td>Build and run it yourself</td><td>Supported, on your own hardware or air-gapped</td></tr>
+          <tr><td>Management plane</td><td>Not included</td><td>Included, on your own hardware or air-gapped</td></tr>
           <tr><td>Support</td><td>Community chat and the handbook</td><td>Professional support, with SLAs agreed per customer</td></tr>
           <tr><td>Security advisories</td><td>Public</td><td>Early notice, with an assessment of whether each issue affects you</td></tr>
           <tr><td>Software bill of materials</td><td>Published per generation</td><td>Signed per generation, with audit support</td></tr>
@@ -175,7 +175,7 @@
   <div class="wrap">
     <h2 class="section-title">The management plane</h2>
     <div class="prose">
-      <p>One place to run a fleet of GB10 and GB300 machines under one set of rules: which GPUs and CPUs serve which teams, which machines are enrolled, which generation each one runs, and what they report. It runs on your own hardware, connected or fully air-gapped.</p>
+      <p>One place to run a fleet of GB10 and GB300 machines under one set of rules: which GPUs and CPUs serve which teams, which machines are enrolled, which generation each one runs, and what they report. It runs on your own hardware, connected or fully air-gapped, and its source is available to customers for audit.</p>
       <p>Machines fetch signed generations and signed policy from the plane and report back. The plane sends no commands, so it has no way into a running machine, and signing rejects anything it should not offer. With a customer-held trust root, generations are signed with your key and nothing reaches your fleet without your signature.</p>
     </div>
     <figure class="diagram">
