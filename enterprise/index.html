@@ -176,17 +176,17 @@
     <h2 class="section-title">The management plane</h2>
     <div class="prose">
       <p>One place to run a fleet of GB10 and GB300 machines under one set of rules: which GPUs and CPUs serve which teams, which machines are enrolled, which generation each one runs, and what they report. It runs on your own hardware, connected or fully air-gapped.</p>
-      <p>Machines fetch signed generations and signed policy from the plane and report back. The plane sends no commands, so it has no way into a running machine.</p>
+      <p>Machines fetch signed generations and signed policy from the plane and report back. The plane sends no commands, so it has no way into a running machine, and signing rejects anything it should not offer. With a customer-held trust root, generations are signed with your key and nothing reaches your fleet without your signature.</p>
     </div>
     <figure class="diagram">
-      <svg viewBox="0 0 960 340" role="img" aria-label="Machines fetch signed generations and signed policy from the self-hosted management plane and report back to it. The plane sends no commands. Every generation the fleet accepts is signed.">
+      <svg viewBox="0 0 960 340" role="img" aria-label="Machines fetch signed generations and signed policy from the self-hosted management plane and report back to it. The plane sends no commands. The customer's key signs what the fleet accepts.">
         <defs><marker id="mp-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--text-secondary)"/></marker></defs>
         <g font-family="var(--font-mono)" font-size="13" text-anchor="middle">
           <rect x="16" y="16" width="360" height="308" rx="10" fill="none" stroke="var(--border-strong)" stroke-dasharray="4 4"/>
           <text x="32" y="40" text-anchor="start" fill="var(--text-secondary)">your site, air-gapped or not</text>
           <rect x="40" y="60" width="312" height="64" rx="8" fill="none" stroke="var(--accent-cyan)" stroke-width="1.5"/>
-          <text x="196" y="87" fill="var(--accent-cyan)" font-weight="600">signed generations</text>
-          <text x="196" y="106" fill="var(--text-secondary)" font-size="12">from Nerv, or your own mirror</text>
+          <text x="196" y="87" fill="var(--accent-cyan)" font-weight="600">your signing key</text>
+          <text x="196" y="106" fill="var(--text-secondary)" font-size="12">you approve every generation</text>
           <rect x="40" y="160" width="312" height="140" rx="8" fill="none" stroke="var(--brand)" stroke-width="2"/>
           <text x="196" y="187" fill="var(--brand)" font-weight="600">management plane</text>
           <text x="196" y="212" fill="var(--text-secondary)" font-size="12">placement · quotas · enrolment</text>
@@ -194,7 +194,7 @@
           <text x="196" y="252" fill="var(--text-secondary)" font-size="12">fleet data · compliance reports</text>
           <text x="196" y="280" fill="var(--text-secondary)" font-size="12">licence checked offline</text>
           <path d="M196 124V158" fill="none" stroke="var(--text-secondary)" stroke-width="1.25" marker-end="url(#mp-arrow)"/>
-          <text x="206" y="146" text-anchor="start" fill="var(--text-secondary)" font-size="11.5">serves</text>
+          <text x="206" y="146" text-anchor="start" fill="var(--text-secondary)" font-size="11.5">signs</text>
 
           <rect x="584" y="16" width="360" height="308" rx="10" fill="none" stroke="var(--border-strong)" stroke-dasharray="4 4"/>
           <text x="600" y="40" text-anchor="start" fill="var(--text-secondary)">the fleet</text>
@@ -297,7 +297,7 @@
   <div class="wrap">
     <h2 class="section-title">Built in Sweden, held by you</h2>
     <div class="prose">
-      <p>Nerv Dynamics is a Swedish company. Each machine makes its own boot and disk keys at install, every package is built from source, and the source is open to audit. Licences are signed files, checked offline, naming your organisation, the number of machines and the expiry date. A fleet that outgrows its licence gets a notice, never a shutdown. Nothing in Nerv calls home, and nothing about your fleet passes through anyone else, including us.</p>
+      <p>Nerv Dynamics is a Swedish company. Keys are generated on each machine and never leave it, every package is built from source, the source is open to audit, and with a customer-held trust root your key decides what your fleet runs. Licences are signed files, checked offline, naming your organisation, the number of machines and the expiry date. A fleet that outgrows its licence gets a notice, never a shutdown. Nothing in Nerv calls home, and nothing about your fleet passes through anyone else, including us.</p>
     </div>
   </div>
 </section>
