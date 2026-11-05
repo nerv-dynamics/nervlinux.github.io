@@ -393,7 +393,7 @@ def render_source():
     """The footer's source link, or nothing at all if there is no repository."""
     if not SOURCE_URL:
         return ""
-    return f'<a href="{SOURCE_URL}">Source</a>'
+    return f'<a href="{SOURCE_URL}">Source on Codeberg</a>.'
 
 
 # Chapters are long-form, so they take .essay — which is where the serif and
