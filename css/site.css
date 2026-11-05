@@ -285,7 +285,7 @@ img { max-width: 100%; height: auto; display: block; }
 
 /* --- Buttons ------------------------------------------------------------- */
 .actions { display: flex; flex-wrap: wrap; gap: var(--s-3); }
-.page-lede + .prose, .prose + .actions { margin-top: var(--s-6); }
+.page-lede + .prose, .prose + .actions, .actions + .prose { margin-top: var(--s-6); }
 .prose pre.term { margin-block: var(--s-4); }
 /* A command with a copy button beside it. */
 .cmd { display: flex; gap: var(--s-3); margin-top: var(--s-6); }
