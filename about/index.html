@@ -164,5 +164,25 @@
   })();
 </script>
 
+<script data-goatcounter="https://stats.nervlinux.org/count" async src="https://stats.nervlinux.org/count.js"></script>
+<script>
+  // Clicks worth counting, as GoatCounter events: downloads, mail to sales, links off the site, and copying the install command.
+  (function () {
+    function count(path, title) {
+      if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: path, title: title || path, event: true });
+    }
+    document.addEventListener('click', function (e) {
+      var copy = e.target.closest('[data-copy]');
+      if (copy) { count('copy/' + copy.dataset.copy); return; }
+      var a = e.target.closest('a[href]');
+      if (!a) return;
+      if (a.protocol === 'mailto:') { count('mail/' + a.pathname); return; }
+      if (a.host === location.host) return;
+      if (a.host === 'repo.nervlinux.org') { count('download' + a.pathname); return; }
+      count('out/' + a.host + a.pathname);
+    });
+  })();
+</script>
+
 </body>
 </html>
