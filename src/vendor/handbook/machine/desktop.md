@@ -45,6 +45,8 @@ Umbriel is the compositor: it draws the windows and decides where they go. Windo
 
 `Mod` is the key with the logo on it. Umbriel reads its settings from `~/.config/umbriel/config.toml`, and from Nerv's own when you have none; copy Nerv's from `/etc/xdg/umbriel/config.toml` to start one. It applies a change the moment you save it. `umbriel outputs` lists the displays it drives.
 
+The pointer is Phinger, light on Nerv's dark surfaces, and the login screen uses the same one. `[input.cursor] theme` in your config picks another by the name of its directory under `/usr/share/icons`, such as `phinger-cursors-dark` or the left-handed `phinger-cursors-light-left`, and `size` sets how large it is drawn.
+
 ## Noctalia
 
 Noctalia is the shell around your windows: the bar, the launcher, notifications, the wallpaper and the lock screen. Its Settings panel changes it, and writes what you choose to `~/.config/noctalia/noctalia.toml`. It comes in Myelin, Nerv's colours, set in Nerv's own typeface, Ashinoko.

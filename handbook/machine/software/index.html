@@ -220,7 +220,7 @@ Problem 2: installed package nerv-core-1.0.0-24.nerv.noarch requires nerv-fish, 
 ...
 nerv: this transaction changes the boot path (nerv-kernel). A slot boots the kernel and initrd sealed into its own UKI, so this cannot be applied to a running or sealed slot.
       Run `cage update`: it builds a new slot, upgrades it, seals it, tests it where it can and promotes it. Nothing has been changed.</pre>
-<p><strong>A service you install</strong> -- a database, a CI runner, anything with a unit of its own -- runs confined, in a domain for software Nerv does not ship. It keeps its own files, uses the network, runs as its own users and builds what it builds; it is kept from the machine's keys and account secrets, its disks and the GPU's device nodes, and changes the installed system only the way you do, through <code>doas</code>. A service that expects one of those is refused, and the refusal is in the journal: <code>journalctl -g 'avc: +denied'</code>.</p>
+<p><strong>A service you install</strong> -- a database, a CI runner, anything with a unit of its own -- runs confined, in a domain for software Nerv does not ship. It keeps its own files, uses the network, runs as its own users and builds what it builds; it is kept from the machine's keys and account secrets, its disks and the GPU's device nodes, and changes the installed system only the way you do, through <code>doas</code>. One exception: a GitLab runner installed as <code>/usr/local/bin/gitlab-runner</code> may open the GPU's device nodes, so that a job can test GPU software against the real driver. A service that expects one of those is refused, and the refusal is in the journal: <code>journalctl -g 'avc: +denied'</code>.</p>
 <h2 id="updating" class="section-title">Updating</h2>
 <p><strong>Updating is <code>cage update</code></strong>, for Nerv's packages and Fedora's alike. It builds the new system beside the one you are running, so there is always one to go back to; <a href="/handbook/machine/generations/">Generations</a> is the whole of it.</p>
 <p><code>dnf upgrade</code> does not update this machine, and says so:</p>
@@ -287,7 +287,7 @@ nerv: this machine boots @nerv-20261017-1226 from now on, so this transaction go
 <pre class="term term__body">$ cat /var/lib/cage/carryover.log</pre>
 <p>Look for conflicts after the reboot:</p>
 <pre class="term term__body">$ find /etc -name '*.cage-running'</pre>
-<p>Logs, service state and databases in <code>/var</code> come with it. <code>/var/tmp</code> and <code>/var/cache</code> are not carried, and neither is anything outside <code>/etc</code> and <code>/var</code>. Your home directory needs nothing: every system mounts the same one.</p>
+<p>Service state and databases in <code>/var</code> come with it. <code>/var/tmp</code> and <code>/var/cache</code> are not carried, and neither is anything outside <code>/etc</code> and <code>/var</code>. Your home directory and <code>/var/log</code> need nothing: every system mounts the same ones (<a href="/handbook/machine/generations/#what-a-slot-is">What a slot is</a>).</p>
       </div>
       <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/the-first-hour/"><span>Previous</span>The first hour</a><a class="hb-pager__next" href="/handbook/machine/containers/"><span>Next</span>Containers</a></nav>
     </div>

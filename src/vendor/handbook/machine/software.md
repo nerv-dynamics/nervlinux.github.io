@@ -91,7 +91,7 @@ nerv: this transaction changes the boot path (nerv-kernel). A slot boots the ker
       Run `cage update`: it builds a new slot, upgrades it, seals it, tests it where it can and promotes it. Nothing has been changed.
 ```
 
-**A service you install** -- a database, a CI runner, anything with a unit of its own -- runs confined, in a domain for software Nerv does not ship. It keeps its own files, uses the network, runs as its own users and builds what it builds; it is kept from the machine's keys and account secrets, its disks and the GPU's device nodes, and changes the installed system only the way you do, through `doas`. A service that expects one of those is refused, and the refusal is in the journal: `journalctl -g 'avc: +denied'`.
+**A service you install** -- a database, a CI runner, anything with a unit of its own -- runs confined, in a domain for software Nerv does not ship. It keeps its own files, uses the network, runs as its own users and builds what it builds; it is kept from the machine's keys and account secrets, its disks and the GPU's device nodes, and changes the installed system only the way you do, through `doas`. One exception: a GitLab runner installed as `/usr/local/bin/gitlab-runner` may open the GPU's device nodes, so that a job can test GPU software against the real driver. A service that expects one of those is refused, and the refusal is in the journal: `journalctl -g 'avc: +denied'`.
 
 ## Updating
 
@@ -198,4 +198,4 @@ Look for conflicts after the reboot:
 $ find /etc -name '*.cage-running'
 ```
 
-Logs, service state and databases in `/var` come with it. `/var/tmp` and `/var/cache` are not carried, and neither is anything outside `/etc` and `/var`. Your home directory needs nothing: every system mounts the same one.
+Service state and databases in `/var` come with it. `/var/tmp` and `/var/cache` are not carried, and neither is anything outside `/etc` and `/var`. Your home directory and `/var/log` need nothing: every system mounts the same ones ([What a slot is](generations.md#what-a-slot-is)).

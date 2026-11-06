@@ -12,7 +12,7 @@ $ doas dnf install nerv-dev
 
 ## Packaging a program
 
-A package of your own is an RPM spec, built the way Nerv builds its own: `geofront` composes a clean musl build root with `dnf`, runs `rpmbuild` inside it, and publishes the result.
+A package of your own is an RPM spec, built the way Nerv builds its own: `geofront` composes a clean musl build root with `dnf`, runs `rpmbuild` inside it, and publishes the result. It runs as you, without root: the build root is a directory of yours, and inside it you are root of a namespace of your own, whose other accounts come from your range in `/etc/subuid` and `/etc/subgid`. Every account Nerv creates has one; an account without one is refused with the `usermod` line that gives it one.
 
 ```
 $ geofront build --no-publish packages/myprogram/myprogram.spec

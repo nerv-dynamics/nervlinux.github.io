@@ -8,6 +8,24 @@ A slot is a whole system: `/usr`, `/etc` and `/var`, with its own kernel and ini
 
 Your home directory is not in any slot. `/home` lives beside them and every slot mounts the same one, so booting another slot changes the system and never your files.
 
+Nor are the system's logs. What the machine keeps for itself and must not roll back with a slot lives in `@data`, beside the slots, and `/var/log` is its log directory: every slot writes the same journal, so `journalctl` on any slot shows what every slot logged, and a boot of another slot neither loses what this one wrote nor starts from a damaged copy of it.
+
+A machine installed before `@data` existed moves to it once:
+
+```
+$ cage shared
+:: /home is already @home here
+:: pausing: journalctl --relinquish-var
+:: creating @data for /var/data
+:: copying /mnt/nerv-top/@nerv/var/log into @data/log (reflink)
+:: @data: var-data.mount, var-log.mount written and enabled in every slot
+:: /var/log is now @data/log, in every slot on every boot
+:: resuming: journalctl --flush
+::   a shell whose working directory was under one of them is still in the old copy: cd again
+```
+
+The journal is moved whole, with nothing written while it moves lost, and every slot on the disk mounts `@data` from its next boot. Running it again changes nothing.
+
 `cage` is the one command that manages them. On its own it opens a dashboard of every slot, its kernel and its boot state; `?` lists the keys. The rest of this chapter uses its verbs, which ask for `doas` themselves when they need it.
 
 ## Seeing the slots
@@ -15,6 +33,7 @@ Your home directory is not in any slot. `/home` lives beside them and every slot
 ```
 $ cage list
 SLOT             ROLE      KERNEL   ARTIFACT   BOOT-COUNTER         FLAGS
+@data            foreign   ?        none       -
 @home            foreign   ?        none       -
 @nerv            stable    7.2.8    uki        blessed              booted,default
 @nerv-rescue     rescue    7.2.8    uki        blessed
@@ -27,7 +46,7 @@ SLOT             ROLE      KERNEL   ARTIFACT   BOOT-COUNTER         FLAGS
 | `preferred` | a slot on trial, booted ahead of the default |
 | `rescue` | the slot made at install, never updated — see [The rescue slot](#the-rescue-slot) |
 | `staging` | a slot that is neither: an older system, or one being built |
-| `foreign` | not a system: `@home` and `@swap`, which every slot shares |
+| `foreign` | not a system: `@data`, `@home` and `@swap`, which every slot shares |
 
 `blessed` means the slot has completed a boot, or never needed to prove one. `3 tries left` means it is on trial. `booted` marks the slot you are running.
 
@@ -121,7 +140,7 @@ $ cage promote @try-4211
 
 ## What follows you to the next slot
 
-A new slot is a copy of the system at the moment it was made. `/home` is not in any slot, so your files need nothing. Changes you make to `/etc` and `/var` after an update is staged are carried to the new slot when the machine shuts down, and a package you install goes straight into it: [After an update, before the reboot](software.md#after-an-update-before-the-reboot) has the rules.
+A new slot is a copy of the system at the moment it was made. `/home` and `/var/log` are not in any slot, so your files and the logs need nothing. Changes you make to `/etc` and `/var` after an update is staged are carried to the new slot when the machine shuts down, and a package you install goes straight into it: [After an update, before the reboot](software.md#after-an-update-before-the-reboot) has the rules.
 
 Anything elsewhere in the system — `/opt`, `/srv`, `/root` — stays in the slot it was written to. Keep your work in `/home`.
 

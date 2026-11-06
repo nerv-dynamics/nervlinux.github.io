@@ -151,10 +151,23 @@
 <h2 id="what-a-slot-is" class="section-title">What a slot is</h2>
 <p>A slot is a whole system: <code>/usr</code>, <code>/etc</code> and <code>/var</code>, with its own kernel and initrd sealed into one signed boot image. Slots sit side by side on the same encrypted disk, as btrfs snapshots of each other, so a new one costs no space until it changes.</p>
 <p>Your home directory is not in any slot. <code>/home</code> lives beside them and every slot mounts the same one, so booting another slot changes the system and never your files.</p>
+<p>Nor are the system's logs. What the machine keeps for itself and must not roll back with a slot lives in <code>@data</code>, beside the slots, and <code>/var/log</code> is its log directory: every slot writes the same journal, so <code>journalctl</code> on any slot shows what every slot logged, and a boot of another slot neither loses what this one wrote nor starts from a damaged copy of it.</p>
+<p>A machine installed before <code>@data</code> existed moves to it once:</p>
+<pre class="term term__body">$ cage shared
+:: /home is already @home here
+:: pausing: journalctl --relinquish-var
+:: creating @data for /var/data
+:: copying /mnt/nerv-top/@nerv/var/log into @data/log (reflink)
+:: @data: var-data.mount, var-log.mount written and enabled in every slot
+:: /var/log is now @data/log, in every slot on every boot
+:: resuming: journalctl --flush
+::   a shell whose working directory was under one of them is still in the old copy: cd again</pre>
+<p>The journal is moved whole, with nothing written while it moves lost, and every slot on the disk mounts <code>@data</code> from its next boot. Running it again changes nothing.</p>
 <p><code>cage</code> is the one command that manages them. On its own it opens a dashboard of every slot, its kernel and its boot state; <code>?</code> lists the keys. The rest of this chapter uses its verbs, which ask for <code>doas</code> themselves when they need it.</p>
 <h2 id="seeing-the-slots" class="section-title">Seeing the slots</h2>
 <pre class="term term__body">$ cage list
 SLOT             ROLE      KERNEL   ARTIFACT   BOOT-COUNTER         FLAGS
+@data            foreign   ?        none       -
 @home            foreign   ?        none       -
 @nerv            stable    7.2.8    uki        blessed              booted,default
 @nerv-rescue     rescue    7.2.8    uki        blessed
@@ -178,7 +191,7 @@ SLOT             ROLE      KERNEL   ARTIFACT   BOOT-COUNTER         FLAGS
 <td><code>staging</code></td><td>a slot that is neither: an older system, or one being built</td>
 </tr>
 <tr>
-<td><code>foreign</code></td><td>not a system: <code>@home</code> and <code>@swap</code>, which every slot shares</td>
+<td><code>foreign</code></td><td>not a system: <code>@data</code>, <code>@home</code> and <code>@swap</code>, which every slot shares</td>
 </tr>
 </tbody>
 </table>
@@ -247,7 +260,7 @@ SLOT             ROLE      KERNEL   ARTIFACT   BOOT-COUNTER         FLAGS
 <pre class="term term__body">$ cage promote @try-4211</pre>
 <p><code>cage try --validate -- …</code> also boots it in a virtual machine first, as <code>cage update</code> does where it can.</p>
 <h2 id="what-follows-you-to-the-next-slot" class="section-title">What follows you to the next slot</h2>
-<p>A new slot is a copy of the system at the moment it was made. <code>/home</code> is not in any slot, so your files need nothing. Changes you make to <code>/etc</code> and <code>/var</code> after an update is staged are carried to the new slot when the machine shuts down, and a package you install goes straight into it: <a href="/handbook/machine/software/#after-an-update-before-the-reboot">After an update, before the reboot</a> has the rules.</p>
+<p>A new slot is a copy of the system at the moment it was made. <code>/home</code> and <code>/var/log</code> are not in any slot, so your files and the logs need nothing. Changes you make to <code>/etc</code> and <code>/var</code> after an update is staged are carried to the new slot when the machine shuts down, and a package you install goes straight into it: <a href="/handbook/machine/software/#after-an-update-before-the-reboot">After an update, before the reboot</a> has the rules.</p>
 <p>Anything elsewhere in the system — <code>/opt</code>, <code>/srv</code>, <code>/root</code> — stays in the slot it was written to. Keep your work in <code>/home</code>.</p>
 <h2 id="the-rescue-slot" class="section-title">The rescue slot</h2>
 <p>The installer makes <code>@nerv-rescue</code>, a copy of the system as it was installed. No update touches it, it has no boot counter, and nothing cleans it up: it is the floor under every other slot.</p>

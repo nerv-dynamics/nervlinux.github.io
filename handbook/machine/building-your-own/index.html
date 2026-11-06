@@ -146,7 +146,7 @@
 <p>The tools Nerv builds itself with ship in <code>nerv-dev</code>, and the repository server is ready to use. Building your own packages and systems with them is still shaped around Nerv's own build machines, and this chapter is written out in full once it is not. What follows is the shape of it.</p>
 <pre class="term term__body">$ doas dnf install nerv-dev</pre>
 <h2 id="packaging-a-program" class="section-title">Packaging a program</h2>
-<p>A package of your own is an RPM spec, built the way Nerv builds its own: <code>geofront</code> composes a clean musl build root with <code>dnf</code>, runs <code>rpmbuild</code> inside it, and publishes the result.</p>
+<p>A package of your own is an RPM spec, built the way Nerv builds its own: <code>geofront</code> composes a clean musl build root with <code>dnf</code>, runs <code>rpmbuild</code> inside it, and publishes the result. It runs as you, without root: the build root is a directory of yours, and inside it you are root of a namespace of your own, whose other accounts come from your range in <code>/etc/subuid</code> and <code>/etc/subgid</code>. Every account Nerv creates has one; an account without one is refused with the <code>usermod</code> line that gives it one.</p>
 <pre class="term term__body">$ geofront build --no-publish packages/myprogram/myprogram.spec</pre>
 <p><code>nerv-rpm-config</code> gives every build Nerv's hardened compiler flags and the <code>.nerv</code> release tag, and <code>nerv-musl-clang</code> is the compiler and linker for musl, which a Rust package names as its linker. Setting up the build root outside Nerv's own build machines is the part still in progress.</p>
 <h2 id="a-repository-of-your-own" class="section-title">A repository of your own</h2>
