@@ -40,4 +40,4 @@ composes a generation, a whole system ready to install or update to, from Nerv's
 
 ## Owning the stack
 
-Nerv is open source under Apache-2.0, every package of it built from source with the tools above. Its source moves to a public repository on Codeberg, `codeberg.org/nerv-dynamics`, with contributions under the Developer Certificate of Origin and no contributor agreement to sign.
+Nerv is open source under Apache-2.0, every package of it built from source with the tools above. Its source is on Codeberg, `codeberg.org/nerv-dynamics/nerv-linux`, with contributions under the Developer Certificate of Origin and no contributor agreement to sign.

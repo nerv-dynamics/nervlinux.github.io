@@ -1,6 +1,6 @@
 # Software
 
-Installing and removing programs with `dnf`: Nerv's own packages and the whole of Fedora's, the three kinds of package and what each allows, where a package's settings live, and what happens to a package you install or a file you change once an update is waiting for its reboot.
+Installing and removing programs with `dnf`: Nerv's own packages and the whole of Fedora's, the three kinds of package and what each allows, the stable and testing channels, where a package's settings live, and what happens to a package you install or a file you change once an update is waiting for its reboot.
 
 ## Two sources, one command
 
@@ -104,6 +104,60 @@ $ doas dnf upgrade
 nerv: `dnf upgrade` does not update this machine; `cage update` does. It builds a new slot, upgrades it, seals it, tests it where it can and promotes it, and the running slot stays there to go back to.
       Run `cage update`. Nothing has been changed.
 ```
+
+## Stable and testing
+
+Nerv's packages come on two channels, and a machine is on exactly one of them at a time:
+
+| channel | |
+| --- | --- |
+| **stable** | the default, where every fresh install starts. Packages arrive in batches, each one moved here from testing after it has been tried. |
+| **testing** | everything built from Nerv's main branch, usually within the hour of a change landing. You get fixes and new versions first, and you are the one who finds the problems. |
+
+Both channels are signed, and `dnf` checks the signatures before it installs anything from either. The channel is unrelated to the `stable` role in `cage list`, which names the slot the machine boots by default.
+
+### Which one you are on
+
+The channel is a package. Exactly one of these two is installed:
+
+```
+$ rpm -q nerv-release-stable nerv-release-testing
+nerv-release-stable-…
+package nerv-release-testing is not installed
+```
+
+### Switching
+
+Switching channels is swapping one package for the other. Like any change to the system, it goes into a new slot, never onto the running one, and that slot must pass the gate before it boots:
+
+```
+$ doas cage new
+$ doas cage exec @<slot> -- dnf5 swap -y nerv-release-stable nerv-release-testing
+$ doas cage seal @<slot>
+$ doas cage validate @<slot> --login
+$ doas cage boot @<slot>
+$ doas reboot
+```
+
+`cage new` snapshots the running system into a new slot and names it. `cage validate --login` is the gate, the same one `cage update` runs: it boots the slot in a virtual machine and logs in to it, and it must pass. `cage boot` makes the slot the next boot only, so if it does not come up, the boot after it returns to the system you had. Once it has come up fine, keep it:
+
+```
+$ doas cage promote @<slot>
+```
+
+To go back to stable, swap the two names. Nerv never downgrades a package, so what you already have from testing stays installed until stable reaches or passes its version.
+
+### Upgrading a few packages, not all of them
+
+On testing you do not have to take everything at once. `cage update` takes ordinary `dnf` arguments after `--`:
+
+```
+$ doas cage update -- <package> [<package>…]
+```
+
+It makes a new slot, upgrades only the packages you name, seals it, runs the gate and promotes it, exactly as plain `doas cage update` does for everything.
+
+An upgrade that touches the GPU driver deserves care. The gate runs in a virtual machine and cannot test the GPU, so upgrade the driver in a slot of its own, with nothing else, and reboot before you take anything more. If the new slot never completes a boot, the machine falls back to the one before by itself: [The first boot of a new slot](generations.md#the-first-boot-of-a-new-slot).
 
 ## Where a package's settings live
 

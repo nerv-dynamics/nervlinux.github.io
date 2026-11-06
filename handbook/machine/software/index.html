@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Nerv Linux — Software</title>
-<meta name="description" content="Installing and removing programs with dnf: Nerv's own packages and the whole of Fedora's, the three kinds of package and what each allows, where a package's settings live, and what happens to a package you install or a file you change once an update is waiting for its reboot.">
+<meta name="description" content="Installing and removing programs with dnf: Nerv's own packages and the whole of Fedora's, the three kinds of package and what each allows, the stable and testing channels, where a package's settings live, and what happens to a package you install or a file you change once an update is waiting for its reboot.">
 <link rel="canonical" href="https://nervlinux.org/handbook/machine/software/">
 <meta property="og:title" content="Nerv Linux — Software">
-<meta property="og:description" content="Installing and removing programs with dnf: Nerv's own packages and the whole of Fedora's, the three kinds of package and what each allows, where a package's settings live, and what happens to a package you install or a file you change once an update is waiting for its reboot.">
+<meta property="og:description" content="Installing and removing programs with dnf: Nerv's own packages and the whole of Fedora's, the three kinds of package and what each allows, the stable and testing channels, where a package's settings live, and what happens to a package you install or a file you change once an update is waiting for its reboot.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://nervlinux.org/handbook/machine/software/">
 <link rel="icon" href="/assets/favicon.png" sizes="32x32">
@@ -93,6 +93,7 @@
 <li><a href="#installing-and-removing">Installing and removing</a></li>
 <li><a href="#three-kinds-of-package">Three kinds of package</a></li>
 <li><a href="#updating">Updating</a></li>
+<li><a href="#stable-and-testing">Stable and testing</a></li>
 <li><a href="#where-a-packages-settings-live">Where a package's settings live</a></li>
 <li><a href="#after-an-update-before-the-reboot">After an update, before the reboot</a></li>
 </ol>
@@ -140,7 +141,7 @@
     <div class="hb__main">
       <div class="essay">
 <h1 class="page-title">Software</h1>
-<p>Installing and removing programs with <code>dnf</code>: Nerv's own packages and the whole of Fedora's, the three kinds of package and what each allows, where a package's settings live, and what happens to a package you install or a file you change once an update is waiting for its reboot.</p>
+<p>Installing and removing programs with <code>dnf</code>: Nerv's own packages and the whole of Fedora's, the three kinds of package and what each allows, the stable and testing channels, where a package's settings live, and what happens to a package you install or a file you change once an update is waiting for its reboot.</p>
 <h2 id="two-sources-one-command" class="section-title">Two sources, one command</h2>
 <p><code>dnf</code> installs from two places, and both are on from the start:</p>
 <div class="table-scroll">
@@ -222,6 +223,45 @@ nerv: this transaction changes the boot path (nerv-kernel). A slot boots the ker
 <pre class="term term__body">$ doas dnf upgrade
 nerv: `dnf upgrade` does not update this machine; `cage update` does. It builds a new slot, upgrades it, seals it, tests it where it can and promotes it, and the running slot stays there to go back to.
       Run `cage update`. Nothing has been changed.</pre>
+<h2 id="stable-and-testing" class="section-title">Stable and testing</h2>
+<p>Nerv's packages come on two channels, and a machine is on exactly one of them at a time:</p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">channel</th><th scope="col"></th>
+</tr></thead>
+<tbody>
+<tr>
+<td><strong>stable</strong></td><td>the default, where every fresh install starts. Packages arrive in batches, each one moved here from testing after it has been tried.</td>
+</tr>
+<tr>
+<td><strong>testing</strong></td><td>everything built from Nerv's main branch, usually within the hour of a change landing. You get fixes and new versions first, and you are the one who finds the problems.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Both channels are signed, and <code>dnf</code> checks the signatures before it installs anything from either. The channel is unrelated to the <code>stable</code> role in <code>cage list</code>, which names the slot the machine boots by default.</p>
+<h3 id="which-one-you-are-on" class="sub-title">Which one you are on</h3>
+<p>The channel is a package. Exactly one of these two is installed:</p>
+<pre class="term term__body">$ rpm -q nerv-release-stable nerv-release-testing
+nerv-release-stable-…
+package nerv-release-testing is not installed</pre>
+<h3 id="switching" class="sub-title">Switching</h3>
+<p>Switching channels is swapping one package for the other. Like any change to the system, it goes into a new slot, never onto the running one, and that slot must pass the gate before it boots:</p>
+<pre class="term term__body">$ doas cage new
+$ doas cage exec @&lt;slot&gt; -- dnf5 swap -y nerv-release-stable nerv-release-testing
+$ doas cage seal @&lt;slot&gt;
+$ doas cage validate @&lt;slot&gt; --login
+$ doas cage boot @&lt;slot&gt;
+$ doas reboot</pre>
+<p><code>cage new</code> snapshots the running system into a new slot and names it. <code>cage validate --login</code> is the gate, the same one <code>cage update</code> runs: it boots the slot in a virtual machine and logs in to it, and it must pass. <code>cage boot</code> makes the slot the next boot only, so if it does not come up, the boot after it returns to the system you had. Once it has come up fine, keep it:</p>
+<pre class="term term__body">$ doas cage promote @&lt;slot&gt;</pre>
+<p>To go back to stable, swap the two names. Nerv never downgrades a package, so what you already have from testing stays installed until stable reaches or passes its version.</p>
+<h3 id="upgrading-a-few-packages-not-all-of-them" class="sub-title">Upgrading a few packages, not all of them</h3>
+<p>On testing you do not have to take everything at once. <code>cage update</code> takes ordinary <code>dnf</code> arguments after <code>--</code>:</p>
+<pre class="term term__body">$ doas cage update -- &lt;package&gt; [&lt;package&gt;…]</pre>
+<p>It makes a new slot, upgrades only the packages you name, seals it, runs the gate and promotes it, exactly as plain <code>doas cage update</code> does for everything.</p>
+<p>An upgrade that touches the GPU driver deserves care. The gate runs in a virtual machine and cannot test the GPU, so upgrade the driver in a slot of its own, with nothing else, and reboot before you take anything more. If the new slot never completes a boot, the machine falls back to the one before by itself: <a href="/handbook/machine/generations/#the-first-boot-of-a-new-slot">The first boot of a new slot</a>.</p>
 <h2 id="where-a-packages-settings-live" class="section-title">Where a package's settings live</h2>
 <p>A package puts its settings in <code>/etc</code>, and they are yours to edit. An update never overwrites a file you have changed: it keeps yours and writes its new default beside it as <code>.rpmnew</code>. <a href="/handbook/machine/the-first-hour/#where-the-defaults-live-and-how-to-change-one">Where the defaults live</a> has the details and the files Nerv ships.</p>
 <p>Everything a package puts in <code>/usr</code> belongs to the package, and the next update replaces it. Change behaviour in <code>/etc</code>, or in your home directory, never in <code>/usr</code>.</p>

@@ -3,6 +3,7 @@
 
     python3 sync.py                      # ../nerv-linux
     python3 sync.py ~/src/nerv-linux     # somewhere else
+    python3 sync.py --no-install-sh DIR  # everything but install.sh (the hourly job)
 
 Two kinds of thing come across, and the reason is the same for both: the site
 must not be a second copy of something the OS already decides.
@@ -59,7 +60,9 @@ def sync_install_sh(src):
 
 
 def main():
-    src = pathlib.Path(sys.argv[1]).expanduser() if len(sys.argv) > 1 else ROOT.parent / "nerv-linux"
+    args = [a for a in sys.argv[1:] if a != "--no-install-sh"]
+    with_install_sh = "--no-install-sh" not in sys.argv[1:]
+    src = pathlib.Path(args[0]).expanduser() if args else ROOT.parent / "nerv-linux"
     src = src.resolve()
     if not (src / "packages").is_dir():
         sys.exit(f"{src} does not look like a nerv-linux tree")
@@ -87,7 +90,10 @@ def main():
         n = len(list(target.rglob("*.md")))
         print(f"  {rel + '/':48} -> src/vendor/{dest}/ ({n} markdown files)")
 
-    sync_install_sh(src)
+    if with_install_sh:
+        sync_install_sh(src)
+    else:
+        print(f"  {INSTALL_SH:48} -> not synced (--no-install-sh)")
 
     print("\nsynced. `git diff src/vendor/` is the review; then python3 build.py")
 

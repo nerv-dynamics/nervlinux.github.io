@@ -1,0 +1,46 @@
+# Keeps the site current with what it does not own: the handbook and Myelin from nerv-linux
+# master (its public copy on Codeberg), and the Downloads page from repo.nervlinux.org's stable
+# releases. Hourly, and on demand from the Actions tab.
+#
+# install.sh is left out on purpose: people pipe it into sh, so a change to it is published by
+# hand, with `python3 sync.py` and a look at the diff.
+name: sync
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch nerv-linux master from Codeberg
+        run: git clone --depth 1 --branch master https://codeberg.org/nerv-dynamics/nerv-linux.git "$RUNNER_TEMP/nerv-linux"
+
+      - name: Sync and build
+        run: |
+          python3 sync.py --no-install-sh "$RUNNER_TEMP/nerv-linux"
+          python3 build.py
+
+      - name: Publish if anything changed
+        run: |
+          git add -A
+          if git diff --cached --quiet; then
+            echo "nothing changed"
+            exit 0
+          fi
+          git diff --cached --stat
+          git -c user.name="nervlinux.org sync" -c user.email="sync@nervlinux.org" \
+            commit -q -m "sync: handbook and releases from nerv-linux $(git -C "$RUNNER_TEMP/nerv-linux" rev-parse --short HEAD)"
+          git push
