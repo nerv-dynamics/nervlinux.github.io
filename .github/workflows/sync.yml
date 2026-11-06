@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # Only the files sync.py reads: the latest commit, without history, and without the rest
       # of the tree (under 1 MB, where a whole clone is about 40 MB).
