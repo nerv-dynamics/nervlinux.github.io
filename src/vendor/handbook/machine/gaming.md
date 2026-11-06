@@ -13,7 +13,7 @@ $ doas dnf install nerv-gaming
 $ steam
 ```
 
-`nerv-gaming` brings Steam's launcher, FEX, which runs x86 programs on the GB10's Arm processors, and the x86 system FEX runs them on. The first `steam` fetches Valve's signed Steam client, checks it, and starts it under FEX.
+`nerv-gaming` brings Steam's launcher, FEX, which runs x86 programs on the GB10's Arm processors, the x86 system FEX runs them on, and the desktop Steam draws on, so a machine installed without one boots to the login screen afterwards. The first `steam` fetches Valve's signed Steam client, checks it, and starts it under FEX.
 
 Windows games run through Proton, Nerv's build of it for Arm: Wine itself is native, the graphics translation is native Arm code, and only the game's own code is translated by FEX. An x86 Direct3D 11 program already draws on the GB10 this way, through the compute fabric. It registers in Steam as `nerv-proton-preview`, not yet as the default.
 
@@ -27,14 +27,13 @@ Windows games run through Proton, Nerv's build of it for Arm: Wine itself is nat
 
 ## Quake
 
-Quake runs today, natively, and doubles as the proof that the GPU path works:
+Quake comes with the desktop and runs today, natively, doubling as the proof that the GPU path works: nQuake, in the launcher, or
 
 ```
-$ doas dnf install nerv-librequake
-$ librequake
+$ quake
 ```
 
-`librequake` is vkQuake with LibreQuake's free content. `nerv-quake` installs `quake`, Nerv's own vkQuake, with ray-traced shadows and ambient occlusion under Options › nQuake; more of its ray-traced lighting is to come.
+nQuake is Nerv's own Quake renderer, playing LibreQuake's free content, with ray-traced shadows and ambient occlusion under Options › nQuake; more of its ray-traced lighting is to come. On a machine without the desktop, `doas dnf install nerv-quake` brings it.
 
 ## Borrowing a faster GPU
 

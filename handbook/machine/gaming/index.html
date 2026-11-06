@@ -133,6 +133,10 @@
 <li><a href="/handbook/machine/asking-why/">Asking why</a>
 </li>
 </ol>
+<p class="hb-nav__part">More</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/firmware/">Firmware</a>
+</li>
+</ol>
 </details></nav>
     <div class="hb__main">
       <div class="essay">
@@ -143,7 +147,7 @@
 <h2 id="what-is-there" class="section-title">What is there</h2>
 <pre class="term term__body">$ doas dnf install nerv-gaming
 $ steam</pre>
-<p><code>nerv-gaming</code> brings Steam's launcher, FEX, which runs x86 programs on the GB10's Arm processors, and the x86 system FEX runs them on. The first <code>steam</code> fetches Valve's signed Steam client, checks it, and starts it under FEX.</p>
+<p><code>nerv-gaming</code> brings Steam's launcher, FEX, which runs x86 programs on the GB10's Arm processors, the x86 system FEX runs them on, and the desktop Steam draws on, so a machine installed without one boots to the login screen afterwards. The first <code>steam</code> fetches Valve's signed Steam client, checks it, and starts it under FEX.</p>
 <p>Windows games run through Proton, Nerv's build of it for Arm: Wine itself is native, the graphics translation is native Arm code, and only the game's own code is translated by FEX. An x86 Direct3D 11 program already draws on the GB10 this way, through the compute fabric. It registers in Steam as <code>nerv-proton-preview</code>, not yet as the default.</p>
 <h2 id="what-does-not-work-yet" class="section-title">What does not work yet</h2>
 <ul class="list">
@@ -154,10 +158,9 @@ $ steam</pre>
 <li>DLSS has no path on Arm yet.</li>
 </ul>
 <h2 id="quake" class="section-title">Quake</h2>
-<p>Quake runs today, natively, and doubles as the proof that the GPU path works:</p>
-<pre class="term term__body">$ doas dnf install nerv-librequake
-$ librequake</pre>
-<p><code>librequake</code> is vkQuake with LibreQuake's free content. <code>nerv-quake</code> installs <code>quake</code>, Nerv's own vkQuake, with ray-traced shadows and ambient occlusion under Options › nQuake; more of its ray-traced lighting is to come.</p>
+<p>Quake comes with the desktop and runs today, natively, doubling as the proof that the GPU path works: nQuake, in the launcher, or</p>
+<pre class="term term__body">$ quake</pre>
+<p>nQuake is Nerv's own Quake renderer, playing LibreQuake's free content, with ray-traced shadows and ambient occlusion under Options › nQuake; more of its ray-traced lighting is to come. On a machine without the desktop, <code>doas dnf install nerv-quake</code> brings it.</p>
 <h2 id="borrowing-a-faster-gpu" class="section-title">Borrowing a faster GPU</h2>
 <p>A game is a Vulkan program, and Vulkan is the compute fabric's (<a href="/handbook/machine/compute-fabric/#graphics">Graphics</a>), so a game can draw on a GPU in another machine. Playing that way, with the frames rendered across the room and shown here, and splitting a game's rendering across two GB10s, are on the roadmap.</p>
       </div>

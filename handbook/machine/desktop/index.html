@@ -137,6 +137,10 @@
 <li><a href="/handbook/machine/asking-why/">Asking why</a>
 </li>
 </ol>
+<p class="hb-nav__part">More</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/firmware/">Firmware</a>
+</li>
+</ol>
 </details></nav>
     <div class="hb__main">
       <div class="essay">
@@ -144,9 +148,8 @@
 <p>Umbriel, Noctalia and foot, for machines that install one: getting a desktop, logging in, the keys you use, the shell around your windows, the browser, sound and the keyboard.</p>
 <h2 id="installing-a-desktop" class="section-title">Installing a desktop</h2>
 <p>The <code>workstation-gui</code> profile installs one, from the start or onto a console machine later:</p>
-<pre class="term term__body">$ doas dnf install nerv-workstation-gui
-$ doas systemctl enable --now greetd.service</pre>
-<p>Nothing in it touches the boot path, so it installs into the running system without an update. Your account needs the <code>seat</code> group, which arrives with the desktop: <code>doas usermod -aG seat you</code>, then log in again (<a href="/handbook/machine/accounts-and-keys/#groups">Groups</a>).</p>
+<pre class="term term__body">$ doas dnf install nerv-workstation-gui</pre>
+<p>Nothing in it touches the boot path, so it installs into the running system without an update. The graphical login comes with it and takes over the first console from the next boot; <code>doas systemctl start greetd.service</code> brings it up now instead. A session needs the <code>seat</code> group, which arrives with the desktop: the machine's administrators, the accounts in <code>wheel</code>, are put in it then, and any other account joins with <code>doas usermod -aG seat you</code> and logs in again (<a href="/handbook/machine/accounts-and-keys/#groups">Groups</a>).</p>
 <h2 id="logging-in" class="section-title">Logging in</h2>
 <p>The greeter takes over the first console and logs you in to an Umbriel session. Without it, log in on a free console, <code>Ctrl+Alt+F2</code>, and start one by hand:</p>
 <pre class="term term__body">$ umbriel-session</pre>
@@ -215,10 +218,11 @@ $ doas systemctl enable --now greetd.service</pre>
 <h2 id="sound" class="section-title">Sound</h2>
 <p>PipeWire is the sound server, for every program, and starts with your session. <code>wpctl status</code> shows the outputs and inputs, and <code>wpctl set-default</code> picks one.</p>
 <h2 id="the-keyboard" class="section-title">The keyboard</h2>
-<p>The machine has one keyboard layout, for the console and the desktop alike, set in <code>/etc/vconsole.conf</code>:</p>
-<pre class="term term__body">KEYMAP=de
-XKBLAYOUT=de</pre>
-<p><code>nerv-keymap --list</code> shows the layouts; a change applies at the next login.</p>
+<p>The machine has one keyboard layout, for the console and the desktop alike. <code>nerv-keymap</code> sets both:</p>
+<pre class="term term__body">$ doas nerv-keymap de
+$ doas nerv-keymap de:nodeadkeys     # an XKB layout and variant
+$ nerv-keymap                        # what is set now</pre>
+<p><code>nerv-keymap --list</code> shows the friendly names. The console changes at once; the desktop takes the new layout at the next login. Both are recorded in <code>/etc/vconsole.conf</code>.</p>
 <h2 id="what-is-still-in-progress" class="section-title">What is still in progress</h2>
 <ul class="list">
 <li><strong>X11 programs.</strong> The desktop is Wayland. Running programs that need X11 is in progress.</li>

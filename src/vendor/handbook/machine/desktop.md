@@ -8,10 +8,9 @@ The `workstation-gui` profile installs one, from the start or onto a console mac
 
 ```
 $ doas dnf install nerv-workstation-gui
-$ doas systemctl enable --now greetd.service
 ```
 
-Nothing in it touches the boot path, so it installs into the running system without an update. Your account needs the `seat` group, which arrives with the desktop: `doas usermod -aG seat you`, then log in again ([Groups](accounts-and-keys.md#groups)).
+Nothing in it touches the boot path, so it installs into the running system without an update. The graphical login comes with it and takes over the first console from the next boot; `doas systemctl start greetd.service` brings it up now instead. A session needs the `seat` group, which arrives with the desktop: the machine's administrators, the accounts in `wheel`, are put in it then, and any other account joins with `doas usermod -aG seat you` and logs in again ([Groups](accounts-and-keys.md#groups)).
 
 ## Logging in
 
@@ -68,14 +67,15 @@ PipeWire is the sound server, for every program, and starts with your session. `
 
 ## The keyboard
 
-The machine has one keyboard layout, for the console and the desktop alike, set in `/etc/vconsole.conf`:
+The machine has one keyboard layout, for the console and the desktop alike. `nerv-keymap` sets both:
 
 ```
-KEYMAP=de
-XKBLAYOUT=de
+$ doas nerv-keymap de
+$ doas nerv-keymap de:nodeadkeys     # an XKB layout and variant
+$ nerv-keymap                        # what is set now
 ```
 
-`nerv-keymap --list` shows the layouts; a change applies at the next login.
+`nerv-keymap --list` shows the friendly names. The console changes at once; the desktop takes the new layout at the next login. Both are recorded in `/etc/vconsole.conf`.
 
 ## What is still in progress
 

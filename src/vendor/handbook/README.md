@@ -26,6 +26,7 @@ Two kinds of chapter, and the split is what keeps the manual from drifting into 
 | [**Install**](machine/install.md) | From a bare box to an encrypted, attested workstation, over the network. |
 | [**The first hour**](machine/the-first-hour.md) | The shell and the userland, where things live, and how to change a setting so it survives an update. |
 | [**Software**](machine/software.md) | Installing and removing programs, Nerv's own and Fedora's, the stable and testing channels, and how an update treats them and your changes to them. |
+| [**Firmware**](machine/firmware.md) | Updating the board's own firmware from its vendor's releases: checked before, applied during a reboot you choose, and reported after, Secure Boot keys and TPM included. |
 | [**Containers**](machine/containers.md) | Rootless podman, Nerv's two base images, which registries a machine pulls from, and the GPU inside a container. |
 | [**The desktop**](machine/desktop.md) | Umbriel, Noctalia and foot, for machines that install one. |
 | [**Networking**](machine/networking.md) | Wired and Wi-Fi, names, WireGuard, the firewall and SSH. |
