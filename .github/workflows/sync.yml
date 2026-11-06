@@ -25,8 +25,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Fetch nerv-linux master from Codeberg
-        run: git clone --depth 1 --branch master https://codeberg.org/nerv-dynamics/nerv-linux.git "$RUNNER_TEMP/nerv-linux"
+      # Only the files sync.py reads: the latest commit, without history, and without the rest
+      # of the tree (under 1 MB, where a whole clone is about 40 MB).
+      - name: Fetch the handbook and Myelin from nerv-linux master on Codeberg
+        run: |
+          git clone -q --depth 1 --branch master --filter=blob:none --sparse \
+            https://codeberg.org/nerv-dynamics/nerv-linux.git "$RUNNER_TEMP/nerv-linux"
+          git -C "$RUNNER_TEMP/nerv-linux" sparse-checkout set --no-cone \
+            /handbook/ /packages/nerv-theme/files/myelin.css
 
       - name: Sync and build
         run: |
