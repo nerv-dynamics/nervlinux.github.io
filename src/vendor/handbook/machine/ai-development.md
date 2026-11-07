@@ -68,12 +68,26 @@ An answer without `max_tokens` ends at the model's end of turn or where its cont
 
 `--positions N` bounds the context the engine will hold, and `--sessions N` how many conversations it serves at once. The drafter is optional; with it, the engine drafts several tokens ahead and the model checks them in one step, which makes decoding faster without changing the answer.
 
+### One model across several GPUs
+
+A model too slow on one GPU, or too large for it, can run across this machine's GPU and other machines' in the fleet. The model is cut into parts by heads and columns, one part per GPU, and the parts are joined after every layer through the compute fabric's NCCL; the drafter is cut the same way. It samples exactly as the whole model does. Make a plan for that many parts, then name the other machines as `axon run --on` names them:
+
+```
+$ s2 plan --model ~/.local/share/s2/models/Qwen3.8-27B-s2v9dp.s2w \
+    --draft ~/.local/share/s2/models/Qwen3.8-27B-dflash2-inco.s2w --ranks 2
+$ s2 serve --model ~/.local/share/s2/models/Qwen3.8-27B-s2v9dp.s2w \
+    --draft ~/.local/share/s2/models/Qwen3.8-27B-dflash2-inco.s2w \
+    --peers eva-00 --openai 127.0.0.1:8000
+```
+
+A plan for several parts is kept beside the one-GPU plan, and `serve` takes the one for itself and its peers.
+
+A dense model splits this way today; a mixture of experts, split by its experts, is on the roadmap.
+
+Every step crosses between the machines twice per layer, so this pays only over a direct link between them. Two GB10s joined by their ConnectX ports decoded Qwen3.8-27B with its drafter at 77.7 tokens a second, against 45.9 on one of them (eight held-out prompts of 255 tokens each, November 2026).
+
 `s2 catalog` prints, as JSON, the models, drafters and plans this machine has and the GPUs it can reach, for scripts.
 
 ## PyTorch and CUDA
 
 PyTorch, and anything else built on the CUDA runtime, runs in a container with the machine's GPU. [The GPU in a container](containers.md#the-gpu-in-a-container) shows PyTorch's own CUDA build training on it.
-
-## One model across GPUs
-
-Running one model across the GPUs of two GB10s, joined by their ConnectX ports, is on the roadmap: a dense model split by its attention heads, and a mixture of experts split by its experts.

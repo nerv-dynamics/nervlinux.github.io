@@ -118,7 +118,6 @@
 <li><a href="#the-dashboard">The dashboard</a></li>
 <li><a href="#serving-a-model">Serving a model</a></li>
 <li><a href="#pytorch-and-cuda">PyTorch and CUDA</a></li>
-<li><a href="#one-model-across-gpus">One model across GPUs</a></li>
 </ol>
 </li>
 <li><a href="/handbook/machine/gaming/">Gaming</a>
@@ -175,11 +174,19 @@ qwen3.8-flash-next         72.3 GB  Qwen3.8-Flash-Next (125B MoE) in NVFP4, with
     -d '{"messages": [{"role": "user", "content": "Name three Unix signals."}]}'</pre>
 <p>An answer without <code>max_tokens</code> ends at the model's end of turn or where its context does, as OpenAI's own API behaves.</p>
 <p><code>--positions N</code> bounds the context the engine will hold, and <code>--sessions N</code> how many conversations it serves at once. The drafter is optional; with it, the engine drafts several tokens ahead and the model checks them in one step, which makes decoding faster without changing the answer.</p>
+<h3 id="one-model-across-several-gpus" class="sub-title">One model across several GPUs</h3>
+<p>A model too slow on one GPU, or too large for it, can run across this machine's GPU and other machines' in the fleet. The model is cut into parts by heads and columns, one part per GPU, and the parts are joined after every layer through the compute fabric's NCCL; the drafter is cut the same way. It samples exactly as the whole model does. Make a plan for that many parts, then name the other machines as <code>axon run --on</code> names them:</p>
+<pre class="term term__body">$ s2 plan --model ~/.local/share/s2/models/Qwen3.8-27B-s2v9dp.s2w \
+    --draft ~/.local/share/s2/models/Qwen3.8-27B-dflash2-inco.s2w --ranks 2
+$ s2 serve --model ~/.local/share/s2/models/Qwen3.8-27B-s2v9dp.s2w \
+    --draft ~/.local/share/s2/models/Qwen3.8-27B-dflash2-inco.s2w \
+    --peers eva-00 --openai 127.0.0.1:8000</pre>
+<p>A plan for several parts is kept beside the one-GPU plan, and <code>serve</code> takes the one for itself and its peers.</p>
+<p>A dense model splits this way today; a mixture of experts, split by its experts, is on the roadmap.</p>
+<p>Every step crosses between the machines twice per layer, so this pays only over a direct link between them. Two GB10s joined by their ConnectX ports decoded Qwen3.8-27B with its drafter at 77.7 tokens a second, against 45.9 on one of them (eight held-out prompts of 255 tokens each, November 2026).</p>
 <p><code>s2 catalog</code> prints, as JSON, the models, drafters and plans this machine has and the GPUs it can reach, for scripts.</p>
 <h2 id="pytorch-and-cuda" class="section-title">PyTorch and CUDA</h2>
 <p>PyTorch, and anything else built on the CUDA runtime, runs in a container with the machine's GPU. <a href="/handbook/machine/containers/#the-gpu-in-a-container">The GPU in a container</a> shows PyTorch's own CUDA build training on it.</p>
-<h2 id="one-model-across-gpus" class="section-title">One model across GPUs</h2>
-<p>Running one model across the GPUs of two GB10s, joined by their ConnectX ports, is on the roadmap: a dense model split by its attention heads, and a mixture of experts split by its experts.</p>
       </div>
       <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/chain-of-trust/"><span>Previous</span>The chain of trust</a><a class="hb-pager__next" href="/handbook/machine/gaming/"><span>Next</span>Gaming</a></nav>
     </div>
