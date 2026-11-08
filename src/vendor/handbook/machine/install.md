@@ -26,14 +26,14 @@ The script contains no install logic, so it is short enough to read in full befo
 
 That includes the generation. Before anything is written to a disk, the installer checks the signature on the generation's manifest and **refuses a generation that does not verify**. There is no override.
 
-The last step asks for `doas` or `sudo` because the two ports a firmware boots from, `69` and `547`, are privileged. The download and the signature check run as you; only the verified binary runs as root.
+The last step asks for `doas` or `sudo` because the ports a firmware boots from, `67`, `69`, `547` and `4011`, are privileged. The download and the signature check run as you; only the verified binary runs as root.
 
-A dashboard opens. Its header shows the two ways a target can reach it — the first needs nothing set anywhere, the second is the pair of values a DHCP server asks for — and what a target that boots now will install:
+A dashboard opens. Its header shows the two ways a target can reach it, over IPv6 and over IPv4, neither of which needs anything set anywhere, and what a target that boots now will install:
 
 ```
   Nerv Linux - Netboot Server
   IPv6 - no configuration needed - [fd00:6e65:7276::1]
-  IPv4 - set DHCP 66 to 10.0.0.5 and 67 to nerv-installer.efi
+  IPv4 - no configuration needed - 10.0.0.5
   Serving - gb10 2026-09-23 · kernel 7.2.7 · workstation
 
 ┌ Machines connected: 0 ─────────────────────────────────────────────┐
@@ -47,7 +47,7 @@ A dashboard opens. Its header shows the two ways a target can reach it — the f
 
 ## Boot the target
 
-Set the target to boot from the network and turn it on. On the same network segment that is all: the installer answers the target's own question about where to boot from, so there is nothing to configure on either machine and nothing to undo afterwards. Nothing is typed into the target either — no installer media, no kernel arguments, no console, and no boot entry to create in its firmware.
+Set the target to boot from the network and turn it on. On the same network segment that is all, whether the target's firmware netboots over IPv6 or only over IPv4: the installer answers the target's own question about where to boot from, so there is nothing to configure on either machine, on the router, or anywhere else, and nothing to undo afterwards. Your router keeps handing out addresses as it always has; the installer adds only where to boot from, and only to machines of the kind it is installing. Nothing is typed into the target either — no installer media, no kernel arguments, no console, and no boot entry to create in its firmware.
 
 The target appears on the dashboard once it has booted and reported itself:
 
@@ -60,7 +60,7 @@ It waits there indefinitely. **Nothing is written to the disk until you launch t
 
 A row that turns **`blocked`** has fetched the installer, booted it, and cannot get back to this machine. Its pane names what is in the way: a firewall on the operator machine, or on Windows the firewall in front of WSL. Nothing has to be opened in advance; the dashboard says so when, and only if, a target is actually turned away.
 
-### If the target is on another network, or its firmware has no IPv6
+### If the target is on another network
 
 Then the network carries the answer, in two fields every DHCP server has, whether a home router or a corporate one:
 

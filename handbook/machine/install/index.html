@@ -160,11 +160,11 @@
 :: starting the installer</pre>
 <p>The script contains no install logic, so it is short enough to read in full before you run it: <code>curl https://nervlinux.org/install.sh</code> prints it. Everything it fetches is checked against the key printed in the script itself.</p>
 <p>That includes the generation. Before anything is written to a disk, the installer checks the signature on the generation's manifest and <strong>refuses a generation that does not verify</strong>. There is no override.</p>
-<p>The last step asks for <code>doas</code> or <code>sudo</code> because the two ports a firmware boots from, <code>69</code> and <code>547</code>, are privileged. The download and the signature check run as you; only the verified binary runs as root.</p>
-<p>A dashboard opens. Its header shows the two ways a target can reach it — the first needs nothing set anywhere, the second is the pair of values a DHCP server asks for — and what a target that boots now will install:</p>
+<p>The last step asks for <code>doas</code> or <code>sudo</code> because the ports a firmware boots from, <code>67</code>, <code>69</code>, <code>547</code> and <code>4011</code>, are privileged. The download and the signature check run as you; only the verified binary runs as root.</p>
+<p>A dashboard opens. Its header shows the two ways a target can reach it, over IPv6 and over IPv4, neither of which needs anything set anywhere, and what a target that boots now will install:</p>
 <pre class="term term__body">  Nerv Linux - Netboot Server
   IPv6 - no configuration needed - [fd00:6e65:7276::1]
-  IPv4 - set DHCP 66 to 10.0.0.5 and 67 to nerv-installer.efi
+  IPv4 - no configuration needed - 10.0.0.5
   Serving - gb10 2026-09-23 · kernel 7.2.7 · workstation
 
 ┌ Machines connected: 0 ─────────────────────────────────────────────┐
@@ -175,13 +175,13 @@
 └────────────────────────────────────────────────────────────────────┘
   ↑↓ select   ⏎ configure   r reboot   s settings   q quit</pre>
 <h2 id="boot-the-target" class="section-title">Boot the target</h2>
-<p>Set the target to boot from the network and turn it on. On the same network segment that is all: the installer answers the target's own question about where to boot from, so there is nothing to configure on either machine and nothing to undo afterwards. Nothing is typed into the target either — no installer media, no kernel arguments, no console, and no boot entry to create in its firmware.</p>
+<p>Set the target to boot from the network and turn it on. On the same network segment that is all, whether the target's firmware netboots over IPv6 or only over IPv4: the installer answers the target's own question about where to boot from, so there is nothing to configure on either machine, on the router, or anywhere else, and nothing to undo afterwards. Your router keeps handing out addresses as it always has; the installer adds only where to boot from, and only to machines of the kind it is installing. Nothing is typed into the target either — no installer media, no kernel arguments, no console, and no boot entry to create in its firmware.</p>
 <p>The target appears on the dashboard once it has booted and reported itself:</p>
 <pre class="term term__body">  MACHINE            PLATFORM   DISKS  PHASE         LAST SEEN   PROGRESS
 ▌ 4c:bb:47:12:34:56  gb10       1      booted 3/11   waiting 2m  ██████──────</pre>
 <p>It waits there indefinitely. <strong>Nothing is written to the disk until you launch the install.</strong></p>
 <p>A row that turns <strong><code>blocked</code></strong> has fetched the installer, booted it, and cannot get back to this machine. Its pane names what is in the way: a firewall on the operator machine, or on Windows the firewall in front of WSL. Nothing has to be opened in advance; the dashboard says so when, and only if, a target is actually turned away.</p>
-<h3 id="if-the-target-is-on-another-network-or-its-firmware-has-no-i" class="sub-title">If the target is on another network, or its firmware has no IPv6</h3>
+<h3 id="if-the-target-is-on-another-network" class="sub-title">If the target is on another network</h3>
 <p>Then the network carries the answer, in two fields every DHCP server has, whether a home router or a corporate one:</p>
 <div class="table-scroll">
 <table class="data">

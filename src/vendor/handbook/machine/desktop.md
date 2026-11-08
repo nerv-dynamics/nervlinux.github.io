@@ -1,6 +1,6 @@
 # The desktop
 
-Umbriel, Noctalia and foot, for machines that install one: getting a desktop, logging in, the keys you use, the shell around your windows, the browser, sound and the keyboard.
+Umbriel, Noctalia and foot, for machines that install one: getting a desktop, logging in, the keys you use, the shell around your windows, the browser, X11 programs, sound and the keyboard.
 
 ## Installing a desktop
 
@@ -59,6 +59,17 @@ Noctalia is the shell around your windows: the bar, the launcher, notifications,
 
 Firefox comes with the desktop. Nerv's Firefox runs on Nerv's own C library and allocator, with sponsored content, telemetry and DRM video switched off.
 
+## X11 programs
+
+Programs written for X11 run on the desktop beside Wayland ones, in windows of their own. Every session has an X display, and programs started from it find it in `DISPLAY`:
+
+```
+$ echo $DISPLAY
+:0
+```
+
+The X server is Xwayland. The session starts it when the first X11 program connects, and again if it stops. It draws with the GPU, and so does an X11 program using OpenGL. Nothing needs installing: it comes with the desktop.
+
 ## Sound
 
 PipeWire is the sound server, for every program, and starts with your session. `wpctl status` shows the outputs and inputs, and `wpctl set-default` picks one.
@@ -77,5 +88,4 @@ $ nerv-keymap                        # what is set now
 
 ## What is still in progress
 
-- **X11 programs.** The desktop is Wayland. Running programs that need X11 is in progress.
 - **Screenshots and the clipboard from the command line.** No tools for them ship yet.
