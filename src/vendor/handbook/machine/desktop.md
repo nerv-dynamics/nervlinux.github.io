@@ -57,11 +57,7 @@ Noctalia is the shell around your windows: the bar, the launcher, notifications,
 
 ## Firefox
 
-```
-$ doas dnf install nerv-firefox
-```
-
-Nerv's Firefox runs on Nerv's own C library and allocator, with sponsored content, telemetry and DRM video switched off.
+Firefox comes with the desktop. Nerv's Firefox runs on Nerv's own C library and allocator, with sponsored content, telemetry and DRM video switched off.
 
 ## Sound
 
