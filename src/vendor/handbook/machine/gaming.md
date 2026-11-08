@@ -33,7 +33,7 @@ Quake comes with the desktop and runs today, natively, doubling as the proof tha
 $ quake
 ```
 
-nQuake is Nerv's own Quake renderer, playing LibreQuake's free content, with ray-traced shadows and ambient occlusion under Options › nQuake; more of its ray-traced lighting is to come. On a machine without the desktop, `doas dnf install nerv-quake` brings it.
+nQuake is Nerv's own Quake renderer, playing LibreQuake's free content, with ray-traced shadows and ambient occlusion under Options › nQuake. Its ReSTIR direct row relights every surface per pixel, ray-traced, from every light the map describes: its light entities, its sun, and every surface that glows, in that surface's own colour; muzzle flashes and explosions are lit exactly, and with nQuake particles, explosions, spikes and tracers cast their own light while smoke and blood take the light of the room they drift through; the ReSTIR GI row adds the light that bounces off every surface, and the sky's own light, so nothing of the map's baked lighting is used. Volumetric fog makes a map's fog a lit medium, with light falling through it in shafts. No preset turns them on yet, and while they are on the scene is drawn without anti-aliasing; both wait for the upscaler of a later stage. More of its ray-traced lighting is to come. On a machine without the desktop, `doas dnf install nerv-quake` brings it.
 
 ## Borrowing a faster GPU
 
