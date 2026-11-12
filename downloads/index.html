@@ -74,11 +74,18 @@
   <div class="wrap">
     <h1 class="page-title">Downloads</h1>
     <div class="prose">
-      <p>To install Nerv Linux, run this in a Linux terminal on the same network as the machine, and follow the handbook from there.</p>
+      <p>To install Nerv Linux, run one command on a computer on the same network as the machine, and follow the handbook from there. From Linux, in a terminal:</p>
     </div>
     <div class="cmd">
       <pre class="term term__body"><span class="c-grey" aria-hidden="true">$ </span><code id="install-cmd">curl -fsSL https://nervlinux.org/install.sh | sh</code></pre>
       <button class="btn btn--blue cmd__copy" type="button" data-copy="install-cmd">Copy</button>
+    </div>
+    <div class="prose">
+      <p>From Windows, in PowerShell. It asks Windows for an administrator once, for the firewall rule that lets the machine reach it:</p>
+    </div>
+    <div class="cmd">
+      <pre class="term term__body"><span class="c-grey" aria-hidden="true">PS&gt; </span><code id="install-cmd-windows">irm https://repo.nervlinux.org/install.ps1 | iex</code></pre>
+      <button class="btn btn--blue cmd__copy" type="button" data-copy="install-cmd-windows">Copy</button>
     </div>
     <div class="actions">
       <a class="btn btn--blue" href="/handbook/machine/install/">Read the install guide</a>
