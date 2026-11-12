@@ -1,13 +1,13 @@
 # Install
 
-Nerv installs over the network from any Linux machine you already have: one command turns that machine into the installer, and the GB10 you are installing boots from it, with no USB stick and nothing typed into the target.
+Nerv installs over the network from a Linux or Windows machine you already have: one command turns that machine into the installer, and the GB10 you are installing boots from it, with no USB stick and nothing typed into the target.
 
 Nerv installs on **GB10** machines. RTX Spark and GB300 are on the roadmap.
 
 You need:
 
 - the **target**, on the same network, set to boot from the network in its firmware
-- the **operator machine**, any Linux box, with `curl` and `openssl`
+- the **operator machine**: any Linux box with `curl` and `openssl`, or a Windows PC with PowerShell, which every Windows has
 - the target's disk, which **will be erased**
 
 ## Start the installer
@@ -45,6 +45,23 @@ A dashboard opens. Its header shows the two ways a target can reach it, over IPv
   ↑↓ select   ⏎ configure   r reboot   s settings   q quit
 ```
 
+### From Windows
+
+In PowerShell:
+
+```
+PS> irm https://repo.nervlinux.org/install.ps1 | iex
+:: fetching http://repo.nervlinux.org/bin/nerv-install-x86_64.exe
+:: verified
+:: the server needs an administrator once, for the firewall rule that lets a target reach it: Windows will ask, and the server opens in a new window
+```
+
+It is the Windows twin of `install.sh`: as short, with no install logic, and `irm https://repo.nervlinux.org/install.ps1` prints it. It carries the SHA-256 of the exact program published beside it and runs that program only if the download matches byte for byte. That is also why the command names `repo.nervlinux.org` rather than nervlinux.org: the digest changes with every publish, so only the copy the repository serves is current, and a stale copy refuses to run.
+
+There is no execution policy to change first. The download and the check run as you; Windows then asks once for an administrator, with its own prompt, and only the verified program runs elevated. From a PowerShell that is already an administrator it just starts. The server opens the same dashboard as on Linux.
+
+It runs on Windows 10 and 11 on x86-64, and on Windows 11 on Arm through its x86-64 emulation. Windows 10 on Arm cannot run it.
+
 ## Boot the target
 
 Set the target to boot from the network and turn it on. On the same network segment that is all, whether the target's firmware netboots over IPv6 or only over IPv4: the installer answers the target's own question about where to boot from, so there is nothing to configure on either machine, on the router, or anywhere else, and nothing to undo afterwards. Your router keeps handing out addresses as it always has; the installer adds only where to boot from, and only to machines of the kind it is installing. Nothing is typed into the target either — no installer media, no kernel arguments, no console, and no boot entry to create in its firmware.
@@ -58,7 +75,7 @@ The target appears on the dashboard once it has booted and reported itself:
 
 It waits there indefinitely. **Nothing is written to the disk until you launch the install.**
 
-A row that turns **`blocked`** has fetched the installer, booted it, and cannot get back to this machine. Its pane names what is in the way: a firewall on the operator machine, or on Windows the firewall in front of WSL. Nothing has to be opened in advance; the dashboard says so when, and only if, a target is actually turned away.
+A row that turns **`blocked`** has fetched the installer, booted it, and cannot get back to this machine. Its pane names what is in the way: a firewall on the operator machine, or, when the installer runs inside WSL rather than with `install.ps1`, the firewall in front of WSL. Nothing has to be opened in advance; the dashboard says so when, and only if, a target is actually turned away.
 
 ### If the target is on another network
 

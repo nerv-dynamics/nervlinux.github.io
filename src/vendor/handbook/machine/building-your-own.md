@@ -18,6 +18,8 @@ A package of your own is an RPM spec, built the way Nerv builds its own: `geofro
 $ geofront build --no-publish packages/myprogram/myprogram.spec
 ```
 
+Every build leaves a typed record in the journal, at its start and at its end: the commit and spec it was built from, what its build root was made of, how long each step took, and how it ended. `journalctl GEOFRONT_EVENT=build-finished GEOFRONT_OUTCOME=failed` lists the builds that failed, with the step each one stopped in. `GEOFRONT_EVENTS=off` turns the records off.
+
 `nerv-rpm-config` gives every build Nerv's hardened compiler flags and the `.nerv` release tag, and `nerv-musl-clang` is the compiler and linker for musl, which a Rust package names as its linker. Setting up the build root outside Nerv's own build machines is the part still in progress.
 
 ## A repository of your own
