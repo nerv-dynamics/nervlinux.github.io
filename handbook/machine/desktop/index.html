@@ -97,8 +97,10 @@
 <li><a href="#noctalia">Noctalia</a></li>
 <li><a href="#foot">foot</a></li>
 <li><a href="#firefox">Firefox</a></li>
+<li><a href="#files">Files</a></li>
 <li><a href="#x11-programs">X11 programs</a></li>
 <li><a href="#sound">Sound</a></li>
+<li><a href="#icons">Icons</a></li>
 <li><a href="#the-keyboard">The keyboard</a></li>
 <li><a href="#what-is-still-in-progress">What is still in progress</a></li>
 </ol>
@@ -208,14 +210,17 @@
 </tbody>
 </table>
 </div>
-<p><code>Mod</code> is the key with the logo on it. Umbriel reads its settings from <code>~/.config/umbriel/config.toml</code>, and from Nerv's own when you have none; copy Nerv's from <code>/etc/xdg/umbriel/config.toml</code> to start one. It applies a change the moment you save it. <code>umbriel outputs</code> lists the displays it drives.</p>
+<p><code>Mod</code> is the key with the logo on it. Umbriel reads its settings from <code>~/.config/umbriel/config.toml</code>, which a new account starts with; <code>/usr/share/umbriel/config.toml</code> is upstream's annotated example of every setting. It applies a change the moment you save it. <code>umbriel outputs</code> lists the displays it drives.</p>
 <p>The pointer is Phinger, light on Nerv's dark surfaces, and the login screen uses the same one. <code>[input.cursor] theme</code> in your config picks another by the name of its directory under <code>/usr/share/icons</code>, such as <code>phinger-cursors-dark</code> or the left-handed <code>phinger-cursors-light-left</code>, and <code>size</code> sets how large it is drawn.</p>
 <h2 id="noctalia" class="section-title">Noctalia</h2>
 <p>Noctalia is the shell around your windows: the bar, the launcher, notifications, the wallpaper and the lock screen. Its Settings panel changes it, and writes what you choose to <code>~/.config/noctalia/noctalia.toml</code>. It comes in Myelin, Nerv's colours, set in Nerv's own typeface, Ashinoko.</p>
 <h2 id="foot" class="section-title">foot</h2>
-<p><code>foot</code> is the terminal, <code>Mod+Return</code> away. It reads <code>~/.config/foot/foot.ini</code> if you write one.</p>
+<p><code>foot</code> is the terminal, <code>Mod+Return</code> away. The key runs <code>footclient</code>, which opens a window in a foot server that starts with your session, so the terminal is there at once. It comes in Myelin and Ashinoko from <code>/etc/xdg/foot/foot.ini</code>; a <code>~/.config/foot/foot.ini</code> of your own replaces that file entirely, and <code>include=/usr/share/foot/themes/myelin</code> in it keeps the colours.</p>
 <h2 id="firefox" class="section-title">Firefox</h2>
 <p>Firefox comes with the desktop. Nerv's Firefox runs on Nerv's own C library and allocator, with sponsored content, telemetry and DRM video switched off.</p>
+<h2 id="files" class="section-title">Files</h2>
+<p>Strata is the file manager: the launcher finds it as <em>Strata</em>, and <code>strata</code> starts it from a terminal. It browses in columns, icons or a list, with tabs, and previews documents, images, audio and source code beside the listing. Every preview is drawn in a sandbox that sees only the file it shows. Nothing indexes your files in the background: a search looks through the folder you are in, when you ask.</p>
+<p>Other programs use it too. Firefox's Open and Save dialogs are Strata's, as are those of any program that asks the desktop for one, and "Show in folder" in a browser opens the folder in Strata.</p>
 <h2 id="x11-programs" class="section-title">X11 programs</h2>
 <p>Programs written for X11 run on the desktop beside Wayland ones, in windows of their own. Every session has an X display, and programs started from it find it in <code>DISPLAY</code>:</p>
 <pre class="term term__body">$ echo $DISPLAY
@@ -223,6 +228,8 @@
 <p>The X server is Xwayland. The session starts it when the first X11 program connects, and again if it stops. It draws with the GPU, and so does an X11 program using OpenGL. Nothing needs installing: it comes with the desktop.</p>
 <h2 id="sound" class="section-title">Sound</h2>
 <p>PipeWire is the sound server, for every program, and starts with your session. <code>wpctl status</code> shows the outputs and inputs, and <code>wpctl set-default</code> picks one.</p>
+<h2 id="icons" class="section-title">Icons</h2>
+<p>Programs draw Nerv's icons, Myelin: Lucide's line drawings in Myelin's colours, for places, kinds of file and common actions, with the Adwaita theme beneath them for everything else. <code>gtk-icon-theme-name</code> in <code>~/.config/gtk-4.0/settings.ini</code>, and in <code>~/.config/gtk-3.0/settings.ini</code>, picks another.</p>
 <h2 id="the-keyboard" class="section-title">The keyboard</h2>
 <p>The machine has one keyboard layout, for the console and the desktop alike. <code>nerv-keymap</code> sets both:</p>
 <pre class="term term__body">$ doas nerv-keymap de
@@ -232,6 +239,7 @@ $ nerv-keymap                        # what is set now</pre>
 <h2 id="what-is-still-in-progress" class="section-title">What is still in progress</h2>
 <ul class="list">
 <li><strong>Screenshots and the clipboard from the command line.</strong> No tools for them ship yet.</li>
+<li><strong>The Trash, network locations and removable drives in Strata.</strong> Strata shows the folders on your disks; it does not list these yet.</li>
 </ul>
       </div>
       <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/containers/"><span>Previous</span>Containers</a><a class="hb-pager__next" href="/handbook/machine/networking/"><span>Next</span>Networking</a></nav>

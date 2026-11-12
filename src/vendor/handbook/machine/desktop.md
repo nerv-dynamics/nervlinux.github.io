@@ -43,7 +43,7 @@ Umbriel is the compositor: it draws the windows and decides where they go. Windo
 | `Mod+Space` | the scratchpad |
 | `Mod+Escape` | end the session |
 
-`Mod` is the key with the logo on it. Umbriel reads its settings from `~/.config/umbriel/config.toml`, and from Nerv's own when you have none; copy Nerv's from `/etc/xdg/umbriel/config.toml` to start one. It applies a change the moment you save it. `umbriel outputs` lists the displays it drives.
+`Mod` is the key with the logo on it. Umbriel reads its settings from `~/.config/umbriel/config.toml`, which a new account starts with; `/usr/share/umbriel/config.toml` is upstream's annotated example of every setting. It applies a change the moment you save it. `umbriel outputs` lists the displays it drives.
 
 The pointer is Phinger, light on Nerv's dark surfaces, and the login screen uses the same one. `[input.cursor] theme` in your config picks another by the name of its directory under `/usr/share/icons`, such as `phinger-cursors-dark` or the left-handed `phinger-cursors-light-left`, and `size` sets how large it is drawn.
 
@@ -53,11 +53,17 @@ Noctalia is the shell around your windows: the bar, the launcher, notifications,
 
 ## foot
 
-`foot` is the terminal, `Mod+Return` away. It reads `~/.config/foot/foot.ini` if you write one.
+`foot` is the terminal, `Mod+Return` away. The key runs `footclient`, which opens a window in a foot server that starts with your session, so the terminal is there at once. It comes in Myelin and Ashinoko from `/etc/xdg/foot/foot.ini`; a `~/.config/foot/foot.ini` of your own replaces that file entirely, and `include=/usr/share/foot/themes/myelin` in it keeps the colours.
 
 ## Firefox
 
 Firefox comes with the desktop. Nerv's Firefox runs on Nerv's own C library and allocator, with sponsored content, telemetry and DRM video switched off.
+
+## Files
+
+Strata is the file manager: the launcher finds it as *Strata*, and `strata` starts it from a terminal. It browses in columns, icons or a list, with tabs, and previews documents, images, audio and source code beside the listing. Every preview is drawn in a sandbox that sees only the file it shows. Nothing indexes your files in the background: a search looks through the folder you are in, when you ask.
+
+Other programs use it too. Firefox's Open and Save dialogs are Strata's, as are those of any program that asks the desktop for one, and "Show in folder" in a browser opens the folder in Strata.
 
 ## X11 programs
 
@@ -74,6 +80,10 @@ The X server is Xwayland. The session starts it when the first X11 program conne
 
 PipeWire is the sound server, for every program, and starts with your session. `wpctl status` shows the outputs and inputs, and `wpctl set-default` picks one.
 
+## Icons
+
+Programs draw Nerv's icons, Myelin: Lucide's line drawings in Myelin's colours, for places, kinds of file and common actions, with the Adwaita theme beneath them for everything else. `gtk-icon-theme-name` in `~/.config/gtk-4.0/settings.ini`, and in `~/.config/gtk-3.0/settings.ini`, picks another.
+
 ## The keyboard
 
 The machine has one keyboard layout, for the console and the desktop alike. `nerv-keymap` sets both:
@@ -89,3 +99,4 @@ $ nerv-keymap                        # what is set now
 ## What is still in progress
 
 - **Screenshots and the clipboard from the command line.** No tools for them ship yet.
+- **The Trash, network locations and removable drives in Strata.** Strata shows the folders on your disks; it does not list these yet.
