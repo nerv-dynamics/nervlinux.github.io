@@ -163,118 +163,119 @@ nav:   system
   <div class="wrap">
     <h2 class="section-title">S2, the inference engine</h2>
     <div class="prose">
-      <p><span class="kw kw--nerv">S2</span> talks to the <span class="kw kw--nvidia">CUDA</span> driver API and nothing above it: no cudart, no cuBLAS, no nvcc. Its kernels come from its own PTX generator, written in Rust. A model is two files: the weights, stored in the order the kernels read them, and a plan holding every allocation, every kernel as a cubin and every step's launches. At load, S2 captures each step as a CUDA graph, which takes under a second for all 128 steps. A model is serving 10 seconds after S2 starts, where <span class="kw kw--tool">vLLM</span> takes 7 minutes.</p>
-      <p>The KV cache is paged from one pool, 64 positions to a page, out to a 262,144-token context. Finished sessions are kept as snapshots a new request can resume from. Speculative decoding uses block drafters, with acceptance decided on the GPU. At 64 concurrent sessions S2 serves 566 tokens per second, 1.7&times; vLLM and 7&times; llama.cpp. A single user gets 57, twice what Atlas and vLLM reach with MTP speculative decoding.</p>
+      <p><span class="kw kw--nerv">S2</span> talks to the <span class="kw kw--nvidia">CUDA</span> driver API and nothing above it: no cudart, no cuBLAS, no nvcc. Its kernels come from its own PTX generator, written in Rust. A model is two files: the weights, stored in the order the kernels read them, and a plan holding every allocation, every kernel as a cubin and every step's launches. At load, S2 captures each step as a CUDA graph, which takes under a second for all 128 steps. A model is serving 10 seconds after S2 starts, where <span class="kw kw--tool">vLLM</span> takes 3 to 4 minutes.</p>
+      <p>The KV cache is paged from one pool, 64 positions to a page, out to a 262,144-token context. Finished sessions are kept as snapshots a new request can resume from. Speculative decoding uses block drafters, with acceptance decided on the GPU. At 64 concurrent sessions S2 serves 641 tokens per second, 2&times; vLLM and 9&times; llama.cpp. A single user gets 67, nearly three times what vLLM and llama.cpp reach with MTP speculative decoding.</p>
     </div>
     <figure class="diagram">
-      <svg viewBox="0 0 960 640" role="img" aria-label="Prefill and decode throughput against vLLM, Atlas and llama.cpp. S2 is fastest in every case: 2,840 tokens per second prefill at 8k, and 566 decode at 64 sessions against vLLM's 329. It loads the model in 10 seconds, against 7 minutes for vLLM.">
+      <svg viewBox="0 0 960 640" role="img" aria-label="Prefill and decode throughput against vLLM, Atlas and llama.cpp. S2 has the highest throughput in every case: 2,792 tokens per second prefill at 8k against vLLM's 1,468, and 641 decode at 64 sessions against vLLM's 326. It loads the model in 10 seconds, against 3 to 4 minutes for vLLM.">
         <g font-family="var(--font-mono)" font-size="12.5">
           <text x="16" y="28" fill="var(--text)" font-weight="600" font-size="14">Prefill, tokens per second</text>
           <text x="16" y="62" fill="var(--text-secondary)">8k prompt</text>
           <text x="16" y="87" fill="var(--brand)" font-weight="600">S2</text>
-          <rect x="116" y="74" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 8k prompt: 2,840 tok/s</title></rect>
-          <text x="404.0" y="87" fill="var(--text)" font-weight="600">2,840</text>
+          <rect x="116" y="74" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 8k prompt: 2,792 tok/s</title></rect>
+          <text x="404.0" y="87" fill="var(--text)" font-weight="600">2,792</text>
           <text x="16" y="115" fill="var(--text-secondary)">vLLM NVFP4</text>
-          <rect x="116" y="102" width="226.1" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4, 8k prompt: 2,293 tok/s</title></rect>
-          <text x="350.1" y="115" fill="var(--text)">2,293</text>
+          <rect x="116" y="102" width="147.2" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4, 8k prompt: 1,468 tok/s</title></rect>
+          <text x="271.2" y="115" fill="var(--text)">1,468</text>
           <text x="16" y="143" fill="var(--text-secondary)">Atlas</text>
-          <rect x="116" y="130" width="86.5" height="18" rx="3" fill="var(--border-strong)"><title>Atlas, 8k prompt: 877 tok/s</title></rect>
-          <text x="210.5" y="143" fill="var(--text)">877</text>
+          <rect x="116" y="130" width="88.0" height="18" rx="3" fill="var(--border-strong)"><title>Atlas, 8k prompt: 877 tok/s</title></rect>
+          <text x="212.0" y="143" fill="var(--text)">877</text>
           <text x="16" y="171" fill="var(--text-secondary)">llama.cpp</text>
-          <rect x="116" y="158" width="78.0" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp, 8k prompt: 791 tok/s</title></rect>
-          <text x="202.0" y="171" fill="var(--text)">791</text>
+          <rect x="116" y="158" width="79.3" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp, 8k prompt: 791 tok/s</title></rect>
+          <text x="203.3" y="171" fill="var(--text)">791</text>
           <text x="16" y="210" fill="var(--text-secondary)">32k prompt</text>
           <text x="16" y="235" fill="var(--brand)" font-weight="600">S2</text>
-          <rect x="116" y="222" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 32k prompt: 2,412 tok/s</title></rect>
-          <text x="404.0" y="235" fill="var(--text)" font-weight="600">2,412</text>
+          <rect x="116" y="222" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 32k prompt: 2,379 tok/s</title></rect>
+          <text x="404.0" y="235" fill="var(--text)" font-weight="600">2,379</text>
           <text x="16" y="263" fill="var(--text-secondary)">vLLM NVFP4</text>
-          <rect x="116" y="250" width="230.0" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4, 32k prompt: 1,981 tok/s</title></rect>
-          <text x="354.0" y="263" fill="var(--text)">1,981</text>
+          <rect x="116" y="250" width="153.4" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4, 32k prompt: 1,303 tok/s</title></rect>
+          <text x="277.4" y="263" fill="var(--text)">1,303</text>
           <text x="16" y="291" fill="var(--text-secondary)">Atlas</text>
-          <rect x="116" y="278" width="88.9" height="18" rx="3" fill="var(--border-strong)"><title>Atlas, 32k prompt: 766 tok/s</title></rect>
-          <text x="212.9" y="291" fill="var(--text)">766</text>
+          <rect x="116" y="278" width="90.2" height="18" rx="3" fill="var(--border-strong)"><title>Atlas, 32k prompt: 766 tok/s</title></rect>
+          <text x="214.2" y="291" fill="var(--text)">766</text>
           <text x="16" y="319" fill="var(--text-secondary)">llama.cpp</text>
-          <rect x="116" y="306" width="87.8" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp, 32k prompt: 756 tok/s</title></rect>
-          <text x="211.8" y="319" fill="var(--text)">756</text>
+          <rect x="116" y="306" width="86.9" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp, 32k prompt: 738 tok/s</title></rect>
+          <text x="210.9" y="319" fill="var(--text)">738</text>
           <text x="16" y="358" fill="var(--text-secondary)">131k prompt</text>
           <text x="16" y="383" fill="var(--brand)" font-weight="600">S2</text>
-          <rect x="116" y="370" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 131k prompt: 1,390 tok/s</title></rect>
-          <text x="404.0" y="383" fill="var(--text)" font-weight="600">1,390</text>
+          <rect x="116" y="370" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 131k prompt: 1,430 tok/s</title></rect>
+          <text x="404.0" y="383" fill="var(--text)" font-weight="600">1,430</text>
           <text x="16" y="411" fill="var(--text-secondary)">vLLM NVFP4</text>
-          <rect x="116" y="398" width="239.7" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4, 131k prompt: 1,190 tok/s</title></rect>
-          <text x="363.7" y="411" fill="var(--text)">1,190</text>
+          <rect x="116" y="398" width="171.5" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4, 131k prompt: 876 tok/s</title></rect>
+          <text x="295.5" y="411" fill="var(--text)">876</text>
           <text x="16" y="439" fill="var(--text-secondary)">Atlas</text>
           <text x="116" y="439" fill="var(--text-secondary)" font-size="11.5">no result</text>
           <text x="16" y="467" fill="var(--text-secondary)">llama.cpp</text>
-          <text x="116" y="467" fill="var(--text-secondary)" font-size="11.5">no result</text>
+          <rect x="116" y="454" width="111.2" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp, 131k prompt: 568 tok/s</title></rect>
+          <text x="235.2" y="467" fill="var(--text)">568</text>
           <text x="488" y="28" fill="var(--text)" font-weight="600" font-size="14">Decode, tokens per second</text>
           <text x="488" y="62" fill="var(--text-secondary)">1 session</text>
           <text x="488" y="87" fill="var(--brand)" font-weight="600">S2</text>
-          <rect x="588" y="74" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 1 session: 57 tok/s</title></rect>
-          <text x="876.0" y="87" fill="var(--text)" font-weight="600">57</text>
+          <rect x="588" y="74" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 1 session: 67 tok/s</title></rect>
+          <text x="876.0" y="87" fill="var(--text)" font-weight="600">67</text>
           <text x="488" y="115" fill="var(--text-secondary)">vLLM NVFP4</text>
-          <rect x="588" y="102" width="127.7" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4 with MTP, 1 session: 26 tok/s</title></rect>
-          <text x="723.7" y="115" fill="var(--text)">26</text>
+          <rect x="588" y="102" width="96.1" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4 with MTP, 1 session: 23.0 tok/s</title></rect>
+          <text x="692.1" y="115" fill="var(--text)">23.0</text>
           <text x="488" y="143" fill="var(--text-secondary)">Atlas</text>
-          <rect x="588" y="130" width="152.3" height="18" rx="3" fill="var(--border-strong)"><title>Atlas with MTP, 1 session: 31 tok/s</title></rect>
-          <text x="748.3" y="143" fill="var(--text)">31</text>
+          <rect x="588" y="130" width="129.6" height="18" rx="3" fill="var(--border-strong)"><title>Atlas with MTP, 1 session: 31 tok/s</title></rect>
+          <text x="725.6" y="143" fill="var(--text)">31</text>
           <text x="488" y="171" fill="var(--text-secondary)">llama.cpp</text>
-          <rect x="588" y="158" width="57.5" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp, 1 session: 11.7 tok/s</title></rect>
-          <text x="653.5" y="171" fill="var(--text)">11.7</text>
+          <rect x="588" y="158" width="102.0" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp with MTP, 1 session: 24.4 tok/s</title></rect>
+          <text x="698.0" y="171" fill="var(--text)">24.4</text>
           <text x="488" y="210" fill="var(--text-secondary)">4 sessions</text>
           <text x="488" y="235" fill="var(--brand)" font-weight="600">S2</text>
-          <rect x="588" y="222" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 4 sessions: 196 tok/s</title></rect>
-          <text x="876.0" y="235" fill="var(--text)" font-weight="600">196</text>
+          <rect x="588" y="222" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 4 sessions: 182 tok/s</title></rect>
+          <text x="876.0" y="235" fill="var(--text)" font-weight="600">182</text>
           <text x="488" y="263" fill="var(--text-secondary)">vLLM NVFP4</text>
-          <rect x="588" y="250" width="60.4" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4, 4 sessions: 42.3 tok/s</title></rect>
-          <text x="656.4" y="263" fill="var(--text)">42.3</text>
+          <rect x="588" y="250" width="64.2" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4, 4 sessions: 41.7 tok/s</title></rect>
+          <text x="660.2" y="263" fill="var(--text)">41.7</text>
           <text x="488" y="291" fill="var(--text-secondary)">Atlas</text>
-          <rect x="588" y="278" width="74.1" height="18" rx="3" fill="var(--border-strong)"><title>Atlas, 4 sessions: 51.9 tok/s</title></rect>
-          <text x="670.1" y="291" fill="var(--text)">51.9</text>
+          <rect x="588" y="278" width="79.8" height="18" rx="3" fill="var(--border-strong)"><title>Atlas, 4 sessions: 51.9 tok/s</title></rect>
+          <text x="675.8" y="291" fill="var(--text)">51.9</text>
           <text x="488" y="319" fill="var(--text-secondary)">llama.cpp</text>
-          <rect x="588" y="306" width="54.1" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp, 4 sessions: 37.9 tok/s</title></rect>
-          <text x="650.1" y="319" fill="var(--text)">37.9</text>
+          <rect x="588" y="306" width="58.9" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp, 4 sessions: 38.3 tok/s</title></rect>
+          <text x="654.9" y="319" fill="var(--text)">38.3</text>
           <text x="488" y="358" fill="var(--text-secondary)">16 sessions</text>
           <text x="488" y="383" fill="var(--brand)" font-weight="600">S2</text>
-          <rect x="588" y="370" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 16 sessions: 451 tok/s</title></rect>
-          <text x="876.0" y="383" fill="var(--text)" font-weight="600">451</text>
+          <rect x="588" y="370" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 16 sessions: 458 tok/s</title></rect>
+          <text x="876.0" y="383" fill="var(--text)" font-weight="600">458</text>
           <text x="488" y="411" fill="var(--text-secondary)">vLLM NVFP4</text>
-          <rect x="588" y="398" width="87.8" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4, 16 sessions: 141.4 tok/s</title></rect>
-          <text x="683.8" y="411" fill="var(--text)">141.4</text>
+          <rect x="588" y="398" width="85.5" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4, 16 sessions: 139.9 tok/s</title></rect>
+          <text x="681.5" y="411" fill="var(--text)">139.9</text>
           <text x="488" y="439" fill="var(--text-secondary)">Atlas</text>
-          <rect x="588" y="426" width="84.7" height="18" rx="3" fill="var(--border-strong)"><title>Atlas, 16 sessions: 136.4 tok/s</title></rect>
-          <text x="680.7" y="439" fill="var(--text)">136.4</text>
+          <rect x="588" y="426" width="83.4" height="18" rx="3" fill="var(--border-strong)"><title>Atlas, 16 sessions: 136.4 tok/s</title></rect>
+          <text x="679.4" y="439" fill="var(--text)">136.4</text>
           <text x="488" y="467" fill="var(--text-secondary)">llama.cpp</text>
-          <rect x="588" y="454" width="34.5" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp, 16 sessions: 55.6 tok/s</title></rect>
-          <text x="630.5" y="467" fill="var(--text)">55.6</text>
+          <rect x="588" y="454" width="35.5" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp, 16 sessions: 58.0 tok/s</title></rect>
+          <text x="631.5" y="467" fill="var(--text)">58.0</text>
           <text x="488" y="506" fill="var(--text-secondary)">64 sessions</text>
           <text x="488" y="531" fill="var(--brand)" font-weight="600">S2</text>
-          <rect x="588" y="518" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 64 sessions: 566 tok/s</title></rect>
-          <text x="876.0" y="531" fill="var(--text)" font-weight="600">566</text>
+          <rect x="588" y="518" width="280.0" height="18" rx="3" fill="var(--brand)"><title>S2, 64 sessions: 641 tok/s</title></rect>
+          <text x="876.0" y="531" fill="var(--text)" font-weight="600">641</text>
           <text x="488" y="559" fill="var(--text-secondary)">vLLM NVFP4</text>
-          <rect x="588" y="546" width="162.8" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4, 64 sessions: 329.0 tok/s</title></rect>
-          <text x="758.8" y="559" fill="var(--text)">329.0</text>
+          <rect x="588" y="546" width="142.4" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4, 64 sessions: 326.1 tok/s</title></rect>
+          <text x="738.4" y="559" fill="var(--text)">326.1</text>
           <text x="488" y="587" fill="var(--text-secondary)">Atlas</text>
           <text x="588" y="587" fill="var(--text-secondary)" font-size="11.5">did not run</text>
           <text x="488" y="615" fill="var(--text-secondary)">llama.cpp</text>
-          <rect x="588" y="602" width="39.5" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp, 64 sessions: 79.9 tok/s</title></rect>
-          <text x="635.5" y="615" fill="var(--text)">79.9</text>
+          <rect x="588" y="602" width="30.4" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp, 64 sessions: 69.6 tok/s</title></rect>
+          <text x="626.4" y="615" fill="var(--text)">69.6</text>
           <text x="16" y="506" fill="var(--text)" font-weight="600">Time to load the model</text>
           <text x="16" y="531" fill="var(--brand)" font-weight="600">S2</text>
-          <rect x="116" y="518" width="6.7" height="18" rx="3" fill="var(--brand)"><title>S2: 10 s</title></rect>
-          <text x="130.7" y="531" fill="var(--text)" font-weight="600">10 s</text>
+          <rect x="116" y="518" width="15.6" height="18" rx="3" fill="var(--brand)"><title>S2: 10 s</title></rect>
+          <text x="139.6" y="531" fill="var(--text)" font-weight="600">10 s</text>
           <text x="16" y="559" fill="var(--text-secondary)">vLLM NVFP4</text>
-          <rect x="116" y="546" width="280.0" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4: 7 min</title></rect>
-          <text x="404.0" y="559" fill="var(--text)">7 min</text>
+          <rect x="116" y="546" width="280.0" height="18" rx="3" fill="var(--border-strong)"><title>vLLM NVFP4: 3–4 min</title></rect>
+          <text x="404.0" y="559" fill="var(--text)">3–4 min</text>
           <text x="16" y="587" fill="var(--text-secondary)">Atlas</text>
-          <rect x="116" y="574" width="25.3" height="18" rx="3" fill="var(--border-strong)"><title>Atlas: 38 s</title></rect>
-          <text x="149.3" y="587" fill="var(--text)">38 s</text>
+          <rect x="116" y="574" width="59.1" height="18" rx="3" fill="var(--border-strong)"><title>Atlas: 38 s</title></rect>
+          <text x="183.1" y="587" fill="var(--text)">38 s</text>
           <text x="16" y="615" fill="var(--text-secondary)">llama.cpp</text>
-          <rect x="116" y="602" width="48.7" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp: 1 min 13 s</title></rect>
-          <text x="172.7" y="615" fill="var(--text)">1 min 13 s</text>
+          <rect x="116" y="602" width="12.4" height="18" rx="3" fill="var(--border-strong)"><title>llama.cpp: 7–9 s</title></rect>
+          <text x="136.4" y="615" fill="var(--text)">7–9 s</text>
         </g>
       </svg>
-      <figcaption>Qwen3.8-27B on one GB10, thinking off. At 1 session, vLLM and Atlas run with MTP. Each panel has its own scale.</figcaption>
+      <figcaption>Qwen3.8-27B on one GB10, thinking off. At 1 session, vLLM, Atlas and llama.cpp run with MTP. Each panel has its own scale.</figcaption>
     </figure>
     <div class="prose">
       <p>S2 is also the only engine we tested that loads <span class="kw kw--nvidia">NVIDIA</span>'s own NVFP4 checkpoint of Qwen 3.8 Flash-Next on one <span class="kw kw--nvidia">GB10</span>, because it keeps the model's n-gram table on disk. Stock <span class="kw kw--tool">vLLM</span> and Atlas ran out of memory or refused to load it.</p>
@@ -286,23 +287,27 @@ nav:   system
   <div class="wrap">
     <h2 class="section-title">yui, agents that answer to you</h2>
     <div class="prose">
-      <p><span class="kw kw--nerv">yui</span> puts an agent in your terminal. It reads, edits and runs commands to do what you ask, with <span class="kw kw--nerv">S2</span>, any OpenAI-compatible server or Claude as the model, and its conversations are kept by the machine, so they outlive the terminal and resume where they left off.</p>
-      <p>An agent rarely does damage by breaking out of anything. It does damage with what it was legitimately given: the keys it can reach, the remote it is allowed to push to, the API it is allowed to call. A fence around the agent says where it may act, and nothing about whether it should, and handing it credentials through a proxy that intercepts its TLS and fills secrets into its requests puts the secret wherever the agent writes it. Both make an agent look contained while the real exposure stays open.</p>
-      <p><span class="kw kw--nerv">yui</span> starts from a different question: who asked? A model cannot reliably tell your words from words that only look like them, in a web page, a log or another agent's reply, and no filter can either, because whoever writes the text controls what it says. So authority comes from where text came from, never from what it says. Every part of a conversation carries its origin, and what the agent may do without asking depends on that alone.</p>
+      <p><span class="kw kw--nerv">yui</span> puts an agent in your terminal. It reads, edits and runs commands to do what you ask, with <span class="kw kw--nerv">S2</span>, any OpenAI-compatible server or Claude as the model, and starts this machine's S2 when a conversation needs it. Its conversations are kept by the machine, so they outlive the terminal and resume where they left off.</p>
+      <p>An agent rarely does damage by breaking out of anything. It does damage with what it was legitimately given: the keys it can reach, the remote it is allowed to push to, the API it is allowed to call. A fence that says where an agent may act protects nothing when the agent already holds a key, and handing it credentials through a proxy that intercepts its TLS and fills secrets into its requests puts the secret wherever the agent writes it. Both make an agent look contained while the real exposure stays open.</p>
+      <p>So <span class="kw kw--nerv">yui</span>'s sandbox is built around what the agent can see. Every call runs in namespaces of its own, under Landlock, a seccomp filter and an SELinux domain of its own, with an environment that holds nothing of <span class="kw kw--nerv">yui</span>'s. Your keys, tokens and history are not hidden from the agent by a rule it might talk its way around. They are not there.</p>
     </div>
     <div class="table-scroll">
       <table class="data">
-        <thead><tr><th scope="col">The conversation holds</th><th scope="col">The agent may, unasked</th></tr></thead>
+        <thead><tr><th scope="col">Inside the sandbox</th><th scope="col">The agent</th></tr></thead>
         <tbody>
-          <tr><td>Only what you typed, and this machine's own files and results</td><td>Read in the working directory, and use any tool you allowed for the conversation</td></tr>
-          <tr><td>Anything from elsewhere: a long paste, a page, a log</td><td>Read in the working directory. Every other call is asked for again, and the card says why</td></tr>
+          <tr><td>The directory you started in</td><td>Reads and writes, without asking. A repository's hooks and configuration stay read-only, so nothing it does runs when you next commit</td></tr>
+          <tr><td>The system</td><td>Reads</td></tr>
+          <tr><td>A home and <code>/tmp</code> of its own</td><td>Reads and writes; they last from one command to the next</td></tr>
+          <tr><td>Your home and your other files</td><td>Sees nothing, unless you give it a path</td></tr>
+          <tr><td>The network</td><td>None, unless you give it</td></tr>
+          <tr><td>Your programs, your sockets, <code>doas</code></td><td>Cannot see or reach them</td></tr>
         </tbody>
       </table>
     </div>
     <div class="prose">
-      <p>What it asks for, it shows as its effect, not its description: an edit as the diff it makes, a command as the exact line it runs. You can allow it, refuse with a reason the model reads, or correct it before it runs. A card raised while nobody is attached waits for you: nothing that needs you runs without you.</p>
-      <p>The agent is given no secret in any form, not even a placeholder, and nothing decrypts your traffic to fill one in. Identity comes from the kernel, never from a token an agent could read and replay: only you can reach your agents, and only <span class="kw kw--nerv">yui</span> can write to its conversations. Claude runs with Claude Code's own tools switched off and <span class="kw kw--nerv">yui</span>'s in their place, so every model works under the same rules and the same cards. There is no telemetry, and nothing is written into the directories you work in.</p>
-      <p>A kernel sandbox for agents is coming too. It limits how far an approved action reaches. Whether an action is approved stays where it belongs: with you.</p>
+      <p>Inside, the agent needs no permission, and every change shows in the conversation as it is made. Anything more, a path elsewhere or the network, it asks for on a card that shows what it would reach and why. What you give is kept with the conversation and can be taken back at any time.</p>
+      <p>Who asked still matters. A model cannot reliably tell your words from words that only look like them, in a web page, a log or another agent's reply, and no filter can either, because whoever writes the text controls what it says. So every part of a conversation carries where it came from, and once it holds text from elsewhere, a command that could reach the network is asked for again. That is the moment an injected instruction could carry something out, so that is where you are asked.</p>
+      <p>The agent is given no secret in any form, not even a placeholder, and nothing decrypts your traffic to fill one in. Identity comes from the kernel, never from a token an agent could read and replay: only you can reach your agents, and only <span class="kw kw--nerv">yui</span> can write to its conversations. Claude runs with Claude Code's own tools switched off and <span class="kw kw--nerv">yui</span>'s in their place, so every model works in the same sandbox under the same rules. There is no telemetry, and nothing is written into the directories you work in.</p>
     </div>
   </div>
 </section>
