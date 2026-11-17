@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nerv Linux — Agents</title>
+<meta name="description" content="yui puts an agent in your terminal: you talk to a model, and it reads files, edits them and runs commands to do what you ask, inside a sandbox that holds only what you give it. Conversations are kept by the machine, outlive the terminal, and pick up where they left off.">
+<link rel="canonical" href="https://nervlinux.org/handbook/machine/agents/">
+<meta property="og:title" content="Nerv Linux — Agents">
+<meta property="og:description" content="yui puts an agent in your terminal: you talk to a model, and it reads files, edits them and runs commands to do what you ask, inside a sandbox that holds only what you give it. Conversations are kept by the machine, outlive the terminal, and pick up where they left off.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nervlinux.org/handbook/machine/agents/">
+<link rel="icon" href="/assets/favicon.png" sizes="32x32">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/nerv-square.png">
+<link rel="preload" href="/fonts/ashinoko-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/palette.css">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/site.css">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('nerv-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="masthead__inner">
+    <a class="masthead__brand" href="/" aria-label="Nerv Linux — home">
+      <img class="logo" src="/assets/nerv-wordmark.png" alt="Nerv Linux" width="600" height="149">
+    </a>
+    <nav class="masthead__nav" aria-label="Primary">
+      <div class="masthead__links" id="primary-links">
+      <a href="/system/">System</a>
+      <a href="/desktop/">Desktop</a>
+      <a href="/enterprise/">Enterprise</a>
+      <a href="/community/">Community</a>
+      <a href="/handbook/" aria-current="page">Handbook</a>
+      <a href="/downloads/">Downloads</a>
+      <a href="/about/">About</a>
+      </div>
+      <button class="theme-toggle" id="theme-toggle" type="button"
+              aria-label="Switch to light theme" title="Switch theme">
+        <svg class="icon icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path fill="currentColor" d="M20.7 14.6A8.6 8.6 0 0 1 9.4 3.3a8.7 8.7 0 1 0 11.3 11.3Z"/>
+        </svg>
+        <svg class="icon icon--sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2" fill="currentColor"/>
+          <g stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+            <path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4"/>
+            <path d="M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/>
+          </g>
+        </svg>
+      </button>
+      <button class="menu-toggle" id="menu-toggle" type="button"
+              aria-label="Menu" aria-expanded="false" aria-controls="primary-links">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+          <path class="menu-toggle__open" d="M4 7h16M4 12h16M4 17h16"/>
+          <path class="menu-toggle__close" d="M6 6l12 12M18 6L6 18"/>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="section section--head">
+  <div class="wrap hb">
+    <nav class="hb-nav" aria-label="Handbook">
+<details class="hb-nav__box" open>
+<summary class="hb-nav__summary">Contents</summary>
+<a class="hb-nav__home" href="/handbook/">The Nerv Handbook</a>
+<p class="hb-nav__part">This machine</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/why-an-operating-system-still/">Why an operating system, still</a>
+</li>
+<li><a href="/handbook/machine/what-nerv-is/">What Nerv is</a>
+</li>
+<li><a href="/handbook/machine/install/">Install</a>
+</li>
+<li><a href="/handbook/machine/the-first-hour/">The first hour</a>
+</li>
+<li><a href="/handbook/machine/software/">Software</a>
+</li>
+<li><a href="/handbook/machine/containers/">Containers</a>
+</li>
+<li><a href="/handbook/machine/desktop/">The desktop</a>
+</li>
+<li><a href="/handbook/machine/networking/">Networking</a>
+</li>
+<li><a href="/handbook/machine/accounts-and-keys/">Accounts and keys</a>
+</li>
+</ol>
+<p class="hb-nav__part">Five ideas</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/generations/">Generations</a>
+</li>
+<li><a href="/handbook/machine/compute-fabric/">The compute fabric</a>
+</li>
+<li><a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a>
+</li>
+<li><a href="/handbook/machine/yours-and-not-yours/">Yours and not yours</a>
+</li>
+<li><a href="/handbook/machine/chain-of-trust/">The chain of trust</a>
+</li>
+</ol>
+<p class="hb-nav__part">Ways of using it</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/ai-development/">AI development</a>
+</li>
+<li><a href="/handbook/machine/gaming/">Gaming</a>
+</li>
+<li><a href="/handbook/machine/offloading-and-fleets/">Offloading and fleets</a>
+</li>
+<li><a href="/handbook/machine/plexus/">Plexus</a>
+</li>
+<li><a href="/handbook/machine/building-your-own/">Building your own</a>
+</li>
+</ol>
+<p class="hb-nav__part">When it breaks</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/recovery/">Recovery</a>
+</li>
+<li><a href="/handbook/machine/asking-why/">Asking why</a>
+</li>
+</ol>
+<p class="hb-nav__part">More</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/agents/" aria-current="page">Agents</a>
+<ol class="hb-nav__sections">
+<li><a href="#starting-yui">Starting yui</a></li>
+<li><a href="#conversations">Conversations</a></li>
+<li><a href="#what-the-agent-may-do">What the agent may do</a></li>
+<li><a href="#claude">Claude</a></li>
+<li><a href="#tools-and-guards">Tools and guards</a></li>
+<li><a href="#copy-and-paste">Copy and paste</a></li>
+<li><a href="#keys">Keys</a></li>
+</ol>
+</li>
+<li><a href="/handbook/machine/firmware/">Firmware</a>
+</li>
+</ol>
+</details></nav>
+    <div class="hb__main">
+      <div class="essay">
+<h1 class="page-title">Agents</h1>
+<p>yui puts an agent in your terminal: you talk to a model, and it reads files, edits them and runs commands to do what you ask, inside a sandbox that holds only what you give it. Conversations are kept by the machine, outlive the terminal, and pick up where they left off.</p>
+<h2 id="starting-yui" class="section-title">Starting yui</h2>
+<p>yui comes with the workstation. On any other machine:</p>
+<pre class="term term__body">$ doas dnf install nerv-yui</pre>
+<p>Run it in the directory you want to work in, pointed at a model. S2 serving OpenAI's API on this machine, as <a href="/handbook/machine/ai-development/#serving-a-model">AI development</a> sets up, is the default:</p>
+<pre class="term term__body">$ yui</pre>
+<p>Any server that speaks OpenAI's API works the same way:</p>
+<pre class="term term__body">$ yui --endpoint http://127.0.0.1:8000/v1 --model qwen3.8-27b</pre>
+<p><code>ctrl+p</code>, then <em>Switch model</em>, changes the model in the middle of a conversation, and the conversation carries on.</p>
+<h2 id="conversations" class="section-title">Conversations</h2>
+<p><code>yui</code> in a directory opens the conversation last held there, with everything said in it on screen. <code>yui new</code> starts another. Nothing is written into the directory: the machine keeps conversations itself.</p>
+<p><code>ctrl+s</code> lists every conversation, the most recently used first, with the last exchange of the one under the cursor. Choosing one moves yui into the directory it was held in. <code>yui sessions</code> prints the same list.</p>
+<p>Close the terminal while the agent works and it carries on. The next <code>yui</code> opens on the conversation as it is, a question it asked you still waiting. Two terminals can open the same conversation: both show everything, and either can answer.</p>
+<h2 id="what-the-agent-may-do" class="section-title">What the agent may do</h2>
+<p>The agent works in a sandbox of its own. It sees the directory you started yui in, read-write; the system, read-only; and a home directory and a <code>/tmp</code> of its own, which last from one command to the next. It does not see your home directory, your other files, the machine's other programs, or the network, and it cannot use <code>doas</code>.</p>
+<p>Inside the sandbox the agent needs no permission: it reads, writes and runs commands, and each change shows in the conversation as it is made.</p>
+<p>A git repository's hooks and configuration stay read-only to the agent, so nothing it does runs the next time you commit. In a worktree, the agent sees the repository's history too, so it can commit. Started in your home directory, the agent sees none of it.</p>
+<p>For anything more, a path elsewhere or the network, the agent asks, and the question appears as a card showing what it would reach and why:</p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">key</th><th scope="col"></th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code>y</code></td><td>allow it</td>
+</tr>
+<tr>
+<td><code>n</code></td><td>refuse; type why, or nothing, and press enter</td>
+</tr>
+<tr>
+<td><code>e</code></td><td>change what it would do, then press enter</td>
+</tr>
+<tr>
+<td><code>esc</code></td><td>stop the agent</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code>ctrl+p</code>, then <em>Sandbox</em>, lists what the agent can reach. Enter on a path takes it back; enter on the network gives it or takes it back. What you give is kept with the conversation.</p>
+<p>What you type is yours to act on; text that came from elsewhere is not. Once a conversation holds outside content, a command that could reach the network is asked for again, the card saying why. A paste of eight lines or more counts as outside content: it usually came from a log, a page or a message. Typing and short pastes are yours.</p>
+<p>On a kernel that cannot make the sandbox, yui says so when the agent first acts, and asks before each write, each command and each read outside the directory. There, <code>a</code> on a card allows that tool for the rest of the conversation, until outside content arrives.</p>
+<h2 id="claude" class="section-title">Claude</h2>
+<p>With Claude Code installed, yui talks to Claude:</p>
+<pre class="term term__body">$ yui --endpoint claude --model opus</pre>
+<p>Claude works with yui's tools and asks on yui's cards, like any other model, and the conversation resumes on Claude's side too: neither a resume flag nor a permissions flag is needed. A conversation moves between Claude and S2 with the model switcher.</p>
+<h2 id="tools-and-guards" class="section-title">Tools and guards</h2>
+<p>Besides reading, writing and running commands, the agent has <code>nerv</code>, which answers what a model cannot know about this machine: which libc a program is built against, which package owns a file and whether it is Nerv's or Fedora's, which install profile brings a package in, and which slot is running.</p>
+<p>Guards stop calls that would do the wrong thing here and tell the agent what to do instead: <code>sudo</code> becomes <code>doas</code>, another distribution's package manager becomes <code>dnf</code>, bash syntax in a <code>/bin/sh</code> command becomes its POSIX form, and the agent never reboots the machine. Your own guards go in <code>~/.config/yui/guards.json</code>, a list of rules; a rule names a tool, a field and a match, and what to say:</p>
+<pre class="term term__body">[
+  {"id": "no-npm", "tool": "run", "field": "command", "word": "npm", "say": "This project uses pnpm."},
+  {"id": "sudo", "off": true}
+]</pre>
+<p>Any program can add tools of its own. One placed in <code>~/.config/yui/plugins</code> is started with yui's agents and speaks JSON, one message per line, on its standard input and output.</p>
+<h2 id="copy-and-paste" class="section-title">Copy and paste</h2>
+<p>Drag across the conversation to copy; the text goes to your clipboard, over SSH and through tmux, without the frames around it. <code>ctrl+y</code> copies the agent's last answer, and <code>ctrl+p</code> copies the last code block or the last command's output. Hold shift to use your terminal's own selection instead.</p>
+<p>A file dropped onto the terminal, or a pasted path, is attached to your message. A long paste is shown as a single line, <code>[paste 1 · 240 lines]</code>, and sent whole.</p>
+<h2 id="keys" class="section-title">Keys</h2>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">key</th><th scope="col"></th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code>enter</code></td><td>send; while the agent works, send when it finishes</td>
+</tr>
+<tr>
+<td><code>alt+enter</code></td><td>a new line</td>
+</tr>
+<tr>
+<td><code>esc</code></td><td>stop the agent</td>
+</tr>
+<tr>
+<td><code>ctrl+p</code> or <code>/</code></td><td>commands</td>
+</tr>
+<tr>
+<td><code>ctrl+s</code></td><td>conversations</td>
+</tr>
+<tr>
+<td><code>@</code></td><td>attach a file</td>
+</tr>
+<tr>
+<td><code>shift+tab</code></td><td>how hard the model thinks</td>
+</tr>
+<tr>
+<td><code>ctrl+t</code></td><td>show the model's thinking</td>
+</tr>
+<tr>
+<td><code>ctrl+o</code></td><td>open or close the last tool call; a click does the same</td>
+</tr>
+<tr>
+<td><code>ctrl+d</code></td><td>leave; the agent carries on</td>
+</tr>
+</tbody>
+</table>
+</div>
+      </div>
+      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/asking-why/"><span>Previous</span>Asking why</a><a class="hb-pager__next" href="/handbook/machine/firmware/"><span>Next</span>Firmware</a></nav>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__base">
+      <p>Copyright &copy; 2026 Nerv Dynamics AB. Nerv Linux is free software under the
+         Apache License 2.0. Software from other projects keeps its upstream licence. <a href="https://codeberg.org/nerv-dynamics/nerv-linux">Source on Codeberg</a>.</p>
+      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell, GB10 and GB300 are
+         trademarks of NVIDIA Corporation. Linux is a registered trademark of
+         Linus Torvalds. Nerv Linux is not affiliated with, endorsed by, or
+         sponsored by either.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var btn = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    function label() {
+      var dark = root.getAttribute('data-theme') !== 'light';
+      btn.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+    }
+    label();
+    btn.addEventListener('click', function () {
+      // Dark is the default, so anything that isn't explicitly light is dark.
+      var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('nerv-theme', next); } catch (e) {}
+      label();
+    });
+  })();
+  (function () {
+    // Phone menu: the nav links fold into a panel under the masthead.
+    var btn = document.getElementById('menu-toggle');
+    var head = btn.closest('.masthead');
+    btn.addEventListener('click', function () {
+      var open = head.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  })();
+  (function () {
+    // On phones a tapped diagram opens full screen, large, to pan and zoom.
+    var narrow = window.matchMedia('(max-width: 760px)');
+    function close(z) { z.remove(); document.body.classList.remove('has-zoom'); }
+    document.querySelectorAll('.diagram').forEach(function (fig) {
+      fig.addEventListener('click', function () {
+        var svg = fig.querySelector('svg');
+        if (!narrow.matches || !svg) return;
+        var z = document.createElement('div');
+        z.className = 'zoom'; z.setAttribute('role', 'dialog'); z.setAttribute('aria-label', svg.getAttribute('aria-label') || 'Diagram');
+        z.appendChild(svg.cloneNode(true));
+        var b = document.createElement('button');
+        b.className = 'zoom__close'; b.type = 'button'; b.setAttribute('aria-label', 'Close');
+        b.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+        b.addEventListener('click', function () { close(z); });
+        z.appendChild(b);
+        document.body.appendChild(z); document.body.classList.add('has-zoom');
+        document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { close(z); document.removeEventListener('keydown', esc); } });
+      });
+    });
+  })();
+  (function () {
+    // The handbook contents start folded on narrow screens, open on wide ones.
+    if (window.matchMedia('(max-width: 960px)').matches)
+      document.querySelectorAll('.hb-nav__box').forEach(function (d) { d.open = false; });
+  })();
+  (function () {
+    // Narrow tables read as stacked cards; each cell carries its column name.
+    document.querySelectorAll('table.data').forEach(function (t) {
+      var heads = Array.prototype.map.call(t.querySelectorAll('thead th'), function (th) { return th.textContent.trim(); });
+      t.querySelectorAll('tbody tr').forEach(function (tr) {
+        Array.prototype.forEach.call(tr.children, function (td, i) {
+          if (heads[i]) td.setAttribute('data-label', heads[i]);
+        });
+      });
+    });
+  })();
+</script>
+
+<script data-goatcounter="https://stats.nervlinux.org/count" async src="https://stats.nervlinux.org/count.js"></script>
+<script>
+  // Clicks worth counting, as GoatCounter events: downloads, mail to sales, links off the site, and copying the install command.
+  (function () {
+    function count(path, title) {
+      if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: path, title: title || path, event: true });
+    }
+    document.addEventListener('click', function (e) {
+      var copy = e.target.closest('[data-copy]');
+      if (copy) { count('copy/' + copy.dataset.copy); return; }
+      var a = e.target.closest('a[href]');
+      if (!a) return;
+      if (a.protocol === 'mailto:') { count('mail/' + a.pathname); return; }
+      if (a.host === location.host) return;
+      if (a.host === 'repo.nervlinux.org') { count('download' + a.pathname); return; }
+      count('out/' + a.host + a.pathname);
+    });
+  })();
+</script>
+
+</body>
+</html>

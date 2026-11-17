@@ -49,6 +49,7 @@ Five is the budget. A sixth idea requires retiring one.
 | | |
 | --- | --- |
 | [**AI development**](machine/ai-development.md) | Models, capabilities, and building against the machine's own store and fabric. |
+| [**Agents**](machine/agents.md) | yui: an agent in your terminal that asks before it changes anything, and conversations the machine keeps. |
 | [**Gaming**](machine/gaming.md) | Steam, titles built for x86, and borrowing a faster GPU from across the room. |
 | [**Offloading and fleets**](machine/offloading-and-fleets.md) | Putting work on other machines, and several boxes acting as one. |
 | [**Plexus**](machine/plexus.md) | Reaching your machines from anywhere: your own authority, enrolment, and access that exists only where you grant it. |
