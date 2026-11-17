@@ -56,8 +56,10 @@ UNICODES = ",".join([
     "U+2212", "U+2215",                 # minus, division slash
     "U+23CE",                           # return symbol
     "U+276E-276F",                      # the shell prompt in .term blocks
+    "U+27F0-27FF",                      # supplemental arrows — ⟳ in the handbook
     "U+2500-257F",                      # box drawing — the terminal blocks
-    "U+2580-259F",                      # block elements — the cursor
+    "U+2580-259F",                      # block elements — the cursor, TUI meters
+    "U+25A0-25FF",                      # geometric shapes — TUI status dots (tui.py)
     "U+FEFF", "U+FFFD",
 ])
 

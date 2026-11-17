@@ -829,3 +829,13 @@ body.has-zoom { overflow: hidden; }
 
 /* Dark scrollbars on everything that scrolls sideways. */
 pre, .table-scroll, .diagram { scrollbar-color: var(--border-strong) transparent; }
+
+/* --- Terminal programs, captured as text (tui.py) ------------------------ */
+/* Dark in both themes: the programs chose their colours for a dark
+   terminal. 1.25 is the face's box-drawing height (ascender 965 + descender
+   285 per 1000), so frames join with no gap between lines. */
+.tui { margin: var(--s-7) 0 0; }
+.term--tui { background: #1e1e1e; color: #dfdfdf; border-color: #282828; width: fit-content; max-width: 100%; }
+.term--tui .term__bar { background: #282828; color: #a2a2a2; border-bottom-color: #1e1e1e; }
+.term--tui .term__body { font-size: clamp(9px, 1.3vw, 13px); line-height: 1.25; }
+.tui figcaption { margin-top: var(--s-3); font-size: var(--t-sm); color: var(--text-secondary); }
