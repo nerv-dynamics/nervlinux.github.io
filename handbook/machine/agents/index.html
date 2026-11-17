@@ -149,8 +149,10 @@
 <h2 id="starting-yui" class="section-title">Starting yui</h2>
 <p>yui comes with the workstation. On any other machine:</p>
 <pre class="term term__body">$ doas dnf install nerv-yui</pre>
-<p>Run it in the directory you want to work in, pointed at a model. S2 serving OpenAI's API on this machine, as <a href="/handbook/machine/ai-development/#serving-a-model">AI development</a> sets up, is the default:</p>
+<p>Run it in the directory you want to work in. With no model named, it talks to this machine's S2:</p>
 <pre class="term term__body">$ yui</pre>
+<p>When S2 is not running, your first message brings up a card to start it. It shows the model, how much context fits in the memory that is free, and the command it will run. <code>y</code> starts it this once; <code>a</code> starts it from now on without asking. The footer says <em>loading S2's weights</em> until it answers, which takes seconds. A GPU that is already running a model is said to be busy, and nothing is started beside it.</p>
+<p>The S2 that yui started runs until <code>ctrl+p</code>, then <em>Stop S2</em>, or until yui's background agent stops. An S2 you run yourself, as <a href="/handbook/machine/ai-development/#serving-a-model">AI development</a> shows, is used as it is and left alone.</p>
 <p>Any server that speaks OpenAI's API works the same way:</p>
 <pre class="term term__body">$ yui --endpoint http://127.0.0.1:8000/v1 --model qwen3.8-27b</pre>
 <p><code>ctrl+p</code>, then <em>Switch model</em>, changes the model in the middle of a conversation, and the conversation carries on.</p>

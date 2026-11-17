@@ -10,11 +10,15 @@ yui comes with the workstation. On any other machine:
 $ doas dnf install nerv-yui
 ```
 
-Run it in the directory you want to work in, pointed at a model. S2 serving OpenAI's API on this machine, as [AI development](ai-development.md#serving-a-model) sets up, is the default:
+Run it in the directory you want to work in. With no model named, it talks to this machine's S2:
 
 ```
 $ yui
 ```
+
+When S2 is not running, your first message brings up a card to start it. It shows the model, how much context fits in the memory that is free, and the command it will run. `y` starts it this once; `a` starts it from now on without asking. The footer says *loading S2's weights* until it answers, which takes seconds. A GPU that is already running a model is said to be busy, and nothing is started beside it.
+
+The S2 that yui started runs until `ctrl+p`, then *Stop S2*, or until yui's background agent stops. An S2 you run yourself, as [AI development](ai-development.md#serving-a-model) shows, is used as it is and left alone.
 
 Any server that speaks OpenAI's API works the same way:
 
