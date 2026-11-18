@@ -241,7 +241,7 @@ nerv: `dnf upgrade` does not update this machine; `cage update` does. It builds 
 <td><strong>stable</strong></td><td>the default, where every fresh install starts. Packages arrive in batches, each one moved here from testing after it has been tried.</td>
 </tr>
 <tr>
-<td><strong>testing</strong></td><td>everything built from Nerv's main branch, usually within the hour of a change landing. You get fixes and new versions first, and you are the one who finds the problems.</td>
+<td><strong>testing</strong></td><td>everything built from Nerv's main branch, usually within the hour of a change landing. You get fixes and new versions first, and you are the one who finds the problems. You can <a href="#trying-testing-without-leaving-stable">try it</a> for a boot before you choose it.</td>
 </tr>
 </tbody>
 </table>
@@ -252,17 +252,19 @@ nerv: `dnf upgrade` does not update this machine; `cage update` does. It builds 
 <pre class="term term__body">$ rpm -q nerv-release-stable nerv-release-testing
 nerv-release-stable-…
 package nerv-release-testing is not installed</pre>
-<h3 id="switching" class="sub-title">Switching</h3>
-<p>Switching channels is swapping one package for the other. Like any change to the system, it goes into a new slot, never onto the running one, and that slot must pass the gate before it boots:</p>
-<pre class="term term__body">$ doas cage new
-$ doas cage exec @&lt;slot&gt; -- dnf5 swap -y nerv-release-stable nerv-release-testing
-$ doas cage seal @&lt;slot&gt;
-$ doas cage validate @&lt;slot&gt; --login
-$ doas cage boot @&lt;slot&gt;
-$ doas reboot</pre>
-<p><code>cage new</code> snapshots the running system into a new slot and names it. <code>cage validate --login</code> is the gate, the same one <code>cage update</code> runs: it boots the slot in a virtual machine and logs in to it, and it must pass. <code>cage boot</code> makes the slot the next boot only, so if it does not come up, the boot after it returns to the system you had. Once it has come up fine, keep it:</p>
-<pre class="term term__body">$ doas cage promote @&lt;slot&gt;</pre>
-<p>To go back to stable, swap the two names. Nerv never downgrades a package, so what you already have from testing stays installed until stable reaches or passes its version.</p>
+<h3 id="trying-testing-without-leaving-stable" class="sub-title">Trying testing without leaving stable</h3>
+<p>You do not have to commit to testing to see what is on it. Put it in a slot of its own and boot that slot once:</p>
+<pre class="term term__body">$ cage try --validate -- sh -c 'dnf5 swap -y nerv-release-stable nerv-release-testing &amp;&amp; dnf5 upgrade -y'
+...
+:: staged + boot-once @try-4211. reboot to test, then `cage promote @try-4211` if good.</pre>
+<p><code>cage try</code> snapshots the running system into a new slot, switches that slot to testing and upgrades it to everything on testing, seals it, and with <code>--validate</code> boots it in a virtual machine and logs in to it first, as <code>cage update</code> does. Your running system is not touched. Then reboot.</p>
+<p>The machine boots the testing slot one time. Use it for as long as you like: a new kernel, a new GPU driver, programs a week ahead of stable. Whatever happens in it, even a boot that never comes up, the reboot after returns to your stable system, as it was. Nothing needs undoing, because nothing outside that slot changed.</p>
+<p>Your home directory is the same in both, since no slot holds it. A program that rewrites its files in your home for a newer version may leave them in a form the older version on stable does not read, so try new versions of programs whose data you depend on with a copy.</p>
+<p><strong>To stay on testing</strong>, promote the slot from inside it. From then on it is the system the machine boots, and every <code>cage update</code> takes from testing:</p>
+<pre class="term term__body">$ cage promote @try-4211</pre>
+<p><strong>To stay on stable</strong>, do nothing; the next reboot is back on stable. Remove the slot when you are done with it:</p>
+<pre class="term term__body">$ cage delete @try-4211 --yes</pre>
+<p>Going back to stable after you have promoted testing is the same swap the other way, in a slot of its own: <code>cage try -- dnf5 swap -y nerv-release-testing nerv-release-stable</code>. Nerv never downgrades a package, so what you already have from testing stays installed until stable reaches or passes its version.</p>
 <h3 id="upgrading-a-few-packages-not-all-of-them" class="sub-title">Upgrading a few packages, not all of them</h3>
 <p>On testing you do not have to take everything at once. <code>cage update</code> takes ordinary <code>dnf</code> arguments after <code>--</code>:</p>
 <pre class="term term__body">$ doas cage update -- &lt;package&gt; [&lt;package&gt;…]</pre>

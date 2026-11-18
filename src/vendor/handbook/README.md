@@ -38,7 +38,7 @@ Two kinds of chapter, and the split is what keeps the manual from drifting into 
 | --- | --- |
 | [**Generations**](machine/generations.md) | Every update is a transaction: built beside the running system, proved, kept — or it rolls itself back. |
 | [**The compute fabric**](machine/compute-fabric.md) | One boundary governs compute: your GPU, someone else's across the network, memory, and where programs run. Every program is a client, and everything is accounted. GPUs on several machines work together through the standard NCCL library. |
-| [**What the machine remembers**](machine/what-the-machine-remembers.md) | MAGI, the machine's database of what it knows: an unforgeable record of what was observed, the facts derived from it, and answers that state their own limits. |
+| [**What the machine remembers**](machine/what-the-machine-remembers.md) | MAGI, the machine's own record: why it exists beside every program's own files, who may write what, the journal it keeps, and how to read it. |
 | [**Yours and not yours**](machine/yours-and-not-yours.md) | Seele. Your work, rebuildable residue, and unexplained bytes — and what follows you to the next machine. |
 | [**The chain of trust**](machine/chain-of-trust.md) | What is verified between power-on and a prompt, and precisely what that does not defend against. |
 

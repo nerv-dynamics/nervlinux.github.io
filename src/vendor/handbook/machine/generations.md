@@ -138,6 +138,8 @@ $ cage promote @try-4211
 
 `cage try --validate -- …` also boots it in a virtual machine first, as `cage update` does where it can.
 
+A whole channel can be tried the same way: [Trying testing without leaving stable](software.md#trying-testing-without-leaving-stable) boots the testing channel once, and the reboot after is back on stable.
+
 ## What follows you to the next slot
 
 A new slot is a copy of the system at the moment it was made. `/home` and `/var/log` are not in any slot, so your files and the logs need nothing. Changes you make to `/etc` and `/var` after an update is staged are carried to the new slot when the machine shuts down, and a package you install goes straight into it: [After an update, before the reboot](software.md#after-an-update-before-the-reboot) has the rules.

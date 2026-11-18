@@ -125,7 +125,7 @@
 </li>
 <li><a href="/handbook/machine/asking-why/" aria-current="page">Asking why</a>
 <ol class="hb-nav__sections">
-<li><a href="#today-and-later">Today, and later</a></li>
+<li><a href="#the-journal-and-magi">The journal, and MAGI</a></li>
 <li><a href="#a-program-that-stopped">A program that stopped</a></li>
 <li><a href="#a-service-that-will-not-start">A service that will not start</a></li>
 <li><a href="#something-was-refused">Something was refused</a></li>
@@ -144,8 +144,8 @@
       <div class="essay">
 <h1 class="page-title">Asking why</h1>
 <p>From a symptom to a cause, using the machine's own record: a program that stopped, a service that will not start, something that was refused, and a machine that is slow.</p>
-<h2 id="today-and-later" class="section-title">Today, and later</h2>
-<p>Today the record is the journal, and this chapter reads it. When <a href="/handbook/machine/what-the-machine-remembers/">MAGI</a> ships, the same questions are asked of the machine directly and answered with the events behind the answer; this chapter changes with it.</p>
+<h2 id="the-journal-and-magi" class="section-title">The journal, and MAGI</h2>
+<p>The journal is where the machine says what happened, and this chapter reads it with <code>journalctl</code>. <a href="/handbook/machine/what-the-machine-remembers/">MAGI</a> takes the same journal into the machine's own record as it is written, and knows where it holds every entry and where entries are missing. The questions below are asked of MAGI directly as its questions over the journal arrive, answered with where the answer is complete; this chapter changes with them.</p>
 <h2 id="a-program-that-stopped" class="section-title">A program that stopped</h2>
 <p>What it said before it stopped, and anything the kernel said about it, is in this boot's journal:</p>
 <pre class="term term__body">$ journalctl -b -p warning</pre>

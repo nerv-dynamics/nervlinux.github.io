@@ -2,9 +2,9 @@
 
 From a symptom to a cause, using the machine's own record: a program that stopped, a service that will not start, something that was refused, and a machine that is slow.
 
-## Today, and later
+## The journal, and MAGI
 
-Today the record is the journal, and this chapter reads it. When [MAGI](what-the-machine-remembers.md) ships, the same questions are asked of the machine directly and answered with the events behind the answer; this chapter changes with it.
+The journal is where the machine says what happened, and this chapter reads it with `journalctl`. [MAGI](what-the-machine-remembers.md) takes the same journal into the machine's own record as it is written, and knows where it holds every entry and where entries are missing. The questions below are asked of MAGI directly as its questions over the journal arrive, answered with where the answer is complete; this chapter changes with them.
 
 ## A program that stopped
 

@@ -30,11 +30,23 @@ $ yui --endpoint http://127.0.0.1:8000/v1 --model qwen3.8-27b
 
 ## Conversations
 
-`yui` in a directory opens the conversation last held there, with everything said in it on screen. `yui new` starts another. Nothing is written into the directory: the machine keeps conversations itself.
+`yui` in a directory opens the conversation last held there, with everything said in it on screen. `yui new` starts another. Nothing is written into the directory: the machine keeps conversations itself, in [MAGI](what-the-machine-remembers.md), where only you can read them.
 
 `ctrl+s` lists every conversation, the most recently used first, with the last exchange of the one under the cursor. Choosing one moves yui into the directory it was held in. `yui sessions` prints the same list.
 
 Close the terminal while the agent works and it carries on. The next `yui` opens on the conversation as it is, a question it asked you still waiting. Two terminals can open the same conversation: both show everything, and either can answer.
+
+`yui ps` shows what every agent is doing: *working*, *needs-you* when a question waits for you, *done-waiting* when it has finished and waits for the next message, or *blocked* when its turn failed. With each comes since when, the machine, the directory and branch it works in, and what it waits on or what you asked it. An agent working when the machine stopped is shown blocked until you open its conversation again. `yui ps --follow` stays open and prints an agent's line again each time it changes.
+
+The same state shows in two more places, as a glyph: a yellow ◆ for *needs-you*, a cyan ● for *working*, a green ○ for *done-waiting* and a red ✕ for *blocked*. In `ctrl+s` it comes before each conversation, and a blocked one says why. Inside tmux, each window carries one glyph per agent open in it, so you see every agent from whichever window you are in, and the terminal bell rings when an agent comes to need you. An agent another yui holds shows the state its own yui gives it.
+
+## Agents talking to each other
+
+Each agent can see the others and write to them. It lists them with `agents` (the same cards `yui ps` shows) and sends with `message`: a note, a question, a request, a reply or a done. Each message is addressed to one agent, on a thread, and can refer to issues, branches or paths.
+
+A message never interrupts. It waits until the receiving agent's turn ends, then reaches the agent at the start of its next turn, all at once and labelled, in the conversation where you see it too. A question, a request or a reply to an agent with nothing to do starts its turn; a note or a done waits until it next works. An agent started by messages eight turns in a row stops and shows *needs-you* until you write to it.
+
+Who sent a message is proven, so no agent can claim to be another. What it says is not trusted: a message is outside content to the agent receiving it, and a request carries no authority. Anything it asks for that needs your approval still shows a card. A message holds up to 256 KiB; past 4 KiB the agent sees the start and reads the rest when it needs it.
 
 ## What the agent may do
 

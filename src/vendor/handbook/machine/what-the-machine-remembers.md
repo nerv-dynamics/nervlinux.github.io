@@ -1,38 +1,77 @@
 # What the machine remembers
 
-MAGI, the machine's database of what it knows: everything observed on it, as a record that cannot be quietly changed, the facts that follow from that record, and answers that say exactly how far they can be trusted.
+MAGI, the machine's own record: one service that keeps what Nerv's programs record and the machine's journal, knows which program wrote each record, shows any record changed after the fact, and knows where its record is complete.
 
-## Not ready yet
+## Why the machine keeps a record of its own
 
-MAGI is in development and not on the machine yet. This chapter says what it is, so the rest of the handbook can point at it; it is written out in full when MAGI ships. Until then, the machine's record is the journal, and [Asking why](asking-why.md) shows how to read it.
+Every program keeps its history its own way: a log file, a directory of JSON, a SQLite database. SQLite is superb at what it is for, a program's own data in a file the program owns. But a file belongs to whoever can write it. Anything running as you can change a program's history and leave no mark, nothing can tell what a program recorded from what something else wrote in its name, and a question that crosses programs, such as what changed on this machine before a build started failing, has nowhere to be asked.
 
-## What it is
+MAGI is that one place. It is a service, not a library: one daemon, `magid`, writes every store on the machine, and nothing else writes them. Everything below rests on that.
 
-A machine already knows a great deal: which update it took and when, why a boot failed, what a service did before it stopped, what a measurement showed last month. Today that knowledge is text in log files, kept for a while and searched by hand, and a conclusion drawn from it lives in someone's notes with no date and no way to tell when it stopped being true.
+## Who writes what
 
-MAGI keeps it as data. It is a database built on one idea: what was observed and what is believed are different things, and the second is always derived from the first. The same mechanism holds the machine's own history, a codebase, a mail spool or a plant's sensor readings, because they all have the same shape: things observed, folded into what they establish, read through views.
+- **One store per user.** Yours holds what your programs recorded, and only you can read it. Root's is the machine's own.
+- **The kernel says who is writing.** magid asks the kernel for the user and the program at the other end of its socket, and never takes a program's word for its name.
+- **A program writes only the streams it declared as its own.** Nothing writes a record as another program: not another program of yours, not a script, not an agent.
 
-## Streams, events, facts and views
+magid starts when something first connects to it. Idle, it sets no timer and wakes nothing, and a store nobody has used for five minutes is closed. Under the `saver` power profile it writes to the disk less often and closes stores sooner.
 
-- **A stream** is where observations come from: one writer, with its own trust, retention and integrity. Each stream is a hash chain, so an entry changed or removed after the fact shows as a break.
-- **An event** is one observation: this observer reported this, at this moment of this boot. Events are never changed. A correction is a new event that supersedes the old one.
-- **A fact** is what the events establish: an entity, a property, a value, and the span of time it held. Facts are never written directly. Each is derived from events, names the events and the rules it came from, and can be rebuilt from them at any time.
-- **A view** is a fold over facts, for reading, and names exactly what it was computed from, so a stale view is detected rather than trusted.
+## What it keeps
 
-Time is recorded as the machine experienced it, the boot and the clock within it, and wall-clock time is worked out from that. A machine whose clock was wrong for a week still has a correct record of that week.
+A store holds **streams**, each with one writer. A history stream is a sequence of records, each kept as it was written. A state stream holds keys and their current values: a conversation's place, an index of packages.
 
-## How the facts are made
+- **A changed record shows.** Every record is chained by its hash to the one before it, so a record changed or removed after the fact is a break in the chain, and `engram verify` finds it.
+- **A batch is all or nothing.** A program writes a batch of records at once, and after a power cut the store comes back at the end of a whole batch. Nothing half-written is ever read.
+- **Time is the boot and the clock within it.** A machine whose clock was wrong for a week still has that week in the right order, with the wall-clock time kept beside each record for what it is.
+- **Records are typed.** A package installs the types of the records its programs write in `/usr/share/magi/schemas`. A field is added in a new version of a type, never renamed or changed, so a reader written today still reads next year's records.
+- **Views are kept current.** A view is an index, a filter, a projection or a join over other streams, and it changes in the same batch as what it reads, so it is never behind. A program can watch one and be told when it changes.
 
-Rules that turn events into facts are deterministic and declared, and a new version of a rule rebuilds its facts from the record beside the old ones, then swaps them in at once, the way `cage` promotes a slot. Nobody ever reads a half-rebuilt world.
+Today the machine's journal is kept here, and so are yui's conversations ([Agents](agents.md#conversations)) and geofront's record of the packages in a repository it builds into ([Building your own](building-your-own.md#packaging-a-program)).
 
-A language model can propose facts too, from prose or from code, through a separate component that can be removed without the rest of MAGI changing. What a model proposes is recorded as an event and checked by a deterministic rule before it becomes a fact, so a better rule improves old answers without running the model again.
+## The machine's journal
 
-## Answers with their limits
+`magi-journal` takes the journal into root's store as journald writes it, as the stream `journal/entries`. It changes nothing about the journal, and `journalctl` reads it as before.
 
-MAGI knows which streams it holds and over what time, and an answer reaches only as far as they do. A question the record does not cover gets an answer that says so, never a guess. An answer that rests on a source of lower trust carries that with it.
+- **A structured entry is kept whole.** Nerv's own programs log their events as typed fields, and systemd logs its catalogued messages the same way.
+- **Any other entry keeps everything but its text:** which program logged it, from which unit and as which user, at what priority, and when.
+- **It holds 1 GiB,** and drops the oldest first.
 
-Some of what you know about a machine is a conclusion: this setting is needed, this driver is the fast one. MAGI records a conclusion as a claim, with the measurement behind it and the test that would disprove it. `nerv-run` wraps a command and records what it measured together with the conditions it ran under, the generation, the kernel command line and the settings that matter, and a claim carries a date to be checked again.
+**It knows where it is complete.** journald numbers every entry it receives, one after another, so a missing number is an entry that never reached the store. `magi-journal` records each run with no number missing as complete, and each gap as a hole with how many entries fell in it. A question asked over the journal can therefore be answered with where the answer is complete, and a span the record does not cover is never mistaken for one in which nothing happened.
 
-## Larger than one machine
+## Reading it
 
-The record replicates between machines, so a fleet answers as one, and queries over it run on the GPU. Every MAGI command emits typed records into a pipe and readable text on a terminal, and needs no shell, display or person to run.
+`magi` talks to magid. On its own it reads your store; with `doas`, root's:
+
+```
+$ magi status
+$ doas magi status
+$ doas magi tail journal/entries -n 5
+```
+
+`status` lists every stream with its kind, its type and how many records it holds. `tail` prints a stream's last records with their time: the boot, and seconds into it.
+
+| command | |
+| --- | --- |
+| `magi tail STREAM [-n N]` | a history stream's last records |
+| `magi get STREAM KEY` | one key of a state stream or a view |
+| `magi range STREAM [--from K] [--to K]` | its keys, in order |
+| `magi schema [TYPE \| --installed]` | the types a store holds, or the ones packages installed |
+
+A program, or a script of yours, declares a stream with `magi declare` and writes it with `magi append` or `magi put`. `magi --help` lists every command.
+
+`engram` reads a store's files directly, with no daemon: a store copied off a machine, or one checked by hand. It never writes.
+
+```
+$ engram verify ./store
+```
+
+checks every record and every chain in it, and exits with 1 if anything is wrong.
+
+## What comes next
+
+The engine already keeps track of where every stream and every view is complete. What follows builds on that:
+
+- **Facts,** derived from the record by declared rules, each naming the records and the rule it came from, and rebuilt from them when a rule improves.
+- **Questions over the journal,** such as which units failed in the last three boots, answered with where the answer is complete. [Asking why](asking-why.md) moves to them as they arrive.
+- **Claims,** a conclusion recorded with the measurement behind it and the test that would disprove it, dated to be checked again.
+- **A fleet's record,** replicated between machines so they answer as one, with queries that run on the GPU.

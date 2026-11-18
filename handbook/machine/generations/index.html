@@ -261,6 +261,7 @@ SLOT             ROLE      KERNEL   ARTIFACT   BOOT-COUNTER         FLAGS
 <p>The next reboot runs the new slot, one time. Whatever happens in it, the reboot after returns to your usual system. If you want to keep it, promote it:</p>
 <pre class="term term__body">$ cage promote @try-4211</pre>
 <p><code>cage try --validate -- …</code> also boots it in a virtual machine first, as <code>cage update</code> does where it can.</p>
+<p>A whole channel can be tried the same way: <a href="/handbook/machine/software/#trying-testing-without-leaving-stable">Trying testing without leaving stable</a> boots the testing channel once, and the reboot after is back on stable.</p>
 <h2 id="what-follows-you-to-the-next-slot" class="section-title">What follows you to the next slot</h2>
 <p>A new slot is a copy of the system at the moment it was made. <code>/home</code> and <code>/var/log</code> are not in any slot, so your files and the logs need nothing. Changes you make to <code>/etc</code> and <code>/var</code> after an update is staged are carried to the new slot when the machine shuts down, and a package you install goes straight into it: <a href="/handbook/machine/software/#after-an-update-before-the-reboot">After an update, before the reboot</a> has the rules.</p>
 <p>Anything elsewhere in the system — <code>/opt</code>, <code>/srv</code>, <code>/root</code> — stays in the slot it was written to. Keep your work in <code>/home</code>.</p>
