@@ -117,12 +117,11 @@ The prefix is the default `C-b`. What is different:
 | | |
 | --- | --- |
 | `C-b h` / `C-b v` | split into panes above and below / side by side |
-| `Alt` + arrows | move between panes, no prefix |
 | `Ctrl-Alt` + `←`/`→` | previous / next window, no prefix |
 | `C-b j` / `C-b s` | join a pane from, or send a pane to, another window |
 | `C-b r` | reload the configuration |
 
-The mouse works: click a pane to focus it, drag a border to resize it.
+`C-b` and an arrow moves between panes, as in any tmux. The mouse works: click a pane to focus it, drag a border to resize it.
 
 There are two status bars.
 

@@ -52,7 +52,7 @@ SLOT             ROLE      KERNEL   ARTIFACT   BOOT-COUNTER         FLAGS
 
 ## `cage update` or `dnf`
 
-**Updating the system is always `cage update`.** `dnf` installs and removes packages, and refuses `dnf upgrade` with a pointer here. [Software](software.md) has what each kind of package allows, and what happens to a package installed while an update waits for its reboot.
+**`dnf` changes the running system; `cage update` changes what it boots.** `dnf install`, `dnf remove` and `dnf upgrade` apply at once, with no reboot, as long as nothing in the boot path changes. An upgrade that would change the kernel, the GPU driver, systemd, the initrd tools, cryptsetup or the platform package is refused with a pointer here, and `cage update` makes it in a new slot. [Software](software.md) has what each kind of package allows, and what happens to a package installed while an update waits for its reboot.
 
 ## Updating
 

@@ -16,7 +16,7 @@ Run it in the directory you want to work in. With no model named, it talks to th
 $ yui
 ```
 
-When S2 is not running, your first message brings up a card to start it. It shows the model, how much context fits in the memory that is free, and the command it will run. `y` starts it this once; `a` starts it from now on without asking. The footer says *loading S2's weights* until it answers, which takes seconds. A GPU that is already running a model is said to be busy, and nothing is started beside it.
+When S2 is not running, your first message brings up a card to start it. It shows the model, how much context fits in the memory that is free, and the command it will run. `y` starts it this once; `a` starts it from now on without asking, in every conversation. The footer says *loading S2's weights* until it answers, which takes seconds. A GPU that is already running a model is said to be busy, and nothing is started beside it.
 
 The S2 that yui started runs until `ctrl+p`, then *Stop S2*, or until yui's background agent stops. An S2 you run yourself, as [AI development](ai-development.md#serving-a-model) shows, is used as it is and left alone.
 
@@ -43,13 +43,31 @@ It is kept the way an ssh key is: yui uses a key only you can read, in a directo
 
 `yui` in a directory opens the conversation last held there, with everything said in it on screen. `yui new` starts another. Nothing is written into the directory: the machine keeps conversations itself, in [MAGI](what-the-machine-remembers.md), where only you can read them.
 
-`ctrl+s` lists every conversation, the most recently used first, with the last exchange of the one under the cursor. Choosing one moves yui into the directory it was held in. `yui sessions` prints the same list.
+`ctrl+s` lists every conversation, the most recently used first, with the last exchange of the one under the cursor. Choosing one moves yui into the directory it was held in. `yui sessions` prints the same list, with each conversation's name.
+
+`yui open NAME` opens the conversation NAME names: its name, the end of it, or words of its title, as long as only one conversation answers. Each terminal is a yui of its own, so one tmux window per conversation is `tmux new-window 'yui open build'`, `tmux new-window 'yui open review'`, and so on. Moving to another conversation in one window moves no other.
 
 Close the terminal while the agent works and it carries on. The next `yui` opens on the conversation as it is, a question it asked you still waiting. Two terminals can open the same conversation: both show everything, and either can answer.
 
 `yui ps` shows what every agent is doing: *working*, *needs-you* when a question waits for you, *done-waiting* when it has finished and waits for the next message, or *blocked* when its turn failed. With each comes since when, the machine, the directory and branch it works in, and what it waits on or what you asked it. An agent working when the machine stopped is shown blocked until you open its conversation again. `yui ps --follow` stays open and prints an agent's line again each time it changes.
 
 The same state shows in two more places, as a glyph: a yellow ◆ for *needs-you*, a cyan ● for *working*, a green ○ for *done-waiting* and a red ✕ for *blocked*. In `ctrl+s` it comes before each conversation, and a blocked one says why. Inside tmux, each window carries one glyph per agent open in it, so you see every agent from whichever window you are in, and the terminal bell rings when an agent comes to need you. An agent another yui holds shows the state its own yui gives it.
+
+## The board
+
+`alt+0`, or `yui board`, shows every agent at once, one tile each: its state and since when, where it works and on which branch, the last lines of what it is doing, and the question it waits on, if one. `y` or `n` answers that question from the board; anything more, such as editing the call, opens the conversation with `enter`. On a narrow terminal the tiles become a list.
+
+The board is the same in every yui, on any terminal: `p` pins a tile first, `<` and `>` move it, and `x` takes it off until its agent next works or needs you. The order numbers the agents for the keys that move between them, from the board or from inside a conversation:
+
+| key | |
+| --- | --- |
+| `alt+0` | the board |
+| `alt+1` … `alt+9` | the board's first to ninth agent |
+| `alt+h` and `alt+l` | the agent before and after this one |
+| `alt+n` | the next agent that needs you |
+| `alt+b` | back to the agent shown before this one |
+
+What you were writing to one agent, sent or not yet, waits in its composer until you come back. While another agent needs you, the footer says so.
 
 An agent keeps a to-do list for the work in front of it, with its `todo` tool. Each task is to do, doing or done, and the agent writes the whole list each time it changes, so you see the list in the conversation as it stands. The list stays with the conversation: it is there again when the conversation is resumed, after a restart too. It also goes on the agent's card, so `yui ps` and the other agents see how far it has got and what it is doing now. A list holds up to 50 tasks of one line each.
 
@@ -82,7 +100,9 @@ For anything more, a path elsewhere or the network, the agent asks, and the ques
 
 What you type is yours to act on; text that came from elsewhere is not. Once a conversation holds outside content, a command that could reach the network is asked for again, the card saying why. A paste of eight lines or more counts as outside content: it usually came from a log, a page or a message. Typing and short pastes are yours. So does what a command prints while the agent has the network, since it could have fetched it from anywhere.
 
-On a kernel that cannot make the sandbox, yui says so when the agent first acts, and asks before each write, each command and each read outside the directory. There, `a` on a card allows that tool for the rest of the conversation, until outside content arrives.
+On a kernel that cannot make the sandbox, yui says so when the agent first acts, and asks before each write, each command and each read outside the directory. There, `a` on a card allows that tool in the conversation from then on, after a restart too, but never once outside content has arrived.
+
+`ctrl+p`, then *Standing grants*, lists every `a` you have given and that still holds: the tool, the conversation it holds in (every conversation, for starting S2), who gave it and since when. Enter on one takes it back. The next such call is asked for again, in a turn already under way too.
 
 ## An agent that approves for the others
 
@@ -93,6 +113,66 @@ The questions an agent asks are of two kinds. Some only you can answer: a path o
 The approver never reads the other agent's text. That agent has read outside content, so what it wrote may carry instructions from whoever wrote that content. The approver sees what yui knows for itself: who asks, the task you gave that agent, the tool and why it needs asking, where the outside content came from, and the shape of each argument without its text. It may read the arguments if it must. Once it has, it has read outside content too, and it approves nothing more. The same goes for anything else outside it reads, so no agent may send it a message. An approver that has read outside content is passed over, the card saying why, and a conversation that already has cannot be made the approver.
 
 An approver must be a conversation on S2 or another model yui talks to directly; a conversation on Claude cannot be one. Every answer to every question, yours and the approver's, is recorded with who gave it, for which agent, and on what.
+
+## Policy
+
+A machine can hold a policy: what no agent there may do, whoever approves it. It is one file, `/etc/yui/policy`, with one rule to a line and `#` starting a comment:
+
+```
+deny run grant                 # these tools are refused
+network off                    # no sandbox has the network, and nothing is sent outward
+protect ~/.ssh /srv/customers  # no grant, read or write reaches these
+endpoint s2 https://llm.example.org/v1   # only these endpoints are used
+```
+
+- `deny` names tools. The agent is not told of them, and a call to one is refused.
+- `network off` keeps the network out of every sandbox, whatever was granted, and refuses every call that could send something off the machine.
+- `protect` names paths, `~` meaning the user's home. Inside the sandbox they are not there, even within a granted directory, and a grant at or inside one is refused.
+- `endpoint` names the endpoints a conversation may use: a URL, which also covers the paths under it, `s2` or `claude`. With no `endpoint` line, any may be used.
+
+What the policy forbids is refused before anyone is asked: no card, no approver, and `a` does not cover it. The refusal names the file and line, and repeats the line's comment, so write the reason there. Where yui cannot make a sandbox, `network off` and `protect` refuse every command and every plugin's tool, since nothing could hold them to it. `ctrl+p`, then *Policy*, shows the rules in force.
+
+The file is followed only while root owns it and its directory and no one else can write either. With no file there is no policy. A file that cannot be followed, a rule misspelled or the file writable by others, stops every tool call, naming the file and line, until it is fixed; a typo never drops a rule silently. A change holds from the next call, with no restart. An agent cannot change the file: `/etc` is read-only in every sandbox.
+
+On a machine an organisation manages, the file is the organisation's, written by whatever manages its fleet. Root on the machine can still change it.
+
+## Secrets and brokers
+
+An agent can use a secret without ever holding it. Keep each secret in its own file in `~/.config/yui/secrets`, named for the secret, the way ssh keeps a private key:
+
+```
+$ mkdir -m 700 -p ~/.config/yui/secrets
+$ (umask 077; printf '%s\n' "$TOKEN" > ~/.config/yui/secrets/forge-token)
+```
+
+A secret others can read, or one in a directory others can write, is not used. The agent names a secret by its handle, `secret:forge-token`, and uses it through a broker: a short declaration of where the secret may go and what the agent may choose. yui, not the agent, puts the value in place.
+
+```
+# the forge's issues
+http https://git.example.org/api/v4
+secret forge-token header PRIVATE-TOKEN
+allow GET /projects/*/issues
+allow POST /projects/*/issues
+```
+
+```
+# glab, which reads the token from its environment
+program /usr/bin/glab
+secret forge-token env GITLAB_TOKEN
+args issue list -R *
+```
+
+An `http` broker is asked by yui itself; the agent chooses the method, a path the `allow` lines match (`*` is one part of the path, `**` any number) and a JSON body. A `secret` line puts the value in a named header or, with `bearer`, in `Authorization`. A `program` broker runs the program as you, without a shell, with the secret in a variable (`env NAME`) or on its input (`stdin`); the agent gives only the words after the program, matching an `args` line word for word, where `*` is one word that is not an option.
+
+The agent proposes a broker with its `broker` tool. You approve it once, on a card only you can answer, which shows the secret, where it goes and what the agent controls; it is then kept in `~/.config/yui/brokers` and works in every conversation. A broker you write there yourself asks the same way on its first use. Changing a word of it asks again. The approval is a standing grant: `ctrl+p`, then *Standing grants*, takes it back. Using a broker reaches past the sandbox, so after outside content it is a question an approver may answer, and `network off` in the machine's policy refuses it. What a broker returns counts as outside content.
+
+If a secret's value turns up in anything a tool returns, a file the agent read or a command's output, yui replaces it with the secret's handle before the agent or the record sees it, and says so. Values shorter than eight characters are not looked for. There is no broker for an ssh agent yet.
+
+## Addresses sent elsewhere
+
+An endpoint that is not on this machine is sent handles in place of email and IP addresses: `ada@example.org` becomes `‹email:1›` and `10.0.4.17` becomes `‹ip:1›`, the same handle for the same address throughout the conversation. What comes back has the addresses put back, so you read them, and the agent's commands run with them. The conversation you keep holds the real addresses. This machine's S2, `localhost` and the fleet's own addresses see everything; any other endpoint, one on your local network included, sees handles.
+
+These are patterns. A version number shaped like an IP address is hidden too, and a name or anything written in prose is not hidden at all. A secret is treated more strictly: if you type or paste a secret's value, it is sent as its handle and yui says so, and a conversation that holds one anyway is sent to no endpoint. A conversation on Claude is not given handles.
 
 ## Claude
 
@@ -119,6 +199,8 @@ Guards stop calls that would do the wrong thing here and tell the agent what to 
 
 Any program can add tools of its own. One placed in `~/.config/yui/plugins` is started with yui's agents and speaks JSON, one message per line, on its standard input and output.
 
+A plugin is held like a command. Its own process, which sees each call before it runs, gets a sandbox of its own: the system read-only, a directory under yui's state, and no network. Each call of one of its tools runs inside the conversation's sandbox, seeing what the agent sees and reaching the network only when the agent was granted it; what it answers then counts as outside content, as a networked command's output does. Where yui cannot make a sandbox, a plugin runs as you, and its tools count as reaching outward.
+
 ## Copy and paste
 
 Drag across the conversation to copy; the text goes to your clipboard, over SSH and through tmux, without the frames around it. `ctrl+y` copies the agent's last answer, and `ctrl+p` copies the last code block or the last command's output. Hold shift to use your terminal's own selection instead.
@@ -134,6 +216,7 @@ A file dropped onto the terminal, or a pasted path, is attached to your message.
 | `esc` | stop the agent |
 | `ctrl+p` or `/` | commands |
 | `ctrl+s` | conversations |
+| `alt+0` | the board; `alt+1` … `alt+9`, `alt+h`, `alt+l`, `alt+n` and `alt+b` move between agents |
 | `@` | attach a file |
 | `shift+tab` | how hard the model thinks |
 | `ctrl+t` | show the model's thinking |

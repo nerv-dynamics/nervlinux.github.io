@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Nerv Linux — Plexus</title>
-<meta name="description" content="Reaching your machines from anywhere: one authority you run yourself, machines that enrol with it, and access that exists only where you grant it.">
+<meta name="description" content="Reaching your machines from anywhere: an organisation whose root key only you hold, machines that join it with one code, and access that exists only where you grant it.">
 <link rel="canonical" href="https://nervlinux.org/handbook/machine/plexus/">
 <meta property="og:title" content="Nerv Linux — Plexus">
-<meta property="og:description" content="Reaching your machines from anywhere: one authority you run yourself, machines that enrol with it, and access that exists only where you grant it.">
+<meta property="og:description" content="Reaching your machines from anywhere: an organisation whose root key only you hold, machines that join it with one code, and access that exists only where you grant it.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://nervlinux.org/handbook/machine/plexus/">
 <link rel="icon" href="/assets/favicon.png" sizes="32x32">
@@ -118,12 +118,17 @@
 <li><a href="/handbook/machine/plexus/" aria-current="page">Plexus</a>
 <ol class="hb-nav__sections">
 <li><a href="#what-plexus-does">What Plexus does</a></li>
-<li><a href="#the-authority">The authority</a></li>
-<li><a href="#your-organisations-root">Your organisation's root</a></li>
-<li><a href="#enrolling-a-machine">Enrolling a machine</a></li>
-<li><a href="#granting-access">Granting access</a></li>
+<li><a href="#the-parts">The parts</a></li>
+<li><a href="#starting-an-organisation">Starting an organisation</a></li>
+<li><a href="#adding-a-machine">Adding a machine</a></li>
+<li><a href="#your-fleets-network">Your fleet's network</a></li>
+<li><a href="#granting-one-service">Granting one service</a></li>
+<li><a href="#connecting">Connecting</a></li>
+<li><a href="#machines-that-cannot-see-each-other">Machines that cannot see each other</a></li>
+<li><a href="#more-than-one-admin">More than one admin</a></li>
 <li><a href="#the-plexus-command">The plexus command</a></li>
-<li><a href="#more-than-one-organisation">More than one organisation</a></li>
+<li><a href="#running-the-authority-yourself">Running the authority yourself</a></li>
+<li><a href="#windows">Windows</a></li>
 </ol>
 </li>
 <li><a href="/handbook/machine/building-your-own/">Building your own</a>
@@ -145,38 +150,93 @@
     <div class="hb__main">
       <div class="essay">
 <h1 class="page-title">Plexus</h1>
-<p>Reaching your machines from anywhere: one authority you run yourself, machines that enrol with it, and access that exists only where you grant it.</p>
+<p>Reaching your machines from anywhere: an organisation whose root key only you hold, machines that join it with one code, and access that exists only where you grant it.</p>
 <h2 id="what-plexus-does" class="section-title">What Plexus does</h2>
-<p>Plexus joins your machines into one private network over the kernel's WireGuard, wherever each of them is, and decides who may reach what across it. Each machine's WireGuard key is kept by its TPM. The authority hands each machine a signed policy that runs out after an hour unless renewed, so a grant you revoke stops working within minutes even on a machine that never hears about it.</p>
-<p>Being enrolled grants nothing on its own. A machine or a person reaches a service on another machine only through a grant you made, for as long as you made it for.</p>
-<p>Plexus is in active development. What follows is how it works today; details will change as it settles.</p>
-<h2 id="the-authority" class="section-title">The authority</h2>
-<p>The authority is a small service you run on a machine you control, reachable by your machines over HTTPS: <code>plexus-host</code>, from the <code>plexus-host</code> package. It keeps its state in <code>/var/lib/plexus-host/state</code> and listens on <code>127.0.0.1:18443</code>, behind a TLS reverse proxy you put in front of it.</p>
-<p>Setting it up makes the organisation, asks your root key to certify the authority, and starts it:</p>
+<p>Plexus joins your machines into one private network over the kernel's WireGuard, wherever each of them is, and decides who may reach what across it. Each machine's WireGuard key is sealed by its TPM and never leaves it.</p>
+<p>Being a member grants nothing on its own. A machine reaches another only through a rule or a grant you made, for as long as you made it for. The authority hands each machine its permissions as a signed policy that runs out after an hour unless renewed. A machine that is connected hears about a revocation at once and withdraws it; one that is not loses the access when its hour runs out, whether or not it ever hears.</p>
+<p>Plexus adds addresses for your machines and routes to the ones you may reach, and nothing else: no DNS, no default route, no route into anyone's LAN. The network you are on is unchanged.</p>
+<p>Plexus comes with the workstation. On any other machine it is the <code>plexus-client</code> package.</p>
+<h2 id="the-parts" class="section-title">The parts</h2>
+<div class="table-scroll">
+<table class="data">
+<tbody>
+<tr>
+<td><strong>the root</strong></td><td>your organisation's key, on your own computer or a security key. It certifies the authority and admits new admins, and nothing else ever holds it.</td>
+</tr>
+<tr>
+<td><strong>the authority</strong></td><td>the service that keeps your organisation: its machines, rules and grants. You run it yourself or use a provider you trust, and it holds only a key your root certified, which your root can replace.</td>
+</tr>
+<tr>
+<td><strong>a machine</strong></td><td>a member of the organisation, with a TPM-sealed key of its own</td>
+</tr>
+<tr>
+<td><strong>an admin device</strong></td><td>a computer that can approve machines and grant access, with a login key of its own</td>
+</tr>
+<tr>
+<td><strong>a relay</strong></td><td>an optional service that carries encrypted traffic between machines that cannot reach each other directly. It holds no key of yours.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="starting-an-organisation" class="section-title">Starting an organisation</h2>
+<p>Run <code>plexus</code> and choose <strong>New organisation</strong> (<code>+</code>). It asks for a name for the organisation on this computer, the organisation's ID, and the authority that will keep it. Then it asks where the root key lives:</p>
+<ul class="list">
+<li><strong>a FIDO2 security key</strong>, such as a YubiKey, with its PIN and a touch;</li>
+<li><strong>an SSH key already in your agent</strong>, a YubiKey's included;</li>
+<li><strong>a protected software key</strong>, encrypted with a passphrase you type into OpenSSH.</li>
+</ul>
+<p>With the security key on this computer, setup runs the root ceremony here. With it on another computer, setup shows a request code to copy there and takes the approval code back, so no file moves and no path is typed. A setup interrupted at any point resumes with <strong>Finish organisation setup</strong> (<code>o</code>), with the same identities.</p>
+<p>Setup also makes the login key this computer signs in with. It is separate from the root: the root is needed only to certify the authority's key and to admit another admin, and can stay in a drawer the rest of the time.</p>
+<p>There is no recovering a lost root. Keep it as you would keep the keys to the building.</p>
+<h2 id="adding-a-machine" class="section-title">Adding a machine</h2>
+<p>On the new machine, run <code>plexus</code> and choose <strong>Join this computer</strong>, then press enter. It uses the machine's hostname and your organisation's authority (<code>F4</code> changes either), asks <code>doas</code> once, makes a TPM-sealed key for this membership, and shows a code:</p>
+<pre class="term term__body">plx1-…</pre>
+<p>On an admin device, choose <strong>Add machine</strong> and paste the code, or:</p>
+<pre class="term term__body">$ plexus approve plx1-…</pre>
+<p>The review shows the machine's name and keys, and whether it joins your fleet network. Approve it, and the new machine connects by itself. Nothing else is copied between the two: no key files, no addresses, no paths.</p>
+<p>A code lasts five minutes, and <code>r</code> renews it with the same keys. The authority never sees the code itself, and the joining machine checks that the approval came from the organisation it meant to join before it trusts anything.</p>
+<p>From a script on the new machine, <code>plexus join</code> prints the code and waits for the approval, and running it again resumes where it stopped.</p>
+<h2 id="your-fleets-network" class="section-title">Your fleet's network</h2>
+<p>A new organisation has a fleet network rule: every machine in it can reach every other's Plexus address, for SSH, for <a href="/handbook/machine/compute-fabric/">axon</a> and for anything else you run between them. Each machine you approve joins it, unless you switch it off for that machine in the review (space in the terminal).</p>
+<p><code>g</code> in <code>plexus</code>, or <code>plexus fleet on</code> and <code>plexus fleet off</code>, changes the rule for the whole organisation, after showing the machines it would cover. Turning it off removes what it allowed at once. The rule lets machines reach each other; it signs nobody in, and SSH still asks who you are.</p>
+<h2 id="granting-one-service" class="section-title">Granting one service</h2>
+<p>For anything narrower than the whole fleet, grant it:</p>
+<pre class="term term__body">$ plexus grant ID SOURCE UID SERVICE TARGET TTL_SECONDS
+$ plexus revoke ID</pre>
+<p>A grant names who may reach which service on which machine, and for how long, from a second to thirty days. Grants and the fleet rule add up: turning the rule off leaves your grants in place. <code>plexus retire</code> takes a machine out for good, with every rule and grant that named it, and <code>plexus audit</code> shows what was changed and when.</p>
+<h2 id="connecting" class="section-title">Connecting</h2>
+<p>A machine is connected to one organisation at a time. <strong>Connect</strong> and <strong>Disconnect</strong> in <code>plexus</code>, or <code>plexus connect</code> and <code>plexus disconnect</code>, bring the link up and down, and <code>plexus connect --org NAME</code> switches to another organisation: it takes the old one down and checks that it is gone before the new one comes up. Nothing reconnects on its own at boot.</p>
+<p><code>plexus status</code> shows what this machine has: the policy it holds, and separately what it has actually seen of each peer. Being granted a peer and having reached it are different things, and it never shows one as the other. <strong>Peer addresses</strong> copies a machine's address to paste into <code>ssh</code>.</p>
+<h2 id="machines-that-cannot-see-each-other" class="section-title">Machines that cannot see each other</h2>
+<p>Two machines behind different home routers usually reach each other directly: the authority tells each where the other can be found, and that changes as they move. When they cannot, a relay carries their traffic, already encrypted end to end by WireGuard. The relay sees which two endpoints it joins, never what passes between them, and holds no key of your organisation's.</p>
+<p>A relay is used only if you approved it. <strong>Approved relays</strong> (<code>l</code>) in <code>plexus</code>, or:</p>
+<pre class="term term__body">$ plexus relay-add https://relay.example.org -
+$ plexus relays</pre>
+<p>An organisation with no approved relay uses none. A relayed pair keeps trying the direct path and moves back to it when it opens. <code>z</code> in <code>plexus</code> shows the path each peer is actually using.</p>
+<h2 id="more-than-one-admin" class="section-title">More than one admin</h2>
+<p>Any computer can become an admin device. On it:</p>
+<pre class="term term__body">$ plexus admin-code</pre>
+<p>makes its own login key and shows a code. On an admin device already signed in, <code>plexus add-admin CODE --root ROOT_PUBLIC</code> reviews it and approves it with the root, so a stolen login can never make another admin. The new device then signs in with <code>plexus login</code>.</p>
+<p>Commands sign in by themselves when the session has expired, using this device's login key through the SSH agent. If the key is locked, the command stops and asks you to run <code>plexus login</code>.</p>
+<h2 id="the-plexus-command" class="section-title">The plexus command</h2>
+<p><code>plexus</code> on a terminal opens the console. It shows only the steps that can come next: <strong>Join this computer</strong> before the machine is a member, <strong>Sign in</strong> before you are, then <strong>Add machine</strong>, <strong>Machines</strong> and <strong>Fleet networking</strong>. <code>m</code> lists everything else.</p>
+<p>Every action in it is also a command, for scripts; <code>plexus help</code> lists them, and <code>plexus status --json</code> reports this machine's state. A command that changes the organisation shows what it will do and asks first; without a terminal it refuses unless given <code>--yes</code>.</p>
+<p><code>plexus</code> keeps each organisation you belong to, up to 32, in <code>~/.config/plexus/owner</code>, each with its own authority, root and session. <code>plexus use NAME</code> chooses the one commands act on, and <code>--org NAME</code> on any command chooses one for that command.</p>
+<h2 id="running-the-authority-yourself" class="section-title">Running the authority yourself</h2>
+<p>The authority is a small service, <code>plexus-host</code> from the package of the same name, on a machine you control and your machines can reach over HTTPS. It keeps its state in <code>/var/lib/plexus-host</code>, listens on <code>127.0.0.1:18443</code>, and sits behind a TLS reverse proxy you put in front of it. It runs as its own user, with no capabilities.</p>
+<p>It runs one of two ways. <strong>Standalone</strong> keeps one organisation:</p>
 <pre class="term term__body">$ doas systemd-run --uid=plexus-host --pipe --wait plexus-host init /var/lib/plexus-host/state ORG DOMAIN OWNER https://plexus.example.org ROOT_PUBLIC_HEX
 $ doas systemd-run --uid=plexus-host --pipe --wait plexus-host issuer-request /var/lib/plexus-host/state request.bin
 $ doas systemd-run --uid=plexus-host --pipe --wait plexus-host issuer-install /var/lib/plexus-host/state issuer.cert
 $ doas systemctl enable --now plexus-host.service</pre>
-<p>The first owner signs in with a one-time credential the authority writes to <code>/var/lib/plexus-host/state/owner-token</code>, good for fifteen minutes, and registers a security key or a signing key for every login after.</p>
-<h2 id="your-organisations-root" class="section-title">Your organisation's root</h2>
-<p>The organisation's root key is yours, and the authority never holds it: the root certifies the authority, and the authority certifies everything else. Keep it in an SSH key on a YubiKey, with its PIN and a touch, or on a FIDO2 key, or as a software SSH key:</p>
-<pre class="term term__body">$ plexus create-root
-$ plexus issuer-certify request.bin issuer.cert</pre>
-<p>There is no recovering a lost root. Keep it as you would keep the keys to the building.</p>
-<h2 id="enrolling-a-machine" class="section-title">Enrolling a machine</h2>
-<p>On the new machine:</p>
-<pre class="term term__body">$ plexus join plexus.example.org --name gpu2</pre>
-<p>prints a code. On a machine where you are an owner, approve it:</p>
-<pre class="term term__body">$ plexus approve CODE</pre>
-<p>The new machine is a member from then on, and reaches nothing until you grant it something.</p>
-<h2 id="granting-access" class="section-title">Granting access</h2>
-<pre class="term term__body">$ plexus grant ID SOURCE UID SERVICE TARGET TTL_SECONDS
-$ plexus revoke ID</pre>
-<p>A grant names who may reach which service on which machine, and for how long, from a second to thirty days. <code>plexus fleet on</code> lets the fleet's machines reach one another for the fabric, <code>plexus retire</code> takes a machine out for good, and <code>plexus audit</code> shows what was granted and when.</p>
-<h2 id="the-plexus-command" class="section-title">The plexus command</h2>
-<p><code>plexus</code> on a terminal opens the owner console: your machines, their state, grants and relays, with every change confirmed before it is made. Every action in it is also a command, for scripts; <code>plexus help</code> lists them, and <code>plexus status --json</code> reports this machine's state. A command that changes something refuses to run without a terminal unless given <code>--yes</code>.</p>
-<h2 id="more-than-one-organisation" class="section-title">More than one organisation</h2>
-<p><code>plexus</code> keeps a context for each organisation you belong to, up to 32, in <code>~/.config/plexus/owner</code>. <code>plexus use NAME</code>, or <code>--org NAME</code> on any command, chooses one. A machine is connected to one organisation's network at a time; switching disconnects the old one first.</p>
+<p>The request is certified on the computer that holds the root, with <code>plexus issuer-certify ROOT_PUBLIC request.bin issuer.cert</code>, and only the certificate comes back. The first owner signs in once with the one-time credential in <code>/var/lib/plexus-host/state/owner-token</code>, good for fifteen minutes, and registers a login key for every time after.</p>
+<p><strong>As a provider</strong> it keeps up to 32 organisations, each with its own root, and lets their owners create them with <strong>New organisation</strong>:</p>
+<pre class="term term__body">$ doas systemd-run --uid=plexus-host --pipe --wait plexus-host provider-init /var/lib/plexus-host/provider https://plexus.example.org --registration-open
+$ doas systemctl enable --now plexus-provider.service</pre>
+<p>Without <code>--registration-open</code>, nobody can create an organisation on it. A provider publishes no list of the organisations it keeps.</p>
+<p>A relay is a separate service, <code>plexus-relay</code>, and running one needs no organisation and no root.</p>
+<h2 id="windows" class="section-title">Windows</h2>
+<p>Plexus for Windows, from <a href="https://nervlinux.org/downloads/">Downloads</a>, joins a Windows PC to your organisation the same way, with its key sealed by the PC's TPM, and is a full admin app: creating an organisation with a security key, adding machines, the fleet network, grants and approvals. It remembers whether you were connected across a restart.</p>
       </div>
       <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/offloading-and-fleets/"><span>Previous</span>Offloading and fleets</a><a class="hb-pager__next" href="/handbook/machine/building-your-own/"><span>Next</span>Building your own</a></nav>
     </div>

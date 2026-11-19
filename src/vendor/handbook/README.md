@@ -52,7 +52,7 @@ Five is the budget. A sixth idea requires retiring one.
 | [**Agents**](machine/agents.md) | yui: an agent in your terminal that asks before it changes anything, and conversations the machine keeps. |
 | [**Gaming**](machine/gaming.md) | Steam, titles built for x86, and borrowing a faster GPU from across the room. |
 | [**Offloading and fleets**](machine/offloading-and-fleets.md) | Putting work on other machines, and several boxes acting as one. |
-| [**Plexus**](machine/plexus.md) | Reaching your machines from anywhere: your own authority, enrolment, and access that exists only where you grant it. |
+| [**Plexus**](machine/plexus.md) | Reaching your machines from anywhere: an organisation whose root only you hold, machines that join with one code, the fleet network, grants, relays, and running the authority yourself. |
 | [**Building your own**](machine/building-your-own.md) | Packaging software for your machine, and owning the stack. |
 
 ## Part IV — When it breaks

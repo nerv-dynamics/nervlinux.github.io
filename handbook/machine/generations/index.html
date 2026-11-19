@@ -200,7 +200,7 @@ SLOT             ROLE      KERNEL   ARTIFACT   BOOT-COUNTER         FLAGS
 </div>
 <p><code>blessed</code> means the slot has completed a boot, or never needed to prove one. <code>3 tries left</code> means it is on trial. <code>booted</code> marks the slot you are running.</p>
 <h2 id="cage-update-or-dnf" class="section-title"><code>cage update</code> or <code>dnf</code></h2>
-<p><strong>Updating the system is always <code>cage update</code>.</strong> <code>dnf</code> installs and removes packages, and refuses <code>dnf upgrade</code> with a pointer here. <a href="/handbook/machine/software/">Software</a> has what each kind of package allows, and what happens to a package installed while an update waits for its reboot.</p>
+<p><strong><code>dnf</code> changes the running system; <code>cage update</code> changes what it boots.</strong> <code>dnf install</code>, <code>dnf remove</code> and <code>dnf upgrade</code> apply at once, with no reboot, as long as nothing in the boot path changes. An upgrade that would change the kernel, the GPU driver, systemd, the initrd tools, cryptsetup or the platform package is refused with a pointer here, and <code>cage update</code> makes it in a new slot. <a href="/handbook/machine/software/">Software</a> has what each kind of package allows, and what happens to a package installed while an update waits for its reboot.</p>
 <h2 id="updating" class="section-title">Updating</h2>
 <pre class="term term__body">$ cage update
 :: snapshot @nerv → @nerv-20261017-1226

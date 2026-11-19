@@ -306,9 +306,6 @@ command -q bat; and alias cat 'bat --style=plain --paging=never'</pre>
 <td><code>C-b h</code> / <code>C-b v</code></td><td>split into panes above and below / side by side</td>
 </tr>
 <tr>
-<td><code>Alt</code> + arrows</td><td>move between panes, no prefix</td>
-</tr>
-<tr>
 <td><code>Ctrl-Alt</code> + <code>←</code>/<code>→</code></td><td>previous / next window, no prefix</td>
 </tr>
 <tr>
@@ -320,7 +317,7 @@ command -q bat; and alias cat 'bat --style=plain --paging=never'</pre>
 </tbody>
 </table>
 </div>
-<p>The mouse works: click a pane to focus it, drag a border to resize it.</p>
+<p><code>C-b</code> and an arrow moves between panes, as in any tmux. The mouse works: click a pane to focus it, drag a border to resize it.</p>
 <p>There are two status bars.</p>
 <p>The <strong>upper</strong> one starts with the machine's hostname, so on a desk with several of these you always know which machine a terminal is on. The hostname block turns yellow while tmux waits for a command after the prefix, and pink in copy mode, where keys scroll the pane instead of reaching the program in it. Then come the windows, and at the right edge the machine's uptime, temperature and power draw. There is no clock; every screen already has one.</p>
 <p>The <strong>lower</strong> one starts with the machine's LAN address, the one you would <code>ssh</code> to. Then come the sessions, which you can click: the one you are in sits on a grey block. At the right are <code>CPU</code>, <code>GPU</code> and memory.</p>
