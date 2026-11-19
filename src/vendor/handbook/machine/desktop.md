@@ -61,9 +61,17 @@ Firefox comes with the desktop. Nerv's Firefox runs on Nerv's own C library and 
 
 ## Files
 
-Strata is the file manager: the launcher finds it as *Strata*, and `strata` starts it from a terminal. It browses in columns, icons or a list, with tabs, and previews documents, images, audio and source code beside the listing. Every preview is drawn in a sandbox that sees only the file it shows. Nothing indexes your files in the background: a search looks through the folder you are in, when you ask.
+Luciole is the file manager: the launcher finds it as *Luciole*, and `luciole` starts it from a terminal, `luciole ~/Downloads` in a folder. It browses in a grid, a list or columns, with tabs, windows and a split view, and draws thumbnails of images and the first page of PDFs beside the listing. It opens archives as folders and makes new ones. Thumbnails are drawn in helper processes with limits on their memory and time, so a broken file costs its thumbnail and never the window. Nothing indexes your files in the background: a search looks through the folder you are in, when you ask.
 
-Other programs use it too. Firefox's Open and Save dialogs are Strata's, as are those of any program that asks the desktop for one, and "Show in folder" in a browser opens the folder in Strata.
+Other programs use it too. Firefox's Open and Save dialogs are Luciole's, as are those of any program that asks the desktop for one, and "Show in folder" in a browser opens the folder in Luciole.
+
+`Ctrl+,` opens its settings, which it keeps in `~/.config/luciole/`. Its colours are the desktop's: the shell writes them to `~/.config/luciole/colors.toml` whenever its palette changes. An account made before Luciole came with the desktop gets them by adding this to `~/.config/noctalia/noctalia.toml`:
+
+```
+[theme.templates.user.luciole]
+input_path = "/usr/share/luciole/templates/colors.toml"
+output_path = "$XDG_CONFIG_HOME/luciole/colors.toml"
+```
 
 ## X11 programs
 
@@ -99,4 +107,5 @@ $ nerv-keymap                        # what is set now
 ## What is still in progress
 
 - **Screenshots and the clipboard from the command line.** No tools for them ship yet.
-- **The Trash, network locations and removable drives in Strata.** Strata shows the folders on your disks; it does not list these yet.
+- **The Trash, network locations and removable drives in Luciole.** Luciole shows the folders on your disks; it does not list these yet.
+- **Thumbnails of videos.** Luciole shows a video as its icon.

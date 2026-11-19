@@ -26,6 +26,17 @@ Any server that speaks OpenAI's API works the same way:
 $ yui --endpoint http://127.0.0.1:8000/v1 --model qwen3.8-27b
 ```
 
+An `https://` endpoint is reached over TLS, and its certificate is checked against the machine's trusted certificates; `SSL_CERT_FILE` names a different file of them. A certificate that does not verify, or names another host, is refused.
+
+A server that wants a key gets the one kept for it in `~/.config/yui/keys`, a file named for the server's host, and its port when it is not the scheme's own (80, or 443 for `https://`), holding the key alone:
+
+```
+$ mkdir -m 700 -p ~/.config/yui/keys
+$ (umask 077; cat > ~/.config/yui/keys/10.0.0.5:8000)
+```
+
+It is kept the way an ssh key is: yui uses a key only you can read, in a directory only you can write, and refuses any other with the `chmod` that fixes it. A key goes only to the server it is named for. The agent never sees it: its tools run in a sandbox with a home of its own.
+
 `ctrl+p`, then *Switch model*, changes the model in the middle of a conversation, and the conversation carries on.
 
 ## Conversations
@@ -39,6 +50,8 @@ Close the terminal while the agent works and it carries on. The next `yui` opens
 `yui ps` shows what every agent is doing: *working*, *needs-you* when a question waits for you, *done-waiting* when it has finished and waits for the next message, or *blocked* when its turn failed. With each comes since when, the machine, the directory and branch it works in, and what it waits on or what you asked it. An agent working when the machine stopped is shown blocked until you open its conversation again. `yui ps --follow` stays open and prints an agent's line again each time it changes.
 
 The same state shows in two more places, as a glyph: a yellow ◆ for *needs-you*, a cyan ● for *working*, a green ○ for *done-waiting* and a red ✕ for *blocked*. In `ctrl+s` it comes before each conversation, and a blocked one says why. Inside tmux, each window carries one glyph per agent open in it, so you see every agent from whichever window you are in, and the terminal bell rings when an agent comes to need you. An agent another yui holds shows the state its own yui gives it.
+
+An agent keeps a to-do list for the work in front of it, with its `todo` tool. Each task is to do, doing or done, and the agent writes the whole list each time it changes, so you see the list in the conversation as it stands. The list stays with the conversation: it is there again when the conversation is resumed, after a restart too. It also goes on the agent's card, so `yui ps` and the other agents see how far it has got and what it is doing now. A list holds up to 50 tasks of one line each.
 
 ## Agents talking to each other
 
@@ -67,9 +80,19 @@ For anything more, a path elsewhere or the network, the agent asks, and the ques
 
 `ctrl+p`, then *Sandbox*, lists what the agent can reach. Enter on a path takes it back; enter on the network gives it or takes it back. What you give is kept with the conversation.
 
-What you type is yours to act on; text that came from elsewhere is not. Once a conversation holds outside content, a command that could reach the network is asked for again, the card saying why. A paste of eight lines or more counts as outside content: it usually came from a log, a page or a message. Typing and short pastes are yours.
+What you type is yours to act on; text that came from elsewhere is not. Once a conversation holds outside content, a command that could reach the network is asked for again, the card saying why. A paste of eight lines or more counts as outside content: it usually came from a log, a page or a message. Typing and short pastes are yours. So does what a command prints while the agent has the network, since it could have fetched it from anywhere.
 
 On a kernel that cannot make the sandbox, yui says so when the agent first acts, and asks before each write, each command and each read outside the directory. There, `a` on a card allows that tool for the rest of the conversation, until outside content arrives.
+
+## An agent that approves for the others
+
+The questions an agent asks are of two kinds. Some only you can answer: a path outside the sandbox, the network itself, a command where there is no sandbox. Others another agent may answer for you. Today that is one thing: reaching the network after outside content has arrived.
+
+`ctrl+p`, then *Approver*, makes the conversation you are in the approver. Tell it in your own words what to allow. From then on, when another agent asks something an approver may answer, the question goes to the approver as well as up on that agent's card. The approver allows it, refuses it, or hands it to you. Its turn starts by itself, the asking agent shows *working* while it waits, and whichever of you answers first decides. If the approver ends its turn without deciding, or hands the question on, the asking agent shows *needs-you*. *Approver* again in the same conversation leaves no approver.
+
+The approver never reads the other agent's text. That agent has read outside content, so what it wrote may carry instructions from whoever wrote that content. The approver sees what yui knows for itself: who asks, the task you gave that agent, the tool and why it needs asking, where the outside content came from, and the shape of each argument without its text. It may read the arguments if it must. Once it has, it has read outside content too, and it approves nothing more. The same goes for anything else outside it reads, so no agent may send it a message. An approver that has read outside content is passed over, the card saying why, and a conversation that already has cannot be made the approver.
+
+An approver must be a conversation on S2 or another model yui talks to directly; a conversation on Claude cannot be one. Every answer to every question, yours and the approver's, is recorded with who gave it, for which agent, and on what.
 
 ## Claude
 
