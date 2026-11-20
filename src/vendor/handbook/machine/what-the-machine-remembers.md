@@ -25,6 +25,7 @@ A store holds **streams**, each with one writer. A history stream is a sequence 
 - **Time is the boot and the clock within it.** A machine whose clock was wrong for a week still has that week in the right order, with the wall-clock time kept beside each record for what it is.
 - **Records are typed.** A package installs the types of the records its programs write in `/usr/share/magi/schemas`. A field is added in a new version of a type, never renamed or changed, so a reader written today still reads next year's records.
 - **Views are kept current.** A view is an index, a filter, a projection or a join over other streams, and it changes in the same batch as what it reads, so it is never behind. A program can watch one and be told when it changes.
+- **Records can be found by their words.** A text view ranks a history stream's records by the words in their text, best first, optionally within the values of fields it keys, such as a project. What a search returns is exact as of the moment it is asked, and a record that was redacted is never among the answers.
 
 Today the machine's journal is kept here, and so are yui's conversations ([Agents](agents.md#conversations)) and geofront's record of the packages in a repository it builds into ([Building your own](building-your-own.md#packaging-a-program)).
 
@@ -55,6 +56,7 @@ $ doas magi tail journal/entries -n 5
 | `magi tail STREAM [-n N]` | a history stream's last records |
 | `magi get STREAM KEY` | one key of a state stream or a view |
 | `magi range STREAM [--from K] [--to K]` | its keys, in order |
+| `magi search VIEW WORDS [--where F=V]` | a text view's best records for the words, within a field's value |
 | `magi schema [TYPE \| --installed]` | the types a store holds, or the ones packages installed |
 
 A program, or a script of yours, declares a stream with `magi declare` and writes it with `magi append` or `magi put`. `magi --help` lists every command.

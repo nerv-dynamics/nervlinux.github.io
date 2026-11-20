@@ -93,9 +93,19 @@ What a sub-agent answers is trusted as far as its own conversation: one that rea
 
 ## Memory
 
-An agent can keep a short note for later conversations, for this project (its git repository) or for every project. A note is off when written. `ctrl+p`, then *Memory*, lists the notes that hold here: `enter` on one turns it on or off, edits it in the composer (`ctrl+g` opens your editor), or deletes it. One written while the agent had read outside content is marked so.
+An agent can keep a short note for later conversations, under a title, for this project (its git repository) or for every project. Writing again under a title the project already has rewrites that note rather than adding another.
 
-The notes that are on are given to every agent working here, before the conversation. A change reaches a conversation the next time it starts, or after it has been idle ten minutes, never halfway through. They go in oldest first up to 8 KiB; the palette marks any left out past that. Turning a note on, editing and deleting are recorded as your decisions.
+Nothing of the notes is put in front of an agent. It is told how many it has, and searches them with its `recall` tool when its work calls for it: by the words it expects in them, then reading one whole. A change reaches a conversation the next time it starts, or after it has been idle ten minutes, never halfway through.
+
+A note is found only once it is on. `ctrl+p`, then *Memory*, lists the notes that hold here, with when an agent last read each: `enter` on one turns it on or off, edits it in the composer, its title on the first line (`ctrl+g` opens your editor), or deletes it. The first line of the palette chooses how notes are turned on: by you, one at a time, or as they are written. Either way, a note written while the agent had read outside content waits for you, and is marked so. Turning a note on, editing and deleting it, and the choice itself, are recorded as your decisions.
+
+## Earlier conversations
+
+An agent searches earlier conversations on this machine with its `history` tool: what was asked, said, run and answered there, found by its words, then read a few turns around a hit. It searches this project's conversations unless asked for every project's. What it reads counts as it did where it was said: a page fetched there is outside content here too.
+
+## The handbook
+
+This handbook is on the machine, in `/usr/share/doc/nerv/handbook`, as it stands for the software installed. An agent searches it with `nerv doc` and its words, and reads a section with `nerv doc read`, before guessing how something on Nerv works.
 
 ## What the agent may do
 
@@ -141,12 +151,16 @@ deny run grant                 # these tools are refused
 network off                    # no sandbox has the network, and nothing is sent outward
 protect ~/.ssh /srv/customers  # no grant, read or write reaches these
 endpoint s2 https://llm.example.org/v1   # only these endpoints are used
+mcp mcp.example.org tools.internal:8443  # only MCP servers at these hosts are used
+memory manual                  # every note waits for you to turn it on
 ```
 
 - `deny` names tools. The agent is not told of them, and a call to one is refused.
 - `network off` keeps the network out of every sandbox, whatever was granted, and refuses every call that could send something off the machine.
 - `protect` names paths, `~` meaning the user's home. Inside the sandbox they are not there, even within a granted directory, and a grant at or inside one is refused.
 - `endpoint` names the endpoints a conversation may use: a URL, which also covers the paths under it, `s2` or `claude`. With no `endpoint` line, any may be used.
+- `mcp` names the hosts whose [MCP servers](#mcp-servers) may be used, each a host, which covers every port, or `host:port`. A server at a URL elsewhere is not used, and *Tools* names the line that refuses it. With no `mcp` line, a server at any host may be used. Under `network off` none is.
+- `memory manual` makes every note an agent writes wait for you to turn it on, whatever the *Memory* palette chooses.
 
 What the policy forbids is refused before anyone is asked: no card, no approver, and `a` does not cover it. The refusal names the file and line, and repeats the line's comment, so write the reason there. Where yui cannot make a sandbox, `network off` and `protect` refuse every command and every plugin's tool, since nothing could hold them to it. `ctrl+p`, then *Policy*, shows the rules in force.
 
@@ -202,6 +216,8 @@ $ yui --endpoint claude --model opus
 
 Claude works with yui's tools and asks on yui's cards, like any other model, and the conversation resumes on Claude's side too: neither a resume flag nor a permissions flag is needed. A conversation moves between Claude and S2 with the model switcher.
 
+Claude Code's own memory and its reading of `CLAUDE.md` files are off in a conversation here. Claude is told of yui's [memory](#memory) and searches it like any other model, so there is one memory, the one you decide on.
+
 ## Tools and guards
 
 Besides reading, writing and running commands, the agent has `nerv`, which answers what a model cannot know about this machine: which libc a program is built against, which package owns a file and whether it is Nerv's or Fedora's, which install profile brings a package in, and which slot is running.
@@ -253,7 +269,7 @@ Its words are Nerv's own. A list of your own stays where it is. terse reads it a
 
 ## MCP servers
 
-An MCP server gives yui's agents its tools. Declare one in a file of its own in `~/.config/yui/mcp`, named for the server:
+An MCP server gives yui's agents its tools. Declare one in a file of its own in `~/.config/yui/mcp`, named for the server. One that runs on this machine is declared by its program:
 
 ```
 run /usr/bin/github-mcp-server stdio   # the program and its arguments
@@ -265,11 +281,38 @@ auto search_code get_file_contents      # its tools that need no card
 timeout 60                              # seconds a call may take
 ```
 
-yuid starts each server when it starts, and its tools are offered as `server.tool`. A server runs in a sandbox of its own: it sees the system, a directory of its own under yui's state, and what its file names, and nothing else of yours. It has the network only when its file says `network`, and never while the machine's policy says `network off`. A protected path is not there for it either.
+One served elsewhere is declared by its URL, and yui speaks to it over HTTP:
 
-Each of its tools asks on a card unless the file names it `auto`. What a server with the network answers counts as outside content, and once a conversation holds outside content its calls to such a server go to the approver, as any send does. A server that stops is started again once; if it stops again it is left down, and *Tools* says so until yuid is restarted. A call that runs past the file's `timeout`, or that you stop with `esc`, is cancelled at the server.
+```
+url https://mcp.example.com/mcp        # where it is served
+token                                   # send it the key kept for its host
+auto search                             # its tools that need no card
+timeout 60                              # seconds a call may take
+```
 
-The file is followed only while it is yours and no one else can write it. A line yui does not understand leaves that server down, naming the file and the line. Only servers that speak over standard input and output are started; a remote service is reached through a local server.
+A file has `run` or `url`, never both. `env`, `network`, `read` and `write` are for a server that runs here, and a file with a `url` that names one is refused.
+
+A server at a URL that wants a key is given the one kept for its host, the same file in `~/.config/yui/keys` an [endpoint's key](#starting-yui) is, when its file says `token`. One that signs you in with OAuth needs no line at all: run `yui mcp login NAME` once, NAME being the file's name.
+
+```
+$ yui mcp login github
+Open this to sign in to github:
+
+  https://github.example.com/login/oauth/authorize?response_type=code&client_id=…
+
+The browser is sent back to http://127.0.0.1:41377/callback when you have signed in. If it is on another machine, that page will not load: paste its address here and press enter.
+signed in to github
+```
+
+Open the address, sign in, and yui finishes when the browser comes back to it; a server waiting for the sign-in is started from yuid's next request. Over ssh, the browser is on your own machine and that last page does not load; copy its address from the browser and paste it into the terminal instead. The sign-in is kept in `~/.config/yui/keys/mcp/NAME`, readable by you alone, and yui renews it itself when it expires; it is used only for the URL it was made for. `yui mcp logout NAME` forgets it. `oauth` in the file says the server is not to be tried without a sign-in, and `client ID` gives the client ID to sign in as, for a server that does not register yui by itself. Until you have signed in, the server's tools are not offered, and *Tools* says to run `yui mcp login NAME`.
+
+A server that runs here runs in a sandbox of its own: it sees the system, a directory of its own under yui's state, and what its file names, and nothing else of yours. It has the network only when its file says `network`, and never while the machine's policy says `network off`. A protected path is not there for it either. A server at a URL runs nowhere here, and sees nothing of the machine but the arguments of the calls made to it.
+
+Its tools are offered as `server.tool`, and each asks on a card unless the file names it `auto`. What a server with the network answers counts as outside content, and what a server at a URL answers always does; once a conversation holds outside content, its calls to such a server go to the approver, as any send does. A call that runs past the file's `timeout`, or that you stop with `esc`, is cancelled at the server.
+
+yuid follows the directory as it changes: a new file starts its server, a removed one stops it, and a changed one starts it again, all from the next request and with no restart. A server that runs here and stops is started again once; if it stops again it is left down, and *Tools* says so until its file changes.
+
+The file is followed only while it is yours and no one else can write it. A line yui does not understand leaves that server down, naming the file and the line.
 
 ## Switching tools
 

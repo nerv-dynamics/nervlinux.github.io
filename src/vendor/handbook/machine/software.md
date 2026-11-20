@@ -97,7 +97,7 @@ nerv: this transaction changes the boot path (nerv-kernel). A slot boots the ker
 
 **`doas dnf upgrade` updates the running system** when nothing in the boot path changes: a game, an editor, a library, Nerv's packages and Fedora's alike, live, with no reboot.
 
-**An update that reaches the boot is `cage update`.** When the upgrade carries one of the packages in the table above, `dnf` refuses the whole transaction with the message shown there. `cage update` builds the new system beside the one you are running, upgrades it, proves it boots and promotes it, so there is always one to go back to; [Generations](generations.md) is the whole of it. It also upgrades everything else, so it is the one command that takes a machine all the way to current.
+**An update that reaches the boot is `cage update`.** When the upgrade carries one of the packages in the table above, `dnf` refuses the whole transaction with the message shown there. `cage update` builds the new system beside the one you are running, upgrades it, proves it boots and promotes it, so there is always one to go back to; [Updates and generations](generations.md) is the whole of it. It also upgrades everything else, so it is the one command that takes a machine all the way to current.
 
 ## Stable and testing
 

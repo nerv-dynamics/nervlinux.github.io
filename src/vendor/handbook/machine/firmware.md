@@ -31,7 +31,7 @@ A release is offered only when LVFS says it is for this exact machine: its vendo
 `cage firmware update` checks first and changes nothing unless every check passes:
 
 - **A way back in without the TPM.** An update can reset the TPM, and the TPM is what unlocks the disk. The machine must have a fleet recovery key, as [A forgotten passphrase](recovery.md#a-forgotten-passphrase) sets up, or an unencrypted root.
-- **One change per reboot.** The running slot must have completed a boot, and no new slot may be waiting to boot. If something goes wrong after the reboot, it was the firmware. [Generations](generations.md) explains slots and their first boot.
+- **One change per reboot.** The running slot must have completed a boot, and no new slot may be waiting to boot. If something goes wrong after the reboot, it was the firmware. [Updates and generations](generations.md) explains slots and their first boot.
 - **Secure Boot keys ready to go back in.** An update can reset the firmware's keys to the vendor's, and then the firmware refuses everything this machine signed. With Secure Boot on, the machine's own keys must be staged on the boot partition first, which takes one command:
 
 ```

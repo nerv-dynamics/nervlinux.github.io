@@ -97,9 +97,9 @@
 </li>
 </ol>
 <p class="hb-nav__part">Five ideas</p><ol class="hb-nav__list">
-<li><a href="/handbook/machine/generations/">Generations</a>
+<li><a href="/handbook/machine/generations/">Updates and generations</a>
 </li>
-<li><a href="/handbook/machine/compute-fabric/">The compute fabric</a>
+<li><a href="/handbook/machine/compute-fabric/">The GPU</a>
 </li>
 <li><a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a>
 </li>
@@ -136,6 +136,8 @@
 <li><a href="#questions">Questions</a></li>
 <li><a href="#sub-agents">Sub-agents</a></li>
 <li><a href="#memory">Memory</a></li>
+<li><a href="#earlier-conversations">Earlier conversations</a></li>
+<li><a href="#the-handbook">The handbook</a></li>
 <li><a href="#what-the-agent-may-do">What the agent may do</a></li>
 <li><a href="#an-agent-that-approves-for-the-others">An agent that approves for the others</a></li>
 <li><a href="#policy">Policy</a></li>
@@ -150,6 +152,8 @@
 </ol>
 </li>
 <li><a href="/handbook/machine/firmware/">Firmware</a>
+</li>
+<li><a href="/handbook/machine/power/">Power</a>
 </li>
 </ol>
 </details></nav>
@@ -219,8 +223,13 @@ $ (umask 077; cat &gt; ~/.config/yui/keys/10.0.0.5:8000)</pre>
 <p>An agent can hand a task to a sub-agent and wait for its answer. The sub-agent is an agent of its own, on the board, its card marked <code>↳</code> with the name of the one that started it; you can open it and answer its cards. It is given the task and nothing else of the conversation, and the sandbox its parent had when it started, the network only if the parent had it. While it works, its parent's call shows what it is doing. Stopping the parent stops it. Sub-agents start sub-agents of their own two levels down and no further.</p>
 <p>What a sub-agent answers is trusted as far as its own conversation: one that read a web page answers with outside content, and its parent's later sends are asked for.</p>
 <h2 id="memory" class="section-title">Memory</h2>
-<p>An agent can keep a short note for later conversations, for this project (its git repository) or for every project. A note is off when written. <code>ctrl+p</code>, then <em>Memory</em>, lists the notes that hold here: <code>enter</code> on one turns it on or off, edits it in the composer (<code>ctrl+g</code> opens your editor), or deletes it. One written while the agent had read outside content is marked so.</p>
-<p>The notes that are on are given to every agent working here, before the conversation. A change reaches a conversation the next time it starts, or after it has been idle ten minutes, never halfway through. They go in oldest first up to 8 KiB; the palette marks any left out past that. Turning a note on, editing and deleting are recorded as your decisions.</p>
+<p>An agent can keep a short note for later conversations, under a title, for this project (its git repository) or for every project. Writing again under a title the project already has rewrites that note rather than adding another.</p>
+<p>Nothing of the notes is put in front of an agent. It is told how many it has, and searches them with its <code>recall</code> tool when its work calls for it: by the words it expects in them, then reading one whole. A change reaches a conversation the next time it starts, or after it has been idle ten minutes, never halfway through.</p>
+<p>A note is found only once it is on. <code>ctrl+p</code>, then <em>Memory</em>, lists the notes that hold here, with when an agent last read each: <code>enter</code> on one turns it on or off, edits it in the composer, its title on the first line (<code>ctrl+g</code> opens your editor), or deletes it. The first line of the palette chooses how notes are turned on: by you, one at a time, or as they are written. Either way, a note written while the agent had read outside content waits for you, and is marked so. Turning a note on, editing and deleting it, and the choice itself, are recorded as your decisions.</p>
+<h2 id="earlier-conversations" class="section-title">Earlier conversations</h2>
+<p>An agent searches earlier conversations on this machine with its <code>history</code> tool: what was asked, said, run and answered there, found by its words, then read a few turns around a hit. It searches this project's conversations unless asked for every project's. What it reads counts as it did where it was said: a page fetched there is outside content here too.</p>
+<h2 id="the-handbook" class="section-title">The handbook</h2>
+<p>This handbook is on the machine, in <code>/usr/share/doc/nerv/handbook</code>, as it stands for the software installed. An agent searches it with <code>nerv doc</code> and its words, and reads a section with <code>nerv doc read</code>, before guessing how something on Nerv works.</p>
 <h2 id="what-the-agent-may-do" class="section-title">What the agent may do</h2>
 <p>The agent works in a sandbox of its own. It sees the directory you started yui in, read-write; the system, read-only; and a home directory and a <code>/tmp</code> of its own, which last from one command to the next. It does not see your home directory, your other files, the machine's other programs, or the network, and it cannot use <code>doas</code>.</p>
 <p>Inside the sandbox the agent needs no permission: it reads, writes and runs commands, and each change shows in the conversation as it is made.</p>
@@ -261,12 +270,16 @@ $ (umask 077; cat &gt; ~/.config/yui/keys/10.0.0.5:8000)</pre>
 <pre class="term term__body">deny run grant                 # these tools are refused
 network off                    # no sandbox has the network, and nothing is sent outward
 protect ~/.ssh /srv/customers  # no grant, read or write reaches these
-endpoint s2 https://llm.example.org/v1   # only these endpoints are used</pre>
+endpoint s2 https://llm.example.org/v1   # only these endpoints are used
+mcp mcp.example.org tools.internal:8443  # only MCP servers at these hosts are used
+memory manual                  # every note waits for you to turn it on</pre>
 <ul class="list">
 <li><code>deny</code> names tools. The agent is not told of them, and a call to one is refused.</li>
 <li><code>network off</code> keeps the network out of every sandbox, whatever was granted, and refuses every call that could send something off the machine.</li>
 <li><code>protect</code> names paths, <code>~</code> meaning the user's home. Inside the sandbox they are not there, even within a granted directory, and a grant at or inside one is refused.</li>
 <li><code>endpoint</code> names the endpoints a conversation may use: a URL, which also covers the paths under it, <code>s2</code> or <code>claude</code>. With no <code>endpoint</code> line, any may be used.</li>
+<li><code>mcp</code> names the hosts whose <a href="#mcp-servers">MCP servers</a> may be used, each a host, which covers every port, or <code>host:port</code>. A server at a URL elsewhere is not used, and <em>Tools</em> names the line that refuses it. With no <code>mcp</code> line, a server at any host may be used. Under <code>network off</code> none is.</li>
+<li><code>memory manual</code> makes every note an agent writes wait for you to turn it on, whatever the <em>Memory</em> palette chooses.</li>
 </ul>
 <p>What the policy forbids is refused before anyone is asked: no card, no approver, and <code>a</code> does not cover it. The refusal names the file and line, and repeats the line's comment, so write the reason there. Where yui cannot make a sandbox, <code>network off</code> and <code>protect</code> refuse every command and every plugin's tool, since nothing could hold them to it. <code>ctrl+p</code>, then <em>Policy</em>, shows the rules in force.</p>
 <p>The file is followed only while root owns it and its directory and no one else can write either. With no file there is no policy. A file that cannot be followed, a rule misspelled or the file writable by others, stops every tool call, naming the file and line, until it is fixed; a typo never drops a rule silently. A change holds from the next call, with no restart. An agent cannot change the file: <code>/etc</code> is read-only in every sandbox.</p>
@@ -295,6 +308,7 @@ args issue list -R *</pre>
 <p>With Claude Code installed, yui talks to Claude:</p>
 <pre class="term term__body">$ yui --endpoint claude --model opus</pre>
 <p>Claude works with yui's tools and asks on yui's cards, like any other model, and the conversation resumes on Claude's side too: neither a resume flag nor a permissions flag is needed. A conversation moves between Claude and S2 with the model switcher.</p>
+<p>Claude Code's own memory and its reading of <code>CLAUDE.md</code> files are off in a conversation here. Claude is told of yui's <a href="#memory">memory</a> and searches it like any other model, so there is one memory, the one you decide on.</p>
 <h2 id="tools-and-guards" class="section-title">Tools and guards</h2>
 <p>Besides reading, writing and running commands, the agent has <code>nerv</code>, which answers what a model cannot know about this machine: which libc a program is built against, which package owns a file and whether it is Nerv's or Fedora's, which install profile brings a package in, and which slot is running.</p>
 <p>Guards stop calls that would do the wrong thing here and tell the agent what to do instead: <code>sudo</code> becomes <code>doas</code>, another distribution's package manager becomes <code>dnf</code>, bash syntax in a <code>/bin/sh</code> command becomes its POSIX form, and the agent never reboots the machine. Your own guards go in <code>~/.config/yui/guards.json</code>, a list of rules; a rule names a tool, a field and a match, and what to say:</p>
@@ -325,7 +339,7 @@ words mine                # a list in ~/.config/yui/terse.d/mine, one "long = sh
 replies off               # replies not checked</pre>
 <p>Its words are Nerv's own. A list of your own stays where it is. terse reads it and copies nothing.</p>
 <h2 id="mcp-servers" class="section-title">MCP servers</h2>
-<p>An MCP server gives yui's agents its tools. Declare one in a file of its own in <code>~/.config/yui/mcp</code>, named for the server:</p>
+<p>An MCP server gives yui's agents its tools. Declare one in a file of its own in <code>~/.config/yui/mcp</code>, named for the server. One that runs on this machine is declared by its program:</p>
 <pre class="term term__body">run /usr/bin/github-mcp-server stdio   # the program and its arguments
 env GITHUB_HOST=github.example.org     # its environment
 network                                 # it may reach the network
@@ -333,9 +347,25 @@ read ~/src/notes                        # what it may read
 write ~/src/scratch                     # and write
 auto search_code get_file_contents      # its tools that need no card
 timeout 60                              # seconds a call may take</pre>
-<p>yuid starts each server when it starts, and its tools are offered as <code>server.tool</code>. A server runs in a sandbox of its own: it sees the system, a directory of its own under yui's state, and what its file names, and nothing else of yours. It has the network only when its file says <code>network</code>, and never while the machine's policy says <code>network off</code>. A protected path is not there for it either.</p>
-<p>Each of its tools asks on a card unless the file names it <code>auto</code>. What a server with the network answers counts as outside content, and once a conversation holds outside content its calls to such a server go to the approver, as any send does. A server that stops is started again once; if it stops again it is left down, and <em>Tools</em> says so until yuid is restarted. A call that runs past the file's <code>timeout</code>, or that you stop with <code>esc</code>, is cancelled at the server.</p>
-<p>The file is followed only while it is yours and no one else can write it. A line yui does not understand leaves that server down, naming the file and the line. Only servers that speak over standard input and output are started; a remote service is reached through a local server.</p>
+<p>One served elsewhere is declared by its URL, and yui speaks to it over HTTP:</p>
+<pre class="term term__body">url https://mcp.example.com/mcp        # where it is served
+token                                   # send it the key kept for its host
+auto search                             # its tools that need no card
+timeout 60                              # seconds a call may take</pre>
+<p>A file has <code>run</code> or <code>url</code>, never both. <code>env</code>, <code>network</code>, <code>read</code> and <code>write</code> are for a server that runs here, and a file with a <code>url</code> that names one is refused.</p>
+<p>A server at a URL that wants a key is given the one kept for its host, the same file in <code>~/.config/yui/keys</code> an <a href="#starting-yui">endpoint's key</a> is, when its file says <code>token</code>. One that signs you in with OAuth needs no line at all: run <code>yui mcp login NAME</code> once, NAME being the file's name.</p>
+<pre class="term term__body">$ yui mcp login github
+Open this to sign in to github:
+
+  https://github.example.com/login/oauth/authorize?response_type=code&amp;client_id=…
+
+The browser is sent back to http://127.0.0.1:41377/callback when you have signed in. If it is on another machine, that page will not load: paste its address here and press enter.
+signed in to github</pre>
+<p>Open the address, sign in, and yui finishes when the browser comes back to it; a server waiting for the sign-in is started from yuid's next request. Over ssh, the browser is on your own machine and that last page does not load; copy its address from the browser and paste it into the terminal instead. The sign-in is kept in <code>~/.config/yui/keys/mcp/NAME</code>, readable by you alone, and yui renews it itself when it expires; it is used only for the URL it was made for. <code>yui mcp logout NAME</code> forgets it. <code>oauth</code> in the file says the server is not to be tried without a sign-in, and <code>client ID</code> gives the client ID to sign in as, for a server that does not register yui by itself. Until you have signed in, the server's tools are not offered, and <em>Tools</em> says to run <code>yui mcp login NAME</code>.</p>
+<p>A server that runs here runs in a sandbox of its own: it sees the system, a directory of its own under yui's state, and what its file names, and nothing else of yours. It has the network only when its file says <code>network</code>, and never while the machine's policy says <code>network off</code>. A protected path is not there for it either. A server at a URL runs nowhere here, and sees nothing of the machine but the arguments of the calls made to it.</p>
+<p>Its tools are offered as <code>server.tool</code>, and each asks on a card unless the file names it <code>auto</code>. What a server with the network answers counts as outside content, and what a server at a URL answers always does; once a conversation holds outside content, its calls to such a server go to the approver, as any send does. A call that runs past the file's <code>timeout</code>, or that you stop with <code>esc</code>, is cancelled at the server.</p>
+<p>yuid follows the directory as it changes: a new file starts its server, a removed one stops it, and a changed one starts it again, all from the next request and with no restart. A server that runs here and stops is started again once; if it stops again it is left down, and <em>Tools</em> says so until its file changes.</p>
+<p>The file is followed only while it is yours and no one else can write it. A line yui does not understand leaves that server down, naming the file and the line.</p>
 <h2 id="switching-tools" class="section-title">Switching tools</h2>
 <p><code>ctrl+p</code>, then <em>Tools</em>, lists every tool, each plugin and each MCP server with its tools, and whether each is on. Enter on one switches it on or off for this machine, or for this conversation only, which is kept with the conversation and overrides the machine. A tool switched off is not offered to the agent, and a call to it is refused, saying so. Switching a plugin or a server off switches all its tools off.</p>
 <p>The machine's switches are kept in <code>~/.config/yui/tools</code>, <code>off NAME</code> or <code>on NAME</code> to a line, which you may also edit by hand; a change holds from the next request. What the machine's policy denies stays off, whatever is switched. <code>approve</code> cannot be switched off: the approver decides with it, so choose the approver instead.</p>

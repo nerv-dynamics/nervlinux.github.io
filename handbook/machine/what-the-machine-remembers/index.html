@@ -97,9 +97,9 @@
 </li>
 </ol>
 <p class="hb-nav__part">Five ideas</p><ol class="hb-nav__list">
-<li><a href="/handbook/machine/generations/">Generations</a>
+<li><a href="/handbook/machine/generations/">Updates and generations</a>
 </li>
-<li><a href="/handbook/machine/compute-fabric/">The compute fabric</a>
+<li><a href="/handbook/machine/compute-fabric/">The GPU</a>
 </li>
 <li><a href="/handbook/machine/what-the-machine-remembers/" aria-current="page">What the machine remembers</a>
 <ol class="hb-nav__sections">
@@ -139,6 +139,8 @@
 </li>
 <li><a href="/handbook/machine/firmware/">Firmware</a>
 </li>
+<li><a href="/handbook/machine/power/">Power</a>
+</li>
 </ol>
 </details></nav>
     <div class="hb__main">
@@ -163,6 +165,7 @@
 <li><strong>Time is the boot and the clock within it.</strong> A machine whose clock was wrong for a week still has that week in the right order, with the wall-clock time kept beside each record for what it is.</li>
 <li><strong>Records are typed.</strong> A package installs the types of the records its programs write in <code>/usr/share/magi/schemas</code>. A field is added in a new version of a type, never renamed or changed, so a reader written today still reads next year's records.</li>
 <li><strong>Views are kept current.</strong> A view is an index, a filter, a projection or a join over other streams, and it changes in the same batch as what it reads, so it is never behind. A program can watch one and be told when it changes.</li>
+<li><strong>Records can be found by their words.</strong> A text view ranks a history stream's records by the words in their text, best first, optionally within the values of fields it keys, such as a project. What a search returns is exact as of the moment it is asked, and a record that was redacted is never among the answers.</li>
 </ul>
 <p>Today the machine's journal is kept here, and so are yui's conversations (<a href="/handbook/machine/agents/#conversations">Agents</a>) and geofront's record of the packages in a repository it builds into (<a href="/handbook/machine/building-your-own/#packaging-a-program">Building your own</a>).</p>
 <h2 id="the-machines-journal" class="section-title">The machine's journal</h2>
@@ -195,6 +198,9 @@ $ doas magi tail journal/entries -n 5</pre>
 <td><code>magi range STREAM [--from K] [--to K]</code></td><td>its keys, in order</td>
 </tr>
 <tr>
+<td><code>magi search VIEW WORDS [--where F=V]</code></td><td>a text view's best records for the words, within a field's value</td>
+</tr>
+<tr>
 <td>`magi schema [TYPE \</td><td>--installed]`</td><td>the types a store holds, or the ones packages installed</td>
 </tr>
 </tbody>
@@ -213,7 +219,7 @@ $ doas magi tail journal/entries -n 5</pre>
 <li><strong>A fleet's record,</strong> replicated between machines so they answer as one, with queries that run on the GPU.</li>
 </ul>
       </div>
-      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/compute-fabric/"><span>Previous</span>The compute fabric</a><a class="hb-pager__next" href="/handbook/machine/yours-and-not-yours/"><span>Next</span>Yours and not yours</a></nav>
+      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/compute-fabric/"><span>Previous</span>The GPU</a><a class="hb-pager__next" href="/handbook/machine/yours-and-not-yours/"><span>Next</span>Yours and not yours</a></nav>
     </div>
   </div>
 </section>

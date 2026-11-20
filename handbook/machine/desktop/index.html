@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Nerv Linux — The desktop</title>
-<meta name="description" content="Umbriel, Noctalia and foot, for machines that install one: getting a desktop, logging in, the keys you use, the shell around your windows, the browser, X11 programs, sound and the keyboard.">
+<meta name="description" content="Umbriel, Noctalia and foot, for machines that install one: getting a desktop, logging in, the keys you use, the shell around your windows, the browser, X11 programs, sound, the power profile and the keyboard.">
 <link rel="canonical" href="https://nervlinux.org/handbook/machine/desktop/">
 <meta property="og:title" content="Nerv Linux — The desktop">
-<meta property="og:description" content="Umbriel, Noctalia and foot, for machines that install one: getting a desktop, logging in, the keys you use, the shell around your windows, the browser, X11 programs, sound and the keyboard.">
+<meta property="og:description" content="Umbriel, Noctalia and foot, for machines that install one: getting a desktop, logging in, the keys you use, the shell around your windows, the browser, X11 programs, sound, the power profile and the keyboard.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://nervlinux.org/handbook/machine/desktop/">
 <link rel="icon" href="/assets/favicon.png" sizes="32x32">
@@ -94,12 +94,19 @@
 <li><a href="#installing-a-desktop">Installing a desktop</a></li>
 <li><a href="#logging-in">Logging in</a></li>
 <li><a href="#umbriel">Umbriel</a></li>
+<li><a href="#minimized-windows">Minimized windows</a></li>
 <li><a href="#noctalia">Noctalia</a></li>
+<li><a href="#the-bar">The bar</a></li>
+<li><a href="#the-tray">The tray</a></li>
+<li><a href="#displays">Displays</a></li>
+<li><a href="#plugins">Plugins</a></li>
 <li><a href="#foot">foot</a></li>
-<li><a href="#firefox">Firefox</a></li>
+<li><a href="#browser">Browser</a></li>
 <li><a href="#files">Files</a></li>
 <li><a href="#x11-programs">X11 programs</a></li>
 <li><a href="#sound">Sound</a></li>
+<li><a href="#power">Power</a></li>
+<li><a href="#gtk-programs">GTK programs</a></li>
 <li><a href="#icons">Icons</a></li>
 <li><a href="#the-keyboard">The keyboard</a></li>
 <li><a href="#what-is-still-in-progress">What is still in progress</a></li>
@@ -111,9 +118,9 @@
 </li>
 </ol>
 <p class="hb-nav__part">Five ideas</p><ol class="hb-nav__list">
-<li><a href="/handbook/machine/generations/">Generations</a>
+<li><a href="/handbook/machine/generations/">Updates and generations</a>
 </li>
-<li><a href="/handbook/machine/compute-fabric/">The compute fabric</a>
+<li><a href="/handbook/machine/compute-fabric/">The GPU</a>
 </li>
 <li><a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a>
 </li>
@@ -145,12 +152,14 @@
 </li>
 <li><a href="/handbook/machine/firmware/">Firmware</a>
 </li>
+<li><a href="/handbook/machine/power/">Power</a>
+</li>
 </ol>
 </details></nav>
     <div class="hb__main">
       <div class="essay">
 <h1 class="page-title">The desktop</h1>
-<p>Umbriel, Noctalia and foot, for machines that install one: getting a desktop, logging in, the keys you use, the shell around your windows, the browser, X11 programs, sound and the keyboard.</p>
+<p>Umbriel, Noctalia and foot, for machines that install one: getting a desktop, logging in, the keys you use, the shell around your windows, the browser, X11 programs, sound, the power profile and the keyboard.</p>
 <h2 id="installing-a-desktop" class="section-title">Installing a desktop</h2>
 <p>The <code>workstation-gui</code> profile installs one, from the start or onto a console machine later:</p>
 <pre class="term term__body">$ doas dnf install nerv-workstation-gui</pre>
@@ -212,17 +221,58 @@
 </tbody>
 </table>
 </div>
-<p><code>Mod</code> is the key with the logo on it. Umbriel reads its settings from <code>~/.config/umbriel/config.toml</code>, which a new account starts with; <code>/usr/share/umbriel/config.toml</code> is upstream's annotated example of every setting. It applies a change the moment you save it. <code>umbriel outputs</code> lists the displays it drives.</p>
+<p><code>Mod</code> is the key with the logo on it. Umbriel reads its settings from <code>~/.config/umbriel/config.toml</code>, which a new account starts with. That file includes <code>/usr/share/umbriel/config.toml</code>, upstream's annotated example of every setting, which carries the keys above, and anything you set in your own file wins over it; a <code>[keybinds]</code> entry there adds to the packaged ones. Umbriel applies a change the moment you save it. <code>umbriel outputs</code> lists the displays it drives.</p>
+<p>An account whose <code>config.toml</code> predates the include has no keys at all, because a config file replaces Umbriel's built-in keys rather than adding to them. Adding these lines to the top of <code>~/.config/umbriel/config.toml</code> brings them back as soon as it is saved:</p>
+<pre class="term term__body">[include]
+files = ["/usr/share/umbriel/config.toml"]</pre>
 <p>The pointer is Phinger, light on Nerv's dark surfaces, and the login screen uses the same one. <code>[input.cursor] theme</code> in your config picks another by the name of its directory under <code>/usr/share/icons</code>, such as <code>phinger-cursors-dark</code> or the left-handed <code>phinger-cursors-light-left</code>, and <code>size</code> sets how large it is drawn.</p>
+<h2 id="minimized-windows" class="section-title">Minimized windows</h2>
+<p>A window's own minimize button, or a click on its icon in the taskbar while it has the focus, hides it. Its icon stays in the taskbar, marked with a minus, and a click on that icon brings it back; right-click an icon for <em>Minimize</em> and <em>Restore</em>. A window in a column leaves the strip while it is minimized, and the columns beside it close up; it comes back in a column of its own, after the one you are working in. Pinned and fullscreen windows do not minimize.</p>
 <h2 id="noctalia" class="section-title">Noctalia</h2>
 <p>Noctalia is the shell around your windows: the bar, the launcher, notifications, the wallpaper and the lock screen. Its Settings panel changes it, and writes what you choose to <code>~/.config/noctalia/noctalia.toml</code>. It comes in Myelin, Nerv's colours, set in Nerv's own typeface, Ashinoko.</p>
+<p>Umbriel's borders, title bars and overview wear the same colours, and change with them when the shell switches between dark and light. The shell writes them to <code>~/.config/umbriel/noctalia.toml</code>, which Umbriel's config includes. An account made before the desktop did this gets them by adding this to <code>~/.config/noctalia/noctalia.toml</code>, with <code>"noctalia.toml"</code> in the <code>files</code> list under <code>[include.optional]</code> in <code>~/.config/umbriel/config.toml</code>:</p>
+<pre class="term term__body">[theme.templates.user.umbriel]
+input_path = "/usr/share/noctalia/assets/templates/umbriel/umbriel.toml"
+output_path = "$XDG_CONFIG_HOME/umbriel/noctalia.toml"</pre>
+<h2 id="the-bar" class="section-title">The bar</h2>
+<p>The bar runs along the top of every display.</p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">where</th><th scope="col">what</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>left</td><td>the launcher; your workspaces, by number; the taskbar, one icon for each window on this display; the workspace's layout, which opens a panel to change it and act on the focused window</td>
+</tr>
+<tr>
+<td>middle</td><td>the date and time; what is playing, while something is</td>
+</tr>
+<tr>
+<td>right</td><td>CPU, memory and GPU use; the privacy indicator, lit while a microphone, camera or screen share is in use; the tray; caffeine, which keeps the screen awake; the clipboard history; a screenshot; network; Bluetooth; volume; the battery, on a machine with one; brightness, on a display whose brightness can be set; the displays; notifications; the control center</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The GPU figure is the same one <code>axon</code> shows. Right-clicking an empty stretch of the bar opens the control center, and the shell's Settings changes what the bar holds.</p>
+<h2 id="the-tray" class="section-title">The tray</h2>
+<p>A program that keeps running without a window, such as Steam or a chat client, keeps an icon in the tray on the bar, in Myelin's colours. Closing its window leaves it there; click the icon to bring the program back, or right-click it for the program's menu.</p>
+<h2 id="displays" class="section-title">Displays</h2>
+<p>The displays button on the bar sets each display's resolution, refresh rate and scale, and turns one off; right-click it to arrange the displays by dragging them where they stand on your desk. A change applies at once and is already saved, to <code>~/.config/umbriel/outputs.toml</code>, which Umbriel's config includes. Keep <code>[output.*]</code> sections out of <code>~/.config/umbriel/config.toml</code>, where they would override that file.</p>
+<h2 id="plugins" class="section-title">Plugins</h2>
+<p>The layout and displays buttons are Noctalia plugins, and they come installed with the desktop. Noctalia's plugin store is off: Settings → Plugins lists its two sources, <em>official</em> and <em>community</em>, and turning one on lets you browse it and install from it. The shell downloads nothing else at start either: its community templates and the calculator's currency exchange rates are off until you turn them on in Settings.</p>
 <h2 id="foot" class="section-title">foot</h2>
 <p><code>foot</code> is the terminal, <code>Mod+Return</code> away. The key runs <code>footclient</code>, which opens a window in a foot server that starts with your session, so the terminal is there at once. It comes in Myelin and Ashinoko from <code>/etc/xdg/foot/foot.ini</code>; a <code>~/.config/foot/foot.ini</code> of your own replaces that file entirely, and <code>include=/usr/share/foot/themes/myelin</code> in it keeps the colours.</p>
-<h2 id="firefox" class="section-title">Firefox</h2>
-<p>Firefox comes with the desktop. Nerv's Firefox runs on Nerv's own C library and allocator, with sponsored content, telemetry and DRM video switched off.</p>
+<h2 id="browser" class="section-title">Browser</h2>
+<p>Browser is the web browser that comes with the desktop: <code>browser</code> from a terminal, <em>Browser</em> in the launcher. It is built from Firefox's source, so pages work as they do in Firefox, and it runs on Nerv's own C library and allocator. It is not called Firefox, because Mozilla's name and logos belong to Mozilla's own builds.</p>
+<p>It follows the desktop's light or dark scheme in Myelin's colours, and pages are shown in the same scheme. The window is two rows: the tabs, ending in the window's buttons, and the address bar with back, forward, reload, downloads and the extensions menu. Toolbars hide only in fullscreen. The interface is set in Ashinoko, and so is any page that does not choose its own fonts. A new tab is a blank page with the cursor in the address bar.</p>
+<p>It starts where you left off: the last session's tabs come back, and each loads when you first look at it. Searches go to DuckDuckGo.</p>
+<p>It sends nothing you did not ask it to. There is no telemetry, no studies or experiments, no crash reporting, no sponsored tiles or suggestions, and no Pocket. Tracking protection is on Strict, every page is loaded over HTTPS, and names are looked up by the system's own resolver. uBlock Origin is installed and on for every user; you can switch it off in <em>Settings → Extensions</em>, but not remove it. Browser never offers to save a password or to translate a page.</p>
+<p>Every download asks where to go, in the desktop's file chooser. Sync is in <em>Settings → Sync</em>, for a Mozilla account, and nothing else asks you to sign in.</p>
+<p>Browser uses the profile in <code>~/.mozilla/firefox</code>, or in <code>~/.config/mozilla/firefox</code> where a newer Firefox made it, so a profile from Firefox carries over as it is. Pages see Browser as Firefox, which is what its engine is.</p>
 <h2 id="files" class="section-title">Files</h2>
 <p>Luciole is the file manager: the launcher finds it as <em>Luciole</em>, and <code>luciole</code> starts it from a terminal, <code>luciole ~/Downloads</code> in a folder. It browses in a grid, a list or columns, with tabs, windows and a split view, and draws thumbnails of images and the first page of PDFs beside the listing. It opens archives as folders and makes new ones. Thumbnails are drawn in helper processes with limits on their memory and time, so a broken file costs its thumbnail and never the window. Nothing indexes your files in the background: a search looks through the folder you are in, when you ask.</p>
-<p>Other programs use it too. Firefox's Open and Save dialogs are Luciole's, as are those of any program that asks the desktop for one, and "Show in folder" in a browser opens the folder in Luciole.</p>
+<p>Other programs use it too. Browser's Open and Save dialogs are Luciole's, as are those of any program that asks the desktop for one, and "Show in folder" in a browser opens the folder in Luciole.</p>
 <p><code>Ctrl+,</code> opens its settings, which it keeps in <code>~/.config/luciole/</code>. Its colours are the desktop's: the shell writes them to <code>~/.config/luciole/colors.toml</code> whenever its palette changes. An account made before Luciole came with the desktop gets them by adding this to <code>~/.config/noctalia/noctalia.toml</code>:</p>
 <pre class="term term__body">[theme.templates.user.luciole]
 input_path = "/usr/share/luciole/templates/colors.toml"
@@ -234,8 +284,14 @@ output_path = "$XDG_CONFIG_HOME/luciole/colors.toml"</pre>
 <p>The X server is Xwayland. The session starts it when the first X11 program connects, and again if it stops. It draws with the GPU, and so does an X11 program using OpenGL. Nothing needs installing: it comes with the desktop.</p>
 <h2 id="sound" class="section-title">Sound</h2>
 <p>PipeWire is the sound server, for every program, and starts with your session. <code>wpctl status</code> shows the outputs and inputs, and <code>wpctl set-default</code> picks one.</p>
+<h2 id="power" class="section-title">Power</h2>
+<p>The power profile button on the bar switches the machine's power profile, the same one <code>doas power PROFILE</code> sets from a terminal: power-saver, balanced, and performance where it changes something on that machine. Whoever is logged in at the machine may switch it; from anywhere else, it takes <code>doas power</code>.</p>
+<p>A program may hold power-saver or performance while it runs, and the bar shows the held profile. The hold ends when the program lets go or exits, and the profile goes back to what it was. Choosing a profile yourself, on the bar or with <code>power</code>, ends every hold. <code>power</code> with no arguments says which profile is in force and why.</p>
+<h2 id="gtk-programs" class="section-title">GTK programs</h2>
+<p>GTK programs, GTK 3 and GTK 4 alike, come in Myelin and in Ashinoko Sans, dark or light with the shell. The shell writes their colours to <code>noctalia.css</code> and their settings to <code>settings.ini</code> in <code>~/.config/gtk-3.0</code> and <code>~/.config/gtk-4.0</code> whenever its palette or mode changes, and a program opened after a change takes the new mode. <code>gtk.css</code> in the same folders is yours: it imports the colours, and CSS you add below that line applies on top of them.</p>
+<p><code>settings.ini</code> is the shell's and is written again on every change. To set something of your own there, copy <code>/usr/share/nerv-noctalia-config/gtk-settings.ini</code> into <code>~/.config/noctalia/</code>, edit the copy, and point <code>input_path</code> under <code>[theme.templates.user.gtk-settings]</code> in <code>~/.config/noctalia/noctalia.toml</code> at it.</p>
 <h2 id="icons" class="section-title">Icons</h2>
-<p>Programs draw Nerv's icons, Myelin: Lucide's line drawings in Myelin's colours, for places, kinds of file and common actions, with the Adwaita theme beneath them for everything else. <code>gtk-icon-theme-name</code> in <code>~/.config/gtk-4.0/settings.ini</code>, and in <code>~/.config/gtk-3.0/settings.ini</code>, picks another.</p>
+<p>Programs draw Nerv's icons, Myelin: Lucide's line drawings in Myelin's colours, for places, kinds of file and common actions, with the Adwaita theme beneath them for everything else. A <code>gtk-icon-theme-name</code> line in your copy of the GTK settings template, as above, picks another.</p>
 <h2 id="the-keyboard" class="section-title">The keyboard</h2>
 <p>The machine has one keyboard layout, for the console and the desktop alike. <code>nerv-keymap</code> sets both:</p>
 <pre class="term term__body">$ doas nerv-keymap de

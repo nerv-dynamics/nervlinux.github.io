@@ -25,13 +25,13 @@ Nerv is a Linux distribution built from source for NVIDIA's Grace Blackwell mach
 
 **The GPU is the operating system's.** `libcuda.so.1` on a Nerv machine is axon, which forwards every driver call over a socket to the one process that holds the device. A program cannot tell the difference, a container gets the GPU by being handed that socket, and the GPU it reaches may be in another machine. `nvidia-smi` is axon too, and prints the vendor's table byte for byte.
 
-**A program can run on another machine.** `axon exec --on MACHINE -- PROGRAM` places it on that machine's processors and GPU as it starts, and it never moves after that. It runs on the system it came from: its `/usr` and `/etc` arrive file by file as they are opened, and your home is served back to it over 9P by a process running as you. If the network drops, the program pauses at the point it needs its origin and carries on when the link returns, with its open files and locks intact. It is Plan 9's `cpu`, on Linux. See [The compute fabric](compute-fabric.md).
+**A program can run on another machine.** `axon exec --on MACHINE -- PROGRAM` places it on that machine's processors and GPU as it starts, and it never moves after that. It runs on the system it came from: its `/usr` and `/etc` arrive file by file as they are opened, and your home is served back to it over 9P by a process running as you. If the network drops, the program pauses at the point it needs its origin and carries on when the link returns, with its open files and locks intact. It is Plan 9's `cpu`, on Linux. See [The GPU](compute-fabric.md).
 
-**The system is never changed in place.** `cage update` builds the next root in a new subvolume beside the running one, upgrades it, labels it for SELinux, builds its initrd, signs its boot image, boots it in a virtual machine where it can, and only then makes it the default. The new slot boots on trial and falls back by itself if it never comes up. `dnf` installs and removes software, but it does not update the machine. See [Generations](generations.md).
+**The system is never changed in place.** `cage update` builds the next root in a new subvolume beside the running one, upgrades it, labels it for SELinux, builds its initrd, signs its boot image, boots it in a virtual machine where it can, and only then makes it the default. The new slot boots on trial and falls back by itself if it never comes up. `dnf` installs and removes software, but it does not update the machine. See [Updates and generations](generations.md).
 
 **Every process is in a domain.** SELinux enforces from the first boot, and nothing on the machine runs unconfined.
 
-**The heap defends itself.** `umalloc` is a hardened allocator under every program, Firefox included: of the 33 heap attacks Nerv tests against, glibc's allocator lets 8 succeed and `umalloc` 1. See [The allocator](the-first-hour.md#the-allocator).
+**The heap defends itself.** `umalloc` is a hardened allocator under every program, the web browser included: of the 33 heap attacks Nerv tests against, glibc's allocator lets 8 succeed and `umalloc` 1. See [The allocator](the-first-hour.md#the-allocator).
 
 **No man pages.** Every Nerv tool documents itself with `--help`, and `tldr` covers the rest, the classic tools included.
 

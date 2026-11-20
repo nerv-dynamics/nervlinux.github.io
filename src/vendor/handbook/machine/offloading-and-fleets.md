@@ -2,7 +2,7 @@
 
 Putting work on other machines, and several boxes acting as one: the targets you name, serving a machine's GPU, running a program elsewhere, and what running a fleet for an organisation will add.
 
-[The compute fabric](compute-fabric.md) explains the ideas this chapter puts to work. Which machines may reach which is [Plexus](plexus.md)'s job.
+[The GPU](compute-fabric.md) explains the ideas this chapter puts to work. Which machines may reach which is [Plexus](plexus.md)'s job.
 
 ## Naming your machines
 

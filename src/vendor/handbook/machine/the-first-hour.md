@@ -33,7 +33,7 @@ You log in on `kmscon`, on **tty1**. It is the only console: there is no getty b
 
 Switch virtual terminals with **Ctrl+Alt+F1** through **Ctrl+Alt+F12**. Plain Alt+F*n* does nothing here, because kmscon reads the keyboard itself. Ctrl+Alt is also what a Wayland compositor uses, so the chord is the same whatever is in front of you.
 
-For a second shell you do not need another VT: `tmux` is installed on workstation, and the console starts inside it.
+For a second shell you do not need another VT: `tmux` is installed on workstation.
 
 ## The shell
 
@@ -41,8 +41,8 @@ The shell is `fish`, configured system-wide in `/etc/fish/conf.d/`. The files lo
 
 ```
 $ ls /etc/fish/conf.d/
-05-nerv-path.fish     15-nerv-theme.fish   30-nerv-aliases.fish     50-nerv-prompt.fish  70-nerv-terminal-modes.fish
-10-nerv-options.fish  20-nerv-colors.fish  40-nerv-navigation.fish  60-nerv-tmux.fish    nerv-editor.fish
+05-nerv-path.fish     15-nerv-theme.fish   30-nerv-aliases.fish     50-nerv-prompt.fish             nerv-editor.fish
+10-nerv-options.fish  20-nerv-colors.fish  40-nerv-navigation.fish  70-nerv-terminal-modes.fish
 ```
 
 | file | what it does |
@@ -54,7 +54,6 @@ $ ls /etc/fish/conf.d/
 | `30-nerv-aliases.fish` | the aliases below |
 | `40-nerv-navigation.fish` | zoxide, fzf and atuin |
 | `50-nerv-prompt.fish` | the starship prompt |
-| `60-nerv-tmux.fish` | puts a local login inside tmux |
 | `70-nerv-terminal-modes.fish` | resets the terminal after a remote session dies, so the mouse stops typing into your shell |
 | `nerv-editor.fish` | `EDITOR`, `VISUAL` and `PAGER`, unless you have set them |
 
@@ -110,7 +109,7 @@ These are wired into the shell rather than run by you:
 
 ## tmux
 
-On workstation, logging in **at the machine** puts you in a tmux session named `nerv`, attaching to it if it already exists. Logging in over SSH does not, so a remote session is a plain shell.
+On workstation, `tmux` starts a session, and `tmux attach` returns to one. A login, at the machine or over SSH, is a plain shell.
 
 The prefix is the default `C-b`. What is different:
 
@@ -306,11 +305,11 @@ Set the limit through `doas systemd-run`, not `systemd-run --user`. A scope your
 
 ## The allocator
 
-Every program on the machine gets its memory from `umalloc`, Nerv's hardened allocator, which is the C library's `malloc`. It is part of `libc`, like `printf`. Firefox uses it too: Nerv builds the browser without its own allocator.
+Every program on the machine gets its memory from `umalloc`, Nerv's hardened allocator, which is the C library's `malloc`. It is part of `libc`, like `printf`. The web browser uses it too: Browser is built without the allocator Firefox normally brings.
 
 Heap bugs end with the program stopping, not with the program doing what an attacker wanted. Guard pages sit between heap regions, free lists are signed, and placement is randomised. Each of these kills the process the moment it happens: freeing the same pointer twice, freeing a pointer into the middle of a block, freeing an address that never came from `malloc`, overwriting a free-list link, and writing through a pointer after it was freed. The first 256 bytes of every block are overwritten as it is freed, so a program that reads a block after freeing it finds filler there, not the previous owner's data.
 
-Freed memory goes back to the system on its own, as soon as a megabyte of it is waiting, whether or not the program allocates again: a program that frees everything it allocated is left holding a few megabytes, where glibc's allocator keeps over a hundred. `malloc_trim(0)` hands back the rest at once. The system's services do that under memory pressure, and Firefox does it when a tab goes idle or into the background: after a page lets go of a few hundred megabytes, an idle Firefox holds about 9% less memory than it would without it.
+Freed memory goes back to the system on its own, as soon as a megabyte of it is waiting, whether or not the program allocates again: a program that frees everything it allocated is left holding a few megabytes, where glibc's allocator keeps over a hundred. `malloc_trim(0)` hands back the rest at once. The system's services do that under memory pressure, and Browser does it when a tab goes idle or into the background: after a page lets go of a few hundred megabytes, an idle Browser holds about 9% less memory than it would without it.
 
 The compiler adds to it. Every package is built with `_FORTIFY_SOURCE=3`, a stack protector, branch protection and read-only relocations, so a `memcpy` past the end of a buffer of known size stops the program instead of corrupting it. Nerv supplies the fortified headers for musl itself.
 
@@ -320,8 +319,8 @@ It is fast as well, and lean. Measured on a GB10 against glibc 2.39's allocator 
 
 | | `umalloc` against glibc | `umalloc` against mozjemalloc |
 | --- | --- | --- |
-| Firefox, Speedometer 3.1 | the same score, 19% less memory | 3.5% slower, 3% less memory |
-| Firefox, JetStream 3 | 1.3% slower, 16% less memory | 1.3% slower, 2% less memory |
+| Browser, Speedometer 3.1 | the same score, 19% less memory | 3.5% slower, 3% less memory |
+| Browser, JetStream 3 | 1.3% slower, 16% less memory | 1.3% slower, 2% less memory |
 | twenty clang processes compiling at once | 4% faster | |
 | a single-threaded program that allocates constantly (cfrac) | 3% slower | 44% faster |
 | another (espresso) | 4% faster | 32% faster |

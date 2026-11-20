@@ -104,9 +104,9 @@
 </li>
 </ol>
 <p class="hb-nav__part">Five ideas</p><ol class="hb-nav__list">
-<li><a href="/handbook/machine/generations/">Generations</a>
+<li><a href="/handbook/machine/generations/">Updates and generations</a>
 </li>
-<li><a href="/handbook/machine/compute-fabric/">The compute fabric</a>
+<li><a href="/handbook/machine/compute-fabric/">The GPU</a>
 </li>
 <li><a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a>
 </li>
@@ -137,6 +137,8 @@
 <li><a href="/handbook/machine/agents/">Agents</a>
 </li>
 <li><a href="/handbook/machine/firmware/">Firmware</a>
+</li>
+<li><a href="/handbook/machine/power/">Power</a>
 </li>
 </ol>
 </details></nav>
@@ -195,10 +197,10 @@
 <h2 id="where-it-departs" class="section-title">Where it departs</h2>
 <p><strong>musl, not glibc.</strong> Everything Nerv builds links against musl. A program built for glibc runs from Fedora's packages, which install beside Nerv's own, or in a container. NVIDIA's driver libraries are the one piece of glibc code in the base system. See <a href="/handbook/machine/software/">Software</a>.</p>
 <p><strong>The GPU is the operating system's.</strong> <code>libcuda.so.1</code> on a Nerv machine is axon, which forwards every driver call over a socket to the one process that holds the device. A program cannot tell the difference, a container gets the GPU by being handed that socket, and the GPU it reaches may be in another machine. <code>nvidia-smi</code> is axon too, and prints the vendor's table byte for byte.</p>
-<p><strong>A program can run on another machine.</strong> <code>axon exec --on MACHINE -- PROGRAM</code> places it on that machine's processors and GPU as it starts, and it never moves after that. It runs on the system it came from: its <code>/usr</code> and <code>/etc</code> arrive file by file as they are opened, and your home is served back to it over 9P by a process running as you. If the network drops, the program pauses at the point it needs its origin and carries on when the link returns, with its open files and locks intact. It is Plan 9's <code>cpu</code>, on Linux. See <a href="/handbook/machine/compute-fabric/">The compute fabric</a>.</p>
-<p><strong>The system is never changed in place.</strong> <code>cage update</code> builds the next root in a new subvolume beside the running one, upgrades it, labels it for SELinux, builds its initrd, signs its boot image, boots it in a virtual machine where it can, and only then makes it the default. The new slot boots on trial and falls back by itself if it never comes up. <code>dnf</code> installs and removes software, but it does not update the machine. See <a href="/handbook/machine/generations/">Generations</a>.</p>
+<p><strong>A program can run on another machine.</strong> <code>axon exec --on MACHINE -- PROGRAM</code> places it on that machine's processors and GPU as it starts, and it never moves after that. It runs on the system it came from: its <code>/usr</code> and <code>/etc</code> arrive file by file as they are opened, and your home is served back to it over 9P by a process running as you. If the network drops, the program pauses at the point it needs its origin and carries on when the link returns, with its open files and locks intact. It is Plan 9's <code>cpu</code>, on Linux. See <a href="/handbook/machine/compute-fabric/">The GPU</a>.</p>
+<p><strong>The system is never changed in place.</strong> <code>cage update</code> builds the next root in a new subvolume beside the running one, upgrades it, labels it for SELinux, builds its initrd, signs its boot image, boots it in a virtual machine where it can, and only then makes it the default. The new slot boots on trial and falls back by itself if it never comes up. <code>dnf</code> installs and removes software, but it does not update the machine. See <a href="/handbook/machine/generations/">Updates and generations</a>.</p>
 <p><strong>Every process is in a domain.</strong> SELinux enforces from the first boot, and nothing on the machine runs unconfined.</p>
-<p><strong>The heap defends itself.</strong> <code>umalloc</code> is a hardened allocator under every program, Firefox included: of the 33 heap attacks Nerv tests against, glibc's allocator lets 8 succeed and <code>umalloc</code> 1. See <a href="/handbook/machine/the-first-hour/#the-allocator">The allocator</a>.</p>
+<p><strong>The heap defends itself.</strong> <code>umalloc</code> is a hardened allocator under every program, the web browser included: of the 33 heap attacks Nerv tests against, glibc's allocator lets 8 succeed and <code>umalloc</code> 1. See <a href="/handbook/machine/the-first-hour/#the-allocator">The allocator</a>.</p>
 <p><strong>No man pages.</strong> Every Nerv tool documents itself with <code>--help</code>, and <code>tldr</code> covers the rest, the classic tools included.</p>
 <h2 id="standard-underneath-modern-at-the-prompt" class="section-title">Standard underneath, modern at the prompt</h2>
 <p>Nerv ships every core utility in POSIX.1-2024. A script written to the standard runs as written, and the <code>core</code> profile is a complete Unix with nothing else on it.</p>

@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Nerv Linux — The compute fabric</title>
-<meta name="description" content="One boundary governs compute: your GPU, someone else's across the network, memory, and where programs run. Every program is a client, and everything is accounted. GPUs on several machines work together through the standard NCCL library.">
+<title>Nerv Linux — The GPU</title>
+<meta name="description" content="How every program on a Nerv machine reaches a GPU: through axon, one boundary that answers for the GPU here and for any GPU in your fleet, knows who is using it, and keeps a driver fault inside the program that caused it. axon is also the program that shows you all of it, live.">
 <link rel="canonical" href="https://nervlinux.org/handbook/machine/compute-fabric/">
-<meta property="og:title" content="Nerv Linux — The compute fabric">
-<meta property="og:description" content="One boundary governs compute: your GPU, someone else's across the network, memory, and where programs run. Every program is a client, and everything is accounted. GPUs on several machines work together through the standard NCCL library.">
+<meta property="og:title" content="Nerv Linux — The GPU">
+<meta property="og:description" content="How every program on a Nerv machine reaches a GPU: through axon, one boundary that answers for the GPU here and for any GPU in your fleet, knows who is using it, and keeps a driver fault inside the program that caused it. axon is also the program that shows you all of it, live.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://nervlinux.org/handbook/machine/compute-fabric/">
 <link rel="icon" href="/assets/favicon.png" sizes="32x32">
@@ -97,19 +97,24 @@
 </li>
 </ol>
 <p class="hb-nav__part">Five ideas</p><ol class="hb-nav__list">
-<li><a href="/handbook/machine/generations/">Generations</a>
+<li><a href="/handbook/machine/generations/">Updates and generations</a>
 </li>
-<li><a href="/handbook/machine/compute-fabric/" aria-current="page">The compute fabric</a>
+<li><a href="/handbook/machine/compute-fabric/" aria-current="page">The GPU</a>
 <ol class="hb-nav__sections">
-<li><a href="#every-program-is-a-client">Every program is a client</a></li>
+<li><a href="#synopsis">Synopsis</a></li>
+<li><a href="#why-it-works-this-way">Why it works this way</a></li>
 <li><a href="#who-may-use-the-gpu">Who may use the GPU</a></li>
-<li><a href="#seeing-what-is-running">Seeing what is running</a></li>
+<li><a href="#opening-axon">Opening axon</a></li>
+<li><a href="#seeing-what-is-using-the-gpu">Seeing what is using the GPU</a></li>
+<li><a href="#adding-machines-to-the-view">Adding machines to the view</a></li>
 <li><a href="#a-gpu-on-another-machine">A GPU on another machine</a></li>
-<li><a href="#serving-this-machines-gpu">Serving this machine's GPU</a></li>
 <li><a href="#several-gpus-at-once">Several GPUs at once</a></li>
+<li><a href="#serving-this-machines-gpu">Serving this machine's GPU</a></li>
+<li><a href="#running-a-program-on-another-machines-processors">Running a program on another machine's processors</a></li>
 <li><a href="#memory-and-limits">Memory and limits</a></li>
-<li><a href="#where-programs-run">Where programs run</a></li>
 <li><a href="#graphics">Graphics</a></li>
+<li><a href="#video">Video</a></li>
+<li><a href="#reference">Reference</a></li>
 </ol>
 </li>
 <li><a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a>
@@ -142,53 +147,198 @@
 </li>
 <li><a href="/handbook/machine/firmware/">Firmware</a>
 </li>
+<li><a href="/handbook/machine/power/">Power</a>
+</li>
 </ol>
 </details></nav>
     <div class="hb__main">
       <div class="essay">
-<h1 class="page-title">The compute fabric</h1>
-<p>One boundary governs compute: your GPU, someone else's across the network, memory, and where programs run. Every program is a client, and everything is accounted. GPUs on several machines work together through the standard NCCL library.</p>
-<h2 id="every-program-is-a-client" class="section-title">Every program is a client</h2>
-<p>No program on a Nerv machine loads NVIDIA's driver. <code>libcuda.so.1</code> on the default library path is axon's, and so are <code>libvulkan.so.1</code>, <code>libnvidia-ml.so.1</code> and <code>libnccl.so.2</code>. Each takes the calls a program makes and forwards them to <code>axond</code>, the one process that answers for the GPU, which starts a worker holding the vendor's libraries for that session alone.</p>
-<p>A program cannot tell the difference: the same binary, unmodified, with nothing to link against. What it gains is a boundary. A driver fault ends one session rather than the desktop beside it, the vendor's glibc libraries live in that worker and nowhere else, and every use of the GPU passes one place that knows who is using it.</p>
-<p>On the same machine the boundary costs little. A session opens <code>/run/axon/sock</code> once to hand over a region of shared memory, and every call after that crosses through it, in under two microseconds a round trip.</p>
+<h1 class="page-title">The GPU</h1>
+<p>How every program on a Nerv machine reaches a GPU: through axon, one boundary that answers for the GPU here and for any GPU in your fleet, knows who is using it, and keeps a driver fault inside the program that caused it. <code>axon</code> is also the program that shows you all of it, live.</p>
+<h2 id="synopsis" class="section-title">Synopsis</h2>
+<p>After reading this chapter, you will know:</p>
+<ul class="list">
+<li>why no program on the machine loads NVIDIA's driver, and what that gives you</li>
+<li>who may use the GPU, and how to see who is</li>
+<li>how to run a program against a GPU in another machine, or on several GPUs at once</li>
+<li>how to open this machine's GPU to your fleet</li>
+<li>how to run a program on another machine's processors, and how graphics and video reach the GPU</li>
+</ul>
+<p>Before reading it, you should know:</p>
+<ul class="list">
+<li>how a program's memory is limited: <a href="/handbook/machine/the-first-hour/#running-something-risky-on-the-gpu">Running something risky on the GPU</a></li>
+<li>for the parts across machines, Plexus, which decides which of your machines may reach which: <a href="/handbook/machine/plexus/">Plexus</a></li>
+</ul>
+<h2 id="why-it-works-this-way" class="section-title">Why it works this way</h2>
+<p>A GPU driver is the largest piece of code most machines run that nobody on them can read, and on an ordinary system every program that uses the GPU loads it into itself. A fault in it takes that program down, and often the desktop beside it; it brings its own C library into every process that touches it; and nothing on the machine can say, in one place, who is using the GPU and for what.</p>
+<p>On Nerv, no program loads NVIDIA's driver. <code>libcuda.so.1</code> on the default library path is axon's, and so are <code>libcudart.so.13</code>, <code>libvulkan.so.1</code>, <code>libnvidia-ml.so.1</code>, <code>libnccl.so.2</code> and <code>libnvcuvid.so.1</code>. Each takes the calls a program makes and forwards them to <code>axond</code>, the one process that answers for the GPU, which starts a worker holding the vendor's libraries for that program's session alone. A program that brings its own CUDA runtime, as a PyTorch wheel does, loads it as it always did, and it runs over axon's driver.</p>
+<p>A program cannot tell the difference: the same binary, unmodified, with nothing to link against. What it gains is a boundary. A driver fault ends one session rather than the desktop beside it, the vendor's glibc libraries live in that worker and nowhere else, and every use of the GPU passes one place that knows who is using it. On the same machine the boundary costs little: a session hands over a region of shared memory once, and every call after crosses through it, in under two microseconds a round trip.</p>
+<p>And because a program's calls already cross a boundary, they can cross a network. The GPU in another machine is reached the same way as the one under the desk, which is what the rest of this chapter puts to work.</p>
+<p>Plan 9 served every resource to programs over one protocol rather than through a library each; axon does that for the GPU.</p>
 <h2 id="who-may-use-the-gpu" class="section-title">Who may use the GPU</h2>
-<p><code>axond</code> asks the kernel who connected and admits members of the <code>video</code> group. Everything else on the machine is refused at the socket, before a worker starts.</p>
-<p>A container gets the GPU by being handed the same socket; see <a href="/handbook/machine/containers/#the-gpu-in-a-container">The GPU in a container</a>.</p>
-<h2 id="seeing-what-is-running" class="section-title">Seeing what is running</h2>
-<p><code>axon</code> on a terminal is the fleet view: every machine this one is enrolled with, its GPUs live, what is using them, the links between them, and this machine's CPU. <code>?</code> inside lists its keys, and one of them opens a shell on any GPU. Into a pipe, it is the same fleet as one plain table, and <code>--format=csv</code>, <code>json</code> or <code>tmux</code> give the telemetry scripts and the tmux bar read.</p>
-<p><code>nvidia-smi</code> is axon as well, and prints the vendor's own table byte for byte, so scripts written for it keep working. <code>btop</code>'s GPU panel reads the same telemetry.</p>
+<p><code>axond</code> asks the kernel who connected, and admits members of the <code>video</code> group. Everything else on the machine is refused at the socket, before a worker starts. <code>id</code> shows whether you are a member, and <a href="/handbook/machine/accounts-and-keys/">Accounts and keys</a> how to add someone.</p>
+<p>A container gets the GPU by being handed the same socket: <a href="/handbook/machine/containers/#the-gpu-in-a-container">The GPU in a container</a>.</p>
+<h2 id="opening-axon" class="section-title">Opening axon</h2>
+<p>Run <code>axon</code> with no arguments:</p>
+<pre class="term term__body" data-lang="tui axon"> axon   fleet of 1 · 1 answering · 1 GPUs · 19% busy · 18.1/121.8 GiB in use                       every 2 s · ? keys
+╭ ● nerv-1 ────────────────────────────── this machine ╮╭ nerv-1 ────────────────────────────────────── this machine ╮
+│ cpu ████████  99%  51°C  up 1h 9m  driver 620.70.06  ││  1 gpus   2 sessions   3 links   4 machine                 │
+│ 0 GB10       ▄▅▁▃▃▂▃▃▃▂  19%  18.1/121.8G    8W  47° ││                                                            │
+╰──────────────────────────────────────────────────────╯│ GPU 0  NVIDIA GB10                                         │
+                                                        │ GPU-00000000-0000-0000-0000-000000000000 ·                 │
+  no other machine is enrolled here — e edits           │ 0000000F:01:00.0 · driver 620.70.06 · CUDA 13.5            │
+  ~/.config/axon/targets                                │                                                            │
+                                                        │ utilisation 19%   memory controller 0%                     │
+                                                        │                        ▆▅▁  ▆▆▆▆        ▁  ▂     ▁         │
+                                                        │  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▆▇▇█▇███▆▇█████▁▁███▆▅█▇▅█▆█▅▆▇█▁▄▄▄▅▅▄▃ │
+                                                        │                                                            │
+                                                        │ memory 18.1 of 121.8 GiB  15%  · 103.7 GiB free            │
+                                                        │                                                            │
+                                                        │  ▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂ │
+                                                        │                                                            │
+                                                        │ power 8 W ▄▄▄▄▄▄▄▄   temperature 47 °C ▄▄▄▄▄▄▄▄            │
+                                                        │ mode  P0 · compute Default · persistence off · display on  │
+                                                        │ compute  CC 12.1 · 48 SM · FP64 1:65536 · 121.8 GiB        │
+                                                        │                                                            │
+                                                        │ processes                                                  │
+                                                        │      PID  T     MEMORY  PROGRAM                            │
+                                                        │     1214  C   56.7 MiB  /usr/libexec/axon/axon-vendor      │
+                                                        │     1468  C   68.9 MiB  /usr/libexec/axon/axon-vendor      │
+                                                        │   280629  C  468.3 MiB  /usr/libexec/axon/axon-vendor      │
+                                                        │     1214  G   56.7 MiB  /usr/libexec/axon/axon-vendor      │
+                                                        │     1468  G   68.9 MiB  /usr/libexec/axon/axon-vendor      │
+                                                        │   280629  G  468.3 MiB  /usr/libexec/axon/axon-vendor      │
+                                                        │   T is the context: C compute, G graphics. Named on the ma │
+                                                        ╰────────────────────────────────────────────────────────────╯
+ ↑↓ machine  ←→ gpu  ⏎ page  1-4 pages  s shell on gpu  e targets  ? keys  q quit</pre>
+<ul class="list">
+<li><strong>The top line</strong> sums up the fleet: how many machines, how many answer, how many GPUs, how busy they are and how much memory is in use.</li>
+<li><strong>The cards</strong>, on the left, are the machines, this one first: its processors, its driver, and a line per GPU with a graph of its use. <code>↑</code> and <code>↓</code> select a machine, <code>←</code> and <code>→</code> one of its GPUs.</li>
+<li><strong>The page</strong>, on the right, is the selected machine in detail, in four pages: <code>1</code> its GPUs, <code>2</code> the sessions using them, <code>3</code> the links between machines, <code>4</code> the machine itself. <code>enter</code> opens the page and <code>tab</code> moves between it and the cards.</li>
+</ul>
+<p><code>?</code> lists every key, and <code>q</code> leaves.</p>
+<h2 id="seeing-what-is-using-the-gpu" class="section-title">Seeing what is using the GPU</h2>
+<ol class="list">
+<li>Select the machine, and press <code>2</code> for its sessions.</li>
+<li>The page shows every program holding one of the machine's GPUs, with how much memory it holds; every session the machine is serving, with its user, where it came from and since when, including those from other machines; and, on this machine's page, every program here whose GPU calls cross axon, where they went, and what the crossing cost.</li>
+</ol>
+<p>The GPUs page, <code>1</code>, shows each GPU's use, memory, power and temperature over the last minutes, and the processes holding a context on it.</p>
+<p>From a script: <code>axon</code> into a pipe prints the same fleet as one plain table, and <code>--format=csv</code>, <code>json</code> or <code>tmux</code> give the telemetry scripts and the tmux bar read. <code>nvidia-smi</code> is axon as well, and prints the vendor's own table byte for byte, so scripts written for it keep working. <code>btop</code>'s GPU panel reads the same telemetry.</p>
+<h2 id="adding-machines-to-the-view" class="section-title">Adding machines to the view</h2>
+<p>The fleet is this machine and the machines in <code>~/.config/axon/targets</code>, one <code>name address</code> per line, in that order. Press <code>e</code> to edit the file; the fleet is read again when you close it. A machine's address is usually its <a href="/handbook/machine/plexus/">Plexus</a> address.</p>
+<p>From a script: <code>axon probe TARGET</code> asks a machine what it offers, and its exit status says whether it answered.</p>
 <h2 id="a-gpu-on-another-machine" class="section-title">A GPU on another machine</h2>
-<p><code>axon run --on</code> runs one program against a GPU in another machine. Nothing else on either machine is affected, and the program, its files and its environment stay here; only the GPU work moves.</p>
+<ol class="list">
+<li>Select the machine and the GPU, with <code>↑</code> <code>↓</code> and <code>←</code> <code>→</code>.</li>
+<li>Press <code>s</code>. A shell opens whose GPU programs run on the selected GPU.</li>
+<li>Run the program as you would here.</li>
+</ol>
+<p>Nothing else on either machine is affected. The program, its files and its environment stay on this machine; only its GPU work moves.</p>
+<p>From a script:</p>
 <pre class="term term__body">$ ./driver_axpy
 device: NVIDIA GB10
 65536 elements correct
-$ axon run --on z2 ./driver_axpy
-axon: attached to NVIDIA A800 40GB Active (40441 MiB) at 172.16.0.226:18720
+$ axon run --on gpu2 ./driver_axpy
+axon: attached to NVIDIA A800 40GB Active (40441 MiB) at 192.0.2.10:18720
 device: NVIDIA A800 40GB Active
 65536 elements correct</pre>
 <p>The GPU must be one the program can drive. A CUDA program runs on NVIDIA GPUs, here or anywhere in the fleet, and not on an AMD one: axon moves the program's calls, not its meaning.</p>
-<p>A target is a <code>host:port</code>, or a name from <code>~/.config/axon/targets</code>, one <code>name address</code> per line. <code>axon probe TARGET</code> asks a machine what it offers, and its exit status says whether it answered.</p>
-<p>The network is in the way of a GPU in a way it is not of a disk, so what makes this affordable is the shape of the work. A program that records its kernels into a CUDA graph replays the whole pass in one round trip instead of one per launch, which is how inference engines already run a decode step. A kernel that does many operations per byte it moves gains the most: the GB10 runs double precision at a sixty-fourth of its single-precision rate, so a double-precision job is often faster on a data-centre GPU across the room than on the one under the desk.</p>
-<p>A session from another machine survives the connection dropping. Its worker holds the session, and takes the client back once it proves the session's token.</p>
-<h2 id="serving-this-machines-gpu" class="section-title">Serving this machine's GPU</h2>
-<pre class="term term__body">$ axon serve --on THIS-MACHINE</pre>
-<p>opens this machine's GPU to the fleet. Every connection from another machine proves the fleet's key before anything else happens, and is sealed under the session's own keys after it. Which machines may reach which is decided by Plexus, which enrols them.</p>
-<p><code>axon serve</code> also works on a machine that is not running Nerv: it copies <code>axond</code> across and provisions it there, so a GPU in a workstation or a server can join the fleet.</p>
+<p>The network is in the way of a GPU in a way it is not of a disk, so what makes this affordable is the shape of the work. A program that records its kernels into a CUDA graph replays a whole pass in one round trip instead of one per launch, which is how inference engines already run a decode step. A kernel that does many operations per byte it moves gains the most: the GB10 runs double precision at a small fraction of its single-precision rate, so a double-precision job is often faster on a data-centre GPU across the room than on the one under the desk.</p>
+<p>A session from another machine survives the connection dropping. Its worker holds the session, and takes the program back once it proves the session's token.</p>
 <h2 id="several-gpus-at-once" class="section-title">Several GPUs at once</h2>
 <pre class="term term__body">$ axon run --on local,gpu2 ./train</pre>
-<p>gives the program one GPU on each target, as CUDA devices 0, 1 and so on, in that order; <code>local</code> is this machine. NCCL is axon's too: collectives between GPUs on different machines move over the fabric with one-sided RDMA writes, and the reduction runs on the GPU, in rank order, on the caller's stream. A program written for several GPUs with NCCL runs across machines as it is.</p>
+<p>gives the program one GPU on each target, as CUDA devices 0, 1 and so on, in that order; <code>local</code> is this machine. NCCL is axon's too: collectives between GPUs on different machines move over the network with one-sided RDMA writes, and the reduction runs on the GPU, in rank order, on the program's stream. A program written for several GPUs with NCCL runs across machines as it is. <a href="/handbook/machine/offloading-and-fleets/">Fleets</a> puts several machines to work together.</p>
+<h2 id="serving-this-machines-gpu" class="section-title">Serving this machine's GPU</h2>
+<pre class="term term__body">$ axon serve --on THIS-MACHINE</pre>
+<p>opens this machine's GPU to the fleet. Every connection from another machine proves the fleet's key before anything else happens, and is sealed under the session's own keys after it. Which machines may reach which is decided by <a href="/handbook/machine/plexus/">Plexus</a>.</p>
+<p><code>axon serve</code> also works on a machine that is not running Nerv: it copies <code>axond</code> across and provisions it there, so a GPU in a workstation or a server can join the fleet.</p>
+<h2 id="running-a-program-on-another-machines-processors" class="section-title">Running a program on another machine's processors</h2>
+<pre class="term term__body">$ axon exec --on build1 -- make -j64</pre>
+<p>runs a program on another machine's processors. It is placed there once, when it starts, and never moves after that. It runs on this machine's system, not that one's: its <code>/usr</code> and <code>/etc</code> arrive file by file as they are opened, each one verified, so nothing needs installing on the other machine. Your home is served back to it over 9P by a process running as you, which the kernel confines to your home. Its terminal, its signals and its exit status are the program's own.</p>
+<p>If the network drops, the program pauses at the point it needs this machine and carries on when the link returns, with its open files and locks intact. The other machine must run the same instruction set: a program built for Arm runs on another Arm machine, never on an x86 one. Before it is placed, the processor features it was built for are checked against the other machine's, so a program never lands where it cannot run.</p>
 <h2 id="memory-and-limits" class="section-title">Memory and limits</h2>
 <p>GPU memory on a GB10 is the machine's memory, so a limit on a program's memory holds its GPU memory too. Give work you do not trust yet a limit of its own, as <a href="/handbook/machine/the-first-hour/#running-something-risky-on-the-gpu">Running something risky on the GPU</a> shows; past it, an allocation is refused with an ordinary out-of-memory error, and nothing else on the machine notices.</p>
-<h2 id="where-programs-run" class="section-title">Where programs run</h2>
-<p>A program can run on another machine's processors as well as its GPU:</p>
-<pre class="term term__body">$ axon exec --on build1 -- make -j64</pre>
-<p>It is placed there once, when it starts, and never moves after that. It runs on this machine's system, not that one's: its <code>/usr</code> and <code>/etc</code> arrive file by file as they are opened, each one verified, so nothing needs installing on the other machine. Your home is served back to it over 9P by a process running as you, which the kernel confines to your home. Its terminal, its signals and its exit status are the program's own.</p>
-<p>If the network drops, the program pauses at the point it needs this machine and carries on when the link returns, with its open files and locks intact. The other machine must run the same instruction set. A program built for this machine's Arm processors runs on another Arm machine, never on an x86 one, because it is the program's own machine code that runs there. Before it is placed, the processor features it was built for are checked against the other machine's, so a program never lands where it cannot run.</p>
 <h2 id="graphics" class="section-title">Graphics</h2>
-<p>The desktop reaches the GPU the same way. Mesa on Nerv draws OpenGL through Zink, which is Vulkan, and Vulkan is axon's, so the compositor, a browser and a game are all sessions of the fabric, and a Vulkan program can run against a GPU on another machine as a CUDA one can.</p>
+<p>The desktop reaches the GPU the same way. Mesa on Nerv draws OpenGL through Zink, which is Vulkan, and Vulkan is axon's, so the compositor, a browser and a game are all sessions, and a Vulkan program can run against a GPU on another machine as a CUDA one can.</p>
+<h2 id="video" class="section-title">Video</h2>
+<p>ffmpeg's NVDEC decoders, <code>h264_cuvid</code>, <code>hevc_cuvid</code> and the rest, reach the board's video engine through axon, with NVIDIA's own parser and decoder running in the worker:</p>
+<pre class="term term__body">$ doas dnf install nerv-axon-nvcuvid-musl</pre>
+<p>Decoded frames are the session's GPU memory, as they are with NVIDIA's library. A decode axon will not do is refused with an error that says why, never done some other way.</p>
+<h2 id="reference" class="section-title">Reference</h2>
+<p>The keys in axon:</p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">key</th><th scope="col"></th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code>↑</code> <code>↓</code>, <code>k</code> <code>j</code></td><td>select a machine; scroll, on a page</td>
+</tr>
+<tr>
+<td><code>←</code> <code>→</code>, <code>h</code> <code>l</code></td><td>select one of the machine's GPUs</td>
+</tr>
+<tr>
+<td><code>enter</code>, <code>tab</code>, <code>esc</code></td><td>open the page; move between the page and the cards; back to the cards</td>
+</tr>
+<tr>
+<td><code>1</code> <code>2</code> <code>3</code> <code>4</code>, <code>[</code> <code>]</code></td><td>the GPUs, sessions, links and machine pages</td>
+</tr>
+<tr>
+<td><code>s</code></td><td>a shell whose GPU programs run on the selected GPU</td>
+</tr>
+<tr>
+<td><code>e</code></td><td>edit the targets file</td>
+</tr>
+<tr>
+<td><code>c</code></td><td>ask the machine's compute service again</td>
+</tr>
+<tr>
+<td><code>f</code></td><td>read the fabric again</td>
+</tr>
+<tr>
+<td><code>m</code></td><td>measure this machine's topology, after asking</td>
+</tr>
+<tr>
+<td><code>+</code> <code>-</code></td><td>sample more or less often</td>
+</tr>
+<tr>
+<td><code>?</code>, <code>q</code></td><td>every key; quit</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The commands, for scripts:</p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">command</th><th scope="col"></th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code>axon</code></td><td>the fleet view; into a pipe, a table (<code>--format=csv</code>, <code>json</code>, <code>tmux</code>)</td>
+</tr>
+<tr>
+<td><code>axon run --on TARGET[,TARGET…] PROGRAM</code></td><td>run a program against GPUs elsewhere, or several at once</td>
+</tr>
+<tr>
+<td><code>axon exec --on TARGET -- PROGRAM</code></td><td>run a program on another machine's processors</td>
+</tr>
+<tr>
+<td><code>axon serve --on MACHINE</code></td><td>open a machine's GPU to the fleet</td>
+</tr>
+<tr>
+<td><code>axon probe TARGET</code></td><td>ask a machine what it offers</td>
+</tr>
+<tr>
+<td><code>nvidia-smi</code></td><td>the vendor's table, from axon</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code>axon --help</code> lists every command and flag.</p>
       </div>
-      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/generations/"><span>Previous</span>Generations</a><a class="hb-pager__next" href="/handbook/machine/what-the-machine-remembers/"><span>Next</span>What the machine remembers</a></nav>
+      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/generations/"><span>Previous</span>Updates and generations</a><a class="hb-pager__next" href="/handbook/machine/what-the-machine-remembers/"><span>Next</span>What the machine remembers</a></nav>
     </div>
   </div>
 </section>

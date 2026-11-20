@@ -108,9 +108,9 @@
 </li>
 </ol>
 <p class="hb-nav__part">Five ideas</p><ol class="hb-nav__list">
-<li><a href="/handbook/machine/generations/">Generations</a>
+<li><a href="/handbook/machine/generations/">Updates and generations</a>
 </li>
-<li><a href="/handbook/machine/compute-fabric/">The compute fabric</a>
+<li><a href="/handbook/machine/compute-fabric/">The GPU</a>
 </li>
 <li><a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a>
 </li>
@@ -141,6 +141,8 @@
 <li><a href="/handbook/machine/agents/">Agents</a>
 </li>
 <li><a href="/handbook/machine/firmware/">Firmware</a>
+</li>
+<li><a href="/handbook/machine/power/">Power</a>
 </li>
 </ol>
 </details></nav>
@@ -225,7 +227,7 @@ nerv: this transaction changes the boot path (nerv-kernel). A slot boots the ker
 <p><strong>A service you install</strong> -- a database, a CI runner, anything with a unit of its own -- runs confined, in a domain for software Nerv does not ship. It keeps its own files, uses the network, runs as its own users and builds what it builds; it is kept from the machine's keys and account secrets, its disks and the GPU's device nodes, and changes the installed system only the way you do, through <code>doas</code>. One exception: a GitLab runner installed as <code>/usr/local/bin/gitlab-runner</code> may open the GPU's device nodes, so that a job can test GPU software against the real driver. A service that expects one of those is refused, and the refusal is in the journal: <code>journalctl -g 'avc: +denied'</code>.</p>
 <h2 id="updating" class="section-title">Updating</h2>
 <p><strong><code>doas dnf upgrade</code> updates the running system</strong> when nothing in the boot path changes: a game, an editor, a library, Nerv's packages and Fedora's alike, live, with no reboot.</p>
-<p><strong>An update that reaches the boot is <code>cage update</code>.</strong> When the upgrade carries one of the packages in the table above, <code>dnf</code> refuses the whole transaction with the message shown there. <code>cage update</code> builds the new system beside the one you are running, upgrades it, proves it boots and promotes it, so there is always one to go back to; <a href="/handbook/machine/generations/">Generations</a> is the whole of it. It also upgrades everything else, so it is the one command that takes a machine all the way to current.</p>
+<p><strong>An update that reaches the boot is <code>cage update</code>.</strong> When the upgrade carries one of the packages in the table above, <code>dnf</code> refuses the whole transaction with the message shown there. <code>cage update</code> builds the new system beside the one you are running, upgrades it, proves it boots and promotes it, so there is always one to go back to; <a href="/handbook/machine/generations/">Updates and generations</a> is the whole of it. It also upgrades everything else, so it is the one command that takes a machine all the way to current.</p>
 <h2 id="stable-and-testing" class="section-title">Stable and testing</h2>
 <p>Nerv's packages come on two channels, and a machine is on exactly one of them at a time:</p>
 <div class="table-scroll">

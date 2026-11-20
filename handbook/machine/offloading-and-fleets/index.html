@@ -97,9 +97,9 @@
 </li>
 </ol>
 <p class="hb-nav__part">Five ideas</p><ol class="hb-nav__list">
-<li><a href="/handbook/machine/generations/">Generations</a>
+<li><a href="/handbook/machine/generations/">Updates and generations</a>
 </li>
-<li><a href="/handbook/machine/compute-fabric/">The compute fabric</a>
+<li><a href="/handbook/machine/compute-fabric/">The GPU</a>
 </li>
 <li><a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a>
 </li>
@@ -138,13 +138,15 @@
 </li>
 <li><a href="/handbook/machine/firmware/">Firmware</a>
 </li>
+<li><a href="/handbook/machine/power/">Power</a>
+</li>
 </ol>
 </details></nav>
     <div class="hb__main">
       <div class="essay">
 <h1 class="page-title">Offloading and fleets</h1>
 <p>Putting work on other machines, and several boxes acting as one: the targets you name, serving a machine's GPU, running a program elsewhere, and what running a fleet for an organisation will add.</p>
-<p><a href="/handbook/machine/compute-fabric/">The compute fabric</a> explains the ideas this chapter puts to work. Which machines may reach which is <a href="/handbook/machine/plexus/">Plexus</a>'s job.</p>
+<p><a href="/handbook/machine/compute-fabric/">The GPU</a> explains the ideas this chapter puts to work. Which machines may reach which is <a href="/handbook/machine/plexus/">Plexus</a>'s job.</p>
 <h2 id="naming-your-machines" class="section-title">Naming your machines</h2>
 <p><code>~/.config/axon/targets</code> names the machines you use, one <code>name address</code> per line, so commands can say <code>--on gpu2</code> rather than an address:</p>
 <pre class="term term__body">$ cat ~/.config/axon/targets

@@ -97,9 +97,9 @@
 </li>
 </ol>
 <p class="hb-nav__part">Five ideas</p><ol class="hb-nav__list">
-<li><a href="/handbook/machine/generations/">Generations</a>
+<li><a href="/handbook/machine/generations/">Updates and generations</a>
 </li>
-<li><a href="/handbook/machine/compute-fabric/">The compute fabric</a>
+<li><a href="/handbook/machine/compute-fabric/">The GPU</a>
 </li>
 <li><a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a>
 </li>
@@ -138,6 +138,8 @@
 <li><a href="/handbook/machine/agents/">Agents</a>
 </li>
 <li><a href="/handbook/machine/firmware/">Firmware</a>
+</li>
+<li><a href="/handbook/machine/power/">Power</a>
 </li>
 </ol>
 </details></nav>
@@ -203,24 +205,14 @@ $ steam</pre>
 <p>The names and kits are placeholders, and so are the looks: champions wear LibreQuake's own models and sounds for now. Your own movement is decided by the server, as in all of NetQuake, so on a LAN a dash or a slide is immediate and over the internet it lands a round trip late. A game without champions, <code>quake</code> on its own included, plays and records exactly as before.</p>
 <h2 id="hosting-a-game" class="section-title">Hosting a game</h2>
 <p>A game of nQuake Champions is hosted by one machine and joined from the others, over UDP port 26000; everyone plays through that one port.</p>
-<p>The firewall keeps the port closed until the machine that hosts opens it. nerv-quake ships the rule and leaves it unloaded, so a machine that only plays opens nothing:</p>
-<pre class="term term__body">$ doas ln -s /usr/lib/nerv-firewall.d/available/nerv-quake.nft /etc/nerv-firewall.d/
-$ doas systemctl reload nerv-firewall
-$ doas nft list chain inet nerv services
-table inet nerv {
-	chain services {
-		tcp dport 22 accept
-		udp dport 26000 accept
-	}
-}</pre>
-<p>Removing the link and reloading closes it again.</p>
+<p>The firewall opens the port while a game is hosted and closes it when the game ends; there is nothing to set up. The port is open exactly while something on the machine has it bound, and nQuake binds it only to host: a machine that plays elsewhere, or alone, has it closed, and a packet sent to it then is dropped, as for any port nobody opened. The rule names no address, so it holds on whatever network the machine is on.</p>
 <p>To host and play on the same machine, start <code>quake -game nchamps</code> and choose Multiplayer › New Game: set Max players, Game Type to Deathmatch, a Frag Limit and a Time Limit, the Deathmatch Arena episode and a level from lqdm1 to lqdm13, then Begin game. The console does the same with <code>maxplayers 8</code>, <code>deathmatch 1</code>, <code>fraglimit 20</code>, <code>timelimit 10</code> and <code>map lqdm1</code>.</p>
 <p>A dedicated server needs no display and does not use the GPU, so any machine with nerv-quake installed can run one, and it takes commands typed into its terminal:</p>
 <pre class="term term__body">$ quake -game nchamps -dedicated 8 +deathmatch 1 +fraglimit 20 +timelimit 10 +map lqdm1</pre>
-<p><code>-dedicated</code> takes the number of players, and <code>-port</code> moves the game off 26000.</p>
+<p><code>-dedicated</code> takes the number of players, and <code>-port</code> moves the game off 26000. The firewall opens only 26000, so a game on another port needs a rule of your own (<a href="/handbook/machine/networking/#the-firewall">The firewall</a>).</p>
 <p>To join, choose Multiplayer › Join Game and type the host's address under Join game at, or type it in the console:</p>
 <pre class="term term__body">connect 192.168.1.20</pre>
-<p>Search for local games does not see a game through the firewall, so join by address.</p>
+<p>Or choose Search for local games, which lists every game hosted on the networks the machine is on. It asks each network's broadcast address and lets the answers to that question back in for three seconds, from that network only. A game across a router answers no broadcast, so join it by address.</p>
 <p>The server decides each ability's cooldown, in seconds: <code>nchamps_cooldown_vector</code> 12, <code>nchamps_cooldown_lark</code> 8, <code>nchamps_cooldown_relay</code> 12, <code>nchamps_cooldown_tether</code> 6, <code>nchamps_cooldown_bastion</code> 10, <code>nchamps_cooldown_shade</code> 16, <code>nchamps_cooldown_static</code> 20 and <code>nchamps_cooldown_skid</code> 7. Change one in the host's console, where it applies from the next use, or set it as the server starts, with <code>+set nchamps_cooldown_lark 6</code> before <code>+map</code>.</p>
 <h2 id="borrowing-a-faster-gpu" class="section-title">Borrowing a faster GPU</h2>
 <p>A game is a Vulkan program, and Vulkan is the compute fabric's (<a href="/handbook/machine/compute-fabric/#graphics">Graphics</a>), so a game can draw on a GPU in another machine. Playing that way, with the frames rendered across the room and shown here, and splitting a game's rendering across two GB10s, are on the roadmap.</p>

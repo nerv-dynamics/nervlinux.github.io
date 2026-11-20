@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nerv Linux — Power</title>
+<meta name="description" content="How the machine spends power: one power profile that the kernel and every Nerv service follow, cores that sleep as deeply as the next wake-up allows, and a desktop that keeps the fast cores quick to wake only while something moves on screen. On an N1X laptop at an idle desktop on battery, Nerv draws the same power as the kernel's default settings and hands work between programs eight to eleven times faster.">
+<link rel="canonical" href="https://nervlinux.org/handbook/machine/power/">
+<meta property="og:title" content="Nerv Linux — Power">
+<meta property="og:description" content="How the machine spends power: one power profile that the kernel and every Nerv service follow, cores that sleep as deeply as the next wake-up allows, and a desktop that keeps the fast cores quick to wake only while something moves on screen. On an N1X laptop at an idle desktop on battery, Nerv draws the same power as the kernel's default settings and hands work between programs eight to eleven times faster.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nervlinux.org/handbook/machine/power/">
+<link rel="icon" href="/assets/favicon.png" sizes="32x32">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/nerv-square.png">
+<link rel="preload" href="/fonts/ashinoko-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/palette.css">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/site.css">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('nerv-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="masthead__inner">
+    <a class="masthead__brand" href="/" aria-label="Nerv Linux — home">
+      <img class="logo" src="/assets/nerv-wordmark.png" alt="Nerv Linux" width="600" height="149">
+    </a>
+    <nav class="masthead__nav" aria-label="Primary">
+      <div class="masthead__links" id="primary-links">
+      <a href="/system/">System</a>
+      <a href="/desktop/">Desktop</a>
+      <a href="/enterprise/">Enterprise</a>
+      <a href="/community/">Community</a>
+      <a href="/handbook/" aria-current="page">Handbook</a>
+      <a href="/downloads/">Downloads</a>
+      <a href="/about/">About</a>
+      </div>
+      <button class="theme-toggle" id="theme-toggle" type="button"
+              aria-label="Switch to light theme" title="Switch theme">
+        <svg class="icon icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path fill="currentColor" d="M20.7 14.6A8.6 8.6 0 0 1 9.4 3.3a8.7 8.7 0 1 0 11.3 11.3Z"/>
+        </svg>
+        <svg class="icon icon--sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2" fill="currentColor"/>
+          <g stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+            <path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4"/>
+            <path d="M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/>
+          </g>
+        </svg>
+      </button>
+      <button class="menu-toggle" id="menu-toggle" type="button"
+              aria-label="Menu" aria-expanded="false" aria-controls="primary-links">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+          <path class="menu-toggle__open" d="M4 7h16M4 12h16M4 17h16"/>
+          <path class="menu-toggle__close" d="M6 6l12 12M18 6L6 18"/>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="section section--head">
+  <div class="wrap hb">
+    <nav class="hb-nav" aria-label="Handbook">
+<details class="hb-nav__box" open>
+<summary class="hb-nav__summary">Contents</summary>
+<a class="hb-nav__home" href="/handbook/">The Nerv Handbook</a>
+<p class="hb-nav__part">This machine</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/why-an-operating-system-still/">Why an operating system, still</a>
+</li>
+<li><a href="/handbook/machine/what-nerv-is/">What Nerv is</a>
+</li>
+<li><a href="/handbook/machine/install/">Install</a>
+</li>
+<li><a href="/handbook/machine/the-first-hour/">The first hour</a>
+</li>
+<li><a href="/handbook/machine/software/">Software</a>
+</li>
+<li><a href="/handbook/machine/containers/">Containers</a>
+</li>
+<li><a href="/handbook/machine/desktop/">The desktop</a>
+</li>
+<li><a href="/handbook/machine/networking/">Networking</a>
+</li>
+<li><a href="/handbook/machine/accounts-and-keys/">Accounts and keys</a>
+</li>
+</ol>
+<p class="hb-nav__part">Five ideas</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/generations/">Updates and generations</a>
+</li>
+<li><a href="/handbook/machine/compute-fabric/">The GPU</a>
+</li>
+<li><a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a>
+</li>
+<li><a href="/handbook/machine/yours-and-not-yours/">Yours and not yours</a>
+</li>
+<li><a href="/handbook/machine/chain-of-trust/">The chain of trust</a>
+</li>
+</ol>
+<p class="hb-nav__part">Ways of using it</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/ai-development/">AI development</a>
+</li>
+<li><a href="/handbook/machine/gaming/">Gaming</a>
+</li>
+<li><a href="/handbook/machine/offloading-and-fleets/">Offloading and fleets</a>
+</li>
+<li><a href="/handbook/machine/plexus/">Plexus</a>
+</li>
+<li><a href="/handbook/machine/building-your-own/">Building your own</a>
+</li>
+</ol>
+<p class="hb-nav__part">When it breaks</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/recovery/">Recovery</a>
+</li>
+<li><a href="/handbook/machine/asking-why/">Asking why</a>
+</li>
+</ol>
+<p class="hb-nav__part">More</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/agents/">Agents</a>
+</li>
+<li><a href="/handbook/machine/firmware/">Firmware</a>
+</li>
+<li><a href="/handbook/machine/power/" aria-current="page">Power</a>
+<ol class="hb-nav__sections">
+<li><a href="#the-power-profile">The power profile</a></li>
+<li><a href="#where-saver-caps-the-clock">Where saver caps the clock</a></li>
+<li><a href="#idle-cores">Idle cores</a></li>
+<li><a href="#while-something-moves-on-screen">While something moves on screen</a></li>
+</ol>
+</li>
+</ol>
+</details></nav>
+    <div class="hb__main">
+      <div class="essay">
+<h1 class="page-title">Power</h1>
+<p>How the machine spends power: one power profile that the kernel and every Nerv service follow, cores that sleep as deeply as the next wake-up allows, and a desktop that keeps the fast cores quick to wake only while something moves on screen. On an N1X laptop at an idle desktop on battery, Nerv draws the same power as the kernel's default settings and hands work between programs eight to eleven times faster.</p>
+<h2 id="the-power-profile" class="section-title">The power profile</h2>
+<p>The machine has one power profile, and everything that changes how much power it uses follows it. On battery the profile is <code>saver</code>, on mains <code>balanced</code>, and it changes the moment the power source does. A machine without a battery stays <code>balanced</code>.</p>
+<pre class="term term__body">$ power
+saver; on battery, 82%</pre>
+<p>To set it by hand until the power source next changes, and to hand the choice back:</p>
+<pre class="term term__body">$ doas power performance
+$ doas power auto</pre>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">Profile</th><th scope="col">What it does</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code>performance</code></td><td>The cores prefer speed over saving, and no core sleeps in a state that takes longer than 100 µs to leave.</td>
+</tr>
+<tr>
+<td><code>balanced</code></td><td>The machine as it booted. On a laptop, the firmware's own balanced mode.</td>
+</tr>
+<tr>
+<td><code>saver</code></td><td>The cores prefer saving, each one is capped at the clock where work costs it the least energy, and the firmware is asked for its quietest mode, where it has one.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="where-saver-caps-the-clock" class="section-title">Where <code>saver</code> caps the clock</h2>
+<p>Each kind of core has a point past which a little more speed costs a lot more power. <code>saver</code> holds each core at that point. On an N1X laptop, measured on battery:</p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">Core</th><th scope="col">Top clock</th><th scope="col"><code>saver</code> cap</th><th scope="col">Power per core at the top</th><th scope="col">At the cap</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Cortex-X925 (fast)</td><td>3.9 GHz</td><td>3.4 GHz</td><td>5.70 W</td><td>2.55 W</td>
+</tr>
+<tr>
+<td>Cortex-A725 (efficient)</td><td>2.8 GHz</td><td>2.5 GHz</td><td>1.10 W</td><td>0.36 W</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A fast core gives up 13% of its clock and draws 55% less power. An efficient core gives up 11% and draws 67% less. Work a person waits for, a build or a page load, keeps most of its speed for less than half the power.</p>
+<h2 id="idle-cores" class="section-title">Idle cores</h2>
+<p>Most of the time most cores have nothing to do, and how they sleep decides the battery. Two things set it.</p>
+<p><strong>The kernel is tickless.</strong> A core with nothing to run stops its timer tick and sleeps until something actually needs it. It is not woken a thousand times a second to find nothing to do.</p>
+<p><strong>Each sleep is as deep as the next wake-up allows.</strong> A core can doze, waking in microseconds, or power down further, saving more but taking longer to come back. Choosing between them is a guess about how long the core will stay idle. Nerv makes that guess from how this core was actually woken recently, by timers and by other work alike. The kernel's default guesses mainly from the next timer, and on a tickless machine much of what wakes a core is not a timer: a program handing work to another, such as a frame passing from the compositor to the GPU. Guessing from timers alone puts cores too deep for those hand-offs, and every one of them then waits for the core to power back up.</p>
+<p>On an N1X laptop at an idle desktop on battery, 2026-11-19, one hand-off from one process to another:</p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col"></th><th scope="col">The kernel's default</th><th scope="col">Nerv</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Idle power</td><td>9.58–9.67 W</td><td>9.66 W</td>
+</tr>
+<tr>
+<td>Time for a hand-off, median</td><td>266–387 µs</td><td>34 µs</td>
+</tr>
+<tr>
+<td>Hand-offs over 1 ms, per 5,000</td><td>359–414</td><td>3</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The same power, eight to eleven times faster at the median, and almost none of the millisecond stalls a person sees as a stutter.</p>
+<pre class="term term__body">$ cat /sys/devices/system/cpu/cpuidle/current_governor
+teo</pre>
+<h2 id="while-something-moves-on-screen" class="section-title">While something moves on screen</h2>
+<p>A frame is several programs waking each other in turn, and the slowest of those wake-ups decides whether the frame is on time. While something moves, the compositor holds the fast cores to their shallowest sleep, which they leave at once, and lets go when the screen is still. It also tells the kernel that its own drawing thread runs on a fast core at full clock, with a short turn so it is not kept waiting behind other work. What it starts does not inherit either.</p>
+<p>The hold is a connection to the power service and lasts only as long as it: a compositor that exits or crashes cannot leave the cores held. Any program can take it the same way:</p>
+<pre class="term term__body">$ power hold -- my-benchmark</pre>
+<p>On the same laptop and conditions, one round of a frame's hand-offs:</p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col"></th><th scope="col">Cores free</th><th scope="col">Fast cores held</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Idle power</td><td>9.66 W</td><td>10.26 W</td>
+</tr>
+<tr>
+<td>Round trip, median</td><td>21 µs</td><td>21 µs</td>
+</tr>
+<tr>
+<td>Round trip, 99th percentile</td><td>695 µs</td><td>46 µs</td>
+</tr>
+<tr>
+<td>Rounds over 1 ms, per 5,000</td><td>2</td><td>0</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>0.6 W, paid only while something moves, buys a worst case fifteen times shorter.</p>
+      </div>
+      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/firmware/"><span>Previous</span>Firmware</a></nav>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__base">
+      <p>Copyright &copy; 2026 Nerv Dynamics AB. Nerv Linux is free software under the
+         Apache License 2.0. Software from other projects keeps its upstream licence. <a href="https://codeberg.org/nerv-dynamics/nerv-linux">Source on Codeberg</a>.</p>
+      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell, GB10 and GB300 are
+         trademarks of NVIDIA Corporation. Linux is a registered trademark of
+         Linus Torvalds. Nerv Linux is not affiliated with, endorsed by, or
+         sponsored by either.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var btn = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    function label() {
+      var dark = root.getAttribute('data-theme') !== 'light';
+      btn.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+    }
+    label();
+    btn.addEventListener('click', function () {
+      // Dark is the default, so anything that isn't explicitly light is dark.
+      var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('nerv-theme', next); } catch (e) {}
+      label();
+    });
+  })();
+  (function () {
+    // Phone menu: the nav links fold into a panel under the masthead.
+    var btn = document.getElementById('menu-toggle');
+    var head = btn.closest('.masthead');
+    btn.addEventListener('click', function () {
+      var open = head.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  })();
+  (function () {
+    // On phones a tapped diagram opens full screen, large, to pan and zoom.
+    var narrow = window.matchMedia('(max-width: 760px)');
+    function close(z) { z.remove(); document.body.classList.remove('has-zoom'); }
+    document.querySelectorAll('.diagram').forEach(function (fig) {
+      fig.addEventListener('click', function () {
+        var svg = fig.querySelector('svg');
+        if (!narrow.matches || !svg) return;
+        var z = document.createElement('div');
+        z.className = 'zoom'; z.setAttribute('role', 'dialog'); z.setAttribute('aria-label', svg.getAttribute('aria-label') || 'Diagram');
+        z.appendChild(svg.cloneNode(true));
+        var b = document.createElement('button');
+        b.className = 'zoom__close'; b.type = 'button'; b.setAttribute('aria-label', 'Close');
+        b.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+        b.addEventListener('click', function () { close(z); });
+        z.appendChild(b);
+        document.body.appendChild(z); document.body.classList.add('has-zoom');
+        document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { close(z); document.removeEventListener('keydown', esc); } });
+      });
+    });
+  })();
+  (function () {
+    // The handbook contents start folded on narrow screens, open on wide ones.
+    if (window.matchMedia('(max-width: 960px)').matches)
+      document.querySelectorAll('.hb-nav__box').forEach(function (d) { d.open = false; });
+  })();
+  (function () {
+    // Narrow tables read as stacked cards; each cell carries its column name.
+    document.querySelectorAll('table.data').forEach(function (t) {
+      var heads = Array.prototype.map.call(t.querySelectorAll('thead th'), function (th) { return th.textContent.trim(); });
+      t.querySelectorAll('tbody tr').forEach(function (tr) {
+        Array.prototype.forEach.call(tr.children, function (td, i) {
+          if (heads[i]) td.setAttribute('data-label', heads[i]);
+        });
+      });
+    });
+  })();
+</script>
+
+<script data-goatcounter="https://stats.nervlinux.org/count" async src="https://stats.nervlinux.org/count.js"></script>
+<script>
+  // Clicks worth counting, as GoatCounter events: downloads, mail to sales, links off the site, and copying the install command.
+  (function () {
+    function count(path, title) {
+      if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: path, title: title || path, event: true });
+    }
+    document.addEventListener('click', function (e) {
+      var copy = e.target.closest('[data-copy]');
+      if (copy) { count('copy/' + copy.dataset.copy); return; }
+      var a = e.target.closest('a[href]');
+      if (!a) return;
+      if (a.protocol === 'mailto:') { count('mail/' + a.pathname); return; }
+      if (a.host === location.host) return;
+      if (a.host === 'repo.nervlinux.org') { count('download' + a.pathname); return; }
+      count('out/' + a.host + a.pathname);
+    });
+  })();
+</script>
+
+</body>
+</html>

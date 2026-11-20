@@ -58,21 +58,7 @@ The names and kits are placeholders, and so are the looks: champions wear LibreQ
 
 A game of nQuake Champions is hosted by one machine and joined from the others, over UDP port 26000; everyone plays through that one port.
 
-The firewall keeps the port closed until the machine that hosts opens it. nerv-quake ships the rule and leaves it unloaded, so a machine that only plays opens nothing:
-
-```
-$ doas ln -s /usr/lib/nerv-firewall.d/available/nerv-quake.nft /etc/nerv-firewall.d/
-$ doas systemctl reload nerv-firewall
-$ doas nft list chain inet nerv services
-table inet nerv {
-	chain services {
-		tcp dport 22 accept
-		udp dport 26000 accept
-	}
-}
-```
-
-Removing the link and reloading closes it again.
+The firewall opens the port while a game is hosted and closes it when the game ends; there is nothing to set up. The port is open exactly while something on the machine has it bound, and nQuake binds it only to host: a machine that plays elsewhere, or alone, has it closed, and a packet sent to it then is dropped, as for any port nobody opened. The rule names no address, so it holds on whatever network the machine is on.
 
 To host and play on the same machine, start `quake -game nchamps` and choose Multiplayer › New Game: set Max players, Game Type to Deathmatch, a Frag Limit and a Time Limit, the Deathmatch Arena episode and a level from lqdm1 to lqdm13, then Begin game. The console does the same with `maxplayers 8`, `deathmatch 1`, `fraglimit 20`, `timelimit 10` and `map lqdm1`.
 
@@ -82,7 +68,7 @@ A dedicated server needs no display and does not use the GPU, so any machine wit
 $ quake -game nchamps -dedicated 8 +deathmatch 1 +fraglimit 20 +timelimit 10 +map lqdm1
 ```
 
-`-dedicated` takes the number of players, and `-port` moves the game off 26000.
+`-dedicated` takes the number of players, and `-port` moves the game off 26000. The firewall opens only 26000, so a game on another port needs a rule of your own ([The firewall](networking.md#the-firewall)).
 
 To join, choose Multiplayer › Join Game and type the host's address under Join game at, or type it in the console:
 
@@ -90,7 +76,7 @@ To join, choose Multiplayer › Join Game and type the host's address under Join
 connect 192.168.1.20
 ```
 
-Search for local games does not see a game through the firewall, so join by address.
+Or choose Search for local games, which lists every game hosted on the networks the machine is on. It asks each network's broadcast address and lets the answers to that question back in for three seconds, from that network only. A game across a router answers no broadcast, so join it by address.
 
 The server decides each ability's cooldown, in seconds: `nchamps_cooldown_vector` 12, `nchamps_cooldown_lark` 8, `nchamps_cooldown_relay` 12, `nchamps_cooldown_tether` 6, `nchamps_cooldown_bastion` 10, `nchamps_cooldown_shade` 16, `nchamps_cooldown_static` 20 and `nchamps_cooldown_skid` 7. Change one in the host's console, where it applies from the next use, or set it as the server starts, with `+set nchamps_cooldown_lark 6` before `+map`.
 

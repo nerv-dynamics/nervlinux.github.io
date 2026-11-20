@@ -120,7 +120,7 @@ Open it to one network only by naming it in the rule:
 add rule inet nerv services ip saddr 192.168.1.0/24 tcp dport 8080 accept
 ```
 
-A package whose server runs only when you ask, a game's, offers its port without opening it: the rule waits in `/usr/lib/nerv-firewall.d/available/`, and linking it into `/etc/nerv-firewall.d/` and reloading opens it, as [Hosting a game](gaming.md#hosting-a-game) does.
+A package whose server runs only when you ask, a game's, opens its port only while that server has it bound: closed the rest of the time, with nothing to link or reload, as [Hosting a game](gaming.md#hosting-a-game) describes.
 
 Your files are loaded after the packages' and an update keeps them. The firewall is the `inet nerv` table and nothing else, so a container runtime or a VPN can add tables of its own beside it; `doas nft list table inet nerv` shows what is open.
 

@@ -97,9 +97,9 @@
 </li>
 </ol>
 <p class="hb-nav__part">Five ideas</p><ol class="hb-nav__list">
-<li><a href="/handbook/machine/generations/">Generations</a>
+<li><a href="/handbook/machine/generations/">Updates and generations</a>
 </li>
-<li><a href="/handbook/machine/compute-fabric/">The compute fabric</a>
+<li><a href="/handbook/machine/compute-fabric/">The GPU</a>
 </li>
 <li><a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a>
 </li>
@@ -140,6 +140,8 @@
 <li><a href="#where-updates-come-from">Where updates come from</a></li>
 </ol>
 </li>
+<li><a href="/handbook/machine/power/">Power</a>
+</li>
 </ol>
 </details></nav>
     <div class="hb__main">
@@ -168,7 +170,7 @@ no update offered:
 <p><code>cage firmware update</code> checks first and changes nothing unless every check passes:</p>
 <ul class="list">
 <li><strong>A way back in without the TPM.</strong> An update can reset the TPM, and the TPM is what unlocks the disk. The machine must have a fleet recovery key, as <a href="/handbook/machine/recovery/#a-forgotten-passphrase">A forgotten passphrase</a> sets up, or an unencrypted root.</li>
-<li><strong>One change per reboot.</strong> The running slot must have completed a boot, and no new slot may be waiting to boot. If something goes wrong after the reboot, it was the firmware. <a href="/handbook/machine/generations/">Generations</a> explains slots and their first boot.</li>
+<li><strong>One change per reboot.</strong> The running slot must have completed a boot, and no new slot may be waiting to boot. If something goes wrong after the reboot, it was the firmware. <a href="/handbook/machine/generations/">Updates and generations</a> explains slots and their first boot.</li>
 <li><strong>Secure Boot keys ready to go back in.</strong> An update can reset the firmware's keys to the vendor's, and then the firmware refuses everything this machine signed. With Secure Boot on, the machine's own keys must be staged on the boot partition first, which takes one command:</li>
 </ul>
 <pre class="term term__body">$ doas nerv-install secureboot --stage-auth /efi/loader/keys/nerv</pre>
@@ -217,7 +219,7 @@ firmware update 20261106T143144Z (staged in slot @nerv):
 <h2 id="where-updates-come-from" class="section-title">Where updates come from</h2>
 <p>Releases come from LVFS, the Linux Vendor Firmware Service, where vendors publish them. cage believes LVFS's list of releases only once its signature checks against the LVFS certificate built into cage; each download must match the checksum in that signed list, and so must the update inside it. The update itself is signed by its vendor, and the firmware checks that signature before it applies anything.</p>
       </div>
-      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/agents/"><span>Previous</span>Agents</a></nav>
+      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/agents/"><span>Previous</span>Agents</a><a class="hb-pager__next" href="/handbook/machine/power/"><span>Next</span>Power</a></nav>
     </div>
   </div>
 </section>

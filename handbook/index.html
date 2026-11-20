@@ -97,9 +97,9 @@
 </li>
 </ol>
 <p class="hb-nav__part">Five ideas</p><ol class="hb-nav__list">
-<li><a href="/handbook/machine/generations/">Generations</a>
+<li><a href="/handbook/machine/generations/">Updates and generations</a>
 </li>
-<li><a href="/handbook/machine/compute-fabric/">The compute fabric</a>
+<li><a href="/handbook/machine/compute-fabric/">The GPU</a>
 </li>
 <li><a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a>
 </li>
@@ -131,6 +131,8 @@
 </li>
 <li><a href="/handbook/machine/firmware/">Firmware</a>
 </li>
+<li><a href="/handbook/machine/power/">Power</a>
+</li>
 </ol>
 </details></nav>
     <div class="hb__main">
@@ -144,13 +146,13 @@
 <li><a href="/handbook/machine/the-first-hour/">The first hour</a><p>What you have once you log in: the console and the shell, the tools that replace the ones you know, where the defaults live and how to change one so an update keeps your change, plus becoming root, swap, printing, mail, memory, and checking the machine is well.</p></li>
 <li><a href="/handbook/machine/software/">Software</a><p>Installing and removing programs with dnf: Nerv&#x27;s own packages and the whole of Fedora&#x27;s, the three kinds of package and what each allows, the stable and testing channels, where a package&#x27;s settings live, and what happens to a package you install or a file you change once an update is waiting for its reboot.</p></li>
 <li><a href="/handbook/machine/containers/">Containers</a><p>Running containers with podman, as yourself and without root: what every container gets by default, Nerv&#x27;s two base images and how they arrive, building on them, time zones in a container, running a container as a service, tools that expect Docker, which registries a machine pulls from and how to allow one, Fedora&#x27;s images, and the GPU inside a container.</p></li>
-<li><a href="/handbook/machine/desktop/">The desktop</a><p>Umbriel, Noctalia and foot, for machines that install one: getting a desktop, logging in, the keys you use, the shell around your windows, the browser, X11 programs, sound and the keyboard.</p></li>
+<li><a href="/handbook/machine/desktop/">The desktop</a><p>Umbriel, Noctalia and foot, for machines that install one: getting a desktop, logging in, the keys you use, the shell around your windows, the browser, X11 programs, sound, the power profile and the keyboard.</p></li>
 <li><a href="/handbook/machine/networking/">Networking</a><p>Getting on the network and letting others reach you: wired and Wi-Fi, names, the ConnectX ports, WireGuard, the firewall and SSH.</p></li>
 <li><a href="/handbook/machine/accounts-and-keys/">Accounts and keys</a><p>The people on a machine and how each proves who they are: accounts, the groups that grant the GPU, the desktop and root, security keys, the passwords you keep, and the disk&#x27;s passphrase.</p></li>
 </ol>
 <h2 class="section-title">Five ideas</h2><ol class="hb-toc">
-<li><a href="/handbook/machine/generations/">Generations</a><p>The system lives in slots, and an update never touches the one you are running. It builds a new slot beside it, proves that slot boots to a login, and puts it on trial: if it never completes a boot, the machine goes back to the one before by itself, and cage rollback goes back on your word.</p></li>
-<li><a href="/handbook/machine/compute-fabric/">The compute fabric</a><p>One boundary governs compute: your GPU, someone else&#x27;s across the network, memory, and where programs run. Every program is a client, and everything is accounted. GPUs on several machines work together through the standard NCCL library.</p></li>
+<li><a href="/handbook/machine/generations/">Updates and generations</a><p>How Nerv updates itself without ever touching the system you are running: every update is a new slot, built beside the running one, proved to boot to a login, and put on trial, and a slot that fails sends the machine back to the one before by itself. cage is the program that does it, and the one you use to see and manage the slots.</p></li>
+<li><a href="/handbook/machine/compute-fabric/">The GPU</a><p>How every program on a Nerv machine reaches a GPU: through axon, one boundary that answers for the GPU here and for any GPU in your fleet, knows who is using it, and keeps a driver fault inside the program that caused it. axon is also the program that shows you all of it, live.</p></li>
 <li><a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a><p>MAGI, the machine&#x27;s own record: one service that keeps what Nerv&#x27;s programs record and the machine&#x27;s journal, knows which program wrote each record, shows any record changed after the fact, and knows where its record is complete.</p></li>
 <li><a href="/handbook/machine/yours-and-not-yours/">Yours and not yours</a><p>Your work, rebuildable residue, and unexplained bytes: Seele, which knows what on the machine is yours, what can be rebuilt, and what nothing accounts for, and what follows you to the next machine.</p></li>
 <li><a href="/handbook/machine/chain-of-trust/">The chain of trust</a><p>What is verified between power-on and a prompt, what holds the machine to its rules once it is up, and precisely what all of that does not defend against.</p></li>
@@ -159,7 +161,7 @@
 <li><a href="/handbook/machine/ai-development/">AI development</a><p>Running a language model on the machine with S2 and talking to it through OpenAI&#x27;s API from any program, and PyTorch and CUDA in a container.</p></li>
 <li><a href="/handbook/machine/gaming/">Gaming</a><p>Steam, titles built for x86, and borrowing a faster GPU from across the room.</p></li>
 <li><a href="/handbook/machine/offloading-and-fleets/">Offloading and fleets</a><p>Putting work on other machines, and several boxes acting as one: the targets you name, serving a machine&#x27;s GPU, running a program elsewhere, and what running a fleet for an organisation will add.</p></li>
-<li><a href="/handbook/machine/plexus/">Plexus</a><p>Reaching your machines from anywhere: an organisation whose root key only you hold, machines that join it with one code, and access that exists only where you grant it.</p></li>
+<li><a href="/handbook/machine/plexus/">Plexus</a><p>Reaching your machines from anywhere: an organisation whose root key only you hold, machines that join it with one code, and access that exists only where you grant it. plexus is the program you do it with, and nearly all of it happens in its console.</p></li>
 <li><a href="/handbook/machine/building-your-own/">Building your own</a><p>Packaging software for your machine, a repository to serve it from, systems of your own, and owning the stack from the source up.</p></li>
 </ol>
 <h2 class="section-title">When it breaks</h2><ol class="hb-toc">
@@ -169,6 +171,7 @@
 <h2 class="section-title">More</h2><ol class="hb-toc">
 <li><a href="/handbook/machine/agents/">Agents</a><p>yui puts an agent in your terminal: you talk to a model, and it reads files, edits them and runs commands to do what you ask, inside a sandbox that holds only what you give it. Conversations are kept by the machine, outlive the terminal, and pick up where they left off.</p></li>
 <li><a href="/handbook/machine/firmware/">Firmware</a><p>Updating the board&#x27;s own firmware — the UEFI, the embedded controller, the USB power controller — from the vendor&#x27;s releases on LVFS, as one step that is checked before it starts, applied by the firmware during a reboot you choose, and reported after it, including whether the update reset the machine&#x27;s Secure Boot keys or its TPM.</p></li>
+<li><a href="/handbook/machine/power/">Power</a><p>How the machine spends power: one power profile that the kernel and every Nerv service follow, cores that sleep as deeply as the next wake-up allows, and a desktop that keeps the fast cores quick to wake only while something moves on screen. On an N1X laptop at an idle desktop on battery, Nerv draws the same power as the kernel&#x27;s default settings and hands work between programs eight to eleven times faster.</p></li>
 </ol>
       </div>
       
