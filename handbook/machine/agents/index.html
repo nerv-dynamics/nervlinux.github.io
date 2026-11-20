@@ -133,6 +133,9 @@
 <li><a href="#conversations">Conversations</a></li>
 <li><a href="#the-board">The board</a></li>
 <li><a href="#agents-talking-to-each-other">Agents talking to each other</a></li>
+<li><a href="#questions">Questions</a></li>
+<li><a href="#sub-agents">Sub-agents</a></li>
+<li><a href="#memory">Memory</a></li>
 <li><a href="#what-the-agent-may-do">What the agent may do</a></li>
 <li><a href="#an-agent-that-approves-for-the-others">An agent that approves for the others</a></li>
 <li><a href="#policy">Policy</a></li>
@@ -140,6 +143,8 @@
 <li><a href="#addresses-sent-elsewhere">Addresses sent elsewhere</a></li>
 <li><a href="#claude">Claude</a></li>
 <li><a href="#tools-and-guards">Tools and guards</a></li>
+<li><a href="#mcp-servers">MCP servers</a></li>
+<li><a href="#switching-tools">Switching tools</a></li>
 <li><a href="#copy-and-paste">Copy and paste</a></li>
 <li><a href="#keys">Keys</a></li>
 </ol>
@@ -202,11 +207,20 @@ $ (umask 077; cat &gt; ~/.config/yui/keys/10.0.0.5:8000)</pre>
 </table>
 </div>
 <p>What you were writing to one agent, sent or not yet, waits in its composer until you come back. While another agent needs you, the footer says so.</p>
-<p>An agent keeps a to-do list for the work in front of it, with its <code>todo</code> tool. Each task is to do, doing or done, and the agent writes the whole list each time it changes, so you see the list in the conversation as it stands. The list stays with the conversation: it is there again when the conversation is resumed, after a restart too. It also goes on the agent's card, so <code>yui ps</code> and the other agents see how far it has got and what it is doing now. A list holds up to 50 tasks of one line each.</p>
+<p>An agent keeps a to-do list for its work with the <code>todo</code> tool. Each task is to do, doing or done, and the agent writes the whole list each time. The list stays with the conversation, after a restart too. <code>alt+p</code> shows it in a panel at the top right.</p>
+<p>Its tile, <code>yui ps</code> and the other agents read how far it has got: <code>2 of 5 done</code>. A list holds up to 50 tasks of one line each.</p>
 <h2 id="agents-talking-to-each-other" class="section-title">Agents talking to each other</h2>
 <p>Each agent can see the others and write to them. It lists them with <code>agents</code> (the same cards <code>yui ps</code> shows) and sends with <code>message</code>: a note, a question, a request, a reply or a done. Each message is addressed to one agent, on a thread, and can refer to issues, branches or paths.</p>
 <p>A message never interrupts. It waits until the receiving agent's turn ends, then reaches the agent at the start of its next turn, all at once and labelled, in the conversation where you see it too. A question, a request or a reply to an agent with nothing to do starts its turn; a note or a done waits until it next works. An agent started by messages eight turns in a row stops and shows <em>needs-you</em> until you write to it.</p>
 <p>Who sent a message is proven, so no agent can claim to be another. What it says is not trusted: a message is outside content to the agent receiving it, and a request carries no authority. Anything it asks for that needs your approval still shows a card. A message holds up to 256 KiB; past 4 KiB the agent sees the start and reads the rest when it needs it.</p>
+<h2 id="questions" class="section-title">Questions</h2>
+<p>An agent that needs your decision asks it on a card, with up to nine choices: a number answers, the arrows and <code>enter</code> choose, and anything you type is your answer instead. A reply that starts with a digit is begun with a space. Where several choices may be taken, a number or the space bar marks one and <code>enter</code> sends them all. From the board, the tile's number answers it. A question is yours: no approver is shown it, and no "always" covers it.</p>
+<h2 id="sub-agents" class="section-title">Sub-agents</h2>
+<p>An agent can hand a task to a sub-agent and wait for its answer. The sub-agent is an agent of its own, on the board, its card marked <code>↳</code> with the name of the one that started it; you can open it and answer its cards. It is given the task and nothing else of the conversation, and the sandbox its parent had when it started, the network only if the parent had it. While it works, its parent's call shows what it is doing. Stopping the parent stops it. Sub-agents start sub-agents of their own two levels down and no further.</p>
+<p>What a sub-agent answers is trusted as far as its own conversation: one that read a web page answers with outside content, and its parent's later sends are asked for.</p>
+<h2 id="memory" class="section-title">Memory</h2>
+<p>An agent can keep a short note for later conversations, for this project (its git repository) or for every project. A note is off when written. <code>ctrl+p</code>, then <em>Memory</em>, lists the notes that hold here: <code>enter</code> on one turns it on or off, edits it in the composer (<code>ctrl+g</code> opens your editor), or deletes it. One written while the agent had read outside content is marked so.</p>
+<p>The notes that are on are given to every agent working here, before the conversation. A change reaches a conversation the next time it starts, or after it has been idle ten minutes, never halfway through. They go in oldest first up to 8 KiB; the palette marks any left out past that. Turning a note on, editing and deleting are recorded as your decisions.</p>
 <h2 id="what-the-agent-may-do" class="section-title">What the agent may do</h2>
 <p>The agent works in a sandbox of its own. It sees the directory you started yui in, read-write; the system, read-only; and a home directory and a <code>/tmp</code> of its own, which last from one command to the next. It does not see your home directory, your other files, the machine's other programs, or the network, and it cannot use <code>doas</code>.</p>
 <p>Inside the sandbox the agent needs no permission: it reads, writes and runs commands, and each change shows in the conversation as it is made.</p>
@@ -290,6 +304,41 @@ args issue list -R *</pre>
 ]</pre>
 <p>Any program can add tools of its own. One placed in <code>~/.config/yui/plugins</code> is started with yui's agents and speaks JSON, one message per line, on its standard input and output.</p>
 <p>A plugin is held like a command. Its own process, which sees each call before it runs, gets a sandbox of its own: the system read-only, a directory under yui's state, and no network. Each call of one of its tools runs inside the conversation's sandbox, seeing what the agent sees and reaching the network only when the agent was granted it; what it answers then counts as outside content, as a networked command's output does. Where yui cannot make a sandbox, a plugin runs as you, and its tools count as reaching outward.</p>
+<p>A plugin reads its own configuration, <code>~/.config/yui/NAME</code> and the directory <code>NAME.d</code>, and nothing else of yours.</p>
+<p>A plugin may also keep a little state for each conversation, draw a panel, and put one line on the agent's card. yuid keeps the state in magi and hands it back with each call. The plugin never reaches magi itself.</p>
+<p>A panel is a title, a list and lines. yui draws it in its own colours and shows nothing else a plugin sends. <code>alt+p</code> shows or hides the panels, and <code>ctrl+p</code>, then <em>Panels</em>, chooses which. A plugin may read the agent's finished reply and ask for it again, once a turn at most, or warn you.</p>
+<h3 id="fetching-pages" class="sub-title">Fetching pages</h3>
+<p>The <code>fetch</code> tool reads a web page as text. HTML becomes plain lines, and JSON and text arrive as they are. A conversation without the network asks you first, on a card, and <code>a</code> covers it from then on. What a page says counts as outside content. <code>network off</code> refuses every fetch.</p>
+<h3 id="plain-writing" class="sub-title">Plain writing</h3>
+<p><code>terse</code> holds the prose an agent writes to short, plain rules. It checks prose files and the comments in code before a write lands, and the agent's replies. It skips code.</p>
+<ul class="list">
+<li>A sentence of more than 20 words is a hint, and of more than 25, a fault. A paragraph of more than 4 sentences is a hint, and of more than 6, a fault.</li>
+<li>Faults: a progressive or perfect tense, a contraction, a semicolon and a phrasal verb such as <code>set up</code>. A long word with a short one, such as <code>utilize</code> for <code>use</code>, is a fault too.</li>
+<li>Hints: the passive, a hedge such as <code>probably</code>, and words that sell, such as <code>seamless</code>.</li>
+</ul>
+<p>A fault refuses the write and lists what to fix, or asks for the reply again. To silence one fault, write <code>terse: off RULE reason</code> on its line or the line before.</p>
+<p>terse runs once <code>~/.config/yui/terse</code> exists, even empty. Each line there sets one thing:</p>
+<pre class="term term__body">off style/hedge           # a rule not checked
+soft verb/perfect         # a fault made a hint
+word in lieu of = instead # one more word
+words mine                # a list in ~/.config/yui/terse.d/mine, one "long = short" a line
+replies off               # replies not checked</pre>
+<p>Its words are Nerv's own. A list of your own stays where it is. terse reads it and copies nothing.</p>
+<h2 id="mcp-servers" class="section-title">MCP servers</h2>
+<p>An MCP server gives yui's agents its tools. Declare one in a file of its own in <code>~/.config/yui/mcp</code>, named for the server:</p>
+<pre class="term term__body">run /usr/bin/github-mcp-server stdio   # the program and its arguments
+env GITHUB_HOST=github.example.org     # its environment
+network                                 # it may reach the network
+read ~/src/notes                        # what it may read
+write ~/src/scratch                     # and write
+auto search_code get_file_contents      # its tools that need no card
+timeout 60                              # seconds a call may take</pre>
+<p>yuid starts each server when it starts, and its tools are offered as <code>server.tool</code>. A server runs in a sandbox of its own: it sees the system, a directory of its own under yui's state, and what its file names, and nothing else of yours. It has the network only when its file says <code>network</code>, and never while the machine's policy says <code>network off</code>. A protected path is not there for it either.</p>
+<p>Each of its tools asks on a card unless the file names it <code>auto</code>. What a server with the network answers counts as outside content, and once a conversation holds outside content its calls to such a server go to the approver, as any send does. A server that stops is started again once; if it stops again it is left down, and <em>Tools</em> says so until yuid is restarted. A call that runs past the file's <code>timeout</code>, or that you stop with <code>esc</code>, is cancelled at the server.</p>
+<p>The file is followed only while it is yours and no one else can write it. A line yui does not understand leaves that server down, naming the file and the line. Only servers that speak over standard input and output are started; a remote service is reached through a local server.</p>
+<h2 id="switching-tools" class="section-title">Switching tools</h2>
+<p><code>ctrl+p</code>, then <em>Tools</em>, lists every tool, each plugin and each MCP server with its tools, and whether each is on. Enter on one switches it on or off for this machine, or for this conversation only, which is kept with the conversation and overrides the machine. A tool switched off is not offered to the agent, and a call to it is refused, saying so. Switching a plugin or a server off switches all its tools off.</p>
+<p>The machine's switches are kept in <code>~/.config/yui/tools</code>, <code>off NAME</code> or <code>on NAME</code> to a line, which you may also edit by hand; a change holds from the next request. What the machine's policy denies stays off, whatever is switched. <code>approve</code> cannot be switched off: the approver decides with it, so choose the approver instead.</p>
 <h2 id="copy-and-paste" class="section-title">Copy and paste</h2>
 <p>Drag across the conversation to copy; the text goes to your clipboard, over SSH and through tmux, without the frames around it. <code>ctrl+y</code> copies the agent's last answer, and <code>ctrl+p</code> copies the last code block or the last command's output. Hold shift to use your terminal's own selection instead.</p>
 <p>A file dropped onto the terminal, or a pasted path, is attached to your message. A long paste is shown as a single line, <code>[paste 1 · 240 lines]</code>, and sent whole.</p>
@@ -317,6 +366,9 @@ args issue list -R *</pre>
 </tr>
 <tr>
 <td><code>alt+0</code></td><td>the board; <code>alt+1</code> … <code>alt+9</code>, <code>alt+h</code>, <code>alt+l</code>, <code>alt+n</code> and <code>alt+b</code> move between agents</td>
+</tr>
+<tr>
+<td><code>alt+p</code></td><td>the plugins' panels, shown or hidden</td>
 </tr>
 <tr>
 <td><code>@</code></td><td>attach a file</td>

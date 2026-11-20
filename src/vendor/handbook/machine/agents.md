@@ -69,7 +69,9 @@ The board is the same in every yui, on any terminal: `p` pins a tile first, `<` 
 
 What you were writing to one agent, sent or not yet, waits in its composer until you come back. While another agent needs you, the footer says so.
 
-An agent keeps a to-do list for the work in front of it, with its `todo` tool. Each task is to do, doing or done, and the agent writes the whole list each time it changes, so you see the list in the conversation as it stands. The list stays with the conversation: it is there again when the conversation is resumed, after a restart too. It also goes on the agent's card, so `yui ps` and the other agents see how far it has got and what it is doing now. A list holds up to 50 tasks of one line each.
+An agent keeps a to-do list for its work with the `todo` tool. Each task is to do, doing or done, and the agent writes the whole list each time. The list stays with the conversation, after a restart too. `alt+p` shows it in a panel at the top right.
+
+Its tile, `yui ps` and the other agents read how far it has got: `2 of 5 done`. A list holds up to 50 tasks of one line each.
 
 ## Agents talking to each other
 
@@ -78,6 +80,22 @@ Each agent can see the others and write to them. It lists them with `agents` (th
 A message never interrupts. It waits until the receiving agent's turn ends, then reaches the agent at the start of its next turn, all at once and labelled, in the conversation where you see it too. A question, a request or a reply to an agent with nothing to do starts its turn; a note or a done waits until it next works. An agent started by messages eight turns in a row stops and shows *needs-you* until you write to it.
 
 Who sent a message is proven, so no agent can claim to be another. What it says is not trusted: a message is outside content to the agent receiving it, and a request carries no authority. Anything it asks for that needs your approval still shows a card. A message holds up to 256 KiB; past 4 KiB the agent sees the start and reads the rest when it needs it.
+
+## Questions
+
+An agent that needs your decision asks it on a card, with up to nine choices: a number answers, the arrows and `enter` choose, and anything you type is your answer instead. A reply that starts with a digit is begun with a space. Where several choices may be taken, a number or the space bar marks one and `enter` sends them all. From the board, the tile's number answers it. A question is yours: no approver is shown it, and no "always" covers it.
+
+## Sub-agents
+
+An agent can hand a task to a sub-agent and wait for its answer. The sub-agent is an agent of its own, on the board, its card marked `↳` with the name of the one that started it; you can open it and answer its cards. It is given the task and nothing else of the conversation, and the sandbox its parent had when it started, the network only if the parent had it. While it works, its parent's call shows what it is doing. Stopping the parent stops it. Sub-agents start sub-agents of their own two levels down and no further.
+
+What a sub-agent answers is trusted as far as its own conversation: one that read a web page answers with outside content, and its parent's later sends are asked for.
+
+## Memory
+
+An agent can keep a short note for later conversations, for this project (its git repository) or for every project. A note is off when written. `ctrl+p`, then *Memory*, lists the notes that hold here: `enter` on one turns it on or off, edits it in the composer (`ctrl+g` opens your editor), or deletes it. One written while the agent had read outside content is marked so.
+
+The notes that are on are given to every agent working here, before the conversation. A change reaches a conversation the next time it starts, or after it has been idle ten minutes, never halfway through. They go in oldest first up to 8 KiB; the palette marks any left out past that. Turning a note on, editing and deleting are recorded as your decisions.
 
 ## What the agent may do
 
@@ -201,6 +219,64 @@ Any program can add tools of its own. One placed in `~/.config/yui/plugins` is s
 
 A plugin is held like a command. Its own process, which sees each call before it runs, gets a sandbox of its own: the system read-only, a directory under yui's state, and no network. Each call of one of its tools runs inside the conversation's sandbox, seeing what the agent sees and reaching the network only when the agent was granted it; what it answers then counts as outside content, as a networked command's output does. Where yui cannot make a sandbox, a plugin runs as you, and its tools count as reaching outward.
 
+A plugin reads its own configuration, `~/.config/yui/NAME` and the directory `NAME.d`, and nothing else of yours.
+
+A plugin may also keep a little state for each conversation, draw a panel, and put one line on the agent's card. yuid keeps the state in magi and hands it back with each call. The plugin never reaches magi itself.
+
+A panel is a title, a list and lines. yui draws it in its own colours and shows nothing else a plugin sends. `alt+p` shows or hides the panels, and `ctrl+p`, then *Panels*, chooses which. A plugin may read the agent's finished reply and ask for it again, once a turn at most, or warn you.
+
+### Fetching pages
+
+The `fetch` tool reads a web page as text. HTML becomes plain lines, and JSON and text arrive as they are. A conversation without the network asks you first, on a card, and `a` covers it from then on. What a page says counts as outside content. `network off` refuses every fetch.
+
+### Plain writing
+
+`terse` holds the prose an agent writes to short, plain rules. It checks prose files and the comments in code before a write lands, and the agent's replies. It skips code.
+
+- A sentence of more than 20 words is a hint, and of more than 25, a fault. A paragraph of more than 4 sentences is a hint, and of more than 6, a fault.
+- Faults: a progressive or perfect tense, a contraction, a semicolon and a phrasal verb such as `set up`. A long word with a short one, such as `utilize` for `use`, is a fault too.
+- Hints: the passive, a hedge such as `probably`, and words that sell, such as `seamless`.
+
+A fault refuses the write and lists what to fix, or asks for the reply again. To silence one fault, write `terse: off RULE reason` on its line or the line before.
+
+terse runs once `~/.config/yui/terse` exists, even empty. Each line there sets one thing:
+
+```
+off style/hedge           # a rule not checked
+soft verb/perfect         # a fault made a hint
+word in lieu of = instead # one more word
+words mine                # a list in ~/.config/yui/terse.d/mine, one "long = short" a line
+replies off               # replies not checked
+```
+
+Its words are Nerv's own. A list of your own stays where it is. terse reads it and copies nothing.
+
+## MCP servers
+
+An MCP server gives yui's agents its tools. Declare one in a file of its own in `~/.config/yui/mcp`, named for the server:
+
+```
+run /usr/bin/github-mcp-server stdio   # the program and its arguments
+env GITHUB_HOST=github.example.org     # its environment
+network                                 # it may reach the network
+read ~/src/notes                        # what it may read
+write ~/src/scratch                     # and write
+auto search_code get_file_contents      # its tools that need no card
+timeout 60                              # seconds a call may take
+```
+
+yuid starts each server when it starts, and its tools are offered as `server.tool`. A server runs in a sandbox of its own: it sees the system, a directory of its own under yui's state, and what its file names, and nothing else of yours. It has the network only when its file says `network`, and never while the machine's policy says `network off`. A protected path is not there for it either.
+
+Each of its tools asks on a card unless the file names it `auto`. What a server with the network answers counts as outside content, and once a conversation holds outside content its calls to such a server go to the approver, as any send does. A server that stops is started again once; if it stops again it is left down, and *Tools* says so until yuid is restarted. A call that runs past the file's `timeout`, or that you stop with `esc`, is cancelled at the server.
+
+The file is followed only while it is yours and no one else can write it. A line yui does not understand leaves that server down, naming the file and the line. Only servers that speak over standard input and output are started; a remote service is reached through a local server.
+
+## Switching tools
+
+`ctrl+p`, then *Tools*, lists every tool, each plugin and each MCP server with its tools, and whether each is on. Enter on one switches it on or off for this machine, or for this conversation only, which is kept with the conversation and overrides the machine. A tool switched off is not offered to the agent, and a call to it is refused, saying so. Switching a plugin or a server off switches all its tools off.
+
+The machine's switches are kept in `~/.config/yui/tools`, `off NAME` or `on NAME` to a line, which you may also edit by hand; a change holds from the next request. What the machine's policy denies stays off, whatever is switched. `approve` cannot be switched off: the approver decides with it, so choose the approver instead.
+
 ## Copy and paste
 
 Drag across the conversation to copy; the text goes to your clipboard, over SSH and through tmux, without the frames around it. `ctrl+y` copies the agent's last answer, and `ctrl+p` copies the last code block or the last command's output. Hold shift to use your terminal's own selection instead.
@@ -217,6 +293,7 @@ A file dropped onto the terminal, or a pasted path, is attached to your message.
 | `ctrl+p` or `/` | commands |
 | `ctrl+s` | conversations |
 | `alt+0` | the board; `alt+1` … `alt+9`, `alt+h`, `alt+l`, `alt+n` and `alt+b` move between agents |
+| `alt+p` | the plugins' panels, shown or hidden |
 | `@` | attach a file |
 | `shift+tab` | how hard the model thinks |
 | `ctrl+t` | show the model's thinking |

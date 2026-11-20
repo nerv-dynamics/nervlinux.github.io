@@ -216,6 +216,7 @@ add rule inet nerv services tcp dport 8080 accept
 $ doas systemctl reload nerv-firewall</pre>
 <p>Open it to one network only by naming it in the rule:</p>
 <pre class="term term__body">add rule inet nerv services ip saddr 192.168.1.0/24 tcp dport 8080 accept</pre>
+<p>A package whose server runs only when you ask, a game's, offers its port without opening it: the rule waits in <code>/usr/lib/nerv-firewall.d/available/</code>, and linking it into <code>/etc/nerv-firewall.d/</code> and reloading opens it, as <a href="/handbook/machine/gaming/#hosting-a-game">Hosting a game</a> does.</p>
 <p>Your files are loaded after the packages' and an update keeps them. The firewall is the <code>inet nerv</code> table and nothing else, so a container runtime or a VPN can add tables of its own beside it; <code>doas nft list table inet nerv</code> shows what is open.</p>
 <h2 id="logging-in-over-ssh" class="section-title">Logging in over SSH</h2>
 <p><code>sshd</code> runs on port 22, and the firewall lets it through. Log in with a key:</p>

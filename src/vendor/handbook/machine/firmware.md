@@ -87,6 +87,19 @@ A component the firmware refused says why, in the firmware's own terms: a wrong 
 
 Before the reboot, `cage firmware cancel` removes the staged update and tells the firmware not to look for one.
 
+## Firmware settings
+
+Some firmware keeps a setting its setup screen does not show. On an N1X laptop, the firmware sets aside 62.5 GiB of the machine's 128 GB for the GPU, the way Windows uses it, and Linux boots with the rest. On Linux the GPU needs well under 4 GiB of it.
+
+The platform says which settings Nerv wants, and `cage update` writes them along with the new slot, so they take effect at the same reboot. To write them now:
+
+```
+$ doas cage firmware set
+:: GPU memory reservation: set, applies at the next boot
+```
+
+`cage firmware` lists each setting and its state. A setting is written only over the exact value the firmware ships. Anything else, such as a different firmware release or a value you chose yourself, is reported and left alone. A setting lives in the firmware, so reinstalling or switching slots does not change it back.
+
 ## Where updates come from
 
 Releases come from LVFS, the Linux Vendor Firmware Service, where vendors publish them. cage believes LVFS's list of releases only once its signature checks against the LVFS certificate built into cage; each download must match the checksum in that signed list, and so must the update inside it. The update itself is signed by its vendor, and the firmware checks that signature before it applies anything.

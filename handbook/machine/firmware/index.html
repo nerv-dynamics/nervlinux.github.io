@@ -136,6 +136,7 @@
 <li><a href="#updating">Updating</a></li>
 <li><a href="#after-the-reboot">After the reboot</a></li>
 <li><a href="#taking-it-back">Taking it back</a></li>
+<li><a href="#firmware-settings">Firmware settings</a></li>
 <li><a href="#where-updates-come-from">Where updates come from</a></li>
 </ol>
 </li>
@@ -207,6 +208,12 @@ firmware update 20261106T143144Z (staged in slot @nerv):
 <p>A component the firmware refused says why, in the firmware's own terms: a wrong version, a failed signature check, a lost power supply.</p>
 <h2 id="taking-it-back" class="section-title">Taking it back</h2>
 <p>Before the reboot, <code>cage firmware cancel</code> removes the staged update and tells the firmware not to look for one.</p>
+<h2 id="firmware-settings" class="section-title">Firmware settings</h2>
+<p>Some firmware keeps a setting its setup screen does not show. On an N1X laptop, the firmware sets aside 62.5 GiB of the machine's 128 GB for the GPU, the way Windows uses it, and Linux boots with the rest. On Linux the GPU needs well under 4 GiB of it.</p>
+<p>The platform says which settings Nerv wants, and <code>cage update</code> writes them along with the new slot, so they take effect at the same reboot. To write them now:</p>
+<pre class="term term__body">$ doas cage firmware set
+:: GPU memory reservation: set, applies at the next boot</pre>
+<p><code>cage firmware</code> lists each setting and its state. A setting is written only over the exact value the firmware ships. Anything else, such as a different firmware release or a value you chose yourself, is reported and left alone. A setting lives in the firmware, so reinstalling or switching slots does not change it back.</p>
 <h2 id="where-updates-come-from" class="section-title">Where updates come from</h2>
 <p>Releases come from LVFS, the Linux Vendor Firmware Service, where vendors publish them. cage believes LVFS's list of releases only once its signature checks against the LVFS certificate built into cage; each download must match the checksum in that signed list, and so must the update inside it. The update itself is signed by its vendor, and the firmware checks that signature before it applies anything.</p>
       </div>
