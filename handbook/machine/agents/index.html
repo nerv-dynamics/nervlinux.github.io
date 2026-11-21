@@ -137,6 +137,7 @@
 <li><a href="#sub-agents">Sub-agents</a></li>
 <li><a href="#memory">Memory</a></li>
 <li><a href="#earlier-conversations">Earlier conversations</a></li>
+<li><a href="#long-conversations">Long conversations</a></li>
 <li><a href="#the-handbook">The handbook</a></li>
 <li><a href="#what-the-agent-may-do">What the agent may do</a></li>
 <li><a href="#an-agent-that-approves-for-the-others">An agent that approves for the others</a></li>
@@ -147,6 +148,7 @@
 <li><a href="#tools-and-guards">Tools and guards</a></li>
 <li><a href="#mcp-servers">MCP servers</a></li>
 <li><a href="#switching-tools">Switching tools</a></li>
+<li><a href="#telegram">Telegram</a></li>
 <li><a href="#copy-and-paste">Copy and paste</a></li>
 <li><a href="#keys">Keys</a></li>
 </ol>
@@ -179,6 +181,7 @@ $ (umask 077; cat &gt; ~/.config/yui/keys/10.0.0.5:8000)</pre>
 <h2 id="conversations" class="section-title">Conversations</h2>
 <p><code>yui</code> in a directory opens the conversation last held there, with everything said in it on screen. <code>yui new</code> starts another. Nothing is written into the directory: the machine keeps conversations itself, in <a href="/handbook/machine/what-the-machine-remembers/">MAGI</a>, where only you can read them.</p>
 <p><code>ctrl+s</code> lists every conversation, the most recently used first, with the last exchange of the one under the cursor. Choosing one moves yui into the directory it was held in. <code>yui sessions</code> prints the same list, with each conversation's name.</p>
+<p><code>yui show NAME</code> prints a conversation as plain text, for a script or an agent elsewhere: its last five messages and what ran between them, each output cut to a few lines. <code>--full</code> prints all of it, whole, and <code>--follow</code> stays and prints it as it goes on. <code>yui send NAME TEXT</code> asks it and prints the answer as it comes, until the turn ends, or until a question for you waits, which only you answer. What <code>send</code> asks counts as another agent's words, not yours: once it has written in a conversation, your standing grants no longer cover the agent's calls there.</p>
 <p><code>yui open NAME</code> opens the conversation NAME names: its name, the end of it, or words of its title, as long as only one conversation answers. Each terminal is a yui of its own, so one tmux window per conversation is <code>tmux new-window 'yui open build'</code>, <code>tmux new-window 'yui open review'</code>, and so on. Moving to another conversation in one window moves no other.</p>
 <p>Close the terminal while the agent works and it carries on. The next <code>yui</code> opens on the conversation as it is, a question it asked you still waiting. Two terminals can open the same conversation: both show everything, and either can answer.</p>
 <p><code>yui ps</code> shows what every agent is doing: <em>working</em>, <em>needs-you</em> when a question waits for you, <em>done-waiting</em> when it has finished and waits for the next message, or <em>blocked</em> when its turn failed. With each comes since when, the machine, the directory and branch it works in, and what it waits on or what you asked it. An agent working when the machine stopped is shown blocked until you open its conversation again. <code>yui ps --follow</code> stays open and prints an agent's line again each time it changes.</p>
@@ -227,7 +230,12 @@ $ (umask 077; cat &gt; ~/.config/yui/keys/10.0.0.5:8000)</pre>
 <p>Nothing of the notes is put in front of an agent. It is told how many it has, and searches them with its <code>recall</code> tool when its work calls for it: by the words it expects in them, then reading one whole. A change reaches a conversation the next time it starts, or after it has been idle ten minutes, never halfway through.</p>
 <p>A note is found only once it is on. <code>ctrl+p</code>, then <em>Memory</em>, lists the notes that hold here, with when an agent last read each: <code>enter</code> on one turns it on or off, edits it in the composer, its title on the first line (<code>ctrl+g</code> opens your editor), or deletes it. The first line of the palette chooses how notes are turned on: by you, one at a time, or as they are written. Either way, a note written while the agent had read outside content waits for you, and is marked so. Turning a note on, editing and deleting it, and the choice itself, are recorded as your decisions.</p>
 <h2 id="earlier-conversations" class="section-title">Earlier conversations</h2>
-<p>An agent searches earlier conversations on this machine with its <code>history</code> tool: what was asked, said, run and answered there, found by its words, then read a few turns around a hit. It searches this project's conversations unless asked for every project's. What it reads counts as it did where it was said: a page fetched there is outside content here too.</p>
+<p>An agent searches earlier conversations on this machine with its <code>history</code> tool: what was asked, said, run and answered there, found by its words, then read a few turns around a hit. It searches this project's conversations unless asked for every project's, and the turns of its own conversation that it is sent as a summary (below). What it reads counts as it did where it was said: a page fetched there is outside content here too.</p>
+<h2 id="long-conversations" class="section-title">Long conversations</h2>
+<p>A conversation can go on longer than a model can read at once. Before it gets there, yui has the model summarize it, beside the work and without stopping it, once a request fills 75% of what the model can read. From the next request on, the model is sent the summary in place of the conversation's start, then the messages you wrote in that part word for word, newest first, as many as fit in 24 KiB, then the names it used (issues, merge requests, commits, paths, addresses), and then the most recent part of the conversation as it was, about 10,000 to 25,000 tokens of it. Your last message is always sent whole. A line in the conversation says when it happens.</p>
+<p>You do not wait for a summary unless a request comes close to filling the model, at 92.5%, before the summary is written, or the model refuses a request as too long: then that request waits for it. If the model cannot write one, yui makes one from your messages, the names, and the previous summary. The next summary is written from the last one and what came after it. The whole conversation is still kept: <code>history</code> finds and reads any of it. The summary is kept with the conversation, so a conversation you come back to after a restart goes on from it.</p>
+<p>How much a model can read is what its server says (<code>max_model_len</code>, as vLLM gives it); for a server that says nothing, yui takes 128K tokens. A conversation with Claude is summarized by Claude Code itself.</p>
+<p><code>ctrl+p</code>, then <em>Context</em>, turns summarizing on or off and sets where it starts, from 50% to 90%; a request then waits from seven tenths of the way from there to the whole window. Starting later summarizes less often, so less is lost to summaries, and sends longer requests in between. The same picker switches the pruning strategies, which leave out what a conversation no longer needs: a call's output repeated by a later one, the middle of a very large output, a failure a later call got past, earlier reasoning, a failed call's arguments, and a file's earlier reads once it was read or changed again. What is left out can be recalled whole. The choices are kept in <code>~/.config/yui/context</code> and hold for every conversation from its next turn.</p>
 <h2 id="the-handbook" class="section-title">The handbook</h2>
 <p>This handbook is on the machine, in <code>/usr/share/doc/nerv/handbook</code>, as it stands for the software installed. An agent searches it with <code>nerv doc</code> and its words, and reads a section with <code>nerv doc read</code>, before guessing how something on Nerv works.</p>
 <h2 id="what-the-agent-may-do" class="section-title">What the agent may do</h2>
@@ -311,16 +319,17 @@ args issue list -R *</pre>
 <p>Claude Code's own memory and its reading of <code>CLAUDE.md</code> files are off in a conversation here. Claude is told of yui's <a href="#memory">memory</a> and searches it like any other model, so there is one memory, the one you decide on.</p>
 <h2 id="tools-and-guards" class="section-title">Tools and guards</h2>
 <p>Besides reading, writing and running commands, the agent has <code>nerv</code>, which answers what a model cannot know about this machine: which libc a program is built against, which package owns a file and whether it is Nerv's or Fedora's, which install profile brings a package in, and which slot is running.</p>
-<p>Guards stop calls that would do the wrong thing here and tell the agent what to do instead: <code>sudo</code> becomes <code>doas</code>, another distribution's package manager becomes <code>dnf</code>, bash syntax in a <code>/bin/sh</code> command becomes its POSIX form, and the agent never reboots the machine. Your own guards go in <code>~/.config/yui/guards.json</code>, a list of rules; a rule names a tool, a field and a match, and what to say:</p>
+<p>Guards stop calls that would do the wrong thing here and tell the agent what to do instead: <code>sudo</code> becomes <code>doas</code>, another distribution's package manager becomes <code>dnf</code>, bash syntax in a <code>/bin/sh</code> command becomes its POSIX form, and the agent never reboots the machine. Your own guards are a setting of the guards plugin (<code>ctrl+p</code>, then <em>Plugins</em>, then <em>guards</em>): a list of rules, where a rule names a tool, a field and a match, and what to say, and one of yui's own can be turned off:</p>
 <pre class="term term__body">[
   {"id": "no-npm", "tool": "run", "field": "command", "word": "npm", "say": "This project uses pnpm."},
   {"id": "sudo", "off": true}
 ]</pre>
 <p>Any program can add tools of its own. One placed in <code>~/.config/yui/plugins</code> is started with yui's agents and speaks JSON, one message per line, on its standard input and output.</p>
 <p>A plugin is held like a command. Its own process, which sees each call before it runs, gets a sandbox of its own: the system read-only, a directory under yui's state, and no network. Each call of one of its tools runs inside the conversation's sandbox, seeing what the agent sees and reaching the network only when the agent was granted it; what it answers then counts as outside content, as a networked command's output does. Where yui cannot make a sandbox, a plugin runs as you, and its tools count as reaching outward.</p>
-<p>A plugin reads its own configuration, <code>~/.config/yui/NAME</code> and the directory <code>NAME.d</code>, and nothing else of yours.</p>
+<p>A plugin is set up in the TUI. <code>ctrl+p</code>, then <em>Plugins</em>, lists each plugin that has settings, and enter on one shows them: on-off ones are switched, choices picked, text and secrets written in the composer (<code>enter</code> keeps it, an empty one goes back to the plugin's own, <code>esc</code> leaves it), and lists added to and taken from. yui keeps them in <code>~/.config/yui/settings</code>, readable by you alone, hands them to the plugin when it starts, and starts it again when one changes. A secret is never shown again, only whether it is set. What a plugin says is wrong with its settings is listed under them. A plugin reads nothing else of yours.</p>
 <p>A plugin may also keep a little state for each conversation, draw a panel, and put one line on the agent's card. yuid keeps the state in magi and hands it back with each call. The plugin never reaches magi itself.</p>
 <p>A panel is a title, a list and lines. yui draws it in its own colours and shows nothing else a plugin sends. <code>alt+p</code> shows or hides the panels, and <code>ctrl+p</code>, then <em>Panels</em>, chooses which. A plugin may read the agent's finished reply and ask for it again, once a turn at most, or warn you.</p>
+<p>A plugin may also be a channel: a way to reach conversations from somewhere else, a chat service, say. yuid starts the channel apart from the plugin's own process, with the network and the plugin's directory, and keeps it running. Each chat it holds is a client of its own, seeing a conversation as a terminal does, but allowed less: it opens conversations, asks them, stops them, and answers the agent's questions and only the cards an approver agent could answer too. Grants, the policy and the sandbox stay with you, at the terminal, whatever the plugin is. A channel cannot change its own settings: it can only ask you to add a line to one, saying why, and the question waits under the plugin in <em>Plugins</em>, and in a line in each open conversation, until you allow or refuse it. While a channel is ready, yuid does not exit when the terminals close; to have it running from login, <code>systemctl --user enable --now yui</code>.</p>
 <h3 id="fetching-pages" class="sub-title">Fetching pages</h3>
 <p>The <code>fetch</code> tool reads a web page as text. HTML becomes plain lines, and JSON and text arrive as they are. A conversation without the network asks you first, on a card, and <code>a</code> covers it from then on. What a page says counts as outside content. <code>network off</code> refuses every fetch.</p>
 <h3 id="plain-writing" class="sub-title">Plain writing</h3>
@@ -331,13 +340,12 @@ args issue list -R *</pre>
 <li>Hints: the passive, a hedge such as <code>probably</code>, and words that sell, such as <code>seamless</code>.</li>
 </ul>
 <p>A fault refuses the write and lists what to fix, or asks for the reply again. To silence one fault, write <code>terse: off RULE reason</code> on its line or the line before.</p>
-<p>terse runs once <code>~/.config/yui/terse</code> exists, even empty. Each line there sets one thing:</p>
+<p>terse checks nothing until it is turned on: <code>ctrl+p</code>, then <em>Plugins</em>, then <em>terse</em>, then <em>Checking</em>. Its <em>Rules</em> setting sets the rest, one thing a line:</p>
 <pre class="term term__body">off style/hedge           # a rule not checked
 soft verb/perfect         # a fault made a hint
 word in lieu of = instead # one more word
-words mine                # a list in ~/.config/yui/terse.d/mine, one "long = short" a line
 replies off               # replies not checked</pre>
-<p>Its words are Nerv's own. A list of your own stays where it is. terse reads it and copies nothing.</p>
+<p>Its words are Nerv's own; a <code>word</code> line adds one of yours.</p>
 <h2 id="mcp-servers" class="section-title">MCP servers</h2>
 <p>An MCP server gives yui's agents its tools. Declare one in a file of its own in <code>~/.config/yui/mcp</code>, named for the server. One that runs on this machine is declared by its program:</p>
 <pre class="term term__body">run /usr/bin/github-mcp-server stdio   # the program and its arguments
@@ -369,6 +377,37 @@ signed in to github</pre>
 <h2 id="switching-tools" class="section-title">Switching tools</h2>
 <p><code>ctrl+p</code>, then <em>Tools</em>, lists every tool, each plugin and each MCP server with its tools, and whether each is on. Enter on one switches it on or off for this machine, or for this conversation only, which is kept with the conversation and overrides the machine. A tool switched off is not offered to the agent, and a call to it is refused, saying so. Switching a plugin or a server off switches all its tools off.</p>
 <p>The machine's switches are kept in <code>~/.config/yui/tools</code>, <code>off NAME</code> or <code>on NAME</code> to a line, which you may also edit by hand; a change holds from the next request. What the machine's policy denies stays off, whatever is switched. <code>approve</code> cannot be switched off: the approver decides with it, so choose the approver instead.</p>
+<h2 id="telegram" class="section-title">Telegram</h2>
+<p>A conversation can be reached from a Telegram chat, through yui's own <code>telegram</code> channel. Make a bot with Telegram's BotFather, then give yui its token: <code>ctrl+p</code>, then <em>Plugins</em>, then <em>telegram</em>, then <em>Bot token</em>. To have yuid running from login, so the bot answers with no terminal open:</p>
+<pre class="term term__body">$ systemctl --user enable --now yui</pre>
+<p>Write to the bot. It answers with a short code, and asks you whether you may talk: the question appears under <em>telegram</em> in <em>Plugins</em>, naming the Telegram account and the same code. Check that it is the code on your phone and allow it; a name in Telegram is whatever its owner typed, and the code is what ties the question to your chat. From then on that account may talk to yui, and the bot says so. Once someone may talk, strangers are not answered at all, unless <em>Strangers may ask</em> says <em>always</em>.</p>
+<p>The other settings say where the chat goes:</p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">setting</th><th scope="col">what it says</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><em>Conversation</em></td><td>the conversation the chat is: its name, the end of it, or words of its title. Without it, the last one held in <em>Directory</em></td>
+</tr>
+<tr>
+<td><em>Directory</em></td><td>where a new conversation is started; your home directory without it</td>
+</tr>
+<tr>
+<td><em>Endpoint</em>, <em>Model</em></td><td>what a new conversation talks to; this machine's S2 without them</td>
+</tr>
+<tr>
+<td><em>Cards in the chat</em></td><td><code>delegable</code>, the cards an approver agent could answer, or <code>none</code>; questions always</td>
+</tr>
+<tr>
+<td><em>Who may talk</em></td><td>the Telegram accounts, a user id and a name a line; allowing a question adds one</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>What you write in the chat is asked as if you typed it in the terminal, and the answer appears as it is written, with a line for each tool the agent runs. The terminal shows the same conversation, and the chat shows what was asked from the terminal. A message sent while the agent works goes when its turn ends. <code>/stop</code> ends the turn, <code>/new</code> starts a new conversation, <code>/open WORDS</code> opens the one the words name, and <code>/status</code> says which one this is. A reply too long for a few messages also comes as a file. A text file you send is read, as outside content, since anyone could have written it; voice notes and pictures are not read.</p>
+<p>A question the agent asks comes with its choices as buttons, and whatever you write while it waits is your answer. A card the agent raises comes with <em>Allow</em>, <em>Always</em> and <em>Refuse</em> when it is one an approver agent could answer; any other says to answer it in the terminal. Telegram carries the chat and can read it, which is why grants never go through it. Only private chats are answered: a group the bot is added to is ignored.</p>
 <h2 id="copy-and-paste" class="section-title">Copy and paste</h2>
 <p>Drag across the conversation to copy; the text goes to your clipboard, over SSH and through tmux, without the frames around it. <code>ctrl+y</code> copies the agent's last answer, and <code>ctrl+p</code> copies the last code block or the last command's output. Hold shift to use your terminal's own selection instead.</p>
 <p>A file dropped onto the terminal, or a pasted path, is attached to your message. A long paste is shown as a single line, <code>[paste 1 · 240 lines]</code>, and sent whole.</p>
