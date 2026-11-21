@@ -60,14 +60,23 @@ A window's own minimize button, or a click on its icon in the taskbar while it h
 
 ## Noctalia
 
-Noctalia is the shell around your windows: the bar, the launcher, notifications, the wallpaper and the lock screen. Its Settings panel changes it, and writes what you choose to `~/.config/noctalia/noctalia.toml`. It comes in Myelin, Nerv's colours, set in Nerv's own typeface, Ashinoko.
+Noctalia is the shell around your windows: the bar, the launcher, notifications, the wallpaper and the lock screen. It comes in Myelin, Nerv's colours, set in Nerv's own typeface, Ashinoko, and dark.
 
-Umbriel's borders, title bars and overview wear the same colours, and change with them when the shell switches between dark and light. The shell writes them to `~/.config/umbriel/noctalia.toml`, which Umbriel's config includes. An account made before the desktop did this gets them by adding this to `~/.config/noctalia/noctalia.toml`, with `"noctalia.toml"` in the `files` list under `[include.optional]` in `~/.config/umbriel/config.toml`:
+Nerv's settings for it are in `/etc/xdg/noctalia/nerv.toml`, which the shell reads first, for every account, old or new. What you choose in its Settings panel is saved in `~/.local/state/noctalia/settings.toml`, and anything you put in `~/.config/noctalia/` yourself, and both win over Nerv's. An update to the desktop reaches your account without touching either.
+
+Umbriel's borders, title bars and overview wear the same colours, and change with them when the shell switches between dark and light. The shell writes them to `~/.config/umbriel/noctalia.toml`, which Umbriel's config includes when `"noctalia.toml"` is in the `files` list under `[include.optional]` in `~/.config/umbriel/config.toml`, as it is for every account the desktop made.
+
+## Light and dark
+
+The desktop is dark, and the shell's dark or light mode is every program's. Programs ask the desktop which one it is, through the desktop portal, and are told when it changes, so Browser and GTK 4 programs already open turn with the shell, in Myelin's accent colour for that mode. Choosing light, dark or automatic is done in Noctalia's Settings panel or the control center, and stays chosen.
+
+Before the shell has said anything, at a first login or in a program started before it, everything is dark: the portal answers dark, and GTK's machine-wide settings in `/etc/xdg/gtk-3.0` and `/etc/xdg/gtk-4.0` choose the dark theme. The login screen, Luciole and foot start dark too. The shell writes the mode and the accent to `~/.local/state/nerv-portal-settings/appearance` whenever either changes.
+
+To see what programs are told, ask the portal; `1` is dark and `2` is light:
 
 ```
-[theme.templates.user.umbriel]
-input_path = "/usr/share/noctalia/assets/templates/umbriel/umbriel.toml"
-output_path = "$XDG_CONFIG_HOME/umbriel/noctalia.toml"
+$ busctl --user call org.freedesktop.portal.Desktop /org/freedesktop/portal/desktop org.freedesktop.portal.Settings ReadOne ss org.freedesktop.appearance color-scheme
+v u 1
 ```
 
 ## The bar
@@ -102,7 +111,7 @@ The layout and displays buttons are Noctalia plugins, and they come installed wi
 
 Browser is the web browser that comes with the desktop: `browser` from a terminal, *Browser* in the launcher. It is built from Firefox's source, so pages work as they do in Firefox, and it runs on Nerv's own C library and allocator. It is not called Firefox, because Mozilla's name and logos belong to Mozilla's own builds.
 
-It follows the desktop's light or dark scheme in Myelin's colours, and pages are shown in the same scheme. The window is two rows: the tabs, ending in the window's buttons, and the address bar with back, forward, reload, downloads and the extensions menu. Toolbars hide only in fullscreen. The interface is set in Ashinoko, and so is any page that does not choose its own fonts. A new tab is a blank page with the cursor in the address bar.
+It follows the desktop's [light or dark](#light-and-dark) scheme in Myelin's colours, and pages are shown in the same scheme; an open window changes when the shell does. About Browser opens over the window it came from. The window is two rows: the tabs, ending in the window's buttons, and the address bar with back, forward, reload, downloads and the extensions menu. Toolbars hide only in fullscreen. The interface is set in Ashinoko, and so is any page that does not choose its own fonts. A new tab is a blank page with the cursor in the address bar.
 
 It starts where you left off: the last session's tabs come back, and each loads when you first look at it. Searches go to DuckDuckGo.
 
@@ -118,13 +127,7 @@ Luciole is the file manager: the launcher finds it as *Luciole*, and `luciole` s
 
 Other programs use it too. Browser's Open and Save dialogs are Luciole's, as are those of any program that asks the desktop for one, and "Show in folder" in a browser opens the folder in Luciole.
 
-`Ctrl+,` opens its settings, which it keeps in `~/.config/luciole/`. Its colours are the desktop's: the shell writes them to `~/.config/luciole/colors.toml` whenever its palette changes. An account made before Luciole came with the desktop gets them by adding this to `~/.config/noctalia/noctalia.toml`:
-
-```
-[theme.templates.user.luciole]
-input_path = "/usr/share/luciole/templates/colors.toml"
-output_path = "$XDG_CONFIG_HOME/luciole/colors.toml"
-```
+`Ctrl+,` opens its settings, which it keeps in `~/.config/luciole/`. Its colours are the desktop's: the shell writes them to `~/.config/luciole/colors.toml` whenever its palette changes.
 
 ## X11 programs
 
@@ -149,9 +152,14 @@ A program may hold power-saver or performance while it runs, and the bar shows t
 
 ## GTK programs
 
-GTK programs, GTK 3 and GTK 4 alike, come in Myelin and in Ashinoko Sans, dark or light with the shell. The shell writes their colours to `noctalia.css` and their settings to `settings.ini` in `~/.config/gtk-3.0` and `~/.config/gtk-4.0` whenever its palette or mode changes, and a program opened after a change takes the new mode. `gtk.css` in the same folders is yours: it imports the colours, and CSS you add below that line applies on top of them.
+GTK programs, GTK 3 and GTK 4 alike, come in Myelin and in Ashinoko Sans, dark or light with the shell. The shell writes their colours to `noctalia.css` and their settings to `settings.ini` in `~/.config/gtk-3.0` and `~/.config/gtk-4.0` whenever its palette or mode changes. A GTK 4 program already open turns with the shell, since it also asks the desktop for [light or dark](#light-and-dark); a GTK 3 program takes the new mode when it is next opened. `gtk.css` in the same folders is yours: it imports the colours, and CSS you add below that line applies on top of them.
 
-`settings.ini` is the shell's and is written again on every change. To set something of your own there, copy `/usr/share/nerv-noctalia-config/gtk-settings.ini` into `~/.config/noctalia/`, edit the copy, and point `input_path` under `[theme.templates.user.gtk-settings]` in `~/.config/noctalia/noctalia.toml` at it.
+`settings.ini` is the shell's and is written again on every change. To set something of your own there, copy `/usr/share/nerv-noctalia-config/gtk-settings.ini` into `~/.config/noctalia/`, edit the copy, and point the shell at it in `~/.config/noctalia/noctalia.toml`, which wins over Nerv's settings:
+
+```
+[theme.templates.user.gtk-settings]
+input_path = "~/.config/noctalia/gtk-settings.ini"
+```
 
 ## Icons
 

@@ -40,48 +40,49 @@ A container gets the GPU by being handed the same socket: [The GPU in a containe
 Run `axon` with no arguments:
 
 ```tui axon
- axon   fleet of 1 · 1 answering · 1 GPUs · 19% busy · 18.1/121.8 GiB in use                       every 2 s · ? keys
-╭ ● nerv-1 ────────────────────────────── this machine ╮╭ nerv-1 ────────────────────────────────────── this machine ╮
-│ cpu ████████  99%  51°C  up 1h 9m  driver 620.70.06  ││  1 gpus   2 sessions   3 links   4 machine                 │
-│ 0 GB10       ▄▅▁▃▃▂▃▃▃▂  19%  18.1/121.8G    8W  47° ││                                                            │
-╰──────────────────────────────────────────────────────╯│ GPU 0  NVIDIA GB10                                         │
-                                                        │ GPU-00000000-0000-0000-0000-000000000000 ·                 │
-  no other machine is enrolled here — e edits           │ 0000000F:01:00.0 · driver 620.70.06 · CUDA 13.5            │
-  ~/.config/axon/targets                                │                                                            │
-                                                        │ utilisation 19%   memory controller 0%                     │
-                                                        │                        ▆▅▁  ▆▆▆▆        ▁  ▂     ▁         │
-                                                        │  ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▆▇▇█▇███▆▇█████▁▁███▆▅█▇▅█▆█▅▆▇█▁▄▄▄▅▅▄▃ │
-                                                        │                                                            │
-                                                        │ memory 18.1 of 121.8 GiB  15%  · 103.7 GiB free            │
-                                                        │                                                            │
-                                                        │  ▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂▂ │
-                                                        │                                                            │
-                                                        │ power 8 W ▄▄▄▄▄▄▄▄   temperature 47 °C ▄▄▄▄▄▄▄▄            │
-                                                        │ mode  P0 · compute Default · persistence off · display on  │
-                                                        │ compute  CC 12.1 · 48 SM · FP64 1:65536 · 121.8 GiB        │
-                                                        │                                                            │
-                                                        │ processes                                                  │
-                                                        │      PID  T     MEMORY  PROGRAM                            │
-                                                        │     1214  C   56.7 MiB  /usr/libexec/axon/axon-vendor      │
-                                                        │     1468  C   68.9 MiB  /usr/libexec/axon/axon-vendor      │
-                                                        │   280629  C  468.3 MiB  /usr/libexec/axon/axon-vendor      │
-                                                        │     1214  G   56.7 MiB  /usr/libexec/axon/axon-vendor      │
-                                                        │     1468  G   68.9 MiB  /usr/libexec/axon/axon-vendor      │
-                                                        │   280629  G  468.3 MiB  /usr/libexec/axon/axon-vendor      │
-                                                        │   T is the context: C compute, G graphics. Named on the ma │
-                                                        ╰────────────────────────────────────────────────────────────╯
- ↑↓ machine  ←→ gpu  ⏎ page  1-4 pages  s shell on gpu  e targets  ? keys  q quit
+ axon   1 machine · 1 answering · 1 GPU · 0% busy · 80.8 GiB free                                    every 2 s · ? keys
+╭ GPUs ────────────────────────────────────────────────────────────────────────────────────────── best place first · o ╮
+│     MACHINE GPU    BUSY                          FREE MEMORY           POWER TEMP  USING IT                          │
+│ ▶ ● nerv-1 0 GB10            ▁▁▁▁▁▁▁▁▁▁▁▁▁   0% ▕███▍░░░░░░▏   81 GiB   5 W  46°  greeter                            │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭ nerv-1 · GPU 0 · NVIDIA GB10 ────────────────────────────────────────────────────────────────────────── this machine ╮
+│  1 gpus   2 sessions   3 links   4 machine                                                                           │
+│                                                                                                                      │
+│ driver 620.70.06 · CUDA 13.5 · P8 · compute Default · persistence off · display off                                  │
+│ GPU-00000000-0000-0000-0000-000000000000 · 0000000F:01:00.0                                                          │
+│                                                                                                                      │
+│ busy 0%   memory controller 0%                                                                                       │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                                      │
+│                                                                                                              ⢀⣀⣀⣀⣀⣀⣀ │
+│                                                                                                                      │
+│ memory 41.0 of 121.8 GiB  34%  · 80.8 GiB free                                                                       │
+│                                                                                                                      │
+│                                                                                                              ⢠⣴⣤⣶⣶⣶⣶ │
+│                                                                                                                      │
+│ power 5 W    ▆▇▇▆▇▆▇▇▇▇▇▇▇   temperature 46 °C    ▄▄▄▄▄▄▄▄▄▄▄▄▄                                                      │
+│                                                                                                                      │
+│ using it                                                                                                             │
+│   greeter                                                                                                            │
+│                                                                                                                      │
+│ processes                                                                                                            │
+│    PID  T    MEMORY  PROGRAM                                                                                         │
+│   1138  C  32.5 MiB  /usr/libexec/axon/axon-vendor                                                                   │
+│   1138  G  32.5 MiB  /usr/libexec/axon/axon-vendor                                                                   │
+╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────↓ more─╯
+ ⏎ use this GPU  r run…  x run there…  ↑↓ GPU  ←→ page  o order  ⇥ page  ? keys  q quit
 ```
 
-- **The top line** sums up the fleet: how many machines, how many answer, how many GPUs, how busy they are and how much memory is in use.
-- **The cards**, on the left, are the machines, this one first: its processors, its driver, and a line per GPU with a graph of its use. `↑` and `↓` select a machine, `←` and `→` one of its GPUs.
-- **The page**, on the right, is the selected machine in detail, in four pages: `1` its GPUs, `2` the sessions using them, `3` the links between machines, `4` the machine itself. `enter` opens the page and `tab` moves between it and the cards.
+- **The top line** sums up the fleet: how many machines and GPUs, how many answer, how busy they are, and how much memory is free.
+- **The board** has every GPU of every machine, one row each, the best place for work first: the least busy, then the most memory free. Each row shows the GPU's use over the last minute, its free memory, its power and temperature, and who is using it: the people holding sessions on it, the machines they came from, and the programs on it. A machine that does not answer has one row, which says why. `↑` and `↓` move between GPUs; `o` lists them in the fleet's own order instead.
+- **The page**, under the board, is the selected GPU and its machine in detail, in four pages: `1` the GPU, `2` the sessions using the machine's GPUs, `3` the links between machines, `4` the machine itself. `←` and `→` move between them, and `tab` gives the keyboard to the page, to scroll it.
 
 `?` lists every key, and `q` leaves.
 
 ## Seeing what is using the GPU
 
-1. Select the machine, and press `2` for its sessions.
+1. Select one of the machine's GPUs, and press `2` for its sessions.
 2. The page shows every program holding one of the machine's GPUs, with how much memory it holds; every session the machine is serving, with its user, where it came from and since when, including those from other machines; and, on this machine's page, every program here whose GPU calls cross axon, where they went, and what the crossing cost.
 
 The GPUs page, `1`, shows each GPU's use, memory, power and temperature over the last minutes, and the processes holding a context on it.
@@ -96,9 +97,11 @@ From a script: `axon probe TARGET` asks a machine what it offers, and its exit s
 
 ## A GPU on another machine
 
-1. Select the machine and the GPU, with `↑` `↓` and `←` `→`.
-2. Press `s`. A shell opens whose GPU programs run on the selected GPU.
-3. Run the program as you would here.
+1. Select the GPU on the board, with `↑` and `↓`.
+2. Press `enter`. A shell opens whose GPU programs run on the selected GPU.
+3. Run the program as you would here. Leaving the shell, with `exit`, brings the board back.
+
+For one program, `r` asks for its command line and runs it the same way; what it printed stays on the screen until you press `enter`.
 
 Nothing else on either machine is affected. The program, its files and its environment stay on this machine; only its GPU work moves.
 
@@ -144,7 +147,7 @@ opens this machine's GPU to the fleet. Every connection from another machine pro
 $ axon exec --on build1 -- make -j64
 ```
 
-runs a program on another machine's processors. It is placed there once, when it starts, and never moves after that. It runs on this machine's system, not that one's: its `/usr` and `/etc` arrive file by file as they are opened, each one verified, so nothing needs installing on the other machine. Your home is served back to it over 9P by a process running as you, which the kernel confines to your home. Its terminal, its signals and its exit status are the program's own.
+runs a program on another machine's processors. It is placed there once, when it starts, and never moves after that. It runs on this machine's system, not that one's: its `/usr` and `/etc` arrive file by file as they are opened, each one verified, so nothing needs installing on the other machine. Your home is served back to it over 9P by a process running as you, which the kernel confines to your home. Its terminal, its signals and its exit status are the program's own. In axon, `x` places one command this way on the selected GPU's machine.
 
 If the network drops, the program pauses at the point it needs this machine and carries on when the link returns, with its open files and locks intact. The other machine must run the same instruction set: a program built for Arm runs on another Arm machine, never on an x86 one. Before it is placed, the processor features it was built for are checked against the other machine's, so a program never lands where it cannot run.
 
@@ -172,11 +175,13 @@ The keys in axon:
 
 | key | |
 | --- | --- |
-| `↑` `↓`, `k` `j` | select a machine; scroll, on a page |
-| `←` `→`, `h` `l` | select one of the machine's GPUs |
-| `enter`, `tab`, `esc` | open the page; move between the page and the cards; back to the cards |
-| `1` `2` `3` `4`, `[` `]` | the GPUs, sessions, links and machine pages |
-| `s` | a shell whose GPU programs run on the selected GPU |
+| `↑` `↓`, `k` `j` | select a GPU; scroll, on a page |
+| `enter`, `s` | a shell whose GPU programs run on the selected GPU |
+| `r` | run one command whose GPU programs run on the selected GPU |
+| `x` | run one command on the selected GPU's machine, your home served from here |
+| `o` | the best place for work first, or the fleet in its own order |
+| `←` `→`, `1` `2` `3` `4`, `[` `]` | the GPU, sessions, links and machine pages |
+| `tab`, `esc` | move between the board and the page; back to the board |
 | `e` | edit the targets file |
 | `c` | ask the machine's compute service again |
 | `f` | read the fabric again |
