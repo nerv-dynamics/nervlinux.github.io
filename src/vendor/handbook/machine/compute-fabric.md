@@ -161,11 +161,7 @@ The desktop reaches the GPU the same way. Mesa on Nerv draws OpenGL through Zink
 
 ## Video
 
-ffmpeg's NVDEC decoders, `h264_cuvid`, `hevc_cuvid` and the rest, reach the board's video engine through axon, with NVIDIA's own parser and decoder running in the worker:
-
-```
-$ doas dnf install nerv-axon-nvcuvid-musl
-```
+ffmpeg's NVDEC decoders, `h264_cuvid`, `hevc_cuvid` and the rest, reach the board's video engine through axon, with NVIDIA's own parser and decoder running in the worker. ffmpeg's libraries bring axon's `libnvcuvid.so.1` with them, so every program that decodes through ffmpeg, Browser among them, has the video engine without anything more to install.
 
 Decoded frames are the session's GPU memory, as they are with NVIDIA's library. A decode axon will not do is refused with an error that says why, never done some other way.
 

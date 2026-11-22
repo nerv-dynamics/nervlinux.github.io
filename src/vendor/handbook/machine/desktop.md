@@ -137,6 +137,8 @@ It follows the desktop's [light or dark](#light-and-dark) scheme in Myelin's col
 
 It starts where you left off: the last session's tabs come back, and each loads when you first look at it. Searches go to DuckDuckGo.
 
+Video is decoded by the GPU's video engine: H.264, HEVC, VP8, VP9 and AV1, in 8 and 10 bits, which covers what YouTube and the other video sites serve. The frames go from the video engine to the screen without passing through the processor, so a film costs the processor a small part of what decoding it there would, and high-resolution video plays smoothly. Tabs you are not looking at run on the machine's efficiency cores at a low clock, however busy their pages are; a tab playing sound is not slowed.
+
 It sends nothing you did not ask it to. There is no telemetry, no studies or experiments, no crash reporting, no sponsored tiles or suggestions, and no Pocket. Tracking protection is on Strict, every page is loaded over HTTPS, and names are looked up by the system's own resolver. uBlock Origin is installed and on for every user; you can switch it off in *Settings → Extensions*, but not remove it. Browser never offers to save a password or to translate a page.
 
 Every download asks where to go, in the desktop's file chooser. Sync is in *Settings → Sync*, for a Mozilla account, and nothing else asks you to sign in.

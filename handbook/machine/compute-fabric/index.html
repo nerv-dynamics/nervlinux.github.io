@@ -263,8 +263,7 @@ device: NVIDIA A800 40GB Active
 <h2 id="graphics" class="section-title">Graphics</h2>
 <p>The desktop reaches the GPU the same way. Mesa on Nerv draws OpenGL through Zink, which is Vulkan, and Vulkan is axon's, so the compositor, a browser and a game are all sessions, and a Vulkan program can run against a GPU on another machine as a CUDA one can.</p>
 <h2 id="video" class="section-title">Video</h2>
-<p>ffmpeg's NVDEC decoders, <code>h264_cuvid</code>, <code>hevc_cuvid</code> and the rest, reach the board's video engine through axon, with NVIDIA's own parser and decoder running in the worker:</p>
-<pre class="term term__body">$ doas dnf install nerv-axon-nvcuvid-musl</pre>
+<p>ffmpeg's NVDEC decoders, <code>h264_cuvid</code>, <code>hevc_cuvid</code> and the rest, reach the board's video engine through axon, with NVIDIA's own parser and decoder running in the worker. ffmpeg's libraries bring axon's <code>libnvcuvid.so.1</code> with them, so every program that decodes through ffmpeg, Browser among them, has the video engine without anything more to install.</p>
 <p>Decoded frames are the session's GPU memory, as they are with NVIDIA's library. A decode axon will not do is refused with an error that says why, never done some other way.</p>
 <h2 id="reference" class="section-title">Reference</h2>
 <p>The keys in axon:</p>

@@ -22,6 +22,7 @@ A store holds **streams**, each with one writer. A history stream is a sequence 
 
 - **A changed record shows.** Every record is chained by its hash to the one before it, so a record changed or removed after the fact is a break in the chain, and `engram verify` finds it.
 - **A batch is all or nothing.** A program writes a batch of records at once, and after a power cut the store comes back at the end of a whole batch. Nothing half-written is ever read.
+- **A rollback leaves a store alone.** A store a newer system wrote is opened by an older one only as far as it can be without being changed. If the older system can read it, it does, but writes nothing to it. If it cannot, it refuses the store and leaves it as it is, and going forward again finds it there.
 - **Time is the boot and the clock within it.** A machine whose clock was wrong for a week still has that week in the right order, with the wall-clock time kept beside each record for what it is.
 - **Records are typed.** A package installs the types of the records its programs write in `/usr/share/magi/schemas`. A field is added in a new version of a type, never renamed or changed, so a reader written today still reads next year's records.
 - **Views are kept current.** A view is an index, a filter, a projection or a join over other streams, and it changes in the same batch as what it reads, so it is never behind. A program can watch one and be told when it changes.
@@ -67,6 +68,23 @@ says which units failed in each of the last three boots, and where the journal i
 | `magi schema [TYPE \| --installed]` | the types a store holds, or the ones packages installed |
 
 A program, or a script of yours, declares a stream with `magi declare` and writes it with `magi append` or `magi put`. `magi --help` lists every command.
+
+### Removing something recorded by accident
+
+A password pasted into the wrong prompt, or a token a program logged, can be taken out of a history stream, whichever program wrote it:
+
+```
+$ magi redact STREAM SEQ
+$ doas magi redact journal/entries 1048213
+```
+
+`SEQ` is the record's number, as `magi tail` shows it. When `magi redact` returns:
+
+- **No file of the store holds any of it.** It is gone from the stream, from every view over the stream, and from every index that was kept of it: the words a search finds, the counts, the columns and the connections between records.
+- **A scar takes its place.** The record still has its number and its time, so the chain around it still verifies and `engram verify` passes. Reading it says it was redacted, and nothing else.
+- **The views do not know that instant any more.** A view over the stream answers that it has no knowledge at the record's time, rather than give a count that would tell what was there.
+
+What it cannot reach is anything outside the store: a backup, a copy someone else made, or blocks the filesystem freed but has not yet overwritten. Only a history stream's records can be redacted: a state stream's value cannot be yet.
 
 `engram` reads a store's files directly, with no daemon: a store copied off a machine, or one checked by hand. It never writes.
 
