@@ -156,7 +156,7 @@
 <li><strong>The kernel says who is writing.</strong> magid asks the kernel for the user and the program at the other end of its socket, and never takes a program's word for its name.</li>
 <li><strong>A program writes only the streams it declared as its own.</strong> Nothing writes a record as another program: not another program of yours, not a script, not an agent.</li>
 </ul>
-<p>magid starts when something first connects to it. Idle, it sets no timer and wakes nothing, and a store nobody has used for five minutes is closed. Under the <code>saver</code> power profile it writes to the disk less often and closes stores sooner.</p>
+<p>magid starts when something first connects to it. Idle, it sets no timer and wakes nothing, and a store nobody has used for five minutes is closed. Under the <code>saver</code> power profile it writes to the disk less often and closes stores sooner. Stopped, by <code>systemctl stop magid</code> or at shutdown, it finishes and answers what it had begun, tells every program still connected that it is stopping, and leaves every store closed: a program knows that each batch it was answered for is kept, and that nothing it asked after was done.</p>
 <h2 id="what-it-keeps" class="section-title">What it keeps</h2>
 <p>A store holds <strong>streams</strong>, each with one writer. A history stream is a sequence of records, each kept as it was written. A state stream holds keys and their current values: a conversation's place, an index of packages.</p>
 <ul class="list">
@@ -182,6 +182,8 @@
 $ doas magi status
 $ doas magi tail journal/entries -n 5</pre>
 <p><code>status</code> lists every stream with its kind, its type and how many records it holds. <code>tail</code> prints a stream's last records with their time: the boot, and seconds into it.</p>
+<pre class="term term__body">$ doas magi facts journal/failed-units</pre>
+<p>says which units failed in each of the last three boots, and where the journal is complete enough to say so: a boot marked complete had no other failures.</p>
 <div class="table-scroll">
 <table class="data">
 <thead><tr>
@@ -190,6 +192,9 @@ $ doas magi tail journal/entries -n 5</pre>
 <tbody>
 <tr>
 <td><code>magi tail STREAM [-n N]</code></td><td>a history stream's last records</td>
+</tr>
+<tr>
+<td><code>magi facts VIEW [--boots N]</code></td><td>a history view's rows in each of the last boots (three unless told), and where each answer is complete</td>
 </tr>
 <tr>
 <td><code>magi get STREAM KEY</code></td><td>one key of a state stream or a view</td>

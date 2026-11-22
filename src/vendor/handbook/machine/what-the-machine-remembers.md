@@ -14,7 +14,7 @@ MAGI is that one place. It is a service, not a library: one daemon, `magid`, wri
 - **The kernel says who is writing.** magid asks the kernel for the user and the program at the other end of its socket, and never takes a program's word for its name.
 - **A program writes only the streams it declared as its own.** Nothing writes a record as another program: not another program of yours, not a script, not an agent.
 
-magid starts when something first connects to it. Idle, it sets no timer and wakes nothing, and a store nobody has used for five minutes is closed. Under the `saver` power profile it writes to the disk less often and closes stores sooner.
+magid starts when something first connects to it. Idle, it sets no timer and wakes nothing, and a store nobody has used for five minutes is closed. Under the `saver` power profile it writes to the disk less often and closes stores sooner. Stopped, by `systemctl stop magid` or at shutdown, it finishes and answers what it had begun, tells every program still connected that it is stopping, and leaves every store closed: a program knows that each batch it was answered for is kept, and that nothing it asked after was done.
 
 ## What it keeps
 
@@ -51,9 +51,16 @@ $ doas magi tail journal/entries -n 5
 
 `status` lists every stream with its kind, its type and how many records it holds. `tail` prints a stream's last records with their time: the boot, and seconds into it.
 
+```
+$ doas magi facts journal/failed-units
+```
+
+says which units failed in each of the last three boots, and where the journal is complete enough to say so: a boot marked complete had no other failures.
+
 | command | |
 | --- | --- |
 | `magi tail STREAM [-n N]` | a history stream's last records |
+| `magi facts VIEW [--boots N]` | a history view's rows in each of the last boots (three unless told), and where each answer is complete |
 | `magi get STREAM KEY` | one key of a state stream or a view |
 | `magi range STREAM [--from K] [--to K]` | its keys, in order |
 | `magi search VIEW WORDS [--where F=V]` | a text view's best records for the words, within a field's value |
