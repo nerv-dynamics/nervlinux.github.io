@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Nerv Linux — The desktop</title>
-<meta name="description" content="Umbriel, Noctalia and foot, for machines that install one: getting a desktop, logging in, the keys you use, the shell around your windows, the browser, X11 programs, sound, the power profile and the keyboard.">
+<meta name="description" content="Umbriel, Noctalia and foot, for machines that install one: getting a desktop, logging in, the keys you use, the shell around your windows, the live background and the screensaver, the browser, X11 programs, sound, the power profile and the keyboard.">
 <link rel="canonical" href="https://nervlinux.org/handbook/machine/desktop/">
 <meta property="og:title" content="Nerv Linux — The desktop">
-<meta property="og:description" content="Umbriel, Noctalia and foot, for machines that install one: getting a desktop, logging in, the keys you use, the shell around your windows, the browser, X11 programs, sound, the power profile and the keyboard.">
+<meta property="og:description" content="Umbriel, Noctalia and foot, for machines that install one: getting a desktop, logging in, the keys you use, the shell around your windows, the live background and the screensaver, the browser, X11 programs, sound, the power profile and the keyboard.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://nervlinux.org/handbook/machine/desktop/">
 <link rel="icon" href="/assets/favicon.png" sizes="32x32">
@@ -96,6 +96,7 @@
 <li><a href="#umbriel">Umbriel</a></li>
 <li><a href="#minimized-windows">Minimized windows</a></li>
 <li><a href="#noctalia">Noctalia</a></li>
+<li><a href="#the-live-background-and-the-screensaver">The live background and the screensaver</a></li>
 <li><a href="#light-and-dark">Light and dark</a></li>
 <li><a href="#the-bar">The bar</a></li>
 <li><a href="#the-tray">The tray</a></li>
@@ -160,7 +161,7 @@
     <div class="hb__main">
       <div class="essay">
 <h1 class="page-title">The desktop</h1>
-<p>Umbriel, Noctalia and foot, for machines that install one: getting a desktop, logging in, the keys you use, the shell around your windows, the browser, X11 programs, sound, the power profile and the keyboard.</p>
+<p>Umbriel, Noctalia and foot, for machines that install one: getting a desktop, logging in, the keys you use, the shell around your windows, the live background and the screensaver, the browser, X11 programs, sound, the power profile and the keyboard.</p>
 <h2 id="installing-a-desktop" class="section-title">Installing a desktop</h2>
 <p>The <code>workstation-gui</code> profile installs one, from the start or onto a console machine later:</p>
 <pre class="term term__body">$ doas dnf install nerv-workstation-gui</pre>
@@ -230,9 +231,38 @@ files = ["/usr/share/umbriel/config.toml"]</pre>
 <h2 id="minimized-windows" class="section-title">Minimized windows</h2>
 <p>A window's own minimize button, or a click on its icon in the taskbar while it has the focus, hides it. Its icon stays in the taskbar, marked with a minus, and a click on that icon brings it back; right-click an icon for <em>Minimize</em> and <em>Restore</em>. A window in a column leaves the strip while it is minimized, and the columns beside it close up; it comes back in a column of its own, after the one you are working in. Pinned and fullscreen windows do not minimize.</p>
 <h2 id="noctalia" class="section-title">Noctalia</h2>
-<p>Noctalia is the shell around your windows: the bar, the launcher, notifications, the wallpaper and the lock screen. It comes in Myelin, Nerv's colours, set in Nerv's own typeface, Ashinoko, and dark.</p>
+<p>Noctalia is the shell around your windows: the bar, the launcher, notifications, the wallpaper and the lock screen. Its wallpaper is the one you see while the <a href="#the-live-background-and-the-screensaver">live background</a> is off. It comes in Myelin, Nerv's colours, set in Nerv's own typeface, Ashinoko, and dark.</p>
 <p>Nerv's settings for it are in <code>/etc/xdg/noctalia/nerv.toml</code>, which the shell reads first, for every account, old or new. What you choose in its Settings panel is saved in <code>~/.local/state/noctalia/settings.toml</code>, and anything you put in <code>~/.config/noctalia/</code> yourself, and both win over Nerv's. An update to the desktop reaches your account without touching either.</p>
 <p>Umbriel's borders, title bars and overview wear the same colours, and change with them when the shell switches between dark and light. The shell writes them to <code>~/.config/umbriel/noctalia.toml</code>, which Umbriel's config includes when <code>"noctalia.toml"</code> is in the <code>files</code> list under <code>[include.optional]</code> in <code>~/.config/umbriel/config.toml</code>, as it is for every account the desktop made.</p>
+<h2 id="the-live-background-and-the-screensaver" class="section-title">The live background and the screensaver</h2>
+<p>The desktop's background is drift: a slow flight through a field of light, drawn on the GPU for every display, at most 24 frames a second and at half the display's resolution, which the compositor scales up. After five minutes without input the same flight comes to the front of every display as the screensaver, and the first key or click puts the desktop back; that key or click reaches no window. A program that asks the compositor to keep the display awake, as video players do and as the caffeine button on the bar does, keeps the screensaver away. The screensaver never locks the machine and never turns a display off.</p>
+<p><code>drift off</code> gives the background back to Noctalia's wallpaper, which then shows the frame that was on screen, saved at the display's full resolution; <code>drift on</code> brings the flight back. <code>drift pause</code> holds the background still on the frame it shows, and <code>drift resume</code> sets it moving again. Pausing and turning off apply to the background only: the screensaver flies regardless. Each choice outlasts a logout, and a paused background comes back on the frame it was paused on.</p>
+<pre class="term term__body">$ drift off
+desktop=off motion=running screensaver=waiting outputs=1
+$ drift status
+desktop=off motion=running screensaver=waiting outputs=1</pre>
+<p>With the background off, the wallpaper is Noctalia's to change in its Settings like any other. The stills drift hands it are kept in <code>~/.local/state/drift/snapshots</code>, the latest for each display. While drift draws the background, the lock screen is plain black; with it off, the lock screen shows Noctalia's wallpaper. <code>systemctl --user mask drift</code> turns off both the background and the screensaver for your account.</p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">command</th><th scope="col"></th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code>drift on</code>, <code>drift off</code></td><td>the live background, or Noctalia's wallpaper showing its last frame</td>
+</tr>
+<tr>
+<td><code>drift pause</code>, <code>drift resume</code></td><td>hold the background still, or set it moving</td>
+</tr>
+<tr>
+<td><code>drift toggle</code></td><td>pause if moving, resume if paused</td>
+</tr>
+<tr>
+<td><code>drift status</code></td><td>the state, as one line</td>
+</tr>
+</tbody>
+</table>
+</div>
 <h2 id="light-and-dark" class="section-title">Light and dark</h2>
 <p>The desktop is dark, and the shell's dark or light mode is every program's. Programs ask the desktop which one it is, through the desktop portal, and are told when it changes, so Browser and GTK 4 programs already open turn with the shell, in Myelin's accent colour for that mode. Choosing light, dark or automatic is done in Noctalia's Settings panel or the control center, and stays chosen.</p>
 <p>Before the shell has said anything, at a first login or in a program started before it, everything is dark: the portal answers dark, and GTK's machine-wide settings in <code>/etc/xdg/gtk-3.0</code> and <code>/etc/xdg/gtk-4.0</code> choose the dark theme. The login screen, Luciole and foot start dark too. The shell writes the mode and the accent to <code>~/.local/state/nerv-portal-settings/appearance</code> whenever either changes.</p>

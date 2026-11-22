@@ -1,6 +1,6 @@
 # The desktop
 
-Umbriel, Noctalia and foot, for machines that install one: getting a desktop, logging in, the keys you use, the shell around your windows, the browser, X11 programs, sound, the power profile and the keyboard.
+Umbriel, Noctalia and foot, for machines that install one: getting a desktop, logging in, the keys you use, the shell around your windows, the live background and the screensaver, the browser, X11 programs, sound, the power profile and the keyboard.
 
 ## Installing a desktop
 
@@ -60,11 +60,33 @@ A window's own minimize button, or a click on its icon in the taskbar while it h
 
 ## Noctalia
 
-Noctalia is the shell around your windows: the bar, the launcher, notifications, the wallpaper and the lock screen. It comes in Myelin, Nerv's colours, set in Nerv's own typeface, Ashinoko, and dark.
+Noctalia is the shell around your windows: the bar, the launcher, notifications, the wallpaper and the lock screen. Its wallpaper is the one you see while the [live background](#the-live-background-and-the-screensaver) is off. It comes in Myelin, Nerv's colours, set in Nerv's own typeface, Ashinoko, and dark.
 
 Nerv's settings for it are in `/etc/xdg/noctalia/nerv.toml`, which the shell reads first, for every account, old or new. What you choose in its Settings panel is saved in `~/.local/state/noctalia/settings.toml`, and anything you put in `~/.config/noctalia/` yourself, and both win over Nerv's. An update to the desktop reaches your account without touching either.
 
 Umbriel's borders, title bars and overview wear the same colours, and change with them when the shell switches between dark and light. The shell writes them to `~/.config/umbriel/noctalia.toml`, which Umbriel's config includes when `"noctalia.toml"` is in the `files` list under `[include.optional]` in `~/.config/umbriel/config.toml`, as it is for every account the desktop made.
+
+## The live background and the screensaver
+
+The desktop's background is drift: a slow flight through a field of light, drawn on the GPU for every display, at most 24 frames a second and at half the display's resolution, which the compositor scales up. After five minutes without input the same flight comes to the front of every display as the screensaver, and the first key or click puts the desktop back; that key or click reaches no window. A program that asks the compositor to keep the display awake, as video players do and as the caffeine button on the bar does, keeps the screensaver away. The screensaver never locks the machine and never turns a display off.
+
+`drift off` gives the background back to Noctalia's wallpaper, which then shows the frame that was on screen, saved at the display's full resolution; `drift on` brings the flight back. `drift pause` holds the background still on the frame it shows, and `drift resume` sets it moving again. Pausing and turning off apply to the background only: the screensaver flies regardless. Each choice outlasts a logout, and a paused background comes back on the frame it was paused on.
+
+```
+$ drift off
+desktop=off motion=running screensaver=waiting outputs=1
+$ drift status
+desktop=off motion=running screensaver=waiting outputs=1
+```
+
+With the background off, the wallpaper is Noctalia's to change in its Settings like any other. The stills drift hands it are kept in `~/.local/state/drift/snapshots`, the latest for each display. While drift draws the background, the lock screen is plain black; with it off, the lock screen shows Noctalia's wallpaper. `systemctl --user mask drift` turns off both the background and the screensaver for your account.
+
+| command | |
+| --- | --- |
+| `drift on`, `drift off` | the live background, or Noctalia's wallpaper showing its last frame |
+| `drift pause`, `drift resume` | hold the background still, or set it moving |
+| `drift toggle` | pause if moving, resume if paused |
+| `drift status` | the state, as one line |
 
 ## Light and dark
 
