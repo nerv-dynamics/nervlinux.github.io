@@ -76,9 +76,11 @@
 <details class="hb-nav__box" open>
 <summary class="hb-nav__summary">Contents</summary>
 <a class="hb-nav__home" href="/handbook/">The Nerv Handbook</a>
-<p class="hb-nav__part">This machine</p><ol class="hb-nav__list">
+<p class="hb-nav__part">Preface</p><ol class="hb-nav__list">
 <li><a href="/handbook/machine/why-an-operating-system-still/">Why an operating system, still</a>
 </li>
+</ol>
+<p class="hb-nav__part">Getting started</p><ol class="hb-nav__list">
 <li><a href="/handbook/machine/what-nerv-is/">What Nerv is</a>
 </li>
 <li><a href="/handbook/machine/install/">Install</a>
@@ -87,18 +89,10 @@
 </li>
 <li><a href="/handbook/machine/software/">Software</a>
 </li>
-<li><a href="/handbook/machine/containers/">Containers</a>
-</li>
 <li><a href="/handbook/machine/desktop/">The desktop</a>
 </li>
-<li><a href="/handbook/machine/networking/">Networking</a>
-</li>
-<li><a href="/handbook/machine/accounts-and-keys/">Accounts and keys</a>
-</li>
 </ol>
-<p class="hb-nav__part">Five ideas</p><ol class="hb-nav__list">
-<li><a href="/handbook/machine/generations/">Updates and generations</a>
-</li>
+<p class="hb-nav__part">Using the machine</p><ol class="hb-nav__list">
 <li><a href="/handbook/machine/compute-fabric/" aria-current="page">The GPU</a>
 <ol class="hb-nav__sections">
 <li><a href="#synopsis">Synopsis</a></li>
@@ -117,23 +111,39 @@
 <li><a href="#reference">Reference</a></li>
 </ol>
 </li>
-<li><a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a>
-</li>
-<li><a href="/handbook/machine/yours-and-not-yours/">Yours and not yours</a>
-</li>
-<li><a href="/handbook/machine/chain-of-trust/">The chain of trust</a>
-</li>
-</ol>
-<p class="hb-nav__part">Ways of using it</p><ol class="hb-nav__list">
 <li><a href="/handbook/machine/ai-development/">AI development</a>
+</li>
+<li><a href="/handbook/machine/agents/">Agents</a>
+</li>
+<li><a href="/handbook/machine/containers/">Containers</a>
 </li>
 <li><a href="/handbook/machine/gaming/">Gaming</a>
 </li>
-<li><a href="/handbook/machine/offloading-and-fleets/">Offloading and fleets</a>
+<li><a href="/handbook/machine/building-your-own/">Building your own</a>
+</li>
+</ol>
+<p class="hb-nav__part">Keeping the machine</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/generations/">Updates and generations</a>
+</li>
+<li><a href="/handbook/machine/firmware/">Firmware</a>
+</li>
+<li><a href="/handbook/machine/power/">Power</a>
+</li>
+<li><a href="/handbook/machine/accounts-and-keys/">Accounts and keys</a>
+</li>
+<li><a href="/handbook/machine/chain-of-trust/">The chain of trust</a>
+</li>
+<li><a href="/handbook/machine/yours-and-not-yours/">Yours and not yours</a>
+</li>
+<li><a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a>
+</li>
+</ol>
+<p class="hb-nav__part">Many machines</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/networking/">Networking</a>
 </li>
 <li><a href="/handbook/machine/plexus/">Plexus</a>
 </li>
-<li><a href="/handbook/machine/building-your-own/">Building your own</a>
+<li><a href="/handbook/machine/offloading-and-fleets/">Offloading and fleets</a>
 </li>
 </ol>
 <p class="hb-nav__part">When it breaks</p><ol class="hb-nav__list">
@@ -142,12 +152,12 @@
 <li><a href="/handbook/machine/asking-why/">Asking why</a>
 </li>
 </ol>
-<p class="hb-nav__part">More</p><ol class="hb-nav__list">
-<li><a href="/handbook/machine/agents/">Agents</a>
+<p class="hb-nav__part">Reference</p><ol class="hb-nav__list">
+<li><a href="/handbook/reference/magi-contract/">What MAGI promises</a>
 </li>
-<li><a href="/handbook/machine/firmware/">Firmware</a>
+<li><a href="/handbook/reference/magi-limits/">MAGI&#x27;s limits</a>
 </li>
-<li><a href="/handbook/machine/power/">Power</a>
+<li><a href="/handbook/reference/magi-format/">The MAGI store format</a>
 </li>
 </ol>
 </details></nav>
@@ -180,38 +190,38 @@
 <p>A container gets the GPU by being handed the same socket: <a href="/handbook/machine/containers/#the-gpu-in-a-container">The GPU in a container</a>.</p>
 <h2 id="opening-axon" class="section-title">Opening axon</h2>
 <p>Run <code>axon</code> with no arguments:</p>
-<pre class="term term__body" data-lang="tui axon"> axon   1 machine · 1 answering · 1 GPU · 0% busy · 80.8 GiB free                                    every 2 s · ? keys
-╭ GPUs ────────────────────────────────────────────────────────────────────────────────────────── best place first · o ╮
-│     MACHINE GPU    BUSY                          FREE MEMORY           POWER TEMP  USING IT                          │
-│ ▶ ● nerv-1 0 GB10            ▁▁▁▁▁▁▁▁▁▁▁▁▁   0% ▕███▍░░░░░░▏   81 GiB   5 W  46°  greeter                            │
-╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-╭ nerv-1 · GPU 0 · NVIDIA GB10 ────────────────────────────────────────────────────────────────────────── this machine ╮
-│  1 gpus   2 sessions   3 links   4 machine                                                                           │
-│                                                                                                                      │
-│ driver 620.70.06 · CUDA 13.5 · P8 · compute Default · persistence off · display off                                  │
-│ GPU-00000000-0000-0000-0000-000000000000 · 0000000F:01:00.0                                                          │
-│                                                                                                                      │
-│ busy 0%   memory controller 0%                                                                                       │
-│                                                                                                                      │
-│                                                                                                                      │
-│                                                                                                                      │
-│                                                                                                              ⢀⣀⣀⣀⣀⣀⣀ │
-│                                                                                                                      │
-│ memory 41.0 of 121.8 GiB  34%  · 80.8 GiB free                                                                       │
-│                                                                                                                      │
-│                                                                                                              ⢠⣴⣤⣶⣶⣶⣶ │
-│                                                                                                                      │
-│ power 5 W    ▆▇▇▆▇▆▇▇▇▇▇▇▇   temperature 46 °C    ▄▄▄▄▄▄▄▄▄▄▄▄▄                                                      │
-│                                                                                                                      │
-│ using it                                                                                                             │
-│   greeter                                                                                                            │
-│                                                                                                                      │
-│ processes                                                                                                            │
-│    PID  T    MEMORY  PROGRAM                                                                                         │
-│   1138  C  32.5 MiB  /usr/libexec/axon/axon-vendor                                                                   │
-│   1138  G  32.5 MiB  /usr/libexec/axon/axon-vendor                                                                   │
-╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────↓ more─╯
- ⏎ use this GPU  r run…  x run there…  ↑↓ GPU  ←→ page  o order  ⇥ page  ? keys  q quit</pre>
+<figure class="tui"><div class="term term--tui"><div class="term__bar">axon</div><pre class="term__body"><span style="color:#282828;background:#6ebdff;font-weight:700"> axon </span><span style="color:#dfdfdf;background:#1e1e1e">  </span><span style="color:#dfdfdf;background:#1e1e1e;font-weight:700">1</span><span style="color:#a2a2a2;background:#1e1e1e"> machine · </span><span style="color:#92c56c;background:#1e1e1e;font-weight:700">1</span><span style="color:#a2a2a2;background:#1e1e1e"> answering · </span><span style="color:#dfdfdf;background:#1e1e1e;font-weight:700">1</span><span style="color:#a2a2a2;background:#1e1e1e"> GPU · </span><span style="color:#92c56c;background:#1e1e1e;font-weight:700">0%</span><span style="color:#a2a2a2;background:#1e1e1e"> busy · </span><span style="color:#b8ba5c;background:#1e1e1e;font-weight:700">80.8 GiB</span><span style="color:#a2a2a2;background:#1e1e1e"> free</span><span style="color:#dfdfdf;background:#1e1e1e">                                    </span><span style="color:#a2a2a2;background:#1e1e1e">every 2 s · ? keys</span>
+<span style="color:#6ebdff;background:#1e1e1e">╭</span><span style="color:#dfdfdf;background:#1e1e1e;font-weight:700"> GPUs </span><span style="color:#6ebdff;background:#1e1e1e">──────────────────────────────────────────────────────────────────────────────────────────</span><span style="color:#a2a2a2;background:#1e1e1e"> best place first · o </span><span style="color:#6ebdff;background:#1e1e1e">╮</span>
+<span style="color:#6ebdff;background:#1e1e1e">│</span><span style="color:#dfdfdf;background:#1e1e1e"> </span><span style="color:#a2a2a2;background:#1e1e1e">    MACHINE GPU    BUSY                          FREE MEMORY           POWER TEMP  USING IT</span><span style="color:#dfdfdf;background:#1e1e1e">                          </span><span style="color:#6ebdff;background:#1e1e1e">│</span>
+<span style="color:#6ebdff;background:#1e1e1e">│</span><span style="color:#dfdfdf;background:#1e1e1e"> </span><span style="color:#6ebdff;background:#333333">▶ </span><span style="color:#92c56c;background:#1e1e1e">● </span><span style="color:#dfdfdf;background:#1e1e1e;font-weight:700">nerv-1 </span><span style="color:#05c9db;background:#1e1e1e">0 </span><span style="color:#dfdfdf;background:#1e1e1e">GB10            </span><span style="color:#92c56c;background:#1e1e1e">▁▁▁▁▁▁▁▁▁▁▁▁▁</span><span style="color:#92c56c;background:#1e1e1e;font-weight:700">   0%</span><span style="color:#dfdfdf;background:#1e1e1e"> </span><span style="color:#6b6b6b;background:#1e1e1e">▕</span><span style="color:#b8ba5c;background:#1e1e1e">███▍</span><span style="color:#6b6b6b;background:#1e1e1e">░░░░░░▏</span><span style="color:#b8ba5c;background:#1e1e1e">   81 GiB </span><span style="color:#dea0f1;background:#1e1e1e">  5 W </span><span style="color:#6cc68a;background:#1e1e1e"> 46°  </span><span style="color:#dfdfdf;background:#1e1e1e">greeter                            </span><span style="color:#6ebdff;background:#1e1e1e">│</span>
+<span style="color:#6ebdff;background:#1e1e1e">╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯</span>
+<span style="color:#6b6b6b;background:#1e1e1e">╭</span><span style="color:#dfdfdf;background:#1e1e1e;font-weight:700"> nerv-1 · GPU 0 · NVIDIA GB10 </span><span style="color:#6b6b6b;background:#1e1e1e">──────────────────────────────────────────────────────────────────────────</span><span style="color:#a2a2a2;background:#1e1e1e"> this machine </span><span style="color:#6b6b6b;background:#1e1e1e">╮</span>
+<span style="color:#6b6b6b;background:#1e1e1e">│</span><span style="color:#dfdfdf;background:#1e1e1e"> </span><span style="color:#282828;background:#c6c6c6;font-weight:700"> 1 gpus </span><span style="color:#dfdfdf;background:#1e1e1e"> </span><span style="color:#a2a2a2;background:#1e1e1e"> 2 sessions </span><span style="color:#dfdfdf;background:#1e1e1e"> </span><span style="color:#a2a2a2;background:#1e1e1e"> 3 links </span><span style="color:#dfdfdf;background:#1e1e1e"> </span><span style="color:#a2a2a2;background:#1e1e1e"> 4 machine </span><span style="color:#dfdfdf;background:#1e1e1e">                                                                          </span><span style="color:#6b6b6b;background:#1e1e1e">│</span>
+<span style="color:#6b6b6b;background:#1e1e1e">│</span><span style="color:#dfdfdf;background:#1e1e1e">                                                                                                                      </span><span style="color:#6b6b6b;background:#1e1e1e">│</span>
+<span style="color:#6b6b6b;background:#1e1e1e">│</span><span style="color:#dfdfdf;background:#1e1e1e"> </span><span style="color:#c6c6c6;background:#1e1e1e">driver 620.70.06 · CUDA 13.5 · P8 · compute Default · persistence off · display off</span><span style="color:#dfdfdf;background:#1e1e1e">                                  </span><span style="color:#6b6b6b;background:#1e1e1e">│</span>
+<span style="color:#6b6b6b;background:#1e1e1e">│</span><span style="color:#dfdfdf;background:#1e1e1e"> </span><span style="color:#a2a2a2;background:#1e1e1e">GPU-00000000-0000-0000-0000-000000000000 · 0000000F:01:00.0</span><span style="color:#dfdfdf;background:#1e1e1e">                                                          </span><span style="color:#6b6b6b;background:#1e1e1e">│</span>
+<span style="color:#6b6b6b;background:#1e1e1e">│</span><span style="color:#dfdfdf;background:#1e1e1e">                                                                                                                      </span><span style="color:#6b6b6b;background:#1e1e1e">│</span>
+<span style="color:#6b6b6b;background:#1e1e1e">│</span><span style="color:#dfdfdf;background:#1e1e1e"> </span><span style="color:#a2a2a2;background:#1e1e1e">busy </span><span style="color:#92c56c;background:#1e1e1e;font-weight:700">0%</span><span style="color:#a2a2a2;background:#1e1e1e">   memory controller 0%</span><span style="color:#dfdfdf;background:#1e1e1e">                                                                                       </span><span style="color:#6b6b6b;background:#1e1e1e">│</span>
+<span style="color:#6b6b6b;background:#1e1e1e">│</span><span style="color:#dfdfdf;background:#1e1e1e">                                                                                                                      </span><span style="color:#6b6b6b;background:#1e1e1e">│</span>
+<span style="color:#6b6b6b;background:#1e1e1e">│</span><span style="color:#dfdfdf;background:#1e1e1e">                                                                                                                      </span><span style="color:#6b6b6b;background:#1e1e1e">│</span>
+<span style="color:#6b6b6b;background:#1e1e1e">│</span><span style="color:#dfdfdf;background:#1e1e1e">                                                                                                                      </span><span style="color:#6b6b6b;background:#1e1e1e">│</span>
+<span style="color:#6b6b6b;background:#1e1e1e">│</span><span style="color:#dfdfdf;background:#1e1e1e">                                                                                                              </span><span style="color:#92c56c;background:#1e1e1e">⢀⣀⣀⣀⣀⣀⣀</span><span style="color:#dfdfdf;background:#1e1e1e"> </span><span style="color:#6b6b6b;background:#1e1e1e">│</span>
+<span style="color:#6b6b6b;background:#1e1e1e">│</span><span style="color:#dfdfdf;background:#1e1e1e">                                                                                                                      </span><span style="color:#6b6b6b;background:#1e1e1e">│</span>
+<span style="color:#6b6b6b;background:#1e1e1e">│</span><span style="color:#dfdfdf;background:#1e1e1e"> </span><span style="color:#a2a2a2;background:#1e1e1e">memory </span><span style="color:#b8ba5c;background:#1e1e1e;font-weight:700">41.0 of 121.8 GiB</span><span style="color:#a2a2a2;background:#1e1e1e">  34%  · 80.8 GiB free</span><span style="color:#dfdfdf;background:#1e1e1e">                                                                       </span><span style="color:#6b6b6b;background:#1e1e1e">│</span>
+<span style="color:#6b6b6b;background:#1e1e1e">│</span><span style="color:#dfdfdf;background:#1e1e1e">                                                                                                                      </span><span style="color:#6b6b6b;background:#1e1e1e">│</span>
+<span style="color:#6b6b6b;background:#1e1e1e">│</span><span style="color:#dfdfdf;background:#1e1e1e">                                                                                                              </span><span style="color:#b5bb5d;background:#1e1e1e">⢠⣴⣤</span><span style="color:#b6bb5c;background:#1e1e1e">⣶</span><span style="color:#b7bb5c;background:#1e1e1e">⣶</span><span style="color:#b8ba5b;background:#1e1e1e">⣶</span><span style="color:#b8ba5c;background:#1e1e1e">⣶</span><span style="color:#dfdfdf;background:#1e1e1e"> </span><span style="color:#6b6b6b;background:#1e1e1e">│</span>
+<span style="color:#6b6b6b;background:#1e1e1e">│</span><span style="color:#dfdfdf;background:#1e1e1e">                                                                                                                      </span><span style="color:#6b6b6b;background:#1e1e1e">│</span>
+<span style="color:#6b6b6b;background:#1e1e1e">│</span><span style="color:#dfdfdf;background:#1e1e1e"> </span><span style="color:#a2a2a2;background:#1e1e1e">power </span><span style="color:#dea0f1;background:#1e1e1e;font-weight:700">5 W</span><span style="color:#dfdfdf;background:#1e1e1e">    </span><span style="color:#dea0f1;background:#1e1e1e">▆▇▇▆▇▆▇▇▇▇▇▇▇</span><span style="color:#dfdfdf;background:#1e1e1e">   </span><span style="color:#a2a2a2;background:#1e1e1e">temperature </span><span style="color:#6cc68a;background:#1e1e1e;font-weight:700">46 °C</span><span style="color:#dfdfdf;background:#1e1e1e">    </span><span style="color:#34c8b6;background:#1e1e1e">▄▄</span><span style="color:#3dc7af;background:#1e1e1e">▄▄</span><span style="color:#47c7a7;background:#1e1e1e">▄▄</span><span style="color:#50c7a0;background:#1e1e1e">▄</span><span style="color:#5ac798;background:#1e1e1e">▄▄▄</span><span style="color:#63c691;background:#1e1e1e">▄▄</span><span style="color:#6cc68a;background:#1e1e1e">▄</span><span style="color:#dfdfdf;background:#1e1e1e">                                                      </span><span style="color:#6b6b6b;background:#1e1e1e">│</span>
+<span style="color:#6b6b6b;background:#1e1e1e">│</span><span style="color:#dfdfdf;background:#1e1e1e">                                                                                                                      </span><span style="color:#6b6b6b;background:#1e1e1e">│</span>
+<span style="color:#6b6b6b;background:#1e1e1e">│</span><span style="color:#dfdfdf;background:#1e1e1e"> </span><span style="color:#6ebdff;background:#1e1e1e;font-weight:700">using it</span><span style="color:#dfdfdf;background:#1e1e1e">                                                                                                             </span><span style="color:#6b6b6b;background:#1e1e1e">│</span>
+<span style="color:#6b6b6b;background:#1e1e1e">│</span><span style="color:#dfdfdf;background:#1e1e1e">   greeter                                                                                                            </span><span style="color:#6b6b6b;background:#1e1e1e">│</span>
+<span style="color:#6b6b6b;background:#1e1e1e">│</span><span style="color:#dfdfdf;background:#1e1e1e">                                                                                                                      </span><span style="color:#6b6b6b;background:#1e1e1e">│</span>
+<span style="color:#6b6b6b;background:#1e1e1e">│</span><span style="color:#dfdfdf;background:#1e1e1e"> </span><span style="color:#6ebdff;background:#1e1e1e;font-weight:700">processes</span><span style="color:#dfdfdf;background:#1e1e1e">                                                                                                            </span><span style="color:#6b6b6b;background:#1e1e1e">│</span>
+<span style="color:#6b6b6b;background:#1e1e1e">│</span><span style="color:#dfdfdf;background:#1e1e1e">   </span><span style="color:#a2a2a2;background:#1e1e1e"> PID</span><span style="color:#dfdfdf;background:#1e1e1e">  </span><span style="color:#a2a2a2;background:#1e1e1e">T</span><span style="color:#dfdfdf;background:#1e1e1e">  </span><span style="color:#a2a2a2;background:#1e1e1e">  MEMORY</span><span style="color:#dfdfdf;background:#1e1e1e">  </span><span style="color:#a2a2a2;background:#1e1e1e">PROGRAM                      </span><span style="color:#dfdfdf;background:#1e1e1e">                                                                   </span><span style="color:#6b6b6b;background:#1e1e1e">│</span>
+<span style="color:#6b6b6b;background:#1e1e1e">│</span><span style="color:#dfdfdf;background:#1e1e1e">   </span><span style="color:#05c9db;background:#1e1e1e">1138</span><span style="color:#dfdfdf;background:#1e1e1e">  </span><span style="color:#a2a2a2;background:#1e1e1e">C</span><span style="color:#dfdfdf;background:#1e1e1e">  32.5 MiB  /usr/libexec/axon/axon-vendor                                                                   </span><span style="color:#6b6b6b;background:#1e1e1e">│</span>
+<span style="color:#6b6b6b;background:#1e1e1e">│</span><span style="color:#dfdfdf;background:#1e1e1e">   </span><span style="color:#05c9db;background:#1e1e1e">1138</span><span style="color:#dfdfdf;background:#1e1e1e">  </span><span style="color:#a2a2a2;background:#1e1e1e">G</span><span style="color:#dfdfdf;background:#1e1e1e">  32.5 MiB  /usr/libexec/axon/axon-vendor                                                                   </span><span style="color:#6b6b6b;background:#1e1e1e">│</span>
+<span style="color:#6b6b6b;background:#1e1e1e">╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────</span><span style="color:#a2a2a2;background:#1e1e1e;font-style:italic">↓ more</span><span style="color:#6b6b6b;background:#1e1e1e">─╯</span>
+<span style="color:#dfdfdf;background:#1e1e1e"> </span><span style="color:#6ebdff;background:#1e1e1e;font-weight:700">⏎</span><span style="color:#a2a2a2;background:#1e1e1e"> use this GPU  </span><span style="color:#6ebdff;background:#1e1e1e;font-weight:700">r</span><span style="color:#a2a2a2;background:#1e1e1e"> run…  </span><span style="color:#6ebdff;background:#1e1e1e;font-weight:700">x</span><span style="color:#a2a2a2;background:#1e1e1e"> run there…  </span><span style="color:#6ebdff;background:#1e1e1e;font-weight:700">↑↓</span><span style="color:#a2a2a2;background:#1e1e1e"> GPU  </span><span style="color:#6ebdff;background:#1e1e1e;font-weight:700">←→</span><span style="color:#a2a2a2;background:#1e1e1e"> page  </span><span style="color:#6ebdff;background:#1e1e1e;font-weight:700">o</span><span style="color:#a2a2a2;background:#1e1e1e"> order  </span><span style="color:#6ebdff;background:#1e1e1e;font-weight:700">⇥</span><span style="color:#a2a2a2;background:#1e1e1e"> page  </span><span style="color:#6ebdff;background:#1e1e1e;font-weight:700">?</span><span style="color:#a2a2a2;background:#1e1e1e"> keys  </span><span style="color:#6ebdff;background:#1e1e1e;font-weight:700">q</span><span style="color:#a2a2a2;background:#1e1e1e"> quit  </span></pre></div></figure>
 <ul class="list">
 <li><strong>The top line</strong> sums up the fleet: how many machines and GPUs, how many answer, how busy they are, and how much memory is free.</li>
 <li><strong>The board</strong> has every GPU of every machine, one row each, the best place for work first: the least busy, then the most memory free. Each row shows the GPU's use over the last minute, its free memory, its power and temperature, and who is using it: the people holding sessions on it, the machines they came from, and the programs on it. A machine that does not answer has one row, which says why. <code>↑</code> and <code>↓</code> move between GPUs; <code>o</code> lists them in the fleet's own order instead.</li>
@@ -345,7 +355,7 @@ device: NVIDIA A800 40GB Active
 </div>
 <p><code>axon --help</code> lists every command and flag.</p>
       </div>
-      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/generations/"><span>Previous</span>Updates and generations</a><a class="hb-pager__next" href="/handbook/machine/what-the-machine-remembers/"><span>Next</span>What the machine remembers</a></nav>
+      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/desktop/"><span>Previous</span>The desktop</a><a class="hb-pager__next" href="/handbook/machine/ai-development/"><span>Next</span>AI development</a></nav>
     </div>
   </div>
 </section>

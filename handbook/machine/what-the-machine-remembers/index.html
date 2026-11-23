@@ -76,9 +76,11 @@
 <details class="hb-nav__box" open>
 <summary class="hb-nav__summary">Contents</summary>
 <a class="hb-nav__home" href="/handbook/">The Nerv Handbook</a>
-<p class="hb-nav__part">This machine</p><ol class="hb-nav__list">
+<p class="hb-nav__part">Preface</p><ol class="hb-nav__list">
 <li><a href="/handbook/machine/why-an-operating-system-still/">Why an operating system, still</a>
 </li>
+</ol>
+<p class="hb-nav__part">Getting started</p><ol class="hb-nav__list">
 <li><a href="/handbook/machine/what-nerv-is/">What Nerv is</a>
 </li>
 <li><a href="/handbook/machine/install/">Install</a>
@@ -87,19 +89,35 @@
 </li>
 <li><a href="/handbook/machine/software/">Software</a>
 </li>
-<li><a href="/handbook/machine/containers/">Containers</a>
-</li>
 <li><a href="/handbook/machine/desktop/">The desktop</a>
 </li>
-<li><a href="/handbook/machine/networking/">Networking</a>
+</ol>
+<p class="hb-nav__part">Using the machine</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/compute-fabric/">The GPU</a>
+</li>
+<li><a href="/handbook/machine/ai-development/">AI development</a>
+</li>
+<li><a href="/handbook/machine/agents/">Agents</a>
+</li>
+<li><a href="/handbook/machine/containers/">Containers</a>
+</li>
+<li><a href="/handbook/machine/gaming/">Gaming</a>
+</li>
+<li><a href="/handbook/machine/building-your-own/">Building your own</a>
+</li>
+</ol>
+<p class="hb-nav__part">Keeping the machine</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/generations/">Updates and generations</a>
+</li>
+<li><a href="/handbook/machine/firmware/">Firmware</a>
+</li>
+<li><a href="/handbook/machine/power/">Power</a>
 </li>
 <li><a href="/handbook/machine/accounts-and-keys/">Accounts and keys</a>
 </li>
-</ol>
-<p class="hb-nav__part">Five ideas</p><ol class="hb-nav__list">
-<li><a href="/handbook/machine/generations/">Updates and generations</a>
+<li><a href="/handbook/machine/chain-of-trust/">The chain of trust</a>
 </li>
-<li><a href="/handbook/machine/compute-fabric/">The GPU</a>
+<li><a href="/handbook/machine/yours-and-not-yours/">Yours and not yours</a>
 </li>
 <li><a href="/handbook/machine/what-the-machine-remembers/" aria-current="page">What the machine remembers</a>
 <ol class="hb-nav__sections">
@@ -111,21 +129,13 @@
 <li><a href="#what-comes-next">What comes next</a></li>
 </ol>
 </li>
-<li><a href="/handbook/machine/yours-and-not-yours/">Yours and not yours</a>
-</li>
-<li><a href="/handbook/machine/chain-of-trust/">The chain of trust</a>
-</li>
 </ol>
-<p class="hb-nav__part">Ways of using it</p><ol class="hb-nav__list">
-<li><a href="/handbook/machine/ai-development/">AI development</a>
-</li>
-<li><a href="/handbook/machine/gaming/">Gaming</a>
-</li>
-<li><a href="/handbook/machine/offloading-and-fleets/">Offloading and fleets</a>
+<p class="hb-nav__part">Many machines</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/networking/">Networking</a>
 </li>
 <li><a href="/handbook/machine/plexus/">Plexus</a>
 </li>
-<li><a href="/handbook/machine/building-your-own/">Building your own</a>
+<li><a href="/handbook/machine/offloading-and-fleets/">Offloading and fleets</a>
 </li>
 </ol>
 <p class="hb-nav__part">When it breaks</p><ol class="hb-nav__list">
@@ -134,12 +144,12 @@
 <li><a href="/handbook/machine/asking-why/">Asking why</a>
 </li>
 </ol>
-<p class="hb-nav__part">More</p><ol class="hb-nav__list">
-<li><a href="/handbook/machine/agents/">Agents</a>
+<p class="hb-nav__part">Reference</p><ol class="hb-nav__list">
+<li><a href="/handbook/reference/magi-contract/">What MAGI promises</a>
 </li>
-<li><a href="/handbook/machine/firmware/">Firmware</a>
+<li><a href="/handbook/reference/magi-limits/">MAGI&#x27;s limits</a>
 </li>
-<li><a href="/handbook/machine/power/">Power</a>
+<li><a href="/handbook/reference/magi-format/">The MAGI store format</a>
 </li>
 </ol>
 </details></nav>
@@ -156,13 +166,12 @@
 <li><strong>The kernel says who is writing.</strong> magid asks the kernel for the user and the program at the other end of its socket, and never takes a program's word for its name.</li>
 <li><strong>A program writes only the streams it declared as its own.</strong> Nothing writes a record as another program: not another program of yours, not a script, not an agent.</li>
 </ul>
-<p>magid starts when something first connects to it. Idle, it sets no timer and wakes nothing, and a store nobody has used for five minutes is closed. Under the <code>saver</code> power profile it writes to the disk less often and closes stores sooner. Stopped, by <code>systemctl stop magid</code> or at shutdown, it finishes and answers what it had begun, tells every program still connected that it is stopping, and leaves every store closed: a program knows that each batch it was answered for is kept, and that nothing it asked after was done.</p>
+<p>magid starts when something first connects to it. Idle, it sets no timer and wakes nothing, and a store nobody has used for five minutes is closed. Under the <code>saver</code> power profile it writes to the disk less often and closes stores sooner. Stopped, by <code>systemctl stop magid</code> or at shutdown, it finishes what it had begun and closes every store.</p>
+<p>What an answer from magid promises, across a crash, a power cut, an update and a rollback, and every case in which something kept is lost, is <a href="/handbook/reference/magi-contract/">What MAGI promises</a>; the sizes and rates it holds to are <a href="/handbook/reference/magi-limits/">MAGI's limits</a>.</p>
 <h2 id="what-it-keeps" class="section-title">What it keeps</h2>
 <p>A store holds <strong>streams</strong>, each with one writer. A history stream is a sequence of records, each kept as it was written. A state stream holds keys and their current values: a conversation's place, an index of packages.</p>
 <ul class="list">
-<li><strong>A changed record shows.</strong> Every record is chained by its hash to the one before it, so a record changed or removed after the fact is a break in the chain, and <code>engram verify</code> finds it.</li>
-<li><strong>A batch is all or nothing.</strong> A program writes a batch of records at once, and after a power cut the store comes back at the end of a whole batch. Nothing half-written is ever read.</li>
-<li><strong>A rollback leaves a store alone.</strong> A store a newer system wrote is opened by an older one only as far as it can be without being changed. If the older system can read it, it does, but writes nothing to it. If it cannot, it refuses the store and leaves it as it is, and going forward again finds it there.</li>
+<li><strong>A changed record shows,</strong> and a batch is kept whole or not at all (<a href="/handbook/reference/magi-contract/">What MAGI promises</a>).</li>
 <li><strong>Time is the boot and the clock within it.</strong> A machine whose clock was wrong for a week still has that week in the right order, with the wall-clock time kept beside each record for what it is.</li>
 <li><strong>Records are typed.</strong> A package installs the types of the records its programs write in <code>/usr/share/magi/schemas</code>. A field is added in a new version of a type, never renamed or changed, so a reader written today still reads next year's records.</li>
 <li><strong>Views are kept current.</strong> A view is an index, a filter, a projection or a join over other streams, and it changes in the same batch as what it reads, so it is never behind. A program can watch one and be told when it changes.</li>
@@ -214,17 +223,44 @@ $ doas magi tail journal/entries -n 5</pre>
 </div>
 <p>A program, or a script of yours, declares a stream with <code>magi declare</code> and writes it with <code>magi append</code> or <code>magi put</code>. <code>magi --help</code> lists every command.</p>
 <h3 id="removing-something-recorded-by-accident" class="sub-title">Removing something recorded by accident</h3>
-<p>A password pasted into the wrong prompt, or a token a program logged, can be taken out of a history stream, whichever program wrote it:</p>
+<p>A password pasted into the wrong prompt, or a token a program logged, can be taken out of a history stream, whichever program wrote it, and a key of a state stream along with everything it ever held:</p>
 <pre class="term term__body">$ magi redact STREAM SEQ
-$ doas magi redact journal/entries 1048213</pre>
-<p><code>SEQ</code> is the record's number, as <code>magi tail</code> shows it. When <code>magi redact</code> returns:</p>
+$ doas magi redact journal/entries 1048213
+$ magi redact STREAM --key KEY</pre>
+<p><code>SEQ</code> is the record's number, as <code>magi tail</code> shows it; <code>KEY</code> is written as <code>magi get</code> takes it. When <code>magi redact</code> returns:</p>
 <ul class="list">
 <li><strong>No file of the store holds any of it.</strong> It is gone from the stream, from every view over the stream, and from every index that was kept of it: the words a search finds, the counts, the columns and the connections between records.</li>
 <li><strong>A scar takes its place.</strong> The record still has its number and its time, so the chain around it still verifies and <code>engram verify</code> passes. Reading it says it was redacted, and nothing else.</li>
 <li><strong>The views do not know that instant any more.</strong> A view over the stream answers that it has no knowledge at the record's time, rather than give a count that would tell what was there.</li>
+<li><strong>A redacted key is deleted.</strong> Every change ever made to it is a scar, its name included, and so is the deletion itself. The key can be written again afterwards, and is then a key like any other.</li>
 </ul>
-<p>What it cannot reach is anything outside the store: a backup, a copy someone else made, or blocks the filesystem freed but has not yet overwritten. Only a history stream's records can be redacted: a state stream's value cannot be yet.</p>
-<p><code>engram</code> reads a store's files directly, with no daemon: a store copied off a machine, or one checked by hand. It never writes.</p>
+<p>What a redaction costs the views, and what it cannot reach, is <a href="/handbook/reference/magi-contract/#redaction">What MAGI promises</a>.</p>
+<h3 id="backing-up-a-store" class="sub-title">Backing up a store</h3>
+<pre class="term term__body">$ magi backup ~/backups/store-monday
+$ doas magi backup /srv/backups/journal</pre>
+<p>copies the store into a new directory as it is at that moment, while programs go on writing it; nothing waits for longer than the store takes to checkpoint. When it returns, the copy has been read back and verified, and its last line says where it ends:</p>
+<pre class="term term__body">DIR: FILES files, BYTES bytes; STREAMS streams, RECORDS records, BATCHES batches to offset END, commit DIGEST</pre>
+<ul class="list">
+<li><strong>The copy is a store.</strong> Every record and every key in it is what the store held at that moment, and <code>engram verify</code> on it reports the same end and the same commit as the store reported then.</li>
+<li><strong>What it leaves out</strong> is <a href="/handbook/reference/magi-contract/#backup">What MAGI promises</a>: the indexes, which are built again, and anything after it, a redaction included.</li>
+</ul>
+<p>To put a copy back, stop magid, move the store's directory aside, and move the copy into its place. A user's store is <code>/var/lib/magi/stores/UID</code>, and the system's is <code>/var/lib/magi/stores/system</code>.</p>
+<h3 id="taking-the-data-out-and-putting-it-in" class="sub-title">Taking the data out, and putting it in</h3>
+<pre class="term term__body">$ magi export ~/exports/store
+$ magi export ~/exports/monday --store ~/backups/store-monday
+$ doas magi import ~/exports/store --store /var/lib/magi/import-1000</pre>
+<p><code>magi export</code> writes everything a store holds as plain files any program can read: JSON, one value per line, with each type's schema beside it. It reads a backup it takes first, so the export is of one moment however busy the store is; <code>--store</code> exports a backup's directory instead.</p>
+<pre class="term term__body">DIR/store.json            the store: its id, its last commit, the boots it knows and their order
+DIR/types.jsonl           each type: name, version, whether a package installed it or a program declared it, its owner
+DIR/types/NAME.schema     its fields
+DIR/streams.jsonl         each stream: its name, its writer, the flags magi declare takes to declare it again,
+                          and what the store knew of it: its head, its floor, when its writer was attached, its source's marks
+DIR/records/N.jsonl       its records, or a state stream's keys, one a line</pre>
+<p>A record is <code>{"seq", "time": {"boot", "ns"}, "token"}</code> and then its fields by name under <code>"record"</code>, or its bytes as <code>"text"</code> or <code>"hex"</code>. A redacted record says <code>"redacted": true</code> and nothing of what it held. A key is <code>"key_text"</code> or <code>"key_hex"</code>, its <code>"version"</code>, and its value the same way. Integers and floats are numbers, written exactly; text is a string; bytes are hex; a time is <code>{"boot", "ns"}</code>; lists and vectors are arrays; a map is an array of pairs. A stream's history and state streams come first, then its views, whose rows are not written: they come back when the view is declared again.</p>
+<p><code>magi import DIR --store NEW</code> makes the store an export holds again, in the new directory <code>NEW</code>, with no daemon. It is the store it was to every reader: each stream declared by the program that declared it, each type owned by whoever owned it, each record at its sequence number, time and token, redacted where it was redacted, each key at its version, and what the store knew of when each stream was complete. What does not come across is <a href="/handbook/reference/magi-contract/#export-and-import">What MAGI promises</a>.</p>
+<p>To serve it, stop magid and move <code>NEW</code> into a store's place, as a backup is put back. The programs that wrote it then carry on where they were: each stream's next record is the one after its last, and the next token and the next version of a key follow on. Making a store's directory takes what writing one's files takes, so importing is root's, or magid's; nothing is ever imported through magid, and no program can write a record under another's name.</p>
+<p>A backup is the store's own files, read by a MAGI that reads their format, which <a href="/handbook/reference/magi-format/">The MAGI store format</a> describes byte by byte; an export is plain JSON, so it is how a store moves to a MAGI whose format has changed.</p>
+<p><code>engram</code> reads a store's files directly, with no daemon: a store copied off a machine, a backup, or one checked by hand. It never writes.</p>
 <pre class="term term__body">$ engram verify ./store</pre>
 <p>checks every record and every chain in it, and exits with 1 if anything is wrong.</p>
 <h2 id="what-comes-next" class="section-title">What comes next</h2>
@@ -236,7 +272,7 @@ $ doas magi redact journal/entries 1048213</pre>
 <li><strong>A fleet's record,</strong> replicated between machines so they answer as one, with queries that run on the GPU.</li>
 </ul>
       </div>
-      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/compute-fabric/"><span>Previous</span>The GPU</a><a class="hb-pager__next" href="/handbook/machine/yours-and-not-yours/"><span>Next</span>Yours and not yours</a></nav>
+      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/yours-and-not-yours/"><span>Previous</span>Yours and not yours</a><a class="hb-pager__next" href="/handbook/machine/networking/"><span>Next</span>Networking</a></nav>
     </div>
   </div>
 </section>

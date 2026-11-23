@@ -76,9 +76,11 @@
 <details class="hb-nav__box" open>
 <summary class="hb-nav__summary">Contents</summary>
 <a class="hb-nav__home" href="/handbook/">The Nerv Handbook</a>
-<p class="hb-nav__part">This machine</p><ol class="hb-nav__list">
+<p class="hb-nav__part">Preface</p><ol class="hb-nav__list">
 <li><a href="/handbook/machine/why-an-operating-system-still/">Why an operating system, still</a>
 </li>
+</ol>
+<p class="hb-nav__part">Getting started</p><ol class="hb-nav__list">
 <li><a href="/handbook/machine/what-nerv-is/">What Nerv is</a>
 </li>
 <li><a href="/handbook/machine/install/">Install</a>
@@ -86,8 +88,6 @@
 <li><a href="/handbook/machine/the-first-hour/">The first hour</a>
 </li>
 <li><a href="/handbook/machine/software/">Software</a>
-</li>
-<li><a href="/handbook/machine/containers/">Containers</a>
 </li>
 <li><a href="/handbook/machine/desktop/" aria-current="page">The desktop</a>
 <ol class="hb-nav__sections">
@@ -114,33 +114,43 @@
 <li><a href="#what-is-still-in-progress">What is still in progress</a></li>
 </ol>
 </li>
-<li><a href="/handbook/machine/networking/">Networking</a>
-</li>
-<li><a href="/handbook/machine/accounts-and-keys/">Accounts and keys</a>
-</li>
 </ol>
-<p class="hb-nav__part">Five ideas</p><ol class="hb-nav__list">
-<li><a href="/handbook/machine/generations/">Updates and generations</a>
-</li>
+<p class="hb-nav__part">Using the machine</p><ol class="hb-nav__list">
 <li><a href="/handbook/machine/compute-fabric/">The GPU</a>
 </li>
-<li><a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a>
-</li>
-<li><a href="/handbook/machine/yours-and-not-yours/">Yours and not yours</a>
-</li>
-<li><a href="/handbook/machine/chain-of-trust/">The chain of trust</a>
-</li>
-</ol>
-<p class="hb-nav__part">Ways of using it</p><ol class="hb-nav__list">
 <li><a href="/handbook/machine/ai-development/">AI development</a>
+</li>
+<li><a href="/handbook/machine/agents/">Agents</a>
+</li>
+<li><a href="/handbook/machine/containers/">Containers</a>
 </li>
 <li><a href="/handbook/machine/gaming/">Gaming</a>
 </li>
-<li><a href="/handbook/machine/offloading-and-fleets/">Offloading and fleets</a>
+<li><a href="/handbook/machine/building-your-own/">Building your own</a>
+</li>
+</ol>
+<p class="hb-nav__part">Keeping the machine</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/generations/">Updates and generations</a>
+</li>
+<li><a href="/handbook/machine/firmware/">Firmware</a>
+</li>
+<li><a href="/handbook/machine/power/">Power</a>
+</li>
+<li><a href="/handbook/machine/accounts-and-keys/">Accounts and keys</a>
+</li>
+<li><a href="/handbook/machine/chain-of-trust/">The chain of trust</a>
+</li>
+<li><a href="/handbook/machine/yours-and-not-yours/">Yours and not yours</a>
+</li>
+<li><a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a>
+</li>
+</ol>
+<p class="hb-nav__part">Many machines</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/networking/">Networking</a>
 </li>
 <li><a href="/handbook/machine/plexus/">Plexus</a>
 </li>
-<li><a href="/handbook/machine/building-your-own/">Building your own</a>
+<li><a href="/handbook/machine/offloading-and-fleets/">Offloading and fleets</a>
 </li>
 </ol>
 <p class="hb-nav__part">When it breaks</p><ol class="hb-nav__list">
@@ -149,12 +159,12 @@
 <li><a href="/handbook/machine/asking-why/">Asking why</a>
 </li>
 </ol>
-<p class="hb-nav__part">More</p><ol class="hb-nav__list">
-<li><a href="/handbook/machine/agents/">Agents</a>
+<p class="hb-nav__part">Reference</p><ol class="hb-nav__list">
+<li><a href="/handbook/reference/magi-contract/">What MAGI promises</a>
 </li>
-<li><a href="/handbook/machine/firmware/">Firmware</a>
+<li><a href="/handbook/reference/magi-limits/">MAGI&#x27;s limits</a>
 </li>
-<li><a href="/handbook/machine/power/">Power</a>
+<li><a href="/handbook/reference/magi-format/">The MAGI store format</a>
 </li>
 </ol>
 </details></nav>
@@ -302,8 +312,9 @@ v u 1</pre>
 <p>Browser is the web browser that comes with the desktop: <code>browser</code> from a terminal, <em>Browser</em> in the launcher. It is built from Firefox's source, so pages work as they do in Firefox, and it runs on Nerv's own C library and allocator. It is not called Firefox, because Mozilla's name and logos belong to Mozilla's own builds.</p>
 <p>It follows the desktop's <a href="#light-and-dark">light or dark</a> scheme in Myelin's colours, and pages are shown in the same scheme; an open window changes when the shell does. About Browser opens over the window it came from. The window is two rows: the tabs, ending in the window's buttons, and the address bar with back, forward, reload, downloads and the extensions menu. Toolbars hide only in fullscreen. The interface is set in Ashinoko, and so is any page that does not choose its own fonts. A new tab is a blank page with the cursor in the address bar.</p>
 <p>It starts where you left off: the last session's tabs come back, and each loads when you first look at it. Searches go to DuckDuckGo.</p>
-<p>Video is decoded by the GPU's video engine: H.264, HEVC, VP8, VP9 and AV1, in 8 and 10 bits, which covers what YouTube and the other video sites serve, and the video of a call in VP8, VP9 or AV1. Video a site encrypts for DRM does not play, because Browser has no DRM module: that includes Vimeo, which encrypts its videos, and the subscription services. The frames go from the video engine to the screen without passing through the processor: the compositor draws each one itself, in the colours the video declares, so a film costs the processor a small part of what decoding it there would, high-resolution video plays smoothly, and nothing caps its frame rate. Seeking does not restart the video engine. A call whose VP9 carries several sizes at once is decoded by the processor. Tabs you are not looking at run on the machine's efficiency cores at a low clock, however busy their pages are; a tab playing sound is not slowed.</p>
-<p>It sends nothing you did not ask it to, and fetches no plugins. There is no telemetry, no studies or experiments, no crash reporting, no sponsored tiles or suggestions, and no Pocket. Tracking protection is on Strict, every page is loaded over HTTPS, and names are looked up by the system's own resolver. uBlock Origin is installed and on for every user; you can switch it off in <em>Settings → Extensions</em>, but not remove it. Browser never offers to save a password or to translate a page.</p>
+<p>Video is decoded by the GPU's video engine: H.264, HEVC, VP8, VP9 and AV1, in 8 and 10 bits, which covers what YouTube and the other video sites serve, and the video of a call in VP8, VP9 or AV1. The frames go from the video engine to the screen without passing through the processor: the compositor draws each one itself, in the colours the video declares, so a film costs the processor a small part of what decoding it there would, high-resolution video plays smoothly, and nothing caps its frame rate. Seeking does not restart the video engine. A call whose VP9 carries several sizes at once is decoded by the processor. Tabs you are not looking at run on the machine's efficiency cores at a low clock, however busy their pages are; a tab playing sound is not slowed.</p>
+<p>Video a site encrypts for DRM, as Vimeo and the subscription services do, plays once you allow it. Playing it takes Widevine, Google's DRM module, which is proprietary, so Browser has none until a site asks for it. Browser then asks whether to play DRM-controlled content; when you choose <em>Enable DRM</em>, it downloads Widevine from Google, checks that the download is the one Google signed, and plays the video once you reload the page. Widevine decrypts and decodes such video itself, on the processor. <em>Settings → General → Play DRM-controlled content</em> turns DRM off again and removes Widevine.</p>
+<p>It sends nothing you did not ask it to, and fetches no plugin you did not ask for. Once DRM is on, it asks Google once a day whether Widevine has a newer version, naming the module, the platform and the architecture and nothing else. There is no telemetry, no studies or experiments, no crash reporting, no sponsored tiles or suggestions, and no Pocket. Tracking protection is on Strict, every page is loaded over HTTPS, and names are looked up by the system's own resolver. uBlock Origin is installed and on for every user; you can switch it off in <em>Settings → Extensions</em>, but not remove it. Browser never offers to save a password or to translate a page.</p>
 <p>Every download asks where to go, in the desktop's file chooser. Sync is in <em>Settings → Sync</em>, for a Mozilla account, and nothing else asks you to sign in.</p>
 <p>Browser uses the profile in <code>~/.mozilla/firefox</code>, or in <code>~/.config/mozilla/firefox</code> where a newer Firefox made it, so a profile from Firefox carries over as it is. Pages see Browser as Firefox, which is what its engine is.</p>
 <h2 id="files" class="section-title">Files</h2>
@@ -340,7 +351,7 @@ $ nerv-keymap                        # what is set now</pre>
 <li><strong>Thumbnails of videos.</strong> Luciole shows a video as its icon.</li>
 </ul>
       </div>
-      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/containers/"><span>Previous</span>Containers</a><a class="hb-pager__next" href="/handbook/machine/networking/"><span>Next</span>Networking</a></nav>
+      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/software/"><span>Previous</span>Software</a><a class="hb-pager__next" href="/handbook/machine/compute-fabric/"><span>Next</span>The GPU</a></nav>
     </div>
   </div>
 </section>

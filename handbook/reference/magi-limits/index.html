@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nerv Linux — MAGI's limits</title>
+<meta name="description" content="The sizes, counts and rates MAGI holds to, and everything it refuses, with what it says when it does. A limit here is a promise too: what is under it is taken, and what is over it is refused before anything is written, never cut short. What MAGI promises says what is kept; What the machine remembers is the chapter on using it.">
+<link rel="canonical" href="https://nervlinux.org/handbook/reference/magi-limits/">
+<meta property="og:title" content="Nerv Linux — MAGI's limits">
+<meta property="og:description" content="The sizes, counts and rates MAGI holds to, and everything it refuses, with what it says when it does. A limit here is a promise too: what is under it is taken, and what is over it is refused before anything is written, never cut short. What MAGI promises says what is kept; What the machine remembers is the chapter on using it.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nervlinux.org/handbook/reference/magi-limits/">
+<link rel="icon" href="/assets/favicon.png" sizes="32x32">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/nerv-square.png">
+<link rel="preload" href="/fonts/ashinoko-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/palette.css">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/site.css">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('nerv-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="masthead__inner">
+    <a class="masthead__brand" href="/" aria-label="Nerv Linux — home">
+      <img class="logo" src="/assets/nerv-wordmark.png" alt="Nerv Linux" width="600" height="149">
+    </a>
+    <nav class="masthead__nav" aria-label="Primary">
+      <div class="masthead__links" id="primary-links">
+      <a href="/system/">System</a>
+      <a href="/desktop/">Desktop</a>
+      <a href="/enterprise/">Enterprise</a>
+      <a href="/community/">Community</a>
+      <a href="/handbook/" aria-current="page">Handbook</a>
+      <a href="/downloads/">Downloads</a>
+      <a href="/about/">About</a>
+      </div>
+      <button class="theme-toggle" id="theme-toggle" type="button"
+              aria-label="Switch to light theme" title="Switch theme">
+        <svg class="icon icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path fill="currentColor" d="M20.7 14.6A8.6 8.6 0 0 1 9.4 3.3a8.7 8.7 0 1 0 11.3 11.3Z"/>
+        </svg>
+        <svg class="icon icon--sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2" fill="currentColor"/>
+          <g stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+            <path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4"/>
+            <path d="M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/>
+          </g>
+        </svg>
+      </button>
+      <button class="menu-toggle" id="menu-toggle" type="button"
+              aria-label="Menu" aria-expanded="false" aria-controls="primary-links">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+          <path class="menu-toggle__open" d="M4 7h16M4 12h16M4 17h16"/>
+          <path class="menu-toggle__close" d="M6 6l12 12M18 6L6 18"/>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="section section--head">
+  <div class="wrap hb">
+    <nav class="hb-nav" aria-label="Handbook">
+<details class="hb-nav__box" open>
+<summary class="hb-nav__summary">Contents</summary>
+<a class="hb-nav__home" href="/handbook/">The Nerv Handbook</a>
+<p class="hb-nav__part">Preface</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/why-an-operating-system-still/">Why an operating system, still</a>
+</li>
+</ol>
+<p class="hb-nav__part">Getting started</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/what-nerv-is/">What Nerv is</a>
+</li>
+<li><a href="/handbook/machine/install/">Install</a>
+</li>
+<li><a href="/handbook/machine/the-first-hour/">The first hour</a>
+</li>
+<li><a href="/handbook/machine/software/">Software</a>
+</li>
+<li><a href="/handbook/machine/desktop/">The desktop</a>
+</li>
+</ol>
+<p class="hb-nav__part">Using the machine</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/compute-fabric/">The GPU</a>
+</li>
+<li><a href="/handbook/machine/ai-development/">AI development</a>
+</li>
+<li><a href="/handbook/machine/agents/">Agents</a>
+</li>
+<li><a href="/handbook/machine/containers/">Containers</a>
+</li>
+<li><a href="/handbook/machine/gaming/">Gaming</a>
+</li>
+<li><a href="/handbook/machine/building-your-own/">Building your own</a>
+</li>
+</ol>
+<p class="hb-nav__part">Keeping the machine</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/generations/">Updates and generations</a>
+</li>
+<li><a href="/handbook/machine/firmware/">Firmware</a>
+</li>
+<li><a href="/handbook/machine/power/">Power</a>
+</li>
+<li><a href="/handbook/machine/accounts-and-keys/">Accounts and keys</a>
+</li>
+<li><a href="/handbook/machine/chain-of-trust/">The chain of trust</a>
+</li>
+<li><a href="/handbook/machine/yours-and-not-yours/">Yours and not yours</a>
+</li>
+<li><a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a>
+</li>
+</ol>
+<p class="hb-nav__part">Many machines</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/networking/">Networking</a>
+</li>
+<li><a href="/handbook/machine/plexus/">Plexus</a>
+</li>
+<li><a href="/handbook/machine/offloading-and-fleets/">Offloading and fleets</a>
+</li>
+</ol>
+<p class="hb-nav__part">When it breaks</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/recovery/">Recovery</a>
+</li>
+<li><a href="/handbook/machine/asking-why/">Asking why</a>
+</li>
+</ol>
+<p class="hb-nav__part">Reference</p><ol class="hb-nav__list">
+<li><a href="/handbook/reference/magi-contract/">What MAGI promises</a>
+</li>
+<li><a href="/handbook/reference/magi-limits/" aria-current="page">MAGI&#x27;s limits</a>
+<ol class="hb-nav__sections">
+<li><a href="#a-store">A store</a></li>
+<li><a href="#streams">Streams</a></li>
+<li><a href="#records-and-keys">Records and keys</a></li>
+<li><a href="#requests">Requests</a></li>
+<li><a href="#connections">Connections</a></li>
+<li><a href="#rates-and-times">Rates and times</a></li>
+<li><a href="#what-a-store-does-not-do">What a store does not do</a></li>
+</ol>
+</li>
+<li><a href="/handbook/reference/magi-format/">The MAGI store format</a>
+</li>
+</ol>
+</details></nav>
+    <div class="hb__main">
+      <div class="essay">
+<h1 class="page-title">MAGI's limits</h1>
+<p>The sizes, counts and rates MAGI holds to, and everything it refuses, with what it says when it does. A limit here is a promise too: what is under it is taken, and what is over it is refused before anything is written, never cut short. <a href="/handbook/reference/magi-contract/">What MAGI promises</a> says what is kept; <a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a> is the chapter on using it.</p>
+<h2 id="a-store" class="section-title">A store</h2>
+<div class="table-scroll">
+<table class="data">
+<tbody>
+<tr>
+<td>stores</td><td>one per account in <code>/etc/passwd</code>, at <code>/var/lib/magi/stores/UID</code>, and the system's at <code>/var/lib/magi/stores/system</code>. A uid with no account is refused: <em>uid N is no account in /etc/passwd, and only an account has a store</em>.</td>
+</tr>
+<tr>
+<td>a store's budget</td><td>10% of the filesystem holding the stores, unless <code>/etc/magi/budgets</code> says otherwise: one <code>UID-or-user-or-* AMOUNT</code> a line, the amount in bytes with <code>K</code>, <code>M</code>, <code>G</code> or <code>T</code>, or a percentage. The file must be root's and writable by nobody else, or it is ignored.</td>
+</tr>
+<tr>
+<td>at its budget</td><td>a batch that would pass it is refused, naming the budget and where it came from, and a batch that only closes a writer's attachment is still taken. Nothing is evicted to make room. A new stream's byte cap is held to what the budget has left.</td>
+</tr>
+<tr>
+<td>writers</td><td>one: magid. Stores are not shared across machines, and one store is one unit of atomicity: a batch spans streams of one store, never two stores.</td>
+</tr>
+<tr>
+<td>the format</td><td>format 1. A store from before the freeze is set aside, not read (<a href="/handbook/reference/magi-contract/#updates-and-rollbacks">What MAGI promises</a>).</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="streams" class="section-title">Streams</h2>
+<div class="table-scroll">
+<table class="data">
+<tbody>
+<tr>
+<td>a name</td><td><code>NAMESPACE/NAME</code>, lower-case letters, digits, <code>-</code>, <code>_</code> and <code>.</code>, with any number of <code>/</code>-separated parts after the first. Ids are the store's to give, never a program's.</td>
+</tr>
+<tr>
+<td>a declaration</td><td>names every column: kind, writer, signing (<code>unsigned</code>), trust, retention, a consumer, idempotency, durability, schema, and a view's plan. One that leaves out a consumer, a byte cap or a writer's program is refused.</td>
+</tr>
+<tr>
+<td>declared again</td><td>exactly as it is, it answers with the stream as declared and writes nothing; differing in anything, it is refused.</td>
+</tr>
+<tr>
+<td>signing</td><td>only <code>unsigned</code> is taken; a key is refused until signing ships.</td>
+</tr>
+<tr>
+<td>retention</td><td>a byte cap, required; a history stream may add a record cap of at least one. A state stream has no record cap: its byte cap bounds its live keys and their values, and a change past it is refused.</td>
+</tr>
+<tr>
+<td>who writes it</td><td>only the program that declared it, as the kernel names it. A writer cannot send a state change of kind <code>redact</code>, which only a redaction writes.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="records-and-keys" class="section-title">Records and keys</h2>
+<div class="table-scroll">
+<table class="data">
+<tbody>
+<tr>
+<td>a history record</td><td>at most 16 MiB. Larger data belongs in a file the record names.</td>
+</tr>
+<tr>
+<td>a key</td><td>at most 512 bytes. Keys are compared as bytes, never by a collation.</td>
+</tr>
+<tr>
+<td>a state value</td><td>at most 65,528 bytes: 64 KiB less the 8 the store keeps beside it.</td>
+</tr>
+<tr>
+<td>a record's time</td><td>on a stream the engine witnesses, the time of the batch that commits it; any other time is refused. On a stream its source witnesses, the source's time, required, in a boot the stream's writer has placed, and never after the batch that carries it.</td>
+</tr>
+<tr>
+<td>a token</td><td>required on a stream declared with idempotency, refused on one declared without. One not above the stream's last is a duplicate, and writes nothing.</td>
+</tr>
+<tr>
+<td>a merge</td><td>add, max and min on 64-bit signed integers (an add that overflows is refused, never wrapped); union into a sorted set of byte strings; append; latest by a writer's stamp. A merge the stored value cannot take is refused, and so is its batch.</td>
+</tr>
+<tr>
+<td>a type</td><td>fields of <code>bool</code>, <code>i8</code> to <code>i64</code>, <code>u8</code> to <code>u64</code>, <code>f32</code>, <code>f64</code>, text, bytes, a time, a blob reference, lists, maps with a scalar key, and vectors of <code>f32</code> or <code>f16</code>, nested at most 32 deep. Key fields are required, scalar, and not floats. A new version adds fields and changes none.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="requests" class="section-title">Requests</h2>
+<div class="table-scroll">
+<table class="data">
+<tbody>
+<tr>
+<td>a message</td><td>at most 32 MiB, and at most 65,536 operations across its batches.</td>
+</tr>
+<tr>
+<td>a read</td><td>at most 4,096 records, or 16 MiB of them, a call; a program reads on from the last sequence it was given.</td>
+</tr>
+<tr>
+<td>a range</td><td>at most 4,096 keys a call, and it says whether more follow.</td>
+</tr>
+<tr>
+<td>a history view by time</td><td>at most 4,096 rows a call, with a cursor to go on from.</td>
+</tr>
+<tr>
+<td>a search</td><td>at most 1,024 hits, and at most 64 values required and 64 excluded.</td>
+</tr>
+<tr>
+<td>a column scan</td><td>at most 16 columns to group by, 64 aggregates, 2²⁰ groups, and conditions nested 64 deep. Floats are not summed.</td>
+</tr>
+<tr>
+<td>following a graph</td><td>at most 4,096 seeds and 2²⁰ rows answered.</td>
+</tr>
+<tr>
+<td>an answer too large for one message</td><td>refused, never cut short.</td>
+</tr>
+<tr>
+<td>a watcher</td><td>is cut off once 8 MiB of changes wait unread for it. A store holds at most 128 MiB of the views watches started from for watchers that have not read them; a watch past that is refused.</td>
+</tr>
+<tr>
+<td>a backup</td><td>read 8 MiB at a time, at most 2²⁰ files.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="connections" class="section-title">Connections</h2>
+<div class="table-scroll">
+<table class="data">
+<tbody>
+<tr>
+<td>at once</td><td>4,096 connections across every store, or fewer when magid's file-descriptor limit is lower. An eighth of them is kept for the system's store.</td>
+</tr>
+<tr>
+<td>per account</td><td>an eighth of the users' share.</td>
+</tr>
+<tr>
+<td>saying who it is</td><td>a connection that has not said <code>Hello</code> within 5 seconds is let go.</td>
+</tr>
+<tr>
+<td>the system's store</td><td>reached only through its own socket, which the security policy opens to the journal's tail, the administrator and the system's own managers; no other service reaches it, root or not.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="rates-and-times" class="section-title">Rates and times</h2>
+<div class="table-scroll">
+<table class="data">
+<tbody>
+<tr>
+<td>a <code>lazy</code> batch</td><td>synced within a second, five seconds under the <code>saver</code> power profile.</td>
+</tr>
+<tr>
+<td>a <code>group</code> or <code>sync</code> batch</td><td>answered when an <code>fdatasync</code> covering it returns.</td>
+</tr>
+<tr>
+<td>a store nobody uses</td><td>closed after five minutes with no request, no watcher and no writer attached; fifteen seconds under <code>saver</code>. The next request opens it again.</td>
+</tr>
+<tr>
+<td>idle</td><td>magid sets no timer, and wakes for nothing.</td>
+</tr>
+<tr>
+<td>a reopened store</td><td>replays at most about the last 8 MiB of its log, whatever has been written.</td>
+</tr>
+<tr>
+<td>a redaction</td><td>holds the store's writer while it rewrites the store's tables; batches that arrive meanwhile wait.</td>
+</tr>
+<tr>
+<td>a backup</td><td>holds the writer only for a checkpoint. A redaction is refused while one is being taken.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="what-a-store-does-not-do" class="section-title">What a store does not do</h2>
+<ul class="list">
+<li><strong>Write across stores.</strong> A batch is atomic within one store, and nothing orders two stores' batches against each other.</li>
+<li><strong>Compress.</strong> A store's files are not compressed by the filesystem; a mount that forces compression ignores that.</li>
+<li><strong>Sign.</strong> Streams are declared <code>unsigned</code>; signing a stream's head is on the roadmap.</li>
+<li><strong>Replicate.</strong> A store lives on one machine. A fleet's record is on the roadmap.</li>
+</ul>
+      </div>
+      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/reference/magi-contract/"><span>Previous</span>What MAGI promises</a><a class="hb-pager__next" href="/handbook/reference/magi-format/"><span>Next</span>The MAGI store format</a></nav>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__base">
+      <p>Copyright &copy; 2026 Nerv Dynamics AB. Nerv Linux is free software under the
+         Apache License 2.0. Software from other projects keeps its upstream licence. <a href="https://codeberg.org/nerv-dynamics/nerv-linux">Source on Codeberg</a>.</p>
+      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell, GB10 and GB300 are
+         trademarks of NVIDIA Corporation. Linux is a registered trademark of
+         Linus Torvalds. Nerv Linux is not affiliated with, endorsed by, or
+         sponsored by either.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var btn = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    function label() {
+      var dark = root.getAttribute('data-theme') !== 'light';
+      btn.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+    }
+    label();
+    btn.addEventListener('click', function () {
+      // Dark is the default, so anything that isn't explicitly light is dark.
+      var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('nerv-theme', next); } catch (e) {}
+      label();
+    });
+  })();
+  (function () {
+    // Phone menu: the nav links fold into a panel under the masthead.
+    var btn = document.getElementById('menu-toggle');
+    var head = btn.closest('.masthead');
+    btn.addEventListener('click', function () {
+      var open = head.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  })();
+  (function () {
+    // On phones a tapped diagram opens full screen, large, to pan and zoom.
+    var narrow = window.matchMedia('(max-width: 760px)');
+    function close(z) { z.remove(); document.body.classList.remove('has-zoom'); }
+    document.querySelectorAll('.diagram').forEach(function (fig) {
+      fig.addEventListener('click', function () {
+        var svg = fig.querySelector('svg');
+        if (!narrow.matches || !svg) return;
+        var z = document.createElement('div');
+        z.className = 'zoom'; z.setAttribute('role', 'dialog'); z.setAttribute('aria-label', svg.getAttribute('aria-label') || 'Diagram');
+        z.appendChild(svg.cloneNode(true));
+        var b = document.createElement('button');
+        b.className = 'zoom__close'; b.type = 'button'; b.setAttribute('aria-label', 'Close');
+        b.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+        b.addEventListener('click', function () { close(z); });
+        z.appendChild(b);
+        document.body.appendChild(z); document.body.classList.add('has-zoom');
+        document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { close(z); document.removeEventListener('keydown', esc); } });
+      });
+    });
+  })();
+  (function () {
+    // The handbook contents start folded on narrow screens, open on wide ones.
+    if (window.matchMedia('(max-width: 960px)').matches)
+      document.querySelectorAll('.hb-nav__box').forEach(function (d) { d.open = false; });
+  })();
+  (function () {
+    // Narrow tables read as stacked cards; each cell carries its column name.
+    document.querySelectorAll('table.data').forEach(function (t) {
+      var heads = Array.prototype.map.call(t.querySelectorAll('thead th'), function (th) { return th.textContent.trim(); });
+      t.querySelectorAll('tbody tr').forEach(function (tr) {
+        Array.prototype.forEach.call(tr.children, function (td, i) {
+          if (heads[i]) td.setAttribute('data-label', heads[i]);
+        });
+      });
+    });
+  })();
+</script>
+
+<script data-goatcounter="https://stats.nervlinux.org/count" async src="https://stats.nervlinux.org/count.js"></script>
+<script>
+  // Clicks worth counting, as GoatCounter events: downloads, mail to sales, links off the site, and copying the install command.
+  (function () {
+    function count(path, title) {
+      if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: path, title: title || path, event: true });
+    }
+    document.addEventListener('click', function (e) {
+      var copy = e.target.closest('[data-copy]');
+      if (copy) { count('copy/' + copy.dataset.copy); return; }
+      var a = e.target.closest('a[href]');
+      if (!a) return;
+      if (a.protocol === 'mailto:') { count('mail/' + a.pathname); return; }
+      if (a.host === location.host) return;
+      if (a.host === 'repo.nervlinux.org') { count('download' + a.pathname); return; }
+      count('out/' + a.host + a.pathname);
+    });
+  })();
+</script>
+
+</body>
+</html>

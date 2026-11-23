@@ -76,9 +76,11 @@
 <details class="hb-nav__box" open>
 <summary class="hb-nav__summary">Contents</summary>
 <a class="hb-nav__home" href="/handbook/">The Nerv Handbook</a>
-<p class="hb-nav__part">This machine</p><ol class="hb-nav__list">
+<p class="hb-nav__part">Preface</p><ol class="hb-nav__list">
 <li><a href="/handbook/machine/why-an-operating-system-still/">Why an operating system, still</a>
 </li>
+</ol>
+<p class="hb-nav__part">Getting started</p><ol class="hb-nav__list">
 <li><a href="/handbook/machine/what-nerv-is/">What Nerv is</a>
 </li>
 <li><a href="/handbook/machine/install/">Install</a>
@@ -87,16 +89,24 @@
 </li>
 <li><a href="/handbook/machine/software/">Software</a>
 </li>
-<li><a href="/handbook/machine/containers/">Containers</a>
-</li>
 <li><a href="/handbook/machine/desktop/">The desktop</a>
 </li>
-<li><a href="/handbook/machine/networking/">Networking</a>
+</ol>
+<p class="hb-nav__part">Using the machine</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/compute-fabric/">The GPU</a>
 </li>
-<li><a href="/handbook/machine/accounts-and-keys/">Accounts and keys</a>
+<li><a href="/handbook/machine/ai-development/">AI development</a>
+</li>
+<li><a href="/handbook/machine/agents/">Agents</a>
+</li>
+<li><a href="/handbook/machine/containers/">Containers</a>
+</li>
+<li><a href="/handbook/machine/gaming/">Gaming</a>
+</li>
+<li><a href="/handbook/machine/building-your-own/">Building your own</a>
 </li>
 </ol>
-<p class="hb-nav__part">Five ideas</p><ol class="hb-nav__list">
+<p class="hb-nav__part">Keeping the machine</p><ol class="hb-nav__list">
 <li><a href="/handbook/machine/generations/" aria-current="page">Updates and generations</a>
 <ol class="hb-nav__sections">
 <li><a href="#synopsis">Synopsis</a></li>
@@ -114,25 +124,25 @@
 <li><a href="#reference">Reference</a></li>
 </ol>
 </li>
-<li><a href="/handbook/machine/compute-fabric/">The GPU</a>
+<li><a href="/handbook/machine/firmware/">Firmware</a>
 </li>
-<li><a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a>
+<li><a href="/handbook/machine/power/">Power</a>
 </li>
-<li><a href="/handbook/machine/yours-and-not-yours/">Yours and not yours</a>
+<li><a href="/handbook/machine/accounts-and-keys/">Accounts and keys</a>
 </li>
 <li><a href="/handbook/machine/chain-of-trust/">The chain of trust</a>
 </li>
+<li><a href="/handbook/machine/yours-and-not-yours/">Yours and not yours</a>
+</li>
+<li><a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a>
+</li>
 </ol>
-<p class="hb-nav__part">Ways of using it</p><ol class="hb-nav__list">
-<li><a href="/handbook/machine/ai-development/">AI development</a>
-</li>
-<li><a href="/handbook/machine/gaming/">Gaming</a>
-</li>
-<li><a href="/handbook/machine/offloading-and-fleets/">Offloading and fleets</a>
+<p class="hb-nav__part">Many machines</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/networking/">Networking</a>
 </li>
 <li><a href="/handbook/machine/plexus/">Plexus</a>
 </li>
-<li><a href="/handbook/machine/building-your-own/">Building your own</a>
+<li><a href="/handbook/machine/offloading-and-fleets/">Offloading and fleets</a>
 </li>
 </ol>
 <p class="hb-nav__part">When it breaks</p><ol class="hb-nav__list">
@@ -141,12 +151,12 @@
 <li><a href="/handbook/machine/asking-why/">Asking why</a>
 </li>
 </ol>
-<p class="hb-nav__part">More</p><ol class="hb-nav__list">
-<li><a href="/handbook/machine/agents/">Agents</a>
+<p class="hb-nav__part">Reference</p><ol class="hb-nav__list">
+<li><a href="/handbook/reference/magi-contract/">What MAGI promises</a>
 </li>
-<li><a href="/handbook/machine/firmware/">Firmware</a>
+<li><a href="/handbook/reference/magi-limits/">MAGI&#x27;s limits</a>
 </li>
-<li><a href="/handbook/machine/power/">Power</a>
+<li><a href="/handbook/reference/magi-format/">The MAGI store format</a>
 </li>
 </ol>
 </details></nav>
@@ -182,31 +192,31 @@
 <blockquote class="note"><p><strong>Note.</strong> A machine installed before <code>@data</code> existed moves its logs there once, with <code>cage shared</code>. The journal moves whole, nothing written while it moves is lost, and running it again changes nothing.</p></blockquote>
 <h2 id="opening-cage" class="section-title">Opening cage</h2>
 <p>Run <code>cage</code> with no arguments:</p>
-<pre class="term term__body" data-lang="tui cage"> EVA    booted @nerv-20261117-1058   on trial @nerv-20261117-1159                           up 1h 9m  7.3.4  nerv-1
-╭─ SLOTS ──────────────────────────────────────── 8 ─╮╭─ SLOT ────────────────────────────────────────────── stable ─╮
-│   █ @home            foreign ?       ···· unsealed ││ @nerv-20261117-1058                                  stable  │
-│   █ @nerv-20261108-. staging 7.3.3   ····  blessed ││ ──────────────────────────────────────────────────────────── │
-│   █ @nerv-20261112-. staging 7.3.3   ····  blessed ││                                                              │
-│   █ @nerv-20261116-. staging 7.3.4   ····  blessed ││ subvol     /mnt/nerv-top/@nerv-20261117-1058                 │
-│ ▌ █ @nerv-20261117-. stable  7.3.4   bd··  blessed ││ modified   10d 17h ago                                       │
-│   █ @nerv-20261117-. preferr 7.3.4   ··p·  3/3 try ││ kernel     7.3.4                                             │
-│   █ @nerv-rescue     rescue  7.2.8   ····  blessed ││ artifact   nerv-20261117-1058.efi                            │
-│   █ @swap            foreign ?       ···· unsealed ││ format     uki                                               │
-│                                                    ││ integrity  signed  pcr11-policy                              │
-│                                                    ││ size       38.5 MiB                                          │
-│                                                    │╰──────────────────────────────────────────────────────────────╯
-│                                                    │╭─ STORAGE ────────────────────────────────────────────────────╮
-│                                                    ││ ESP  /efi           ██▋              19%  378 MiB / 2.0 GiB  │
-│                                                    ││ ROOT /mnt/nerv-top  █▋               12%  436 GiB / 3.6 TiB  │
-╰────────────────────────────────────────────────────╯╰──────────────────────────────────────────────────────────────╯
-╭─ LOG ──────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
-│ no output yet — pick a slot and press a verb key (? for help)                                                      │
-│                                                                                                                    │
-│                                                                                                                    │
-│                                                                                                                    │
-│                                                                                                                    │
-╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
- ↑↓ select  u update  n new  e exec  s / S seal  v validate  b boot  p promote  r rollback  t try  d delete</pre>
+<figure class="tui"><div class="term term--tui"><div class="term__bar">cage</div><pre class="term__body"><span style="color:#282828;background:#6ebdff;font-weight:700"> EVA </span><span style="color:#a2a2a2;background:#282828">   </span><span style="color:#05c9db;background:#282828;font-weight:700">booted @nerv-20261117-1058</span><span style="color:#a2a2a2;background:#282828">   </span><span style="color:#6ebdff;background:#282828">on trial @nerv-20261117-1159</span><span style="background:#282828">                         </span><span style="color:#a2a2a2;background:#282828">  up 1h 9m  7.3.4  </span><span style="color:#dfdfdf;background:#282828">nerv-1</span>
+<span style="color:#6ebdff;background:#1e1e1e">╭</span><span style="color:#333333;background:#1e1e1e">─ </span><span style="color:#6ebdff;background:#1e1e1e;font-weight:700">SLOTS</span><span style="color:#333333;background:#1e1e1e"> </span><span style="color:#6ebdff;background:#1e1e1e">──────────────────────────────────────── 8 ─╮</span><span style="color:#333333;background:#1e1e1e">╭─ </span><span style="color:#dfdfdf;background:#1e1e1e;font-weight:700">SLOT</span><span style="color:#333333;background:#1e1e1e"> ────────────────────────────────────────────── stable ─╮</span>
+<span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e">   </span><span style="color:#a2a2a2;background:#1e1e1e">█</span><span style="background:#1e1e1e"> </span><span style="color:#dfdfdf;background:#1e1e1e">@home           </span><span style="background:#1e1e1e"> </span><span style="color:#a2a2a2;background:#1e1e1e">foreign</span><span style="background:#1e1e1e"> </span><span style="color:#a2a2a2;background:#1e1e1e">?      </span><span style="background:#1e1e1e"> </span><span style="color:#333333;background:#1e1e1e">····</span><span style="background:#1e1e1e"> </span><span style="color:#ff9a9f;background:#1e1e1e">unsealed</span><span style="background:#1e1e1e"> </span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#92c56c;background:#1e1e1e;font-weight:700">@nerv-20261117-1058                                 </span><span style="color:#282828;background:#92c56c;font-weight:700"> stable </span><span style="background:#1e1e1e"> </span><span style="color:#333333;background:#1e1e1e">│</span>
+<span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e">   </span><span style="color:#e1af4a;background:#1e1e1e">█</span><span style="background:#1e1e1e"> </span><span style="color:#dfdfdf;background:#1e1e1e">@nerv-20261108-.</span><span style="background:#1e1e1e"> </span><span style="color:#e1af4a;background:#1e1e1e">staging</span><span style="background:#1e1e1e"> </span><span style="color:#a2a2a2;background:#1e1e1e">7.3.3  </span><span style="background:#1e1e1e"> </span><span style="color:#333333;background:#1e1e1e">····</span><span style="background:#1e1e1e"> </span><span style="color:#a2a2a2;background:#1e1e1e"> blessed</span><span style="background:#1e1e1e"> </span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#333333;background:#1e1e1e">────────────────────────────────────────────────────────────</span><span style="background:#1e1e1e"> </span><span style="color:#333333;background:#1e1e1e">│</span>
+<span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e">   </span><span style="color:#e1af4a;background:#1e1e1e">█</span><span style="background:#1e1e1e"> </span><span style="color:#dfdfdf;background:#1e1e1e">@nerv-20261112-.</span><span style="background:#1e1e1e"> </span><span style="color:#e1af4a;background:#1e1e1e">staging</span><span style="background:#1e1e1e"> </span><span style="color:#a2a2a2;background:#1e1e1e">7.3.3  </span><span style="background:#1e1e1e"> </span><span style="color:#333333;background:#1e1e1e">····</span><span style="background:#1e1e1e"> </span><span style="color:#a2a2a2;background:#1e1e1e"> blessed</span><span style="background:#1e1e1e"> </span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e">                                                              </span><span style="color:#333333;background:#1e1e1e">│</span>
+<span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e">   </span><span style="color:#e1af4a;background:#1e1e1e">█</span><span style="background:#1e1e1e"> </span><span style="color:#dfdfdf;background:#1e1e1e">@nerv-20261116-.</span><span style="background:#1e1e1e"> </span><span style="color:#e1af4a;background:#1e1e1e">staging</span><span style="background:#1e1e1e"> </span><span style="color:#a2a2a2;background:#1e1e1e">7.3.4  </span><span style="background:#1e1e1e"> </span><span style="color:#333333;background:#1e1e1e">····</span><span style="background:#1e1e1e"> </span><span style="color:#a2a2a2;background:#1e1e1e"> blessed</span><span style="background:#1e1e1e"> </span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#a2a2a2;background:#1e1e1e">subvol     </span><span style="color:#dfdfdf;background:#1e1e1e">/mnt/nerv-top/@nerv-20261117-1058</span><span style="background:#1e1e1e">                 </span><span style="color:#333333;background:#1e1e1e">│</span>
+<span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#6ebdff;background:#333333">▌ </span><span style="color:#92c56c;background:#333333">█</span><span style="background:#333333"> </span><span style="color:#dfdfdf;background:#333333;font-weight:700">@nerv-20261117-.</span><span style="background:#333333"> </span><span style="color:#92c56c;background:#333333">stable </span><span style="background:#333333"> </span><span style="color:#a2a2a2;background:#333333">7.3.4  </span><span style="background:#333333"> </span><span style="color:#05c9db;background:#333333">b</span><span style="color:#92c56c;background:#333333">d</span><span style="color:#333333;background:#333333">··</span><span style="background:#333333"> </span><span style="color:#a2a2a2;background:#333333"> blessed</span><span style="background:#1e1e1e"> </span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#a2a2a2;background:#1e1e1e">modified   </span><span style="color:#dfdfdf;background:#1e1e1e">10d 17h ago</span><span style="background:#1e1e1e">                                       </span><span style="color:#333333;background:#1e1e1e">│</span>
+<span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e">   </span><span style="color:#6ebdff;background:#1e1e1e">█</span><span style="background:#1e1e1e"> </span><span style="color:#dfdfdf;background:#1e1e1e">@nerv-20261117-.</span><span style="background:#1e1e1e"> </span><span style="color:#6ebdff;background:#1e1e1e">preferr</span><span style="background:#1e1e1e"> </span><span style="color:#a2a2a2;background:#1e1e1e">7.3.4  </span><span style="background:#1e1e1e"> </span><span style="color:#333333;background:#1e1e1e">··</span><span style="color:#6ebdff;background:#1e1e1e">p</span><span style="color:#333333;background:#1e1e1e">·</span><span style="background:#1e1e1e"> </span><span style="color:#92c56c;background:#1e1e1e"> 3/3 try</span><span style="background:#1e1e1e"> </span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#a2a2a2;background:#1e1e1e">kernel     </span><span style="color:#dfdfdf;background:#1e1e1e">7.3.4</span><span style="background:#1e1e1e">                                             </span><span style="color:#333333;background:#1e1e1e">│</span>
+<span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e">   </span><span style="color:#dea0f1;background:#1e1e1e">█</span><span style="background:#1e1e1e"> </span><span style="color:#dfdfdf;background:#1e1e1e">@nerv-rescue    </span><span style="background:#1e1e1e"> </span><span style="color:#dea0f1;background:#1e1e1e">rescue </span><span style="background:#1e1e1e"> </span><span style="color:#a2a2a2;background:#1e1e1e">7.2.8  </span><span style="background:#1e1e1e"> </span><span style="color:#333333;background:#1e1e1e">····</span><span style="background:#1e1e1e"> </span><span style="color:#a2a2a2;background:#1e1e1e"> blessed</span><span style="background:#1e1e1e"> </span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#a2a2a2;background:#1e1e1e">artifact   </span><span style="color:#dfdfdf;background:#1e1e1e">nerv-20261117-1058.efi</span><span style="background:#1e1e1e">                            </span><span style="color:#333333;background:#1e1e1e">│</span>
+<span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e">   </span><span style="color:#a2a2a2;background:#1e1e1e">█</span><span style="background:#1e1e1e"> </span><span style="color:#dfdfdf;background:#1e1e1e">@swap           </span><span style="background:#1e1e1e"> </span><span style="color:#a2a2a2;background:#1e1e1e">foreign</span><span style="background:#1e1e1e"> </span><span style="color:#a2a2a2;background:#1e1e1e">?      </span><span style="background:#1e1e1e"> </span><span style="color:#333333;background:#1e1e1e">····</span><span style="background:#1e1e1e"> </span><span style="color:#ff9a9f;background:#1e1e1e">unsealed</span><span style="background:#1e1e1e"> </span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#a2a2a2;background:#1e1e1e">format     uki</span><span style="background:#1e1e1e">                                               </span><span style="color:#333333;background:#1e1e1e">│</span>
+<span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e">                                                    </span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#a2a2a2;background:#1e1e1e">integrity  </span><span style="color:#92c56c;background:#1e1e1e">signed</span><span style="color:#a2a2a2;background:#1e1e1e">  </span><span style="color:#92c56c;background:#1e1e1e">pcr11-policy</span><span style="background:#1e1e1e">                              </span><span style="color:#333333;background:#1e1e1e">│</span>
+<span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e">                                                    </span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#a2a2a2;background:#1e1e1e">size       </span><span style="color:#dfdfdf;background:#1e1e1e">38.5 MiB</span><span style="background:#1e1e1e">                                          </span><span style="color:#333333;background:#1e1e1e">│</span>
+<span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e">                                                    </span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="color:#333333;background:#1e1e1e">╰──────────────────────────────────────────────────────────────╯</span>
+<span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e">                                                    </span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="color:#333333;background:#1e1e1e">╭─ </span><span style="color:#dfdfdf;background:#1e1e1e;font-weight:700">STORAGE</span><span style="color:#333333;background:#1e1e1e"> ────────────────────────────────────────────────────╮</span>
+<span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e">                                                    </span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#dfdfdf;background:#1e1e1e;font-weight:700">ESP  </span><span style="color:#a2a2a2;background:#1e1e1e">/efi           </span><span style="color:#92c56c;background:#1e1e1e">█</span><span style="color:#9ec166;background:#1e1e1e">█</span><span style="color:#aabe61;background:#282828">▋</span><span style="color:#282828;background:#282828">           </span><span style="background:#1e1e1e"> </span><span style="color:#dfdfdf;background:#1e1e1e">  19%  378 MiB / 2.0 GiB</span><span style="background:#1e1e1e">  </span><span style="color:#333333;background:#1e1e1e">│</span>
+<span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e">                                                    </span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#dfdfdf;background:#1e1e1e;font-weight:700">ROOT </span><span style="color:#a2a2a2;background:#1e1e1e">/mnt/nerv-top  </span><span style="color:#92c56c;background:#1e1e1e">█</span><span style="color:#9ec166;background:#282828">▋</span><span style="color:#282828;background:#282828">            </span><span style="background:#1e1e1e"> </span><span style="color:#dfdfdf;background:#1e1e1e">  12%  436 GiB / 3.6 TiB</span><span style="background:#1e1e1e">  </span><span style="color:#333333;background:#1e1e1e">│</span>
+<span style="color:#6ebdff;background:#1e1e1e">╰────────────────────────────────────────────────────╯</span><span style="color:#333333;background:#1e1e1e">╰──────────────────────────────────────────────────────────────╯</span>
+<span style="color:#333333;background:#1e1e1e">╭─ </span><span style="color:#dfdfdf;background:#1e1e1e;font-weight:700">LOG</span><span style="color:#333333;background:#1e1e1e"> ──────────────────────────────────────────────────────────────────────────────────────────────────────────────╮</span>
+<span style="color:#333333;background:#1e1e1e">│</span><span style="color:#a2a2a2;background:#1e1e1e"> no output yet — pick a slot and press a verb key (? for help)                                                      </span><span style="color:#333333;background:#1e1e1e">│</span>
+<span style="color:#333333;background:#1e1e1e">│</span><span style="color:#a2a2a2;background:#1e1e1e">                                                                                                                    </span><span style="color:#333333;background:#1e1e1e">│</span>
+<span style="color:#333333;background:#1e1e1e">│</span><span style="color:#a2a2a2;background:#1e1e1e">                                                                                                                    </span><span style="color:#333333;background:#1e1e1e">│</span>
+<span style="color:#333333;background:#1e1e1e">│</span><span style="color:#a2a2a2;background:#1e1e1e">                                                                                                                    </span><span style="color:#333333;background:#1e1e1e">│</span>
+<span style="color:#333333;background:#1e1e1e">│</span><span style="color:#a2a2a2;background:#1e1e1e">                                                                                                                    </span><span style="color:#333333;background:#1e1e1e">│</span>
+<span style="color:#333333;background:#1e1e1e">╰────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯</span>
+<span style="background:#282828"> </span><span style="color:#6ebdff;background:#282828;font-weight:700">↑↓</span><span style="background:#282828"> </span><span style="color:#a2a2a2;background:#282828">select</span><span style="background:#282828">  </span><span style="color:#6ebdff;background:#282828;font-weight:700">u</span><span style="background:#282828"> </span><span style="color:#a2a2a2;background:#282828">update</span><span style="background:#282828">  </span><span style="color:#6ebdff;background:#282828;font-weight:700">n</span><span style="background:#282828"> </span><span style="color:#a2a2a2;background:#282828">new</span><span style="background:#282828">  </span><span style="color:#6ebdff;background:#282828;font-weight:700">e</span><span style="background:#282828"> </span><span style="color:#a2a2a2;background:#282828">exec</span><span style="background:#282828">  </span><span style="color:#6ebdff;background:#282828;font-weight:700">s / S</span><span style="background:#282828"> </span><span style="color:#a2a2a2;background:#282828">seal</span><span style="background:#282828">  </span><span style="color:#6ebdff;background:#282828;font-weight:700">v</span><span style="background:#282828"> </span><span style="color:#a2a2a2;background:#282828">validate</span><span style="background:#282828">  </span><span style="color:#6ebdff;background:#282828;font-weight:700">b</span><span style="background:#282828"> </span><span style="color:#a2a2a2;background:#282828">boot</span><span style="background:#282828">  </span><span style="color:#6ebdff;background:#282828;font-weight:700">p</span><span style="background:#282828"> </span><span style="color:#a2a2a2;background:#282828">promote</span><span style="background:#282828">  </span><span style="color:#6ebdff;background:#282828;font-weight:700">r</span><span style="background:#282828"> </span><span style="color:#a2a2a2;background:#282828">rollback</span><span style="background:#282828">  </span><span style="color:#6ebdff;background:#282828;font-weight:700">t</span><span style="background:#282828"> </span><span style="color:#a2a2a2;background:#282828">try</span><span style="background:#282828">  </span><span style="color:#6ebdff;background:#282828;font-weight:700">d</span><span style="background:#282828"> </span><span style="color:#a2a2a2;background:#282828">delete</span></pre></div></figure>
 <ul class="list">
 <li><strong>SLOTS</strong>, on the left, lists every slot, with its role, its kernel and whether it has booted. <code>↑</code> and <code>↓</code> select one.</li>
 <li><strong>SLOT</strong> shows the selected slot: when it was changed, its kernel, its boot image and whether that image is signed.</li>
@@ -416,7 +426,7 @@ $ cage gc --yes</pre>
 </div>
 <p><code>cage --help</code> lists every command and flag, and <code>tldr cage</code> the ones used most.</p>
       </div>
-      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/accounts-and-keys/"><span>Previous</span>Accounts and keys</a><a class="hb-pager__next" href="/handbook/machine/compute-fabric/"><span>Next</span>The GPU</a></nav>
+      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/building-your-own/"><span>Previous</span>Building your own</a><a class="hb-pager__next" href="/handbook/machine/firmware/"><span>Next</span>Firmware</a></nav>
     </div>
   </div>
 </section>

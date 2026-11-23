@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nerv Linux — What MAGI promises</title>
+<meta name="description" content="What an answer from magid means for the record it was about: when it is kept, what a crash, a power cut, a redaction, a backup or a move to another store does to it, and every case in which something kept is lost or something less is known. What the machine remembers is the chapter on using MAGI; MAGI's limits has the sizes and rates, and The MAGI store format the bytes on disk.">
+<link rel="canonical" href="https://nervlinux.org/handbook/reference/magi-contract/">
+<meta property="og:title" content="Nerv Linux — What MAGI promises">
+<meta property="og:description" content="What an answer from magid means for the record it was about: when it is kept, what a crash, a power cut, a redaction, a backup or a move to another store does to it, and every case in which something kept is lost or something less is known. What the machine remembers is the chapter on using MAGI; MAGI's limits has the sizes and rates, and The MAGI store format the bytes on disk.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nervlinux.org/handbook/reference/magi-contract/">
+<link rel="icon" href="/assets/favicon.png" sizes="32x32">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/nerv-square.png">
+<link rel="preload" href="/fonts/ashinoko-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/palette.css">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/site.css">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('nerv-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="masthead__inner">
+    <a class="masthead__brand" href="/" aria-label="Nerv Linux — home">
+      <img class="logo" src="/assets/nerv-wordmark.png" alt="Nerv Linux" width="600" height="149">
+    </a>
+    <nav class="masthead__nav" aria-label="Primary">
+      <div class="masthead__links" id="primary-links">
+      <a href="/system/">System</a>
+      <a href="/desktop/">Desktop</a>
+      <a href="/enterprise/">Enterprise</a>
+      <a href="/community/">Community</a>
+      <a href="/handbook/" aria-current="page">Handbook</a>
+      <a href="/downloads/">Downloads</a>
+      <a href="/about/">About</a>
+      </div>
+      <button class="theme-toggle" id="theme-toggle" type="button"
+              aria-label="Switch to light theme" title="Switch theme">
+        <svg class="icon icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path fill="currentColor" d="M20.7 14.6A8.6 8.6 0 0 1 9.4 3.3a8.7 8.7 0 1 0 11.3 11.3Z"/>
+        </svg>
+        <svg class="icon icon--sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2" fill="currentColor"/>
+          <g stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+            <path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4"/>
+            <path d="M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/>
+          </g>
+        </svg>
+      </button>
+      <button class="menu-toggle" id="menu-toggle" type="button"
+              aria-label="Menu" aria-expanded="false" aria-controls="primary-links">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+          <path class="menu-toggle__open" d="M4 7h16M4 12h16M4 17h16"/>
+          <path class="menu-toggle__close" d="M6 6l12 12M18 6L6 18"/>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="section section--head">
+  <div class="wrap hb">
+    <nav class="hb-nav" aria-label="Handbook">
+<details class="hb-nav__box" open>
+<summary class="hb-nav__summary">Contents</summary>
+<a class="hb-nav__home" href="/handbook/">The Nerv Handbook</a>
+<p class="hb-nav__part">Preface</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/why-an-operating-system-still/">Why an operating system, still</a>
+</li>
+</ol>
+<p class="hb-nav__part">Getting started</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/what-nerv-is/">What Nerv is</a>
+</li>
+<li><a href="/handbook/machine/install/">Install</a>
+</li>
+<li><a href="/handbook/machine/the-first-hour/">The first hour</a>
+</li>
+<li><a href="/handbook/machine/software/">Software</a>
+</li>
+<li><a href="/handbook/machine/desktop/">The desktop</a>
+</li>
+</ol>
+<p class="hb-nav__part">Using the machine</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/compute-fabric/">The GPU</a>
+</li>
+<li><a href="/handbook/machine/ai-development/">AI development</a>
+</li>
+<li><a href="/handbook/machine/agents/">Agents</a>
+</li>
+<li><a href="/handbook/machine/containers/">Containers</a>
+</li>
+<li><a href="/handbook/machine/gaming/">Gaming</a>
+</li>
+<li><a href="/handbook/machine/building-your-own/">Building your own</a>
+</li>
+</ol>
+<p class="hb-nav__part">Keeping the machine</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/generations/">Updates and generations</a>
+</li>
+<li><a href="/handbook/machine/firmware/">Firmware</a>
+</li>
+<li><a href="/handbook/machine/power/">Power</a>
+</li>
+<li><a href="/handbook/machine/accounts-and-keys/">Accounts and keys</a>
+</li>
+<li><a href="/handbook/machine/chain-of-trust/">The chain of trust</a>
+</li>
+<li><a href="/handbook/machine/yours-and-not-yours/">Yours and not yours</a>
+</li>
+<li><a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a>
+</li>
+</ol>
+<p class="hb-nav__part">Many machines</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/networking/">Networking</a>
+</li>
+<li><a href="/handbook/machine/plexus/">Plexus</a>
+</li>
+<li><a href="/handbook/machine/offloading-and-fleets/">Offloading and fleets</a>
+</li>
+</ol>
+<p class="hb-nav__part">When it breaks</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/recovery/">Recovery</a>
+</li>
+<li><a href="/handbook/machine/asking-why/">Asking why</a>
+</li>
+</ol>
+<p class="hb-nav__part">Reference</p><ol class="hb-nav__list">
+<li><a href="/handbook/reference/magi-contract/" aria-current="page">What MAGI promises</a>
+<ol class="hb-nav__sections">
+<li><a href="#a-batch">A batch</a></li>
+<li><a href="#durability">Durability</a></li>
+<li><a href="#crashes-and-power-cuts">Crashes and power cuts</a></li>
+<li><a href="#tamper-evidence">Tamper evidence</a></li>
+<li><a href="#retention-and-what-a-stream-forgets">Retention and what a stream forgets</a></li>
+<li><a href="#views">Views</a></li>
+<li><a href="#redaction">Redaction</a></li>
+<li><a href="#backup">Backup</a></li>
+<li><a href="#export-and-import">Export and import</a></li>
+<li><a href="#updates-and-rollbacks">Updates and rollbacks</a></li>
+<li><a href="#the-machines-journal">The machine's journal</a></li>
+</ol>
+</li>
+<li><a href="/handbook/reference/magi-limits/">MAGI&#x27;s limits</a>
+</li>
+<li><a href="/handbook/reference/magi-format/">The MAGI store format</a>
+</li>
+</ol>
+</details></nav>
+    <div class="hb__main">
+      <div class="essay">
+<h1 class="page-title">What MAGI promises</h1>
+<p>What an answer from magid means for the record it was about: when it is kept, what a crash, a power cut, a redaction, a backup or a move to another store does to it, and every case in which something kept is lost or something less is known. <a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a> is the chapter on using MAGI; <a href="/handbook/reference/magi-limits/">MAGI's limits</a> has the sizes and rates, and <a href="/handbook/reference/magi-format/">The MAGI store format</a> the bytes on disk.</p>
+<h2 id="a-batch" class="section-title">A batch</h2>
+<p>A program writes a <strong>batch</strong>: any number of records, changes to keys, declarations and marks, sent together.</p>
+<ul class="list">
+<li><strong>All or nothing.</strong> A batch is kept whole or not at all. After any crash or power cut the store comes back holding exactly the batches before some point, every one of them whole: never part of a batch, and never a record nobody wrote.</li>
+<li><strong>In order.</strong> Batches are kept in the order magid took them, which is the order of the store's commits. A batch sees every batch before it.</li>
+<li><strong>Refused alone.</strong> A batch magid refuses changes nothing, and costs no other batch anything, even one sent in the same message.</li>
+<li><strong>Compare and set.</strong> An append may name the head its stream must have; a change may name the version its key must be at, <code>0</code> for a key that must not exist. A batch whose condition does not hold is refused whole.</li>
+<li><strong>Idempotent where the stream says so.</strong> On a stream declared with a source of tokens, every record carries one, and a record whose token is not above the stream's last is answered <code>Duplicate</code> and writes nothing. So a writer that resends after a crash keeps each record once.</li>
+</ul>
+<h2 id="durability" class="section-title">Durability</h2>
+<p>Every stream declares the least durability its batches carry, and a batch may ask for more. A batch is answered when what it asked for is true:</p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">durability</th><th scope="col">answered when</th><th scope="col">what a crash can take</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code>lazy</code></td><td>it is written, and every reader sees it</td><td>magid itself crashing or killed takes nothing. A power cut or a kernel crash can take the <code>lazy</code> batches of the last second (five seconds under the <code>saver</code> power profile), and nothing older.</td>
+</tr>
+<tr>
+<td><code>group</code></td><td>an <code>fdatasync</code> covering it has returned; magid gathers the batches that arrive together under one</td><td>nothing answered</td>
+</tr>
+<tr>
+<td><code>sync</code></td><td>the same, with no waiting to gather</td><td>nothing answered</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul class="list">
+<li><strong>What was answered as durable is kept</strong> across any crash and any power cut, on a disk that keeps what it says it synced.</li>
+<li><strong>A sync that fails is the failure of every batch it covered.</strong> None of them is answered as kept, and the store is opened again from the disk before anything else is taken.</li>
+<li><strong>A program's buffered appends</strong> (the client library's <code>append</code>, which sends what a program appends every millisecond) exist once they are sent: a program that dies within that millisecond loses what it had not sent, and a refusal of what it sent is told to no one. <code>commit</code> sends at once and answers with what magid did.</li>
+<li><strong>A clean stop loses nothing.</strong> <code>systemctl stop magid</code> finishes and answers every request it had begun, syncs every store, <code>lazy</code> batches included, and tells each program still connected that it is stopping; every request answered was done, and the one refused and those after it were not. Each program's attachment to its streams is closed as <code>lost</code> at the stop.</li>
+</ul>
+<h2 id="crashes-and-power-cuts" class="section-title">Crashes and power cuts</h2>
+<p>Opening a store after a crash replays what follows its last checkpoint, by the same rules that wrote it.</p>
+<ul class="list">
+<li><strong>What was being written is dropped.</strong> A batch whose bytes did not all reach the disk was never answered as durable, and is dropped whole.</li>
+<li><strong>Damage is never read as data.</strong> A record, a block, a file or a chain that does not check is reported, and the store is refused, or the read that meets it is. A flipped bit or a lying disk can cost data; it never makes MAGI answer with data that is wrong.</li>
+<li><strong>Where the writer was attached is stated.</strong> A writer attached when the machine went down has its attachment closed as <code>unclean</code>, at the store's last durable commit. After that point the store does not claim to know what the writer would have sent.</li>
+</ul>
+<p>What the store cannot keep, stated plainly:</p>
+<ul class="list">
+<li><strong>The last synced batch, damaged before a later one is written.</strong> A bit that flips in the last group of batches the disk holds, before anything after it is written, cannot be told from a write that never finished, and that group is dropped, durable or not.</li>
+<li><strong>A disk that lies about syncing</strong> can lose anything it claimed to keep. What is read is still never wrong.</li>
+</ul>
+<h2 id="tamper-evidence" class="section-title">Tamper evidence</h2>
+<p>Every record is chained by its hash to the one before it in its stream, and every batch to the batch before it.</p>
+<ul class="list">
+<li><strong>A record changed, removed or reordered shows</strong>, to <code>engram verify</code> and to every read that passes it.</li>
+<li><strong>The chain is evidence, not a lock.</strong> Whoever can write the store's files (root, or magid's own user) can rewrite a stream's chain from any point on, and nothing in the store tells. Signing a stream's head, which ties it to a key held elsewhere, is on the roadmap.</li>
+<li><strong>A stream whose oldest records retention let go</strong> has its first record still on disk checked against the next, not against the ones before it, which are gone.</li>
+</ul>
+<h2 id="retention-and-what-a-stream-forgets" class="section-title">Retention and what a stream forgets</h2>
+<p>A stream keeps what its declaration says, and the store says what it forgot.</p>
+<ul class="list">
+<li><strong>A history stream</strong> drops its oldest records once it holds more than its byte cap, or its record cap, without them. Records go a segment of the log at a time, so a stream holds up to one segment more than its cap until the next goes. What went leaves a <strong>scar</strong>: which records, and the time of the last. The stream answers from that time on, and a question about earlier says it is not known, not that nothing happened. The record of when its writer was attached goes with them: an attachment that ended before the scar is dropped.</li>
+<li><strong>A state stream</strong> keeps each key's present value. Its earlier values are not history: once the store has folded them into the key's value, they are gone. A change that would take it past its byte cap is refused; nothing is evicted.</li>
+<li><strong>A history view</strong> over its byte cap forgets its oldest rows, and below where it forgot it answers that it does not know.</li>
+<li><strong>A store at its budget</strong> refuses what would take it past (<a href="/handbook/reference/magi-limits/#a-store">MAGI's limits</a>); no stream's records are evicted for another's.</li>
+<li><strong>Freed is not overwritten.</strong> Records retention dropped, and earlier values of keys, leave the store's files; the filesystem may keep the blocks they were in until it reuses them.</li>
+</ul>
+<h2 id="views" class="section-title">Views</h2>
+<p>A view changes in the same batch as what it reads, so it is never behind what it is over.</p>
+<ul class="list">
+<li><strong>A view says where it is complete.</strong> Where its sources are complete, so is it; where a source has a hole, so does the view, and it says so rather than answer as if nothing were there.</li>
+<li><strong>A source caught contradicting itself loses its claim.</strong> A record arriving on a stream whose writer had marked that span of its source's clock complete, as having no such record, is kept, and the store no longer claims anything about that whole marked span: it becomes a hole, in the stream and in every view over it.</li>
+<li><strong>A view keeps what it declares.</strong> A field a view did not declare is not in its rows.</li>
+<li><strong>A view declared over records already written is filled from them</strong>, and answers as not yet known over what it has not reached.</li>
+<li><strong>A view built again holds what its sources hold now.</strong> What a view had kept of records its sources have since let go does not come back when it is declared again or filled again.</li>
+</ul>
+<h2 id="redaction" class="section-title">Redaction</h2>
+<p><a href="/handbook/machine/what-the-machine-remembers/#removing-something-recorded-by-accident">Removing something recorded by accident</a> says what <code>magi redact</code> removes, and that the views over the stream no longer know the redacted record's instant. What else it costs, and what it cannot reach:</p>
+<ul class="list">
+<li><strong>The record's batch-mates leave the views too.</strong> On a stream whose records take their time from their batch, the other records of that batch share the instant, so they are withdrawn from the views with it. They stay in the stream.</li>
+<li><strong>One place inside the store is not reached:</strong> if the redacted value was the key through which one view was being filled from another, the store's catalogue can still hold it as that fill's position.</li>
+<li><strong>Outside the store, nothing is reached:</strong> a backup taken before, an export, a copy someone else made, and the blocks the filesystem freed but has not yet reused.</li>
+<li><strong>A redaction is refused while a backup is being taken</strong>, and says so. Run it again when the backup returns.</li>
+<li><strong>The store waits for it.</strong> A redaction rewrites the store's tables, and batches that arrive meanwhile wait until it is done.</li>
+</ul>
+<h2 id="backup" class="section-title">Backup</h2>
+<p><a href="/handbook/machine/what-the-machine-remembers/#backing-up-a-store">Backing up a store</a> says how. A backup is the store at one moment, every record and key of it, verified before <code>magi backup</code> returns.</p>
+<ul class="list">
+<li><strong>The indexes are not in it.</strong> Searches, column scans and connections between records are built again from the copy when they are first asked, which takes the time building them takes.</li>
+<li><strong>What happens after is not in it</strong>, a redaction included: a redaction made after a backup does not reach the backup.</li>
+</ul>
+<h2 id="export-and-import" class="section-title">Export and import</h2>
+<p><a href="/handbook/machine/what-the-machine-remembers/#taking-the-data-out-and-putting-it-in">Taking the data out, and putting it in</a> says how. An export holds every record, every key and every type exactly, floats to the bit; a store made again from it is the store it was to every reader, and its writers carry on where they were. What does not come across:</p>
+<ul class="list">
+<li><strong>A view's rows.</strong> A view is declared again in the new store and built from the records the export holds, so what it had kept of records its sources had already let go is not in it. A view's id is new.</li>
+<li><strong>The catalogue's length.</strong> The new store's catalogue counts what the import itself wrote, one entry for each redaction repeated and each view declared again.</li>
+<li><strong>Retention while importing.</strong> Nothing is evicted while the records go in; each stream's caps apply again from the store's next segment on.</li>
+</ul>
+<h2 id="updates-and-rollbacks" class="section-title">Updates and rollbacks</h2>
+<ul class="list">
+<li><strong>A rollback leaves a store alone.</strong> A store a newer MAGI wrote is opened by an older one only as far as it can be without being changed: if it reads the store, it writes nothing to it; if it cannot, it refuses it and leaves it as it is, and going forward again finds it there.</li>
+<li><strong>The format is frozen.</strong> Every MAGI that reads format 1 reads every format-1 store. What a later MAGI adds, it adds as a feature the store names, which an older MAGI refuses, or reads and writes nothing to.</li>
+<li><strong>A store from before the format froze is not read.</strong> The first MAGI of format 1 sets such a store aside whole, as <code>/var/lib/magi/stores/UID.revN</code>, makes a new one in its place, and logs why. Nothing is deleted, but the new store starts empty: export each store before updating, and import the export afterwards. A store already set aside is exported with the earlier MAGI, from the generation before the update, with <code>magi export DIR --store</code> and its path.</li>
+</ul>
+<h2 id="the-machines-journal" class="section-title">The machine's journal</h2>
+<p><a href="/handbook/machine/what-the-machine-remembers/#the-machines-journal">The machine's journal</a> says what is kept of each entry. What is not:</p>
+<ul class="list">
+<li><strong>The text of an entry with no message id.</strong> Who logged it, from which unit, at what priority and when are kept; its words are not.</li>
+<li><strong>A field's value over 64 KiB</strong>, such as a core dump. The entry records that the value was left out, and its length.</li>
+<li><strong>What journald never received.</strong> The journal is complete relative to journald: what journald itself dropped, such as messages it rate-limited, is not counted as a hole.</li>
+<li><strong>Entries older than 1 GiB of journal</strong>, which retention drops oldest first, with a scar.</li>
+</ul>
+      </div>
+      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/asking-why/"><span>Previous</span>Asking why</a><a class="hb-pager__next" href="/handbook/reference/magi-limits/"><span>Next</span>MAGI&#x27;s limits</a></nav>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__base">
+      <p>Copyright &copy; 2026 Nerv Dynamics AB. Nerv Linux is free software under the
+         Apache License 2.0. Software from other projects keeps its upstream licence. <a href="https://codeberg.org/nerv-dynamics/nerv-linux">Source on Codeberg</a>.</p>
+      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell, GB10 and GB300 are
+         trademarks of NVIDIA Corporation. Linux is a registered trademark of
+         Linus Torvalds. Nerv Linux is not affiliated with, endorsed by, or
+         sponsored by either.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var btn = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    function label() {
+      var dark = root.getAttribute('data-theme') !== 'light';
+      btn.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+    }
+    label();
+    btn.addEventListener('click', function () {
+      // Dark is the default, so anything that isn't explicitly light is dark.
+      var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('nerv-theme', next); } catch (e) {}
+      label();
+    });
+  })();
+  (function () {
+    // Phone menu: the nav links fold into a panel under the masthead.
+    var btn = document.getElementById('menu-toggle');
+    var head = btn.closest('.masthead');
+    btn.addEventListener('click', function () {
+      var open = head.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  })();
+  (function () {
+    // On phones a tapped diagram opens full screen, large, to pan and zoom.
+    var narrow = window.matchMedia('(max-width: 760px)');
+    function close(z) { z.remove(); document.body.classList.remove('has-zoom'); }
+    document.querySelectorAll('.diagram').forEach(function (fig) {
+      fig.addEventListener('click', function () {
+        var svg = fig.querySelector('svg');
+        if (!narrow.matches || !svg) return;
+        var z = document.createElement('div');
+        z.className = 'zoom'; z.setAttribute('role', 'dialog'); z.setAttribute('aria-label', svg.getAttribute('aria-label') || 'Diagram');
+        z.appendChild(svg.cloneNode(true));
+        var b = document.createElement('button');
+        b.className = 'zoom__close'; b.type = 'button'; b.setAttribute('aria-label', 'Close');
+        b.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+        b.addEventListener('click', function () { close(z); });
+        z.appendChild(b);
+        document.body.appendChild(z); document.body.classList.add('has-zoom');
+        document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { close(z); document.removeEventListener('keydown', esc); } });
+      });
+    });
+  })();
+  (function () {
+    // The handbook contents start folded on narrow screens, open on wide ones.
+    if (window.matchMedia('(max-width: 960px)').matches)
+      document.querySelectorAll('.hb-nav__box').forEach(function (d) { d.open = false; });
+  })();
+  (function () {
+    // Narrow tables read as stacked cards; each cell carries its column name.
+    document.querySelectorAll('table.data').forEach(function (t) {
+      var heads = Array.prototype.map.call(t.querySelectorAll('thead th'), function (th) { return th.textContent.trim(); });
+      t.querySelectorAll('tbody tr').forEach(function (tr) {
+        Array.prototype.forEach.call(tr.children, function (td, i) {
+          if (heads[i]) td.setAttribute('data-label', heads[i]);
+        });
+      });
+    });
+  })();
+</script>
+
+<script data-goatcounter="https://stats.nervlinux.org/count" async src="https://stats.nervlinux.org/count.js"></script>
+<script>
+  // Clicks worth counting, as GoatCounter events: downloads, mail to sales, links off the site, and copying the install command.
+  (function () {
+    function count(path, title) {
+      if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: path, title: title || path, event: true });
+    }
+    document.addEventListener('click', function (e) {
+      var copy = e.target.closest('[data-copy]');
+      if (copy) { count('copy/' + copy.dataset.copy); return; }
+      var a = e.target.closest('a[href]');
+      if (!a) return;
+      if (a.protocol === 'mailto:') { count('mail/' + a.pathname); return; }
+      if (a.host === location.host) return;
+      if (a.host === 'repo.nervlinux.org') { count('download' + a.pathname); return; }
+      count('out/' + a.host + a.pathname);
+    });
+  })();
+</script>
+
+</body>
+</html>

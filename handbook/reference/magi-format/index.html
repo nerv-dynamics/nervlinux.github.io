@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nerv Linux — The MAGI store format</title>
+<meta name="description" content="This page specifies format 1 of a MAGI store, the files MAGI's engine keeps on disk for each store, byte by byte: every file, every encoding, every hash with its exact key, every catalogue entry, and what a reader must refuse. Format 1 is frozen, and the page is written for someone building a reader or a verifier of a store without MAGI's code. What MAGI promises says what the format guarantees a program, and MAGI's limits has the sizes it holds to.">
+<link rel="canonical" href="https://nervlinux.org/handbook/reference/magi-format/">
+<meta property="og:title" content="Nerv Linux — The MAGI store format">
+<meta property="og:description" content="This page specifies format 1 of a MAGI store, the files MAGI's engine keeps on disk for each store, byte by byte: every file, every encoding, every hash with its exact key, every catalogue entry, and what a reader must refuse. Format 1 is frozen, and the page is written for someone building a reader or a verifier of a store without MAGI's code. What MAGI promises says what the format guarantees a program, and MAGI's limits has the sizes it holds to.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nervlinux.org/handbook/reference/magi-format/">
+<link rel="icon" href="/assets/favicon.png" sizes="32x32">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/nerv-square.png">
+<link rel="preload" href="/fonts/ashinoko-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/palette.css">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/site.css">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('nerv-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="masthead__inner">
+    <a class="masthead__brand" href="/" aria-label="Nerv Linux — home">
+      <img class="logo" src="/assets/nerv-wordmark.png" alt="Nerv Linux" width="600" height="149">
+    </a>
+    <nav class="masthead__nav" aria-label="Primary">
+      <div class="masthead__links" id="primary-links">
+      <a href="/system/">System</a>
+      <a href="/desktop/">Desktop</a>
+      <a href="/enterprise/">Enterprise</a>
+      <a href="/community/">Community</a>
+      <a href="/handbook/" aria-current="page">Handbook</a>
+      <a href="/downloads/">Downloads</a>
+      <a href="/about/">About</a>
+      </div>
+      <button class="theme-toggle" id="theme-toggle" type="button"
+              aria-label="Switch to light theme" title="Switch theme">
+        <svg class="icon icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path fill="currentColor" d="M20.7 14.6A8.6 8.6 0 0 1 9.4 3.3a8.7 8.7 0 1 0 11.3 11.3Z"/>
+        </svg>
+        <svg class="icon icon--sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2" fill="currentColor"/>
+          <g stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+            <path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4"/>
+            <path d="M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/>
+          </g>
+        </svg>
+      </button>
+      <button class="menu-toggle" id="menu-toggle" type="button"
+              aria-label="Menu" aria-expanded="false" aria-controls="primary-links">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+          <path class="menu-toggle__open" d="M4 7h16M4 12h16M4 17h16"/>
+          <path class="menu-toggle__close" d="M6 6l12 12M18 6L6 18"/>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="section section--head">
+  <div class="wrap hb">
+    <nav class="hb-nav" aria-label="Handbook">
+<details class="hb-nav__box" open>
+<summary class="hb-nav__summary">Contents</summary>
+<a class="hb-nav__home" href="/handbook/">The Nerv Handbook</a>
+<p class="hb-nav__part">Preface</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/why-an-operating-system-still/">Why an operating system, still</a>
+</li>
+</ol>
+<p class="hb-nav__part">Getting started</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/what-nerv-is/">What Nerv is</a>
+</li>
+<li><a href="/handbook/machine/install/">Install</a>
+</li>
+<li><a href="/handbook/machine/the-first-hour/">The first hour</a>
+</li>
+<li><a href="/handbook/machine/software/">Software</a>
+</li>
+<li><a href="/handbook/machine/desktop/">The desktop</a>
+</li>
+</ol>
+<p class="hb-nav__part">Using the machine</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/compute-fabric/">The GPU</a>
+</li>
+<li><a href="/handbook/machine/ai-development/">AI development</a>
+</li>
+<li><a href="/handbook/machine/agents/">Agents</a>
+</li>
+<li><a href="/handbook/machine/containers/">Containers</a>
+</li>
+<li><a href="/handbook/machine/gaming/">Gaming</a>
+</li>
+<li><a href="/handbook/machine/building-your-own/">Building your own</a>
+</li>
+</ol>
+<p class="hb-nav__part">Keeping the machine</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/generations/">Updates and generations</a>
+</li>
+<li><a href="/handbook/machine/firmware/">Firmware</a>
+</li>
+<li><a href="/handbook/machine/power/">Power</a>
+</li>
+<li><a href="/handbook/machine/accounts-and-keys/">Accounts and keys</a>
+</li>
+<li><a href="/handbook/machine/chain-of-trust/">The chain of trust</a>
+</li>
+<li><a href="/handbook/machine/yours-and-not-yours/">Yours and not yours</a>
+</li>
+<li><a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a>
+</li>
+</ol>
+<p class="hb-nav__part">Many machines</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/networking/">Networking</a>
+</li>
+<li><a href="/handbook/machine/plexus/">Plexus</a>
+</li>
+<li><a href="/handbook/machine/offloading-and-fleets/">Offloading and fleets</a>
+</li>
+</ol>
+<p class="hb-nav__part">When it breaks</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/recovery/">Recovery</a>
+</li>
+<li><a href="/handbook/machine/asking-why/">Asking why</a>
+</li>
+</ol>
+<p class="hb-nav__part">Reference</p><ol class="hb-nav__list">
+<li><a href="/handbook/reference/magi-contract/">What MAGI promises</a>
+</li>
+<li><a href="/handbook/reference/magi-limits/">MAGI&#x27;s limits</a>
+</li>
+<li><a href="/handbook/reference/magi-format/" aria-current="page">The MAGI store format</a>
+<ol class="hb-nav__sections">
+<li><a href="#conventions">Conventions</a></li>
+<li><a href="#a-store">A store</a></li>
+<li><a href="#features-and-revision">Features and revision</a></li>
+<li><a href="#log-segments">Log segments</a></li>
+<li><a href="#groups">Groups</a></li>
+<li><a href="#blocks">Blocks</a></li>
+<li><a href="#the-chains">The chains</a></li>
+<li><a href="#hidden-blocks-and-sidecars">Hidden blocks and sidecars</a></li>
+<li><a href="#the-catalogue">The catalogue</a></li>
+<li><a href="#state-streams">State streams</a></li>
+<li><a href="#the-checkpoint">The checkpoint</a></li>
+<li><a href="#tables">Tables</a></li>
+<li><a href="#history-files">History files</a></li>
+<li><a href="#block-maps">Block maps</a></li>
+<li><a href="#opening-a-store">Opening a store</a></li>
+<li><a href="#verifying-a-store">Verifying a store</a></li>
+</ol>
+</li>
+</ol>
+</details></nav>
+    <div class="hb__main">
+      <div class="essay">
+<h1 class="page-title">The MAGI store format</h1>
+<p>This page specifies format 1 of a MAGI store, the files MAGI's engine keeps on disk for each store, byte by byte: every file, every encoding, every hash with its exact key, every catalogue entry, and what a reader must refuse. Format 1 is frozen, and the page is written for someone building a reader or a verifier of a store without MAGI's code. <a href="/handbook/reference/magi-contract/">What MAGI promises</a> says what the format guarantees a program, and <a href="/handbook/reference/magi-limits/">MAGI's limits</a> has the sizes it holds to.</p>
+<h2 id="conventions" class="section-title">Conventions</h2>
+<p>Every integer is little-endian unless a section says otherwise; key encodings and history-view keys are big-endian, and say so. Offsets in a layout are bytes from the start of the structure.</p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">notation</th><th scope="col">meaning</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code>u8</code>, <code>u16</code>, <code>u32</code>, <code>u64</code></td><td>an unsigned integer of that width, little-endian</td>
+</tr>
+<tr>
+<td><code>i64</code></td><td>a signed 64-bit integer, two's complement, written as a <code>u64</code></td>
+</tr>
+<tr>
+<td><code>[N]</code></td><td>N raw bytes</td>
+</tr>
+<tr>
+<td><code>blob</code></td><td>a <code>u32</code> length, then that many bytes</td>
+</tr>
+<tr>
+<td><code>str</code></td><td>a <code>blob</code> holding UTF-8; a reader refuses one that is not UTF-8</td>
+</tr>
+<tr>
+<td><code>leb</code></td><td>an unsigned LEB128 number (below)</td>
+</tr>
+<tr>
+<td><code>time</code></td><td>24 bytes: a 16-byte boot id, then a <code>u64</code> of nanoseconds since that boot</td>
+</tr>
+<tr>
+<td><code>‖</code></td><td>concatenation</td>
+</tr>
+<tr>
+<td><code>H(x)</code></td><td>BLAKE3 of <code>x</code>, 32 bytes</td>
+</tr>
+<tr>
+<td><code>K(k, x)</code></td><td>BLAKE3 in keyed-hash mode, key <code>k</code> (32 bytes), of <code>x</code>, 32 bytes</td>
+</tr>
+<tr>
+<td><code>le64(n)</code></td><td><code>n</code> as 8 little-endian bytes</td>
+</tr>
+<tr>
+<td><code>be64(n)</code></td><td><code>n</code> as 8 big-endian bytes</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>LEB128.</strong> Seven bits a byte, least significant group first, the top bit set on every byte but the last. Only the shortest form is valid: a final byte of <code>0x00</code> after another byte is refused, so a number has exactly one encoding. A number is at most ten bytes, and in its tenth byte only the lowest bit may be set; each use below also names the largest value it takes, and a reader refuses a number above it. <code>300</code> is <code>ac 02</code>.</p>
+<p><strong>Zigzag.</strong> A signed difference <code>d</code> is stored as the unsigned <code>(d &lt;&lt; 1) ^ (d &gt;&gt; 63)</code> (arithmetic shift), and read back as <code>(z &gt;&gt; 1) ^ -(z &amp; 1)</code>. Differences are computed with wrapping 64-bit arithmetic.</p>
+<p><strong>BLAKE3</strong> is the standard function, with 32-byte output, in its hash and keyed-hash modes only. Every key below is 32 ASCII bytes, written here between quotes exactly as stored; <code>\0</code> is a zero byte.</p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">name</th><th scope="col">key</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>LINK</td><td><code>"engram format v7: a block's link"</code></td>
+</tr>
+<tr>
+<td>GROUP</td><td><code>"engram format v7: group header.."</code></td>
+</tr>
+<tr>
+<td>COMMIT</td><td><code>"engram format v7: commit digest."</code></td>
+</tr>
+<tr>
+<td>GENESIS</td><td><code>"engram format v7: stream genesis"</code></td>
+</tr>
+<tr>
+<td>HIST</td><td><code>"engram format v8: history file\0\0"</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>CRC-32C</strong> is the Castagnoli CRC (reflected polynomial <code>0x82f63b78</code>, initial value and final XOR <code>0xffffffff</code>): CRC-32C of <code>"123456789"</code> is <code>0xe3069283</code>.</p>
+<h2 id="a-store" class="section-title">A store</h2>
+<p>A store is one flat directory. Every name below uses 16 lower-case hexadecimal digits for a number. A reader ignores any name it does not know.</p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">file</th><th scope="col">what it is</th><th scope="col">a reader</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code>log-&lt;offset&gt;.seg</code></td><td>a log segment, named for the log offset of its first group</td><td>needs it</td>
+</tr>
+<tr>
+<td><code>checkpoint</code></td><td>the folded catalogue at a batch boundary, and the root of the tables</td><td>needs it, if there is one</td>
+</tr>
+<tr>
+<td><code>tab-0000000000000000-&lt;file&gt;.run</code></td><td>a sorted run of the store's one keyed space, which holds every state stream's and view's table</td><td>needs it to read state and views</td>
+</tr>
+<tr>
+<td><code>hist-&lt;stream&gt;-&lt;segment&gt;</code></td><td>one history stream's blocks from one log segment, filed out of the log</td><td>needs it</td>
+</tr>
+<tr>
+<td><code>hidden-&lt;offset&gt;.side</code></td><td>what a block holding a redacted record needs beside it to verify, named for the block's log offset</td><td>needs it to verify that block</td>
+</tr>
+<tr>
+<td><code>map-&lt;segment&gt;</code></td><td>where each stream's blocks lie in one segment</td><td>may ignore it, and walk the segment</td>
+</tr>
+<tr>
+<td><code>checkpoint.tmp</code>, <code>hist-&lt;stream&gt;-&lt;segment&gt;.tmp</code></td><td>a file being written when the writer stopped</td><td>ignores it; a writer removes it</td>
+</tr>
+<tr>
+<td><code>text-*</code>, <code>cols-*</code>, <code>graph-*</code></td><td>search, column and graph indexes</td><td>not part of format 1</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>The log</strong> is one sequence of bytes, addressed by a <strong>log offset</strong>, cut into segment files. A segment named <code>log-X.seg</code> begins with a 128-byte header, and the byte at position <code>p</code> of the file, for <code>p ≥ 128</code>, is at log offset <code>X + p − 128</code>: headers take no log offsets. Segments hold groups of batches, each group whole within one segment. The segments a store keeps are in log order, and a segment the writer reclaimed leaves a gap; after the checkpoint's offset, every segment begins exactly where the one before it ends.</p>
+<p><strong>What is derived.</strong> The text, column and graph indexes (<code>text-*</code>, <code>cols-*</code>, <code>graph-*</code>) are built from the log and are not part of format 1: a reader may ignore them, and a writer may delete them at any time, which costs only the time to build them again. Block maps are part of format 1 but hold nothing the log does not; a reader may ignore them. Everything else is needed.</p>
+<p><strong>One writer.</strong> A store has one writer, which appends groups to the last segment, writes the other files whole beside it, and replaces the checkpoint by writing <code>checkpoint.tmp</code>, syncing it, renaming it over <code>checkpoint</code> and syncing the directory. A reader never writes.</p>
+<h2 id="features-and-revision" class="section-title">Features and revision</h2>
+<p>Every file of format 1 begins with <code>ENGRAM1</code> and a letter for its kind, except a table run, whose footer begins with it:</p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">magic</th><th scope="col">file</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code>ENGRAM1L</code></td><td>a log segment</td>
+</tr>
+<tr>
+<td><code>ENGRAM1C</code></td><td>the checkpoint</td>
+</tr>
+<tr>
+<td><code>ENGRAM1H</code></td><td>a history file</td>
+</tr>
+<tr>
+<td><code>ENGRAM1T</code></td><td>a table run (its footer)</td>
+</tr>
+<tr>
+<td><code>ENGRAM1S</code></td><td>a sidecar</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A segment header, the checkpoint and a history file carry a <strong>revision</strong>, a <code>u32</code>, which is <code>1</code> and stays <code>1</code>. A reader refuses a file of any other revision: a revision above 1 is a store written by a later, incompatible format, which the reader leaves untouched.</p>
+<p><strong>Features.</strong> What a later writer adds to format 1, it adds as a <strong>feature</strong>: one bit, named before any writer sets it and never reused. Features are four bytes, two <code>u16</code> fields:</p>
+<pre class="term term__body" data-lang="text">0  u16  incompatible: a reader that does not know one of these refuses the store
+2  u16  read-compatible: a reader that does not know one of these reads the store, and writes nothing to it</pre>
+<p>Features are sticky. Every segment header and every checkpoint carries every feature the store has used, so a store uses the union of the features in its checkpoint and in the headers of every segment from the checkpoint's on. A reader computes that union before it reads anything else, refuses the store if an incompatible bit is set that it does not know, and treats the store as read-only if a read-compatible bit is set that it does not know.</p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">bit</th><th scope="col">kind</th><th scope="col">name</th><th scope="col">meaning</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code>1 &lt;&lt; 0</code></td><td>read-compatible</td><td>SIGNED</td><td>the store holds signed stream heads (entry 13). Reserved: no writer of format 1 sets it yet.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>No other bit is defined; a store that uses no feature has four zero bytes.</p>
+<p><strong>A store from before the freeze.</strong> A segment that begins <code>ENGRAM\0\0</code>, or a checkpoint that begins <code>ENGRAMCK</code>, belongs to a store written before format 1. A reader refuses it by name, giving the revision it holds at bytes 12..16, and does not treat it as damage. The way across is <code>magi export</code> with the MAGI that wrote the store and <code>magi import</code> with a MAGI of format 1 (<a href="/handbook/reference/magi-contract/#updates-and-rollbacks">What MAGI promises</a>).</p>
+<h2 id="log-segments" class="section-title">Log segments</h2>
+<p>A segment opens with a 128-byte header:</p>
+<pre class="term term__body" data-lang="text">  0  [8]   "ENGRAM1L"
+  8  [4]   features
+ 12  u32   revision: 1
+ 16  u64   the log offset of the segment's first group: the number in its file name
+ 24  [16]  store id
+ 40  u64   the anchor's batch: the number of the last batch before the segment
+ 48  u64   the anchor's catalogue entry: the number of the last catalogue entry before it
+ 56  [32]  the anchor's commit digest: the commit chain's digest after that batch
+ 88  [32]  the anchor's catalogue link: the catalogue chain's link after that entry
+120  [8]   the first 8 bytes of H(bytes 0..120)</pre>
+<p>The anchor says where the commit chain and the catalogue chain stand where the segment begins, so every group in a segment can be checked even after the segments before it are gone. The first segment of a store is at offset 0, and its anchor is batch 0, entry 0, the commit genesis and the catalogue genesis (<a href="#the-chains">The chains</a>).</p>
+<p>A reader checks a header in this order: a pre-freeze magic is refused by name; then the magic and the 8-byte check, either failing being damage; then the revision; then the features; then that bytes 16..24 equal the file name's offset. Every segment of a store holds the same store id.</p>
+<p>After the header come groups, back to back. The last segment may end in zero bytes after its last group: a writer writes zeros ahead of the log, and where they begin, the log ends. A group never begins with a zero byte.</p>
+<h2 id="groups" class="section-title">Groups</h2>
+<p>A group is one write by the writer: one or more batches, each committed whole. It is linked once into the commit chain.</p>
+<pre class="term term__body" data-lang="text">  0  [4]  "EGRP"
+  4  u32  group length, header to trailer inclusive
+  8  u64  the group's own log offset
+ 16  u64  the number of its first batch
+ 24  u32  batches, at least 1
+ 28  u32  blocks
+ 32  u64  durable: the log offset the log was durable to when the group was written
+ 40  [8]  the first 8 bytes of K(GROUP, bytes 0..40)
+ 48       blocks, back to back
+          the tape
+          [32] trailer: the commit digest</pre>
+<p><strong>The tape</strong> follows the last block and runs to the trailer. Per batch, in order:</p>
+<pre class="term term__body" data-lang="text">[16]  the batch's commit time: boot id
+u64   the batch's commit time: nanoseconds
+leb   spans
+      per span: leb block index (below the group's block count), leb records (at least 1, at most 2^32 − 1)</pre>
+<p>The spans deal each batch's records out of the group's blocks in the order they were written, across streams: a span <code>(b, n)</code> is the next <code>n</code> records of block <code>b</code>. Over the whole tape, each block is dealt exactly its record count, and its records are dealt in their order within it. The tape ends exactly at the trailer.</p>
+<p><strong>What makes a group valid.</strong> Its header's check verifies; bytes 8..16 equal the offset where it lies; its length is at least 80 and fits where it lies; it has at least one batch; every block parses (<a href="#blocks">Blocks</a>); the tape is as above and ends exactly at the trailer; its first batch is one more than the last batch before it (batches are numbered from 1); <code>durable</code> is no greater than the group's own offset; the trailer equals the commit digest (<a href="#the-chains">The chains</a>); every block links into its stream; and every record and catalogue entry in it is one the fold accepts (<a href="#folding-the-catalogue">Folding the catalogue</a>, <a href="#state-streams">State streams</a>). A group's batches stand or fall together: a reader applies none of a group until all of it is checked.</p>
+<h2 id="blocks" class="section-title">Blocks</h2>
+<p>A block is one stream's records within one group. It is the unit of framing and of hashing.</p>
+<pre class="term term__body" data-lang="text">  0  u32   block length, header included
+  4  u8    kind: 1 records, 2 catalogue entries
+  5  u8    flags: 0x01 times, 0x02 tokens, 0x80 hidden
+  6  u16   boots in the boot table
+  8  u64   stream: 0 for the catalogue
+ 16  u64   the sequence number of its first record (for the catalogue, its first entry number)
+ 24  u32   records, at least 1
+ 28  u32   bytes of the record table
+ 32  [32]  seed
+ 64  [32]  link
+ 96        boot table: 16 bytes a boot
+           record table
+           payloads, back to back</pre>
+<p><strong>The record table</strong> holds, per record, in order: <code>leb</code> payload length; then, with flag <code>0x01</code>, <code>leb</code> boot index (into the boot table) and <code>leb</code> zigzag nanoseconds from the record before (the first from 0); then, with flag <code>0x02</code>, <code>leb</code> zigzag token from the record before (the first from 0). A record's sequence number is the block's first plus its index in the block.</p>
+<p>A reader refuses a block whose length is below 96 or past its group; whose kind is not 1 or 2; that sets a flag other than <code>0x01</code>, <code>0x02</code> and <code>0x80</code>; that has no records, or more records than its record table has bytes; whose boot table and record table run past it; whose boot table is empty with flag <code>0x01</code> or non-empty without it; whose record names a boot it does not have; or whose record table and payloads do not account for every byte exactly. A catalogue block (kind 2) is always stream 0 and a records block (kind 1) never is. A catalogue block carries neither times nor tokens.</p>
+<p><strong>What a writer sets.</strong> A stream witnessed by its source (declaration field 12) has its blocks written with flag <code>0x01</code>; a stream declared with an idempotency source has them written with flag <code>0x02</code>. A payload is at most 16 MiB. A writer starts a new block for a stream once a block's payloads reach 64 KiB, or its boot table holds 65,535 boots; a reader does not depend on where blocks are cut.</p>
+<p><strong>A record's time</strong> is its own, from the record table, when its block has flag <code>0x01</code>; otherwise it is its batch's commit time, from the tape of the group it was written in. A record's <strong>token</strong> is its value from the record table with flag <code>0x02</code>, and 0 without it.</p>
+<p><strong>The seed</strong> is 32 bytes the writer chooses for each block. A reader never derives it; it is not covered by the link, and a hidden block's seed is zero.</p>
+<h2 id="the-chains" class="section-title">The chains</h2>
+<p>A store has three kinds of chain: one per stream over its blocks, one for the catalogue (stream 0) over its blocks, and the commit chain over groups.</p>
+<p><strong>A block's leaves and link.</strong> For a block of <code>n</code> records with seed <code>s</code>, for <code>i</code> from 0 to <code>n − 1</code> (the index within the block, not the sequence number):</p>
+<pre class="term term__body" data-lang="text">nonce_i = K(s, le64(i))
+leaf_i  = K(nonce_i, payload_i)
+link    = K(LINK, prev ‖ head ‖ boot table ‖ record table ‖ leaf_0 ‖ … ‖ leaf_(n−1))</pre>
+<p><code>head</code> is the block's bytes 0..32 with bit <code>0x80</code> of byte 5 cleared: the link covers neither the seed nor the hidden flag. The boot table and record table are exactly as stored. The link is stored at bytes 64..96.</p>
+<p><code>prev</code> is the stream's link before the block: the link of the stream's previous block, wherever it lies. A stream's first block chains from its <strong>genesis</strong>:</p>
+<pre class="term term__body" data-lang="text">stream genesis    = K(GENESIS, the stream's Declare entry, as its catalogue payload: 0x01 ‖ u64 id ‖ declaration)
+catalogue genesis = H("engram v0 catalogue genesis" ‖ store id)</pre>
+<p>The quoted strings here are ASCII, without a terminator, followed by the 16-byte store id.</p>
+<p><strong>The commit chain.</strong> A group's trailer is:</p>
+<pre class="term term__body" data-lang="text">commit = K(COMMIT, prev commit ‖ group bytes 0..48 ‖ link of block 0 ‖ … ‖ link of the last block ‖ tape)
+commit genesis = H("engram v0 commit genesis" ‖ store id)</pre>
+<p><code>prev commit</code> is the trailer of the group before it, or the commit genesis before the store's first group. The header bytes 0..48 include the header's own 8-byte check.</p>
+<h2 id="hidden-blocks-and-sidecars" class="section-title">Hidden blocks and sidecars</h2>
+<p>A record is <strong>redacted</strong> in place. In every copy of its block, the writer first makes durable a sidecar named <code>hidden-&lt;offset&gt;.side</code>, where <code>offset</code> is the block's log offset, then zeroes the block's seed and the redacted record's payload (its length stays), and sets flag <code>0x80</code>. The link covers neither the seed nor the flag, so the chain stays whole; nothing left confirms a guess at what the record held.</p>
+<pre class="term term__body" data-lang="text"> 0  [8]   "ENGRAM1S"
+ 8  u64   the log offset of the block it belongs to
+16  u32   records: the block's record count
+20        per record: u8 1 if redacted, 0 if not; [32] its leaf if redacted, its nonce if not
+end [32]  H(every byte before)</pre>
+<p>A sidecar is <code>20 + 33 × records + 32</code> bytes. A reader refuses one shorter than 52 bytes, whose magic or checksum fails, whose length does not match its count, whose flag byte is neither 0 nor 1, that names another block, or whose count is not its block's.</p>
+<p><strong>A hidden block verifies</strong> through its sidecar: leaf <code>i</code> is the stored leaf for a redacted record, and <code>K(nonce_i, payload_i)</code> for any other, with the nonce taken from the sidecar; then the link is checked as for any block. A hidden block without its sidecar does not verify. Redacting a second record of a block rewrites the sidecar whole, keeping the first.</p>
+<h2 id="the-catalogue" class="section-title">The catalogue</h2>
+<p>Stream 0 is the <strong>catalogue</strong>: the store's own record of what streams exist, what types they are read by, what boots it knows and what each stream covers. Each catalogue block's records are entries, numbered from 1 across the whole store, chained like any stream from the catalogue genesis. An entry's payload is a tag byte and its fields, and a reader refuses an unknown tag or bytes after an entry's end.</p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">tag</th><th scope="col">entry</th><th scope="col">fields after the tag</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>1</td><td>Declare</td><td><code>u64</code> id, declaration</td>
+</tr>
+<tr>
+<td>2</td><td>Open</td><td><code>u64</code> stream, <code>time</code> at</td>
+</tr>
+<tr>
+<td>3</td><td>Close</td><td><code>u64</code> stream, <code>time</code> at, <code>u8</code> gap</td>
+</tr>
+<tr>
+<td>4</td><td>Scar</td><td><code>u64</code> stream, <code>u64</code> from, <code>u64</code> to, <code>time</code> at, <code>[32]</code> digest</td>
+</tr>
+<tr>
+<td>5</td><td>Type</td><td>type</td>
+</tr>
+<tr>
+<td>6</td><td>Mark</td><td><code>u64</code> stream, <code>time</code> from, <code>time</code> to, <code>u8</code> hole, <code>u8</code> has count, <code>u64</code> count (0 without one)</td>
+</tr>
+<tr>
+<td>7</td><td>none</td><td>never written; refused</td>
+</tr>
+<tr>
+<td>8</td><td>Boot</td><td><code>[16]</code> boot id, <code>u64</code> rank</td>
+</tr>
+<tr>
+<td>9</td><td>Fill</td><td><code>u64</code> view, <code>u8</code> source, <code>u64</code> through</td>
+</tr>
+<tr>
+<td>10</td><td>Floor</td><td><code>u64</code> view, <code>time</code> at</td>
+</tr>
+<tr>
+<td>11</td><td>FillKey</td><td><code>u64</code> view, <code>u8</code> source, <code>blob</code> after, <code>u8</code> done</td>
+</tr>
+<tr>
+<td>12</td><td>Filed</td><td><code>u64</code> stream, <code>u64</code> segment, <code>[32]</code> digest</td>
+</tr>
+<tr>
+<td>13</td><td>Signed</td><td><code>u64</code> stream, <code>u64</code> through, <code>u8</code> scheme, <code>blob</code> signature. Reserved: no writer of format 1 writes it.</td>
+</tr>
+<tr>
+<td>14</td><td>Redacted</td><td><code>u64</code> stream, <code>u64</code> seq, <code>time</code> at, <code>u64</code> block</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A one-byte boolean is true when it is not zero. The gap codes of a Close:</p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">code</th><th scope="col">the interval ended because</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>0</td><td>the writer said it was stopping</td>
+</tr>
+<tr>
+<td>1</td><td>the writer was meant to start and did not</td>
+</tr>
+<tr>
+<td>2</td><td>the engine stopped with the interval open, and closed it when it came back</td>
+</tr>
+<tr>
+<td>3</td><td>the writer's connection ended without its saying it was stopping</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>What each entry means:</p>
+<ul class="list">
+<li><strong>Declare</strong> creates stream <code>id</code>, as its declaration says. Ids are given in order from 1.</li>
+<li><strong>Open</strong> and <strong>Close</strong> begin and end a coverage interval: a span during which the stream's writer was attached and the engine witnessed everything it sent.</li>
+<li><strong>Scar</strong> says records <code>from..=to</code> of the stream are gone, by retention. <code>digest</code> is the link after record <code>to</code> (the last block holding it), from which the chain resumes, and <code>at</code> is that record's time, below which the stream no longer answers.</li>
+<li><strong>Type</strong> is a type, or a new version of one, that the store carries: every typed stream is read by its store's own types.</li>
+<li><strong>Mark</strong> is said by the writer of a source-witnessed stream: <code>[from, to)</code> on the source's clock is complete, or, with <code>hole</code>, a hole, holding <code>count</code> records if the source counted them. A <code>to</code> of <code>u64::MAX</code> nanoseconds is the end of its boot. On a view, a mark is the engine's own: a hole where the view dropped what it held.</li>
+<li><strong>Boot</strong> gives a boot its rank among the store's boots. Ranks order boots; a rank is never 0 and never changes.</li>
+<li><strong>Fill</strong> and <strong>FillKey</strong> record how far a history view declared over existing records has been fed what one of its sources held: through sequence <code>through</code>, or for a source that is itself a view, through row key <code>after</code>, and all of it once <code>done</code>. <code>source</code> is the source's place in the plan.</li>
+<li><strong>Floor</strong> says a history view over its cap forgot its rows before <code>at</code>.</li>
+<li><strong>Filed</strong> says the stream's records written in segment <code>segment</code> are now in its history file for that segment, whose digest is <code>digest</code> (<a href="#history-files">History files</a>).</li>
+<li><strong>Signed</strong> would say the stream's chain through record <code>through</code> is signed with <code>signature</code> under <code>scheme</code>. A store holding one sets the SIGNED feature.</li>
+<li><strong>Redacted</strong> says record <code>seq</code> of the stream, of time <code>at</code>, in the block at log offset <code>block</code>, is redacted: hidden in place wherever that block lies. It says only that it was.</li>
+</ul>
+<h3 id="the-stream-declaration" class="sub-title">The stream declaration</h3>
+<p>A declaration is a sequence of tagged fields, each a <code>u8</code> field id and its value, in ascending id order, ended by a <code>0</code> byte. No length precedes it, so a reader decodes every field, a plan included, to find where it ends. A reader refuses a field id it does not know, rather than skip it, and refuses a declaration missing any of fields 1 to 10.</p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">id</th><th scope="col">field</th><th scope="col">value</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>1</td><td>name</td><td><code>str</code>: <code>&lt;namespace&gt;/&lt;name&gt;</code></td>
+</tr>
+<tr>
+<td>2</td><td>kind</td><td><code>u8</code>: 0 history, 1 state, 2 view</td>
+</tr>
+<tr>
+<td>3</td><td>writer</td><td><code>u32</code> uid, <code>str</code> program</td>
+</tr>
+<tr>
+<td>4</td><td>signing</td><td><code>u8</code> 0 unsigned; or <code>u8</code> 1 and <code>str</code> key (reserved: no writer of format 1 declares one)</td>
+</tr>
+<tr>
+<td>5</td><td>trust</td><td><code>u8</code>: 0 native, 1 upstream, 2 patched, 3 parsed, 4 inferred</td>
+</tr>
+<tr>
+<td>6</td><td>retention</td><td><code>u64</code> byte cap, <code>u64</code> record cap (0: none)</td>
+</tr>
+<tr>
+<td>7</td><td>consumer</td><td><code>str</code></td>
+</tr>
+<tr>
+<td>8</td><td>idempotency</td><td><code>u8</code> 0 none; 1 sequence; or 2 and <code>str</code> the external cursor it is derived from</td>
+</tr>
+<tr>
+<td>9</td><td>durability</td><td><code>u8</code>: 0 lazy, 1 group, 2 sync</td>
+</tr>
+<tr>
+<td>10</td><td>schema</td><td><code>str</code>: a type <code>&lt;package&gt;.&lt;type&gt;</code>, or <code>bytes</code> for records nothing types</td>
+</tr>
+<tr>
+<td>11</td><td>plan</td><td>a view's plan (<a href="#plans">Plans</a>); present on a view and only on a view</td>
+</tr>
+<tr>
+<td>12</td><td>witness</td><td><code>u8</code>: 0 the engine, 1 the source. Written only when it is 1; absent, it is 0.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A <strong>history</strong> stream is append-only records. A <strong>state</strong> stream is changes to keys (<a href="#state-streams">State streams</a>). A <strong>view</strong> is written by nothing: the engine derives it from its sources by its plan, and declares it with idempotency none and schema <code>bytes</code>.</p>
+<h3 id="plans" class="sub-title">Plans</h3>
+<p>A plan is a <code>u8</code> tag and its fields. Within a plan:</p>
+<ul class="list">
+<li><code>ids</code> is a <code>u32</code> count, then that many <code>u16</code> field ids;</li>
+<li><code>pairs</code> is a <code>u32</code> count, then that many pairs of <code>u16</code> (a left field id, a right field id);</li>
+<li><code>keep</code> is <code>u8</code> 0, keeping the record whole, or <code>u8</code> 1 and <code>ids</code>, keeping those fields (an empty list keeps nothing);</li>
+<li><code>pred?</code> is <code>u8</code> 0 for none, or <code>u8</code> 1 and a predicate; any other byte is refused.</li>
+</ul>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">tag</th><th scope="col">plan</th><th scope="col">fields after the tag</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>1</td><td>index</td><td><code>str</code> source, <code>ids</code> fields</td>
+</tr>
+<tr>
+<td>2</td><td>filter, keeping the whole record</td><td><code>str</code> source, predicate</td>
+</tr>
+<tr>
+<td>12</td><td>filter</td><td><code>str</code> source, predicate, <code>keep</code></td>
+</tr>
+<tr>
+<td>3</td><td>project</td><td><code>str</code> source, <code>ids</code> fields</td>
+</tr>
+<tr>
+<td>4</td><td>join, keeping both records whole</td><td><code>str</code> left, <code>u16</code> field, <code>str</code> right</td>
+</tr>
+<tr>
+<td>13</td><td>join</td><td><code>str</code> left, <code>u16</code> field, <code>str</code> right, <code>keep</code> of the left, <code>keep</code> of the right</td>
+</tr>
+<tr>
+<td>5</td><td>history filter</td><td><code>str</code> source, <code>pred?</code>, <code>ids</code> fields</td>
+</tr>
+<tr>
+<td>9</td><td>history filter that derives fields</td><td><code>str</code> source, <code>pred?</code>, <code>ids</code> fields, <code>u32</code> count, then per derived field: <code>str</code> name, <code>u16</code> map field it reads, <code>str</code> map key, <code>str</code> type (<code>text</code>, <code>bytes</code>, <code>u64</code> or <code>i64</code>)</td>
+</tr>
+<tr>
+<td>6</td><td>band join</td><td><code>str</code> left, <code>str</code> right, <code>pairs</code> on, <code>u64</code> δ in nanoseconds, <code>ids</code> left fields, <code>ids</code> right fields</td>
+</tr>
+<tr>
+<td>7</td><td>antijoin</td><td><code>str</code> left, <code>str</code> right, <code>pairs</code> on, <code>u64</code> δ in nanoseconds, <code>ids</code> fields</td>
+</tr>
+<tr>
+<td>8</td><td>count</td><td><code>str</code> source, <code>ids</code> by, <code>u64</code> window width in nanoseconds, <code>pred?</code></td>
+</tr>
+<tr>
+<td>10</td><td>text search</td><td><code>str</code> source, <code>u32</code> count, then per field: <code>u16</code> field, <code>u8</code> weight; then <code>ids</code> key fields</td>
+</tr>
+<tr>
+<td>11</td><td>edges</td><td><code>str</code> source, <code>u16</code> from field, <code>u16</code> to field</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Plans 1 to 4, 12 and 13 are over typed state streams; 5 to 9 over typed history streams or history views; 10 and 11 over a typed history stream. A text search or edges view holds no rows: its index is derived, outside format 1, and only its declaration is in the store.</p>
+<p>A <strong>predicate</strong> is a <code>u8</code> tag, nested at most 64 deep:</p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">tag</th><th scope="col">predicate</th><th scope="col">fields after the tag</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>1</td><td>the field is present and compares so to the constant</td><td><code>u16</code> field, <code>u8</code> comparison (0 <code>=</code>, 1 <code>≠</code>, 2 <code>&lt;</code>, 3 <code>≤</code>, 4 <code>&gt;</code>, 5 <code>≥</code>), constant</td>
+</tr>
+<tr>
+<td>2</td><td>the field is present</td><td><code>u16</code> field</td>
+</tr>
+<tr>
+<td>3</td><td>and</td><td>predicate, predicate</td>
+</tr>
+<tr>
+<td>4</td><td>or</td><td>predicate, predicate</td>
+</tr>
+<tr>
+<td>5</td><td>not</td><td>predicate</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A <strong>constant</strong> is a <code>u8</code> kind and a value: 1 bool (<code>u8</code>), 2 signed integer (<code>i64</code>), 3 unsigned integer (<code>u64</code>), 4 float (<code>u64</code>: an <code>f64</code>'s bits, or an <code>f32</code>'s bits zero-extended), 5 text (<code>str</code>), 6 bytes (<code>blob</code>), 7 time (<code>[16]</code> boot, <code>u64</code> nanoseconds), 8 blob (<code>[32]</code>). Any other kind is refused. Floats compare by their bit patterns as unsigned integers.</p>
+<h3 id="types-and-schemas" class="sub-title">Types and schemas</h3>
+<p>A <strong>type</strong> entry, and each type the checkpoint carries, is:</p>
+<pre class="term term__body" data-lang="text">str  name: &lt;package&gt;.&lt;type&gt;
+u32  version: 1 for the first; each later one is one more
+str  the schema text
+u8   origin: 0 installed by a package, 1 declared by a program
+u32  owner uid
+str  owner program</pre>
+<p>A store takes a type's version 1 only if its schema parses, and version <code>n + 1</code> only if version <code>n</code> is the latest it holds, the origin and owner are the same, and the new schema <strong>extends</strong> the old: every old field is still there with the same id, name, type and optionality, every new field is optional, and the key is unchanged. So every record written under an earlier version decodes under the latest, and a reader reads every record by the latest version the store carries.</p>
+<p><strong>The schema text</strong> is one field a line, <code>&lt;id&gt; &lt;name&gt; &lt;type&gt;</code>, and at most one line <code>key &lt;name&gt;, &lt;name&gt;…</code> naming the key fields in key order. Text after <code>#</code> is a comment, and blank lines are ignored. Ids are decimal, from 1, strictly ascending down the file. A name is lower-case ASCII letters, digits and <code>_</code>, unique in the schema. A type ending in <code>?</code> may be absent. A key field is required, a scalar, and not a float. A schema declares at least one field.</p>
+<pre class="term term__body" data-lang="text"># geofront.artifact: one RPM in a repository
+key file
+1 file     text
+2 name     text
+3 epoch    u32
+7 size     u64
+9 disturl  text?</pre>
+<p>The types: <code>bool</code>, <code>i8</code>, <code>i16</code>, <code>i32</code>, <code>i64</code>, <code>u8</code>, <code>u16</code>, <code>u32</code>, <code>u64</code>, <code>f32</code>, <code>f64</code>, <code>text</code>, <code>bytes</code>, <code>time</code>, <code>blob</code>, <code>list&lt;T&gt;</code>, <code>map&lt;K,V&gt;</code> (K a scalar), and <code>vec&lt;f32,N&gt;</code> or <code>vec&lt;f16,N&gt;</code> (N at least 1). Lists and maps nest at most 32 deep. The scalars are every type but lists, maps and vectors.</p>
+<h3 id="typed-records" class="sub-title">Typed records</h3>
+<p>A typed record is its present fields in strictly ascending id order, each a <code>leb</code> field id (at most 65,535) and its value:</p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">type</th><th scope="col">value</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code>bool</code></td><td><code>u8</code> 0 or 1</td>
+</tr>
+<tr>
+<td><code>i8</code>…<code>i64</code>, <code>u8</code>…<code>u64</code></td><td>the integer, little-endian, at its width</td>
+</tr>
+<tr>
+<td><code>f32</code>, <code>f64</code></td><td>the float's bits, little-endian, at its width</td>
+</tr>
+<tr>
+<td><code>text</code>, <code>bytes</code></td><td><code>leb</code> length (at most 2^32 − 1), then the bytes; <code>text</code> is UTF-8</td>
+</tr>
+<tr>
+<td><code>time</code></td><td><code>[16]</code> boot id, <code>u64</code> nanoseconds</td>
+</tr>
+<tr>
+<td><code>blob</code></td><td><code>[32]</code>: a content hash</td>
+</tr>
+<tr>
+<td><code>list&lt;T&gt;</code></td><td><code>leb</code> count, then the items</td>
+</tr>
+<tr>
+<td><code>map&lt;K,V&gt;</code></td><td><code>leb</code> count, then the pairs, keys strictly ascending</td>
+</tr>
+<tr>
+<td><code>vec&lt;f32,N&gt;</code>, <code>vec&lt;f16,N&gt;</code></td><td>N values of 4 or 2 bytes, little-endian; no count</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The encoding is canonical, so equal records are equal bytes. A reader refuses a field id the schema does not have, a field out of order or repeated, a required field missing, a <code>bool</code> that is not 0 or 1, text that is not UTF-8, map keys out of order, and a number not in its shortest form.</p>
+<p><strong>A key</strong> orders as bytes, never by collation. A keyed type's key is each key field's value in key order, each encoded as:</p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">type</th><th scope="col">in a key</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code>bool</code></td><td>one byte, 0 or 1</td>
+</tr>
+<tr>
+<td>signed integers</td><td>8 bytes, whatever the width: <code>be64(value as u64 ^ 2^63)</code></td>
+</tr>
+<tr>
+<td>unsigned integers</td><td>8 bytes, whatever the width: <code>be64(value)</code></td>
+</tr>
+<tr>
+<td><code>text</code>, <code>bytes</code></td><td>the bytes, each <code>00</code> written <code>00 ff</code>, then <code>00 00</code></td>
+</tr>
+<tr>
+<td><code>time</code></td><td>the 16-byte boot id, then <code>be64(nanoseconds)</code></td>
+</tr>
+<tr>
+<td><code>blob</code></td><td>the 32 bytes</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="folding-the-catalogue" class="sub-title">Folding the catalogue</h3>
+<p>A reader folds the catalogue entry by entry, in order, into the state the checkpoint also carries (<a href="#the-checkpoint">The checkpoint</a>). The fold of a store with no checkpoint starts with no streams, no types, no boots, next id 1, entry 0 and the catalogue genesis. An entry the fold refuses makes its group invalid.</p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">entry</th><th scope="col">accepted when</th><th scope="col">effect</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Declare</td><td><code>id</code> is the next id, and no stream has the name</td><td>the next id moves on; a new stream with head 0, head link and floor link its genesis, floor 1, and nothing else; a history view gets one fill per plan source, as below</td>
+</tr>
+<tr>
+<td>Type</td><td>as in <a href="#types-and-schemas">Types and schemas</a></td><td>the type's latest version is this</td>
+</tr>
+<tr>
+<td>Boot</td><td>the boot has no rank yet, the rank is not 0, and no boot has the rank</td><td>the boot is ranked; boots are kept in rank order</td>
+</tr>
+<tr>
+<td>Open</td><td>the stream exists and its last interval is closed, or it has none</td><td>a new interval from <code>at</code>, opened at this entry's number, closed at 0</td>
+</tr>
+<tr>
+<td>Close</td><td>its last interval is open</td><td>that interval ends at <code>at</code> for the gap, closed at this entry's number</td>
+</tr>
+<tr>
+<td>Scar</td><td><code>from</code> is the stream's floor, <code>from ≤ to ≤</code> head</td><td>segment uses whose last record is at most <code>to</code> go from the front; the floor becomes <code>to + 1</code>, its link <code>digest</code> and its time <code>at</code>; redactions at or below <code>to</code> go; and a closed interval goes if it closed before <code>at</code> in <code>at</code>'s boot</td>
+</tr>
+<tr>
+<td>Mark</td><td>the stream is a history stream witnessed by its source, <code>from</code> and <code>to</code> are in one boot with <code>from</code> before <code>to</code>, and only a hole has a count; or the stream is a view and the mark is a hole within one boot</td><td>see below</td>
+</tr>
+<tr>
+<td>Fill</td><td>the source's fill is by sequence, and <code>through</code> is above where it stood and at most its end</td><td>the fill stands at <code>through</code></td>
+</tr>
+<tr>
+<td>FillKey</td><td>the source's fill is by key and not done, and <code>after</code> is above where it stood, or equal to it with <code>done</code> set</td><td>the fill stands at <code>after</code>, done if <code>done</code></td>
+</tr>
+<tr>
+<td>Floor</td><td>the stream is a view</td><td>the stream's floor time becomes <code>at</code></td>
+</tr>
+<tr>
+<td>Filed</td><td>the stream is a history stream with an unfiled segment use for <code>segment</code></td><td>that use is filed, with <code>digest</code></td>
+</tr>
+<tr>
+<td>Signed</td><td><code>1 ≤ through ≤</code> head</td><td>nothing is kept</td>
+</tr>
+<tr>
+<td>Redacted</td><td>a history stream with floor <code>≤ seq ≤</code> head, or a state stream with <code>1 ≤ seq ≤</code> head; never a view; not already redacted</td><td>the redaction is added, in sequence order</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Every entry about a stream refuses a stream that does not exist. Every accepted entry moves the catalogue's entry number on by one.</p>
+<p><strong>A Mark</strong> that is complete, after a last mark that is complete too, in the same boot, with <code>from</code> within the last mark's span (<code>last.from ≤ from ≤ last.to</code>), extends the last mark: its <code>to</code> becomes the later of the two, and it is learned again at this entry's number. Any other mark is added, learned at this entry's number.</p>
+<p><strong>A history view's fills</strong>, made when it is declared, one per source in plan order: a source that is a view gets a fill by key, with <code>after</code> empty, done only if the same source appears earlier in the plan; any other source gets a fill by sequence ending at the source's head, standing at the head if the same source appears earlier in the plan and at its floor less one if not.</p>
+<p><strong>A record</strong> of stream <code>s</code> with sequence <code>q</code> and token <code>t</code>, in a segment starting at offset <code>g</code>, is accepted when <code>s</code> exists, is not 0, and <code>q</code> is its head plus one; when, for a stream declared without idempotency, <code>t</code> is 0; and when, for a stream with idempotency, <code>t</code> is 0 or above the stream's last token. Then the head becomes <code>q</code>, the head time the record's time, and the last token <code>t</code> if <code>t</code> is not 0. If the stream's last segment use is for segment <code>g</code>, its records go up by one, its bytes by the payload's length, and its last sequence and time become the record's; otherwise a new segment use for <code>g</code> is added with one record, the payload's bytes, and the record's sequence and time.</p>
+<p><strong>After each group</strong>, for each block, the bytes it spends beyond its payloads (its length less their sum) are added to its stream's last segment use; then each stream's head link, and its last segment use's link, become the link of its last block in the group, and the catalogue's head link the link of the last catalogue block.</p>
+<p>A catalogue entry's number is its block's first number plus its index, and must be the catalogue's last number plus one.</p>
+<h2 id="state-streams" class="section-title">State streams</h2>
+<p>A state stream's record is one change to one key:</p>
+<pre class="term term__body" data-lang="text">blob  key
+u64   expect: u64::MAX for no condition; 0 for a key that must not exist; otherwise the version the key must be at
+u8    change, then its fields:
+        1  put     blob value
+        2  del
+        3  merge   merge
+        4  merge into a field   u16 field id, merge
+        5  redact</pre>
+<p>A merge is a <code>u8</code> and its fields:</p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">id</th><th scope="col">merge</th><th scope="col">fields</th><th scope="col">folds the stored value <code>old</code> (absent: none) into</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>1</td><td>add</td><td><code>i64</code> n</td><td><code>old + n</code>, <code>old</code> an 8-byte <code>i64</code> (absent: 0); an overflow is refused</td>
+</tr>
+<tr>
+<td>2</td><td>max</td><td><code>i64</code> n</td><td>the larger of <code>old</code> and <code>n</code> (absent: <code>n</code>)</td>
+</tr>
+<tr>
+<td>3</td><td>min</td><td><code>i64</code> n</td><td>the smaller (absent: <code>n</code>)</td>
+</tr>
+<tr>
+<td>4</td><td>union</td><td><code>u32</code> count, then count <code>blob</code></td><td>the set <code>old</code> with each element added; a set is <code>u32</code> count, then its elements as <code>blob</code>, strictly ascending</td>
+</tr>
+<tr>
+<td>5</td><td>append</td><td><code>blob</code> bytes</td><td><code>old</code> followed by the bytes (absent: empty)</td>
+</tr>
+<tr>
+<td>6</td><td>latest</td><td><code>u64</code> stamp, <code>blob</code> bytes</td><td><code>le64(stamp) ‖ bytes</code>, unless <code>old</code>, whose first 8 bytes are its stamp, has a later stamp, in which case <code>old</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A reader refuses an unknown change or merge, and bytes after the record.</p>
+<p><strong>How a record folds.</strong> Each key holds a <strong>version</strong>, the sequence number of the record that last changed it, and its bytes. A record of sequence <code>q</code> with an <code>expect</code> other than <code>u64::MAX</code> requires the key's version to equal it, an absent key being at version 0. Then:</p>
+<ul class="list">
+<li><strong>put</strong> stores the value. On a typed stream the value must decode whole under the stream's type, and if the type is keyed, the key computed from the value must equal the record's key.</li>
+<li><strong>del</strong> and <strong>redact</strong> remove the key.</li>
+<li><strong>merge</strong> folds into the whole value of an untyped stream's key, as the table above says; on a typed stream it is refused.</li>
+<li><strong>merge into a field</strong> applies only to a typed stream, to a key that exists, and to a field that is not a key field. Into a signed integer field, add, max and min are taken in <code>i64</code>; into an unsigned one, in a wider range and the result must be a <code>u64</code>; either way the result must fit the field's width. Union adds into a <code>list&lt;text&gt;</code> or <code>list&lt;bytes&gt;</code> and keeps the list sorted and without duplicates. Append extends a <code>text</code> (the bytes must be UTF-8) or <code>bytes</code> field. Latest is refused. An absent optional field folds from add's 0, max's and min's <code>n</code>, an empty list or empty bytes. The record is encoded again canonically.</li>
+</ul>
+<p>A key whose value changes is at version <code>q</code>. A stream's <strong>live bytes</strong> are the sum, over its keys, of key length plus 8 plus value length, and a change that grows them past the stream's byte cap is refused. A change the fold refuses was never written: a log that holds one is damaged.</p>
+<p>A <strong>redact</strong> record is written only by a redaction, never by a program. Folding it also adds the record itself to the stream's redactions, with its time and its block's log offset. Every earlier record of the key still on disk is named by a Redacted entry in the same batch.</p>
+<h2 id="the-checkpoint" class="section-title">The checkpoint</h2>
+<p>The checkpoint is the folded catalogue at a batch boundary, and the root of the tables there. A reader starts from it and replays only the log after it.</p>
+<pre class="term term__body" data-lang="text">[8]   "ENGRAM1C"
+[4]   features
+u32   revision: 1
+[16]  store id
+u64   offset: the log offset replay resumes from
+u64   batch: the number of the last batch before it
+[32]  the commit digest after that batch
+time  when that batch was committed
+...   the folded catalogue, below
+u32   block maps, then per map: u64 segment, u64 length of its valid bytes, u64 the log offset it maps to
+[32]  H(every byte before)</pre>
+<p>A reader refuses a checkpoint whose magic is not <code>ENGRAM1C</code> (and names a pre-freeze one), whose checksum fails, whose revision is not 1, whose features have an incompatible bit it does not know, or with bytes after its end. The folded catalogue:</p>
+<pre class="term term__body" data-lang="text">u64   the id the next declaration takes
+u64   the catalogue's last entry number
+[32]  the catalogue chain's link there
+u32   streams, then per stream, in ascending id:
+  u64    id
+  ...    its declaration
+  [32]   genesis
+  u64    head: its last sequence number
+  [32]   head link: the link of its last block
+  time   head time: its last record's time
+  u64    last token
+  u32    coverage intervals, then per interval:
+           time  from
+           u8    0xff while open; otherwise the gap code, then time to
+           u64   the entry number that opened it
+           u64   the entry number that closed it, 0 while open
+  u32    marks, in the order learned, then per mark:
+           time from, time to, u8 hole, u8 has count, u64 count (0 without one), u64 the entry number that learned it
+  u64    floor: the first sequence number it still answers for
+  [32]   floor link: the link its floor's block chains from
+  u8     0 with no floor time; or 1, then time floor time
+  u32    segment uses, in log order, then per use:
+           u64   segment: the log offset of the segment its records were written in
+           u64   records
+           u64   bytes: their payloads, and every byte their blocks spend beyond them
+           u64   last sequence
+           time  last time
+           [32]  last link: the link of its last block in that segment
+           u8    0 while in the segment; or 1, then [32] its history file's digest
+  u64    live bytes of its table (a state stream's or a view's)
+  u64    live bytes of its held table (a history view's)
+  u32    fills, one per plan source of a history view, then per fill:
+           u8 0, u64 through, u64 end       (by sequence)
+           u8 1, blob after, u8 done        (by key)
+  u32    redactions, in ascending sequence, then per redaction:
+           u64 seq, time at, u64 the block's log offset
+u32   types, in name order, each at its latest version, as a Type entry holds one
+u32   boots, in rank order, then per boot: [16] boot id, u64 rank
+u8    0 with no tables yet; or 1, then blob: the tables' root</pre>
+<p>A reader refuses a checkpoint that names a segment use past its own offset; a block map that is not of the log before its offset or not in log order; a stream whose head is <code>u64::MAX</code>, whose floor is more than one past its head, whose segment uses are out of log or sequence order, or one of whose segment uses holds a record past its head; and a redaction list out of order, or naming a record above the head or below the floor (for a state stream, below 1). A segment-use, fill or table-root kind byte other than those above is refused.</p>
+<p><strong>At a checkpoint, state streams and views are folded.</strong> Every state stream's and view's table as of the checkpoint's offset is in the runs the root names, so each such stream's floor is its head plus one, its floor link its head link, its floor time its head time, and it has no segment uses: none of its records before the offset needs replay. A stream declared after the checkpoint has nothing in a run yet.</p>
+<h2 id="tables" class="section-title">Tables</h2>
+<p>Every table of a store is in <strong>one keyed space</strong>: every state stream's table, every view's, and every history view's held table. The space is stored as a list of immutable sorted runs, newest first, that the checkpoint's table root names.</p>
+<p><strong>Keys and values.</strong> A table's key is stored as its table's id, <code>be64</code>, then the key; a stored key is at most 520 bytes, so a table's key is at most 512. A table's id is its stream's id, or, for a history view's held table, the view's id with bit 63 set. Every stored value is a <code>u64</code> version, then the value's bytes; a stored value is at most 64 KiB.</p>
+<p><strong>The root</strong> is the table root's blob from the checkpoint:</p>
+<pre class="term term__body" data-lang="text">u64  next file number: every run it names is below it
+u32  runs
+     per run, newest first: u64 file number</pre>
+<p>Run <code>F</code> is the file <code>tab-0000000000000000-&lt;F&gt;.run</code>. To find a key, a reader asks the runs newest first: the first run that holds an entry for the stored key decides, and a tombstone there means the key is absent. To scan, a reader merges the runs in key order, the newest entry for a key winning and tombstones dropped. A reader opening a store to read only never removes a run; a writer removes, on open, any run the root does not name.</p>
+<h3 id="table-runs" class="sub-title">Table runs</h3>
+<p>A run is written once and never changed.</p>
+<pre class="term term__body" data-lang="text">pages 0 .. d          data pages: leaf pages of entries in stored-key order, tombstones included,
+                      and before a leaf, the overflow pages of the values too large for it
+pages d .. d+f        fence pages: branch pages holding each leaf's first key and its page number
+then                  the bloom filter: w little-endian u64 words
+last 128 bytes        the footer</pre>
+<p>The footer:</p>
+<pre class="term term__body" data-lang="text">  0  [8]   "ENGRAM1T"
+  8  u64   d: data pages, at least 1
+ 16  u64   f: fence pages
+ 24  u64   w: bloom words, a positive multiple of 8
+ 32  u64   entries, tombstones included
+ 40  u32   bloom probes: 7
+ 44  u8    the pages' checksum: 1, CRC-32C
+ 45  [3]   zero
+ 48  [32]  H(the bloom words, as stored)
+ 80  [40]  zero
+120  [8]   the first 8 bytes of H(le64(F) ‖ footer bytes 0..120), F the run's file number</pre>
+<p>A reader refuses a run whose footer check or magic fails, whose byte 44 is not 1, whose length is not <code>(d + f) × 4096 + 8w + 128</code>, whose probes are not 7, or whose bloom hash fails.</p>
+<p><strong>A page</strong> is 4096 bytes:</p>
+<pre class="term term__body" data-lang="text">   0  u8    kind: 1 leaf, 2 branch, 3 overflow
+   1  u8    zero
+   2  u16   entries
+   4  u32   zero
+   8        entries, back to back: u16 key length, u16 value length, key, value
+4088  u32   CRC-32C of le64(F) ‖ le64(page number) ‖ page bytes 0..4088
+4092  [4]   zero</pre>
+<p>Bytes after the last entry are zero. A value length of <code>0xffff</code> is a tombstone, with no value. A value length of <code>0xfffe</code>, allowed only in a leaf, marks an <strong>overflow entry</strong>: its 12 value bytes are a <code>u64</code> first overflow page and a <code>u32</code> value length, and the value is in that many consecutive overflow pages from there, 4080 bytes each, a page's bytes 8..4088, the last page's unused bytes zero. An overflow page has no entries. A writer puts a value in overflow pages when 4 bytes plus its key and value are over 1024, and writes them just before the leaf that names them. The checksum binds a page to its run and its place, so a page in the wrong place fails as a flipped bit does.</p>
+<p><strong>Fences.</strong> The branch pages, in order, hold one entry per leaf: the leaf's first stored key, and its page number as an 8-byte <code>u64</code> value. Page numbers strictly ascend and are below <code>d</code>, and the last is <code>d − 1</code>. A key lies in the last leaf whose first key is at most it. A leaf is never empty.</p>
+<p><strong>The bloom filter</strong> answers that a stored key is certainly absent. The filter is <code>w / 8</code> blocks of 8 words (512 bits). For a stored key <code>k</code>, with all arithmetic wrapping on 64 bits, <code>M = 0x9e3779b97f4a7c15</code>, and <code>rotl</code>, <code>rotr</code> rotating:</p>
+<pre class="term term__body" data-lang="text">h = 0x243f6a8885a308d3 ^ (len(k) × M)
+for each whole 8-byte chunk c of k:    h = rotl((h ^ le_u64(c)) × M, 29)
+the remaining 0..7 bytes, zero-padded to 8 as r:    h = (h ^ le_u64(r)) × M
+h ^= h &gt;&gt; 32;  h ×= 0xd6e8feb86659fd93;  h ^= h &gt;&gt; 29
+
+block = (h × blocks) &gt;&gt; 64, as a 128-bit product
+x = rotl(h, 29) ^ (h &gt;&gt; 17)
+7 times:  bit = x &amp; 511;  x = rotr(x, 9)</pre>
+<p>Each of the 7 bits is set in the block: bit <code>b</code> is bit <code>b % 64</code> of word <code>block × 8 + b / 64</code>. A key is possibly present only if all 7 are set. A writer sizes the filter at <code>max(1, ⌈entries × 10 / 512⌉)</code> blocks.</p>
+<h3 id="what-the-tables-hold" class="sub-title">What the tables hold</h3>
+<p><strong>A state stream's table</strong> holds each live key under the stream's key, its value the key's version and bytes (<a href="#state-streams">State streams</a>).</p>
+<p><strong>A state view's table</strong> holds the view's rows, each value a version (the sequence number of the source change that last wrote the row, or 0 for a row written when the view was declared) and its bytes:</p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">plan</th><th scope="col">a row's key</th><th scope="col">its bytes</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>index</td><td>the fields' values as a key, in plan order, then the source's key</td><td>empty</td>
+</tr>
+<tr>
+<td>filter</td><td>the source's key, for a record the predicate holds for</td><td>the record whole, or the kept fields as a typed record</td>
+</tr>
+<tr>
+<td>project</td><td>the source's key</td><td>the record with only those fields, as a typed record</td>
+</tr>
+<tr>
+<td>join</td><td>the left record's join field as a key, then the left's key</td><td>the left half, then the right half</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A join row's left half is <code>blob</code> the kept fields of the left record (the whole record when it keeps it whole), absent when it keeps nothing of the left. Its right half is <code>u8</code> 0 when no right record has the join value as its key, or <code>u8</code> 1 then <code>blob</code> the kept fields of that right record, and absent when it keeps nothing of the right. The right stream is keyed by one field, of the join field's type.</p>
+<p><strong>A history view's table</strong> holds the rows it has emitted. Every key begins with a time: the boot's rank, <code>be64</code>, then the nanoseconds, <code>be64</code>. An <strong>identity</strong> is a <code>u16</code> big-endian length and that many bytes: a stream record's is its sequence number, <code>be64</code>; a view row's is its key after the time. Every value has version 0.</p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">plan</th><th scope="col">a row's key</th><th scope="col">its bytes, as a typed record of the row type</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>history filter</td><td>the source record's time, its identity</td><td>the kept fields under their own ids, and derived fields numbered from <code>0x8000</code> in plan order</td>
+</tr>
+<tr>
+<td>band join</td><td>the left's time and identity, then the right's nanoseconds (<code>be64</code>, same boot) and identity</td><td>the left's fields, then the right's, numbered 1, 2, … in plan order and named <code>l_…</code> and <code>r_…</code></td>
+</tr>
+<tr>
+<td>antijoin</td><td>the left's time and identity</td><td>the left's kept fields under their own ids</td>
+</tr>
+<tr>
+<td>count</td><td>the window's start time, then the <code>by</code> fields' values as a key</td><td>field <code>n + 1</code>, <code>count</code> (<code>u64</code>), and field <code>n + 2</code>, <code>trust</code> (<code>u8</code>: the least trusted class counted), for <code>n</code> by fields; the by fields are numbered 1 to <code>n</code> and are read from the key</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A record's time in a history view is its time with the boot replaced by the boot's rank, so a record whose boot the store has not ranked is in no history view. A row is encoded under its row type partially: a field absent from the source is absent from the row. The held table (id with bit 63 set) is the view's own working state, rows waiting on what is not yet known; a reader of the view's rows may ignore it.</p>
+<p><strong>Keeping views current past the checkpoint.</strong> A state stream's table at the checkpoint is completed by replaying its records after the checkpoint, by the rules in <a href="#state-streams">State streams</a>. A view's table at the checkpoint is its rows there; the rows after it follow from its sources' records by the view's plan, and when a history view's row is emitted depends on what the store knows of its sources' completeness. This page specifies how rows are stored, not when a writer emits or withdraws them; a reader that needs a view's rows past the checkpoint either derives them itself from the plan, or asks MAGI.</p>
+<h2 id="history-files" class="section-title">History files</h2>
+<p>A history stream's blocks from one closed segment can be copied out of the log, byte for byte, into a history file, so that the segment can be reclaimed while the stream still retains them. The file is <code>hist-&lt;stream&gt;-&lt;segment&gt;</code>, and a Filed entry records its digest in the stream's segment use.</p>
+<pre class="term term__body" data-lang="text">  0  [8]   "ENGRAM1H"
+  8  [4]   features: none
+ 12  u32   revision: 1
+ 16  [16]  store id
+ 32  u64   stream
+ 40  u64   segment: the log offset of the segment the blocks were written in
+ 48  u32   blocks
+ 52  u32   bytes of the directory
+ 56  u16   boots in the boot table
+ 58  [6]   zero
+ 64  [32]  prev: the link the first block chains from
+ 96  [32]  digest = K(HIST, bytes 0..96 ‖ boot table ‖ directory)
+128        boot table: 16 bytes a boot
+           directory
+           the blocks, verbatim and in order</pre>
+<p><strong>The directory</strong>, per block, in <code>leb</code>: the block's log offset less the previous block's (the first block's less <code>segment</code>; after the first, never 0). Then, for a block without flag <code>0x01</code>, whose records take their batch's time, its <strong>time runs</strong>: a count (at least 1, at most the block's records); and per run, the record index it starts at less the previous run's (the first run's 0, every later one's above 0), a boot index, and zigzag nanoseconds from the previous run's, counting across the whole file from 0. Record <code>i</code> of such a block has the time of the last run starting at or before <code>i</code>.</p>
+<p>Each block keeps its log offset as its address: its sidecar is still named for it, and its link and leaves are the ones the log had. A reader refuses a file of another revision, with an unknown incompatible feature, whose zero bytes are not zero, whose directory runs past it, whose digest fails, whose blocks are not the stream's record blocks with consecutive sequence numbers, or whose directory and blocks do not account for every byte. The file is the one the catalogue names only if its digest is the digest in the Filed entry, and its stream, segment and store id are the ones expected. Its first block chains from <code>prev</code>, and each later block from the one before it.</p>
+<p>The tape that held a filed record's batch time stays behind in the segment; the directory's time runs carry it instead, and the catalogue's chain holds the directory's digest.</p>
+<h2 id="block-maps" class="section-title">Block maps</h2>
+<p>A segment's block map, <code>map-&lt;segment&gt;</code>, says where each stream's record blocks lie in it, so a reader need not walk the segment. Each checkpoint appends one chunk to the map of every segment it covers, mapping the groups between where the map ended and the checkpoint's offset, and records the map's valid length and the offset it maps to. Bytes past that length are never read. A map holds no link: a block read through it is checked against the link of the block before it, as a walk would.</p>
+<p>Per chunk:</p>
+<pre class="term term__body" data-lang="text">  0  [4]   "EMAP"
+  4  u32   chunk length, header to checksum inclusive
+  8  u64   from: where the chunk before ended (the first chunk's: the segment's offset)
+ 16  u64   to: the log offset it maps to
+ 24  [16]  store id
+ 40  u32   groups
+ 44  u16   boots in the boot table
+ 46  [2]   zero
+ 48        boot table: 16 bytes a boot
+           per group, leb: its offset less where the last group ended (the first, less from), its length, its record blocks
+             per record block, leb: stream; zigzag first sequence less one past that stream's last block in the chunk
+               (or less 0); records; offset within the group; length; then one byte:
+               1  its records carry their own times
+               2  they take their batch's time, not noted here (a reader takes it from the group's tape)
+               0  they take their batch's time, noted here as time runs: a count, and per run the record index it
+                  starts at less the previous run's in the block, a boot index, and zigzag nanoseconds from the
+                  chunk's previous run's (from 0)
+end  [4]   CRC-32C of the chunk before it</pre>
+<p>A map is only a shortcut. A map whose chunk fails its checksum, names another store, does not start where the one before it ended, or does not reach the offset the checkpoint says it maps to is set aside, and the segment is walked.</p>
+<h2 id="opening-a-store" class="section-title">Opening a store</h2>
+<p>A reader opens a store as the writer recovers it, and changes nothing.</p>
+<ol class="list">
+<li>List the directory. If there is a <code>checkpoint</code>, decode it; replay starts at its offset, in the last segment beginning at or before it, and the catalogue, commit digest, batch number and last commit time start as it says. With no checkpoint, replay starts at offset 0, which a segment must begin at, from the genesis of each chain and an empty catalogue. A checkpoint with no segment is damage; no segment and no checkpoint is no store.</li>
+<li>Compute the store's features from the checkpoint and the headers of every segment from replay's on, and refuse or read only by them (<a href="#features-and-revision">Features and revision</a>).</li>
+<li>Open the tables at the checkpoint's root, if a reader needs state or views.</li>
+<li>For each segment from replay's on, check its header. Where replay starts at a segment's beginning, its anchor must equal where the chains stand; each later segment must begin exactly where the one before it ended. Then read its groups in order, checking each whole before applying any of it (<a href="#groups">Groups</a>), folding the catalogue entries and records batch by batch in tape order, and the state records into the tables.</li>
+<li>Stop at the end of the valid log, as below.</li>
+</ol>
+<p><strong>Where the log ends.</strong> In the last segment, after the last valid group:</p>
+<ul class="list">
+<li><strong>zeros to the end of the file</strong> are where the log ends, and nothing is lost;</li>
+<li>otherwise, the reader looks at every byte position after the end for a group header: four bytes <code>EGRP</code> whose 8-byte check verifies. If any claims the log was durable past where the valid log ends, the store is <strong>damaged</strong>, and refused: a torn write only reaches bytes that were never synced;</li>
+<li>otherwise the bytes after the end are a <strong>torn tail</strong>: a write that never finished, none of it ever acknowledged as durable. A reader reports it and ignores it; a writer cuts it away when it opens the store.</li>
+</ul>
+<p>In any segment but the last, an invalid or short group is damage, and the store is refused. A last segment whose header does not check and which is no longer than 128 bytes, after another segment, was created and never written, and holds nothing. A store whose only segment is offset 0, with no checkpoint, whose header does not check and which is no longer than 128 bytes, is not a store yet.</p>
+<p><strong>What a reader refuses.</strong> A store of a revision other than 1, or from before the freeze; an incompatible feature it does not know; a segment whose header does not check, names another offset, or belongs to another store; a segment that does not continue the chains or the log before it; damage anywhere but a torn tail; a group that does not close the commit chain, or whose blocks do not link into their streams; a catalogue entry or record the fold refuses; a hidden block without a sidecar that verifies; and a history file that is not the one its Filed entry names. A reader never takes damaged bytes for data.</p>
+<p><strong>Reading a stream's records.</strong> A stream's retained records are those from its floor to its head. Its segment uses list where they are, in order: a use still in its segment is read from the segment's groups, each record's time from its block or its batch; a filed use is read from the history file, each record's time from its block or the file's time runs. Every block read is checked against its leaves (through its sidecar when hidden) and links from the block before it, from the use before's last link, from the history file's <code>prev</code>, from the genesis for record 1, or from the floor link for the floor's block. A redacted record is read as redacted, with no payload.</p>
+<h2 id="verifying-a-store" class="section-title">Verifying a store</h2>
+<p><code>engram verify DIR</code> checks every byte of the log, every history file and every sidecar a store holds, beyond what opening it checks. An independent verifier does the same:</p>
+<ol class="list">
+<li><strong>Open the store</strong> as above.</li>
+<li><strong>Every segment against its chains.</strong> For every segment the store holds, including those before the checkpoint, check its header, then check every group in it from the header's anchor: it parses, closes the commit chain, its first batch follows the last, every block of stream 0 is a catalogue block and every catalogue block is stream 0, and each catalogue block's first entry number follows the last and links from the catalogue chain. Where one segment begins exactly where the one before it ends, the chains where the first ends must equal the second's anchor. The last segment must end where opening ended, at the same batch, commit digest, entry number and catalogue link.</li>
+<li><strong>Every stream's chain, through every copy on disk.</strong> Walk every record block, in log order: for each segment offset, held either as a segment or as history files, first the segment's blocks of every stream not filed for that segment, then each history file for that segment. Retained or not, every block still on disk is checked. For each stream, a block's first sequence must be one past the last block seen, unless a segment the store no longer has lies between them. Each block must link from the link before it, when that is known: the previous block's, when it is the very next sequence; the history file's <code>prev</code> for a file's first block, which must agree with the previous block's when both are known; the stream's genesis for record 1; the floor link for the floor's block, which must agree with the previous block's link when that is known. Hidden blocks verify through their sidecars. The one block that cannot be checked against the one before it is the first block still on disk of a stream whose earlier blocks are gone; the next block's link still pins it.</li>
+<li><strong>Every head.</strong> For every stream whose head is at or above its floor, the last block on disk must end at the head, and its link must be the head link the catalogue holds.</li>
+</ol>
+<p>It reports the streams, the records at or above their floors and how many of them are redacted, the segments, the history files, and the log's end offset, batch count and commit digest: two stores that are copies of one agree on the last three. A torn tail is reported, not counted as damage.</p>
+<p><code>engram verify</code> does not read the table runs; each run is checked by its footer, its bloom hash and every page's checksum when it is read. A verifier that wants the tables checked too opens every run the checkpoint's root names and checks those, the fences, and every data page.</p>
+      </div>
+      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/reference/magi-limits/"><span>Previous</span>MAGI&#x27;s limits</a></nav>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__base">
+      <p>Copyright &copy; 2026 Nerv Dynamics AB. Nerv Linux is free software under the
+         Apache License 2.0. Software from other projects keeps its upstream licence. <a href="https://codeberg.org/nerv-dynamics/nerv-linux">Source on Codeberg</a>.</p>
+      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell, GB10 and GB300 are
+         trademarks of NVIDIA Corporation. Linux is a registered trademark of
+         Linus Torvalds. Nerv Linux is not affiliated with, endorsed by, or
+         sponsored by either.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var btn = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    function label() {
+      var dark = root.getAttribute('data-theme') !== 'light';
+      btn.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+    }
+    label();
+    btn.addEventListener('click', function () {
+      // Dark is the default, so anything that isn't explicitly light is dark.
+      var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('nerv-theme', next); } catch (e) {}
+      label();
+    });
+  })();
+  (function () {
+    // Phone menu: the nav links fold into a panel under the masthead.
+    var btn = document.getElementById('menu-toggle');
+    var head = btn.closest('.masthead');
+    btn.addEventListener('click', function () {
+      var open = head.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  })();
+  (function () {
+    // On phones a tapped diagram opens full screen, large, to pan and zoom.
+    var narrow = window.matchMedia('(max-width: 760px)');
+    function close(z) { z.remove(); document.body.classList.remove('has-zoom'); }
+    document.querySelectorAll('.diagram').forEach(function (fig) {
+      fig.addEventListener('click', function () {
+        var svg = fig.querySelector('svg');
+        if (!narrow.matches || !svg) return;
+        var z = document.createElement('div');
+        z.className = 'zoom'; z.setAttribute('role', 'dialog'); z.setAttribute('aria-label', svg.getAttribute('aria-label') || 'Diagram');
+        z.appendChild(svg.cloneNode(true));
+        var b = document.createElement('button');
+        b.className = 'zoom__close'; b.type = 'button'; b.setAttribute('aria-label', 'Close');
+        b.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+        b.addEventListener('click', function () { close(z); });
+        z.appendChild(b);
+        document.body.appendChild(z); document.body.classList.add('has-zoom');
+        document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { close(z); document.removeEventListener('keydown', esc); } });
+      });
+    });
+  })();
+  (function () {
+    // The handbook contents start folded on narrow screens, open on wide ones.
+    if (window.matchMedia('(max-width: 960px)').matches)
+      document.querySelectorAll('.hb-nav__box').forEach(function (d) { d.open = false; });
+  })();
+  (function () {
+    // Narrow tables read as stacked cards; each cell carries its column name.
+    document.querySelectorAll('table.data').forEach(function (t) {
+      var heads = Array.prototype.map.call(t.querySelectorAll('thead th'), function (th) { return th.textContent.trim(); });
+      t.querySelectorAll('tbody tr').forEach(function (tr) {
+        Array.prototype.forEach.call(tr.children, function (td, i) {
+          if (heads[i]) td.setAttribute('data-label', heads[i]);
+        });
+      });
+    });
+  })();
+</script>
+
+<script data-goatcounter="https://stats.nervlinux.org/count" async src="https://stats.nervlinux.org/count.js"></script>
+<script>
+  // Clicks worth counting, as GoatCounter events: downloads, mail to sales, links off the site, and copying the install command.
+  (function () {
+    function count(path, title) {
+      if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: path, title: title || path, event: true });
+    }
+    document.addEventListener('click', function (e) {
+      var copy = e.target.closest('[data-copy]');
+      if (copy) { count('copy/' + copy.dataset.copy); return; }
+      var a = e.target.closest('a[href]');
+      if (!a) return;
+      if (a.protocol === 'mailto:') { count('mail/' + a.pathname); return; }
+      if (a.host === location.host) return;
+      if (a.host === 'repo.nervlinux.org') { count('download' + a.pathname); return; }
+      count('out/' + a.host + a.pathname);
+    });
+  })();
+</script>
+
+</body>
+</html>
