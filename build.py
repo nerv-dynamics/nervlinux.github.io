@@ -223,34 +223,47 @@ HANDBOOK_SKIP = {"DISCIPLINE.md", "README.md"}
 # it only ever shows chapters that exist. A chapter missing from this list is
 # still published, at the end, under "More".
 HANDBOOK_TOC = [
-    ("This machine", [
+    ("Preface", [
         "machine/why-an-operating-system-still",
+    ]),
+    ("Getting started", [
         "machine/what-nerv-is",
         "machine/install",
         "machine/the-first-hour",
         "machine/software",
-        "machine/containers",
         "machine/desktop",
-        "machine/networking",
-        "machine/accounts-and-keys",
     ]),
-    ("Five ideas", [
-        "machine/generations",
+    ("Using the machine", [
         "machine/compute-fabric",
-        "machine/what-the-machine-remembers",
-        "machine/yours-and-not-yours",
-        "machine/chain-of-trust",
-    ]),
-    ("Ways of using it", [
         "machine/ai-development",
+        "machine/agents",
+        "machine/containers",
         "machine/gaming",
-        "machine/offloading-and-fleets",
-        "machine/plexus",
         "machine/building-your-own",
+    ]),
+    ("Keeping the machine", [
+        "machine/generations",
+        "machine/firmware",
+        "machine/power",
+        "machine/accounts-and-keys",
+        "machine/chain-of-trust",
+        "machine/yours-and-not-yours",
+        "machine/what-the-machine-remembers",
+    ]),
+    ("Many machines", [
+        "machine/networking",
+        "machine/plexus",
+        "machine/offloading-and-fleets",
     ]),
     ("When it breaks", [
         "machine/recovery",
         "machine/asking-why",
+    ]),
+    ("Reference", [
+        "reference/magi-contract",
+        "reference/magi-limits",
+        "reference/magi-format",
+        "machine/lineage",
     ]),
 ]
 
@@ -297,6 +310,14 @@ def first_paragraph(text):
     return ""
 
 
+def handbook_tui(name):
+    """A screen the handbook shows, from handbook/tui/NAME.ansi, as coloured
+    spans; None when there is no capture, and the fence's text is shown."""
+    import tui
+    f = HANDBOOK / "tui" / f"{name}.ansi"
+    return tui.render(f.read_text()) if f.is_file() else None
+
+
 def handbook_pages():
     """Chapters in table-of-contents order, as dicts."""
     if not HANDBOOK.is_dir():
@@ -316,7 +337,7 @@ def handbook_pages():
         desc = first_paragraph(text)
 
         try:
-            body = mdrender.render(text, link=lambda h, s=path: handbook_link(s, h))
+            body = mdrender.render(text, link=lambda h, s=path: handbook_link(s, h), tui=handbook_tui)
         except mdrender.MarkdownError as e:
             sys.exit(f"{path.relative_to(ROOT)}: {e}")
 

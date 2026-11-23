@@ -134,7 +134,7 @@ _SKIP = re.compile(r"<!--\s*site:skip\s*-->.*?<!--\s*site:endskip\s*-->",
                    re.S | re.I)
 
 
-def render(text, link=lambda h: h):
+def render(text, link=lambda h: h, tui=None):
     """Markdown -> HTML.
 
     `link` rewrites an href — .md paths into URLs, say. Returning None means
@@ -169,6 +169,16 @@ def render(text, link=lambda h: h):
             if i >= n:
                 raise MarkdownError("unterminated code fence")
             i += 1
+            # A program's screen: the fence holds it as plain text, which is
+            # what a reader of the source sees; the site renders the stored
+            # capture of the same name in its own colours (tui.py).
+            m = re.match(r"tui\s+([a-z0-9-]+)$", lang)
+            if m and tui:
+                screen = tui(m.group(1))
+                if screen is not None:
+                    out.append(f'<figure class="tui"><div class="term term--tui"><div class="term__bar">{html.escape(m.group(1))}</div>'
+                               f'<pre class="term__body">{screen}</pre></div></figure>')
+                    continue
             code = html.escape("\n".join(body), quote=False)
             cls = f' data-lang="{html.escape(lang, quote=True)}"' if lang else ""
             # The site already has a terminal component; a fenced block is the
