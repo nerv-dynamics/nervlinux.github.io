@@ -145,11 +145,19 @@
 </li>
 </ol>
 <p class="hb-nav__part">Reference</p><ol class="hb-nav__list">
+<li><a href="/handbook/reference/yui/">yui</a>
+</li>
 <li><a href="/handbook/reference/magi-contract/">What MAGI promises</a>
 </li>
 <li><a href="/handbook/reference/magi-limits/">MAGI&#x27;s limits</a>
 </li>
 <li><a href="/handbook/reference/magi-format/">The MAGI store format</a>
+</li>
+</ol>
+<p class="hb-nav__part">More</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/experiments/">Experiments</a>
+</li>
+<li><a href="/handbook/machine/the-journal/">The journal</a>
 </li>
 </ol>
 </details></nav>
@@ -166,7 +174,7 @@
 <li><strong>The kernel says who is writing.</strong> magid asks the kernel for the user and the program at the other end of its socket, and never takes a program's word for its name.</li>
 <li><strong>A program writes only the streams it declared as its own.</strong> Nothing writes a record as another program: not another program of yours, not a script, not an agent.</li>
 </ul>
-<p>magid starts when something first connects to it. Idle, it sets no timer and wakes nothing, and a store nobody has used for five minutes is closed. Under the <code>saver</code> power profile it writes to the disk less often and closes stores sooner. Stopped, by <code>systemctl stop magid</code> or at shutdown, it finishes what it had begun and closes every store.</p>
+<p>magid starts at boot. Idle, it sets no timer and wakes nothing, and a store nobody has used for five minutes is closed. Under the <code>saver</code> power profile it writes to the disk less often and closes stores sooner. Stopped, by <code>systemctl stop magid</code> or at shutdown, it finishes what it had begun and closes every store.</p>
 <p>What an answer from magid promises, across a crash, a power cut, an update and a rollback, and every case in which something kept is lost, is <a href="/handbook/reference/magi-contract/">What MAGI promises</a>; the sizes and rates it holds to are <a href="/handbook/reference/magi-limits/">MAGI's limits</a>.</p>
 <h2 id="what-it-keeps" class="section-title">What it keeps</h2>
 <p>A store holds <strong>streams</strong>, each with one writer. A history stream is a sequence of records, each kept as it was written. A state stream holds keys and their current values: a conversation's place, an index of packages.</p>
@@ -176,16 +184,11 @@
 <li><strong>Records are typed.</strong> A package installs the types of the records its programs write in <code>/usr/share/magi/schemas</code>. A field is added in a new version of a type, never renamed or changed, so a reader written today still reads next year's records.</li>
 <li><strong>Views are kept current.</strong> A view is an index, a filter, a projection or a join over other streams, and it changes in the same batch as what it reads, so it is never behind. A program can watch one and be told when it changes.</li>
 <li><strong>Records can be found by their words.</strong> A text view ranks a history stream's records by the words in their text, best first, optionally within the values of fields it keys, such as a project. What a search returns is exact as of the moment it is asked, and a record that was redacted is never among the answers.</li>
+<li><strong>Large searches can run on the GPU, and answer the same.</strong> A search, or a retrieval by how near records lie to a vector, that reads enough to be faster on the GPU runs there once <code>doas /usr/libexec/magid profile</code> has measured, on this machine, from what size it is. Until then everything runs on the CPU. The answer is the same on either, to the last bit. Measure again after the GPU driver changes; a profile measured on another machine, or by another version of MAGI, is not used.</li>
 </ul>
-<p>Today the machine's journal is kept here, and so are yui's conversations (<a href="/handbook/machine/agents/#conversations">Agents</a>) and geofront's record of the packages in a repository it builds into (<a href="/handbook/machine/building-your-own/#packaging-a-program">Building your own</a>).</p>
+<p>Today the machine's journal is kept here, and so are yui's conversations (<a href="/handbook/machine/agents/#conversations">Agents</a>), geofront's record of the packages in a repository it builds into (<a href="/handbook/machine/building-your-own/#packaging-a-program">Building your own</a>), and the runs and claims of <a href="/handbook/machine/experiments/">Experiments</a>.</p>
 <h2 id="the-machines-journal" class="section-title">The machine's journal</h2>
-<p><code>magi-journal</code> takes the journal into root's store as journald writes it, as the stream <code>journal/entries</code>. It changes nothing about the journal, and <code>journalctl</code> reads it as before.</p>
-<ul class="list">
-<li><strong>A structured entry is kept whole.</strong> Nerv's own programs log their events as typed fields, and systemd logs its catalogued messages the same way.</li>
-<li><strong>Any other entry keeps everything but its text:</strong> which program logged it, from which unit and as which user, at what priority, and when.</li>
-<li><strong>It holds 1 GiB,</strong> and drops the oldest first.</li>
-</ul>
-<p><strong>It knows where it is complete.</strong> journald numbers every entry it receives, one after another, so a missing number is an entry that never reached the store. <code>magi-journal</code> records each run with no number missing as complete, and each gap as a hole with how many entries fell in it. A question asked over the journal can therefore be answered with where the answer is complete, and a span the record does not cover is never mistaken for one in which nothing happened.</p>
+<p>MAGI keeps the machine's journal, and nothing else does: every boot, from the initrd's first line to the last before the machine stops, as the stream <code>journal/entries</code> in root's store, with where it is complete. journald holds only the boot that is running. <a href="/handbook/machine/the-journal/">The journal</a> covers what it keeps and how to read it.</p>
 <h2 id="reading-it" class="section-title">Reading it</h2>
 <p><code>magi</code> talks to magid. On its own it reads your store; with <code>doas</code>, root's:</p>
 <pre class="term term__body">$ magi status
@@ -201,10 +204,16 @@ $ doas magi tail journal/entries -n 5</pre>
 </tr></thead>
 <tbody>
 <tr>
+<td><code>magi journal [-b N] [-u UNIT] [-p PRIORITY]</code></td><td>the journal of any boot it holds (<a href="/handbook/machine/the-journal/">The journal</a>)</td>
+</tr>
+<tr>
 <td><code>magi tail STREAM [-n N]</code></td><td>a history stream's last records</td>
 </tr>
 <tr>
 <td><code>magi facts VIEW [--boots N]</code></td><td>a history view's rows in each of the last boots (three unless told), and where each answer is complete</td>
+</tr>
+<tr>
+<td><code>magi facts VIEW [KEY]</code></td><td>a state view's rows whose key begins with KEY, each as the record it stands for</td>
 </tr>
 <tr>
 <td><code>magi get STREAM KEY</code></td><td>one key of a state stream or a view</td>
@@ -213,7 +222,13 @@ $ doas magi tail journal/entries -n 5</pre>
 <td><code>magi range STREAM [--from K] [--to K]</code></td><td>its keys, in order</td>
 </tr>
 <tr>
-<td><code>magi search VIEW WORDS [--where F=V]</code></td><td>a text view's best records for the words, within a field's value</td>
+<td><code>magi search VIEW WORDS [--where F=V]</code></td><td>a text view's best records for the words, within a field's value, each with the words it holds</td>
+</tr>
+<tr>
+<td><code>magi retrieve --text VIEW WORDS [--vector VIEW FILE] [--current FILES]</code></td><td>the same, ranked together with how near each record lies to a vector you provide, and only from files as they are now</td>
+</tr>
+<tr>
+<td><code>magi blob FILE</code></td><td>takes a file into the store, for records to name its bytes</td>
 </tr>
 <tr>
 <td>`magi schema [TYPE \</td><td>--installed]`</td><td>the types a store holds, or the ones packages installed</td>
@@ -222,6 +237,112 @@ $ doas magi tail journal/entries -n 5</pre>
 </table>
 </div>
 <p>A program, or a script of yours, declares a stream with <code>magi declare</code> and writes it with <code>magi append</code> or <code>magi put</code>. <code>magi --help</code> lists every command.</p>
+<h3 id="the-dashboard" class="sub-title">The dashboard</h3>
+<p><code>magi</code> alone at a terminal, or <code>magi tui</code>, opens a dashboard over your store, from <code>nerv-magi-tui</code>. Screens <code>1</code> to <code>7</code>:</p>
+<ul class="list">
+<li><strong>Overview</strong>: magid, and every stream.</li>
+<li><strong>Log</strong>: a stream's records, with a <code>~~ hole</code> line wherever the store cannot say every record is there.</li>
+<li><strong>Facts</strong>: a view's rows; <code>/</code> types what their keys begin with. <code>Enter</code> follows a row to its record, the record that took its file in, and the bytes.</li>
+<li><strong>Views</strong>: each plan, and where it is complete.</li>
+<li><strong>Claims</strong>: the claims of <a href="/handbook/machine/experiments/">Experiments</a>, soonest due first.</li>
+<li><strong>Peers</strong>: none; MAGI does not replicate between machines yet.</li>
+<li><strong>Ask</strong>: a text view's plan, and a search.</li>
+</ul>
+<p><code>base_cmdline</code>, followed to its bytes:</p>
+<figure class="tui"><div class="term term--tui"><div class="term__bar">magi</div><pre class="term__body"><span style="color:#282828;background:#6ebdff;font-weight:700"> MAGI </span><span style="color:#a2a2a2;background:#282828"> 1 Overview  2 Log </span><span style="color:#282828;background:#6ebdff;font-weight:700"> 3 Facts </span><span style="color:#a2a2a2;background:#282828"> 4 Views  5 Claims  6 Peers  7 Ask                 uid 1000  store 355f4c98</span>
+<span style="color:#333333;background:#1e1e1e">╭─ </span><span style="color:#dfdfdf;background:#1e1e1e;font-weight:700">views with rows</span><span style="color:#333333;background:#1e1e1e"> ──────── 6 ─╮</span><span style="color:#6ebdff;background:#1e1e1e">╭─ </span><span style="color:#6ebdff;background:#1e1e1e;font-weight:700">provenance</span><span style="color:#6ebdff;background:#1e1e1e"> ──────────────────────────────────────────────────── Esc back ─╮</span>
+<span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#dea0f1;background:#1e1e1e">code.a/nerv-wip/names</span><span style="background:#1e1e1e">        </span><span style="color:#333333;background:#1e1e1e">│</span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#6ebdff;background:#1e1e1e;font-weight:700">row of code.a/nerv-linux/names</span><span style="background:#1e1e1e">                                             </span><span style="color:#6ebdff;background:#1e1e1e">│</span>
+<span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#dea0f1;background:#1e1e1e">code.a/nerv-wip/uncovered</span><span style="background:#1e1e1e">    </span><span style="color:#333333;background:#1e1e1e">│</span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#6ebdff;background:#1e1e1e;font-weight:700">record in code.a/nerv-linux/facts</span><span style="background:#1e1e1e">                                          </span><span style="color:#6ebdff;background:#1e1e1e">│</span>
+<span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#dea0f1;background:#1e1e1e">claim/unverified</span><span style="background:#1e1e1e">             </span><span style="color:#333333;background:#1e1e1e">│</span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#dfdfdf;background:#1e1e1e">  path="src/cage/src/cmdline.rs" start=1272 rule="definition.function"</span><span style="background:#1e1e1e">     </span><span style="color:#6ebdff;background:#1e1e1e">│</span>
+<span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#dea0f1;background:#1e1e1e">claim/pending</span><span style="background:#1e1e1e">                </span><span style="color:#333333;background:#1e1e1e">│</span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#dfdfdf;background:#1e1e1e">  name="base_cmdline" end=1377 line=22 scope=""</span><span style="background:#1e1e1e">                            </span><span style="color:#6ebdff;background:#1e1e1e">│</span>
+<span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#dfdfdf;background:#333333;font-weight:700">code.a/nerv-linux/names     </span><span style="background:#1e1e1e"> </span><span style="color:#333333;background:#1e1e1e">│</span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#dfdfdf;background:#1e1e1e">  blob=0x7a34cac21365268eac85a4f66ecea7fcbfd84f34a06d5a11f7ecb8a63d27f5dd</span><span style="background:#1e1e1e">  </span><span style="color:#6ebdff;background:#1e1e1e">│</span>
+<span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#dea0f1;background:#1e1e1e">code.a/nerv-linux/uncovered</span><span style="background:#1e1e1e">  </span><span style="color:#333333;background:#1e1e1e">│</span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#dfdfdf;background:#1e1e1e">  projector=0xb29c806d1046f194f2e427265700782bd923f5dd0c1974e494775cd484d6</span><span style="background:#1e1e1e"> </span><span style="color:#6ebdff;background:#1e1e1e">│</span>
+<span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e">                              </span><span style="color:#333333;background:#1e1e1e">│</span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#dfdfdf;background:#1e1e1e">  2b9b lang="rust"</span><span style="background:#1e1e1e">                                                         </span><span style="color:#6ebdff;background:#1e1e1e">│</span>
+<span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e">                              </span><span style="color:#333333;background:#1e1e1e">│</span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#6ebdff;background:#1e1e1e;font-weight:700">taken in by code.a/nerv-linux/files</span><span style="background:#1e1e1e">                                        </span><span style="color:#6ebdff;background:#1e1e1e">│</span>
+<span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e">                              </span><span style="color:#333333;background:#1e1e1e">│</span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#dfdfdf;background:#1e1e1e">  path="src/cage/src/cmdline.rs"</span><span style="background:#1e1e1e">                                           </span><span style="color:#6ebdff;background:#1e1e1e">│</span>
+<span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e">                              </span><span style="color:#333333;background:#1e1e1e">│</span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#dfdfdf;background:#1e1e1e">  blob=0x7a34cac21365268eac85a4f66ecea7fcbfd84f34a06d5a11f7ecb8a63d27f5dd</span><span style="background:#1e1e1e">  </span><span style="color:#6ebdff;background:#1e1e1e">│</span>
+<span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e">                              </span><span style="color:#333333;background:#1e1e1e">│</span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#dfdfdf;background:#1e1e1e">  size=13906 lang="rust" state="indexed"</span><span style="background:#1e1e1e">                                   </span><span style="color:#6ebdff;background:#1e1e1e">│</span>
+<span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e">                              </span><span style="color:#333333;background:#1e1e1e">│</span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#dfdfdf;background:#1e1e1e">  projector=0xb29c806d1046f194f2e427265700782bd923f5dd0c1974e494775cd484d6</span><span style="background:#1e1e1e"> </span><span style="color:#6ebdff;background:#1e1e1e">│</span>
+<span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e">                              </span><span style="color:#333333;background:#1e1e1e">│</span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#dfdfdf;background:#1e1e1e">  2b9b facts=128</span><span style="background:#1e1e1e">                                                           </span><span style="color:#6ebdff;background:#1e1e1e">│</span>
+<span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e">                              </span><span style="color:#333333;background:#1e1e1e">│</span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#dfdfdf;background:#1e1e1e">  digest=0xc643166463166015fd2d22a9e93196d18e750c4869ab66a4f62d363bfadd8ae</span><span style="background:#1e1e1e"> </span><span style="color:#6ebdff;background:#1e1e1e">│</span>
+<span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e">                              </span><span style="color:#333333;background:#1e1e1e">│</span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#dfdfdf;background:#1e1e1e">  e</span><span style="background:#1e1e1e">                                                                        </span><span style="color:#6ebdff;background:#1e1e1e">│</span>
+<span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e">                              </span><span style="color:#333333;background:#1e1e1e">│</span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#92c56c;background:#1e1e1e">  holds the blob this record was read from</span><span style="background:#1e1e1e">                                 </span><span style="color:#6ebdff;background:#1e1e1e">│</span>
+<span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e">                              </span><span style="color:#333333;background:#1e1e1e">│</span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#6ebdff;background:#1e1e1e;font-weight:700">bytes</span><span style="background:#1e1e1e">                                                                      </span><span style="color:#6ebdff;background:#1e1e1e">│</span>
+<span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e">                              </span><span style="color:#333333;background:#1e1e1e">│</span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#dfdfdf;background:#1e1e1e">  src/cage/src/cmdline.rs [1272, 1377) of blob 7a34cac21365268e</span><span style="background:#1e1e1e">            </span><span style="color:#6ebdff;background:#1e1e1e">│</span>
+<span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e">                              </span><span style="color:#333333;background:#1e1e1e">│</span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#a2a2a2;background:#1e1e1e">  Enter: magi-code show, if the file still holds them</span><span style="background:#1e1e1e">                      </span><span style="color:#6ebdff;background:#1e1e1e">│</span>
+<span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e">                              </span><span style="color:#333333;background:#1e1e1e">│</span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e">                                                                            </span><span style="color:#6ebdff;background:#1e1e1e">│</span>
+<span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e">                              </span><span style="color:#333333;background:#1e1e1e">│</span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e">                                                                            </span><span style="color:#6ebdff;background:#1e1e1e">│</span>
+<span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e">                              </span><span style="color:#333333;background:#1e1e1e">│</span><span style="color:#6ebdff;background:#1e1e1e">│</span><span style="background:#1e1e1e">                                                                            </span><span style="color:#6ebdff;background:#1e1e1e">│</span>
+<span style="color:#333333;background:#1e1e1e">╰──────────────────────────────╯</span><span style="color:#6ebdff;background:#1e1e1e">╰────────────────────────────────────────────────────────────────────────────╯</span>
+<span style="color:#333333;background:#1e1e1e">╭─ </span><span style="color:#dfdfdf;background:#1e1e1e;font-weight:700">output</span><span style="color:#333333;background:#1e1e1e"> ───────────────────────────────────────────────────────────────────────────────────────────────────╮</span>
+<span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#6ebdff;background:#1e1e1e;font-weight:700">$ magi-code show src/cage/src/cmdline.rs 1272 1377 7a34cac21365268eac85a4f66ecea7fcbfd84f34a06d5a11f7ecb..</span><span style="background:#1e1e1e"> </span><span style="color:#333333;background:#1e1e1e">│</span>
+<span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#dfdfdf;background:#1e1e1e">src/cage/src/cmdline.rs:22: bytes 1272..1377 of blob 7a34cac21365268eac85a4f66ecea7fcbfd84f34a06d5a11f7e..</span><span style="background:#1e1e1e"> </span><span style="color:#333333;background:#1e1e1e">│</span>
+<span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#dfdfdf;background:#1e1e1e">pub fn base_cmdline() -&gt; String {</span><span style="background:#1e1e1e">                                                                          </span><span style="color:#333333;background:#1e1e1e">│</span>
+<span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#dfdfdf;background:#1e1e1e">    base_cmdline_from(&amp;read_opt("/proc/cmdline").unwrap_or_default())</span><span style="background:#1e1e1e">                                      </span><span style="color:#333333;background:#1e1e1e">│</span>
+<span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#dfdfdf;background:#1e1e1e">}</span><span style="background:#1e1e1e">                                                                                                          </span><span style="color:#333333;background:#1e1e1e">│</span>
+<span style="color:#333333;background:#1e1e1e">│</span><span style="background:#1e1e1e"> </span><span style="color:#92c56c;background:#1e1e1e">- done in 0s</span><span style="background:#1e1e1e">                                                                                               </span><span style="color:#333333;background:#1e1e1e">│</span>
+<span style="color:#333333;background:#1e1e1e">╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯</span>
+<span style="color:#282828;background:#a2a2a2;font-weight:700"> 1-7 </span><span style="color:#a2a2a2;background:#1e1e1e">screen </span><span style="color:#282828;background:#a2a2a2;font-weight:700"> ↑↓ </span><span style="color:#a2a2a2;background:#1e1e1e">select </span><span style="color:#282828;background:#a2a2a2;font-weight:700"> Enter </span><span style="color:#a2a2a2;background:#1e1e1e">open </span><span style="color:#282828;background:#a2a2a2;font-weight:700"> Esc </span><span style="color:#a2a2a2;background:#1e1e1e">back </span><span style="color:#282828;background:#a2a2a2;font-weight:700"> r </span><span style="color:#a2a2a2;background:#1e1e1e">region </span><span style="color:#282828;background:#a2a2a2;font-weight:700"> / </span><span style="color:#a2a2a2;background:#1e1e1e">query </span><span style="color:#282828;background:#a2a2a2;font-weight:700"> ? </span><span style="color:#a2a2a2;background:#1e1e1e">help </span><span style="color:#282828;background:#a2a2a2;font-weight:700"> q </span><span style="color:#a2a2a2;background:#1e1e1e">quit</span></pre></div></figure>
+<p>Each action runs the command the pane shows, as you would; <code>c</code> stops it. What you type is only a query; the dashboard writes nothing. <code>?</code> lists the keys.</p>
+<h3 id="starting-a-unit-when-something-becomes-true" class="sub-title">Starting a unit when something becomes true</h3>
+<p>systemd starts a unit when a socket is connected to, a path appears, a device is plugged in or a time comes. MAGI adds what a store knows: a view that holds a row is a file, and a path unit starts a unit on it. The unit says which fact it starts on; nothing that writes the store can name a unit, and nothing polls.</p>
+<ul class="list">
+<li><strong>While a view holds at least one row,</strong> <code>/run/magi/views/STORE/VIEW</code> exists, with the <code>/</code> in the view's name written <code>:</code>. <code>STORE</code> is your uid, or <code>system</code> for root's store.</li>
+<li><strong>It appears once the change is kept:</strong> a batch written <code>group</code> or <code>sync</code> once it is on the disk, a <code>lazy</code> one once it is visible, and in either case before the program that wrote it is answered. It goes when the view is empty again.</li>
+<li><strong>Your store's directory is yours.</strong> Only you, and root, can read it, and only magid writes it.</li>
+<li><strong>From boot.</strong> magid opens every store as the machine starts, so a fact that was true before a reboot starts its unit again.</li>
+</ul>
+<p>A user unit that does a job whenever one is due, with a view <code>jobs/due</code> declared as <code>filter jobs/tasks state == due</code>:</p>
+<pre class="term term__body" data-lang="ini"># ~/.config/systemd/user/jobs-due.path
+[Path]
+PathExists=/run/magi/views/%U/jobs:due
+Unit=jobs-run.service
+
+[Install]
+WantedBy=default.target</pre>
+<p><code>systemctl --user enable --now jobs-due.path</code> arms it, and <code>magi put jobs/tasks name=backup state=due</code> starts <code>jobs-run.service</code>. A unit is started again while the fact holds, so the job retires it when it is done, here with <code>magi put jobs/tasks name=backup state=done</code>. A system unit starts on root's store the same way, from <code>/run/magi/views/system/</code>.</p>
+<h3 id="asking-about-your-source-code" class="sub-title">Asking about your source code</h3>
+<p><code>magi-code</code> reads a source tree into your store: every function, type and module it defines, every call and import, and the function each one is in. It reads Rust and shell scripts by tree-sitter grammars and rule files, so the answers are what the code says, and nothing is guessed.</p>
+<pre class="term term__body">$ cd ~/Code/nerv-linux
+$ magi-code index
+3743 files in 4.4s: 2174 read (2171 indexed, 3 partial, 0 failed), 0 unchanged, 1569 not parsed, 0 gone
+319492 facts written, 0 retracted, in code/nerv-linux/facts
+not parsed, no grammar: 420 spec, 318 patch, 108 none, 107 c, 91 toml, 69 md, 53 conf, 48 cfg, ...
+$ magi facts code/nerv-linux/names base_cmdline
+160641 path="src/cage/src/cmdline.rs" start=1272 rule="definition.function" name="base_cmdline" end=1377 line=22 scope="" blob=0x7a34… projector=0xda4e… lang="rust"
+172636 path="src/cage/src/seal.rs" start=24461 rule="reference.call-in-macro" name="base_cmdline" end=24473 line=493 scope="cmd_seal" blob=0xd0f2… projector=0xda4e… lang="rust"
+…</pre>
+<p>Each line is one fact: the file and line, the byte range it was read from, the rule that found it, and in <code>scope</code> the function it is in. <code>base_cmdline,reference.call</code> asks for the calls alone. <code>blob</code> is the hash of the file's bytes when they were read, and <code>magi-code show PATH START END BLOB</code> prints that range and says whether the file still holds those bytes. A name is matched as it is written, so two functions of one name in different modules are both answered.</p>
+<p>Run <code>magi-code index</code> again after a change: it reads only the files that changed, and a file's facts follow it, so an edited or deleted file leaves nothing stale behind. <code>magi facts code/NAME/uncovered</code> lists every file whose facts are not all in, and why: a language with no grammar, a syntax error the parse recovered from, or a file the parser could not read. A tree in git is read as <code>git ls-files</code> lists it.</p>
+<p>New rules, or a new grammar from an update, never rewrite the facts you are reading: <code>magi-code index</code> reads the tree into a second copy beside them, and <code>code/NAME/</code> answers from the first. <code>magi-code diff</code> shows what changes: facts added and gone by rule, files that read worse, names no fact mentions any more. <code>magi-code promote</code> switches <code>code/NAME/</code> to the new copy, every stream at once; <code>magi-code rollback</code> switches back, until newer rules are read over the old copy. <code>magi-code status</code> shows both.</p>
+<pre class="term term__body">$ magi-code index --rules ~/my-rules
+3763 files in 2.4s: 2192 read (2189 indexed, 3 partial, 0 failed), 0 unchanged, 1571 not parsed, 0 gone
+297398 facts written, 0 retracted, in code.b/nerv-linux/facts: 297398 facts there
+built beside the partition readers see, by other projectors: compare them with magi-code diff, and make it the one readers see with magi-code promote
+$ magi-code diff
+code.a/nerv-linux/ (live, version 50f187c7aaff) against code.b/nerv-linux/ (complete, version c65ce09734bd)
+  files: 2572 read alike, 1191 read again, 0 only in code.a/nerv-linux, 0 only in code.b/nerv-linux
+  facts: +0 added, -26378 gone, ~0 changed
+    reference.call-in-macro      +0 -26378 ~0
+  names no fact mentions any more: 243 PushKeyboardEnhancementFlags, a_flipped_bit_never_returns_wrong_data, …
+$ magi-code promote
+code/nerv-linux/ is code.b/nerv-linux/ now: version c65ce09734bd, 297398 facts, read from the same tree; code.a/nerv-linux/ stays as it was, for magi-code rollback</pre>
+<p><code>magi-code retract BLOB</code>, the blob as a fact shows it, withdraws the facts of every file holding those bytes, and later runs leave them out while the file holds them. A name stays while another file still mentions it: retracting the file that defines a function keeps the function wherever it is called. <code>--undo</code> lets the next run read the file again.</p>
+<p><code>code/NAME/calls</code> is the tree as a graph, from each function to what it calls, and <code>magi reach</code> follows it through any depth: <code>--in</code> for what calls a function, <code>--depth N</code> to stop. Two trees are two islands: a call into a library read as another tree stops at the call. One rule joins them, <code>magi same code.same/ rule NAME code/A/ code/B/ BY</code>, and <code>magi-code link</code> writes a pair for each name the rule joins, without reading either tree again. A pair it cannot settle is asked, <code>magi same code.same/ ask</code>, and <code>yes</code> or <code>no</code> answers it.</p>
+<pre class="term term__body">$ magi same code.same/ rule magid-axon code/magi/ code/axon/ imported
+$ magi-code link
+  linked: 32 pairs
+proposed: 7 (7 normalised-name); 7 wait for an answer: magi same code.same/ ask
+$ magi reach code/magi/calls,code/axon/calls alloc --depth 1 --same code.same/identity
+alloc: 13 reached, in 2 of 2 graphs
+    0  code/magi/calls           alloc
+    1  code/magi/calls           mem_alloc
+    1  code/axon/calls           mem_alloc
+…</pre>
+<p>The rules, and what each joins, are in <a href="/handbook/reference/magi-contract/#identity">What MAGI promises</a>.</p>
+<h3 id="finding-passages" class="sub-title">Finding passages</h3>
+<p>A document can be kept in the store without copying it. <code>magi blob</code> takes the file in, and on a filesystem that can share a file's bytes (btrfs, as Nerv installs it) the store's copy shares them with the original and costs no space of its own. A record then names a passage by where it lies in that file. A text view searches the passages' words; a vector view finds the passages whose vectors lie nearest one you give it, if a program gave each passage a vector.</p>
+<p><code>magi retrieve</code> asks either view or both, ranked together, and prints for each passage why it was found: its place in each ranking, which of your words it holds and which it does not, and for a passage of a file, whether the file still holds it. No score is printed, since a number from one search means nothing beside a number from another. With <code>--current</code>, a passage of a file taken in again since is left out. Nothing on the machine makes vectors yet; finding passages by their words needs no model.</p>
 <h3 id="removing-something-recorded-by-accident" class="sub-title">Removing something recorded by accident</h3>
 <p>A password pasted into the wrong prompt, or a token a program logged, can be taken out of a history stream, whichever program wrote it, and a key of a state stream along with everything it ever held:</p>
 <pre class="term term__body">$ magi redact STREAM SEQ
@@ -250,13 +371,7 @@ $ doas magi backup /srv/backups/journal</pre>
 $ magi export ~/exports/monday --store ~/backups/store-monday
 $ doas magi import ~/exports/store --store /var/lib/magi/import-1000</pre>
 <p><code>magi export</code> writes everything a store holds as plain files any program can read: JSON, one value per line, with each type's schema beside it. It reads a backup it takes first, so the export is of one moment however busy the store is; <code>--store</code> exports a backup's directory instead.</p>
-<pre class="term term__body">DIR/store.json            the store: its id, its last commit, the boots it knows and their order
-DIR/types.jsonl           each type: name, version, whether a package installed it or a program declared it, its owner
-DIR/types/NAME.schema     its fields
-DIR/streams.jsonl         each stream: its name, its writer, the flags magi declare takes to declare it again,
-                          and what the store knew of it: its head, its floor, when its writer was attached, its source's marks
-DIR/records/N.jsonl       its records, or a state stream's keys, one a line</pre>
-<p>A record is <code>{"seq", "time": {"boot", "ns"}, "token"}</code> and then its fields by name under <code>"record"</code>, or its bytes as <code>"text"</code> or <code>"hex"</code>. A redacted record says <code>"redacted": true</code> and nothing of what it held. A key is <code>"key_text"</code> or <code>"key_hex"</code>, its <code>"version"</code>, and its value the same way. Integers and floats are numbers, written exactly; text is a string; bytes are hex; a time is <code>{"boot", "ns"}</code>; lists and vectors are arrays; a map is an array of pairs. A stream's history and state streams come first, then its views, whose rows are not written: they come back when the view is declared again.</p>
+<p>What each file holds, and how each value is written, is <a href="/handbook/reference/magi-format/#exports">The MAGI store format</a>.</p>
 <p><code>magi import DIR --store NEW</code> makes the store an export holds again, in the new directory <code>NEW</code>, with no daemon. It is the store it was to every reader: each stream declared by the program that declared it, each type owned by whoever owned it, each record at its sequence number, time and token, redacted where it was redacted, each key at its version, and what the store knew of when each stream was complete. What does not come across is <a href="/handbook/reference/magi-contract/#export-and-import">What MAGI promises</a>.</p>
 <p>To serve it, stop magid and move <code>NEW</code> into a store's place, as a backup is put back. The programs that wrote it then carry on where they were: each stream's next record is the one after its last, and the next token and the next version of a key follow on. Making a store's directory takes what writing one's files takes, so importing is root's, or magid's; nothing is ever imported through magid, and no program can write a record under another's name.</p>
 <p>A backup is the store's own files, read by a MAGI that reads their format, which <a href="/handbook/reference/magi-format/">The MAGI store format</a> describes byte by byte; an export is plain JSON, so it is how a store moves to a MAGI whose format has changed.</p>
@@ -268,7 +383,6 @@ DIR/records/N.jsonl       its records, or a state stream's keys, one a line</pre
 <ul class="list">
 <li><strong>Facts,</strong> derived from the record by declared rules, each naming the records and the rule it came from, and rebuilt from them when a rule improves.</li>
 <li><strong>Questions over the journal,</strong> such as which units failed in the last three boots, answered with where the answer is complete. <a href="/handbook/machine/asking-why/">Asking why</a> moves to them as they arrive.</li>
-<li><strong>Claims,</strong> a conclusion recorded with the measurement behind it and the test that would disprove it, dated to be checked again.</li>
 <li><strong>A fleet's record,</strong> replicated between machines so they answer as one, with queries that run on the GPU.</li>
 </ul>
       </div>

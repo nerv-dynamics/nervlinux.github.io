@@ -32,7 +32,7 @@ A chapter marked *(stub)* is an outline, and the website skips it until it is wr
 | --- | --- |
 | [**The GPU**](machine/compute-fabric.md) | axon: the one boundary every program goes through to reach a GPU, here or on another machine, and what it shows you about who is using it. |
 | [**AI development**](machine/ai-development.md) | Serving a model with S2, and building against the machine's own store and fabric. *(old shape)* |
-| [**Agents**](machine/agents.md) | yui: an agent in your terminal that sees only what you give it, and conversations the machine keeps. *(old shape)* |
+| [**Agents**](machine/agents.md) | yui: an agent in your terminal that sees only what you give it, and conversations the machine keeps. |
 | [**Containers**](machine/containers.md) | Rootless podman, Nerv's two base images, which registries a machine pulls from, and the GPU inside a container. *(old shape)* |
 | [**Games**](machine/gaming.md) | Steam, titles built for x86, nQuake, and borrowing a faster GPU from across the room. *(old shape)* |
 | [**Building your own**](machine/building-your-own.md) | Packaging software for your machine, a repository of your own, and owning the stack. *(old shape)* |
@@ -48,6 +48,8 @@ A chapter marked *(stub)* is an outline, and the website skips it until it is wr
 | [**Security**](machine/chain-of-trust.md) | What is verified between power-on and a prompt, and precisely what that does not defend against. *(old shape)* |
 | [**Your files**](machine/yours-and-not-yours.md) | Seele: your work, rebuildable residue and unexplained bytes, and what follows you to the next machine. *(old shape)* |
 | [**The machine's record**](machine/what-the-machine-remembers.md) | MAGI: why the machine keeps a record of its own, who may write what, the journal it keeps, and how to read it. *(old shape)* |
+| [**The journal**](machine/the-journal.md) | What every service, the kernel and the initrd said, kept for every boot in MAGI, and read for any boot, even with magid broken. |
+| [**Experiments**](machine/experiments.md) | nerv-run and Balthasar: a run recorded with the machine it ran on, and claims about the machine tried by the control their shape demands. |
 
 ## Part IV — Many machines
 
@@ -68,7 +70,8 @@ A chapter marked *(stub)* is an outline, and the website skips it until it is wr
 
 | | |
 | --- | --- |
-| **The programs** | One page for each of Nerv's own programs — cage, axon, plexus, yui, S2, magi, geofront — with its screen, its keys and its commands. Planned; until then, `<tool> --help` lists every flag and `tldr <tool>` the commands you use most. |
+| [**yui**](reference/yui.md) | Everything yui does that the Agents chapter leaves out: scripts, the board, the sandbox in full, the approver, the machine's policy, secrets and brokers, plugins, MCP servers, Telegram. |
+| **The other programs** | One page for each of Nerv's own programs — cage, axon, plexus, S2, magi, geofront — with its screen, its keys and its commands. Planned; until then, `<tool> --help` lists every flag and `tldr <tool>` the commands you use most. |
 | [**What MAGI promises**](reference/magi-contract.md) | What an answer from magid means for a record: durability at each level, crashes and power cuts, redaction, backup, export, updates and rollbacks, and every case in which something kept is lost. |
 | [**MAGI's limits**](reference/magi-limits.md) | The sizes, counts and rates a store holds to, and what it refuses. |
 | [**The MAGI store format**](reference/magi-format.md) | Format 1, frozen: every byte of a store, enough to read and verify one without MAGI. |
@@ -88,7 +91,7 @@ Each chapter moves to the shape in its own change, in this order: the chapters w
 1. Updates and generations (cage) — done
 2. Plexus — done
 3. The GPU (axon) — done
-4. Agents (yui), with what is not for most readers moved to yui's reference page
+4. Agents (yui), with what is not for most readers moved to yui's reference page — done
 5. The first hour, with what is not about the first hour moved to Keeping the machine
 6. Games, with nQuake as one section of its own
 7. AI development (S2), once its screen can be captured

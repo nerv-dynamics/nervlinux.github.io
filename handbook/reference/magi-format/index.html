@@ -137,6 +137,8 @@
 </li>
 </ol>
 <p class="hb-nav__part">Reference</p><ol class="hb-nav__list">
+<li><a href="/handbook/reference/yui/">yui</a>
+</li>
 <li><a href="/handbook/reference/magi-contract/">What MAGI promises</a>
 </li>
 <li><a href="/handbook/reference/magi-limits/">MAGI&#x27;s limits</a>
@@ -159,7 +161,14 @@
 <li><a href="#block-maps">Block maps</a></li>
 <li><a href="#opening-a-store">Opening a store</a></li>
 <li><a href="#verifying-a-store">Verifying a store</a></li>
+<li><a href="#exports">Exports</a></li>
 </ol>
+</li>
+</ol>
+<p class="hb-nav__part">More</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/experiments/">Experiments</a>
+</li>
+<li><a href="/handbook/machine/the-journal/">The journal</a>
 </li>
 </ol>
 </details></nav>
@@ -269,16 +278,20 @@
 <td><code>map-&lt;segment&gt;</code></td><td>where each stream's blocks lie in one segment</td><td>may ignore it, and walk the segment</td>
 </tr>
 <tr>
+<td><code>blob-&lt;hash&gt;</code></td><td>a file taken in, its bytes as they were, named by their BLAKE3 hash in 64 hexadecimal digits</td><td>needs it to read the bytes a <code>span</code> names</td>
+</tr>
+<tr>
 <td><code>checkpoint.tmp</code>, <code>hist-&lt;stream&gt;-&lt;segment&gt;.tmp</code></td><td>a file being written when the writer stopped</td><td>ignores it; a writer removes it</td>
 </tr>
 <tr>
-<td><code>text-*</code>, <code>cols-*</code>, <code>graph-*</code></td><td>search, column and graph indexes</td><td>not part of format 1</td>
+<td><code>text-*</code>, <code>vec-*</code>, <code>cols-*</code>, <code>graph-*</code></td><td>search, vector, column and graph indexes</td><td>not part of format 1</td>
 </tr>
 </tbody>
 </table>
 </div>
 <p><strong>The log</strong> is one sequence of bytes, addressed by a <strong>log offset</strong>, cut into segment files. A segment named <code>log-X.seg</code> begins with a 128-byte header, and the byte at position <code>p</code> of the file, for <code>p ≥ 128</code>, is at log offset <code>X + p − 128</code>: headers take no log offsets. Segments hold groups of batches, each group whole within one segment. The segments a store keeps are in log order, and a segment the writer reclaimed leaves a gap; after the checkpoint's offset, every segment begins exactly where the one before it ends.</p>
-<p><strong>What is derived.</strong> The text, column and graph indexes (<code>text-*</code>, <code>cols-*</code>, <code>graph-*</code>) are built from the log and are not part of format 1: a reader may ignore them, and a writer may delete them at any time, which costs only the time to build them again. Block maps are part of format 1 but hold nothing the log does not; a reader may ignore them. Everything else is needed.</p>
+<p><strong>What is derived.</strong> The text, vector, column and graph indexes (<code>text-*</code>, <code>vec-*</code>, <code>cols-*</code>, <code>graph-*</code>) are built from the log and are not part of format 1: a reader may ignore them, and a writer may delete them at any time, which costs only the time to build them again. Block maps are part of format 1 but hold nothing the log does not; a reader may ignore them. Everything else is needed.</p>
+<p><strong>Blobs.</strong> A blob is written whole and never changed: its name is the BLAKE3 hash of every byte it holds, which a reader can check. A record's <code>span</code> field names bytes of a blob (<a href="#typed-records">Typed records</a>), and a writer refuses a record whose span names a blob it does not hold or runs past its end. A writer removes a blob that no record names; a blob named by a redacted record only is removed by the redaction. A store with blobs uses the SPANS feature.</p>
 <p><strong>One writer.</strong> A store has one writer, which appends groups to the last segment, writes the other files whole beside it, and replaces the checkpoint by writing <code>checkpoint.tmp</code>, syncing it, renaming it over <code>checkpoint</code> and syncing the directory. A reader never writes.</p>
 <h2 id="features-and-revision" class="section-title">Features and revision</h2>
 <p>Every file of format 1 begins with <code>ENGRAM1</code> and a letter for its kind, except a table run, whose footer begins with it:</p>
@@ -320,10 +333,22 @@
 <tr>
 <td><code>1 &lt;&lt; 0</code></td><td>read-compatible</td><td>SIGNED</td><td>the store holds signed stream heads (entry 13). Reserved: no writer of format 1 sets it yet.</td>
 </tr>
+<tr>
+<td><code>1 &lt;&lt; 0</code></td><td>incompatible</td><td>SPANS</td><td>a type the store carries has a <code>span</code> field, and the store holds blobs</td>
+</tr>
+<tr>
+<td><code>1 &lt;&lt; 1</code></td><td>incompatible</td><td>VECTORS</td><td>the store declares a vector view (plan 14)</td>
+</tr>
+<tr>
+<td><code>1 &lt;&lt; 2</code></td><td>incompatible</td><td>ALIASES</td><td>the catalogue holds an alias (entry 15), and the checkpoint carries the aliases</td>
+</tr>
+<tr>
+<td><code>1 &lt;&lt; 3</code></td><td>incompatible</td><td>RESOLUTIONS</td><td>the store declares a resolution (plan 15)</td>
+</tr>
 </tbody>
 </table>
 </div>
-<p>No other bit is defined; a store that uses no feature has four zero bytes.</p>
+<p>A writer sets SPANS, VECTORS, ALIASES and RESOLUTIONS when the catalogue first holds what they name, and writes a checkpoint carrying them before it answers. No other bit is defined; a store that uses no feature has four zero bytes.</p>
 <p><strong>A store from before the freeze.</strong> A segment that begins <code>ENGRAM\0\0</code>, or a checkpoint that begins <code>ENGRAMCK</code>, belongs to a store written before format 1. A reader refuses it by name, giving the revision it holds at bytes 12..16, and does not treat it as damage. The way across is <code>magi export</code> with the MAGI that wrote the store and <code>magi import</code> with a MAGI of format 1 (<a href="/handbook/reference/magi-contract/#updates-and-rollbacks">What MAGI promises</a>).</p>
 <h2 id="log-segments" class="section-title">Log segments</h2>
 <p>A segment opens with a 128-byte header:</p>
@@ -454,6 +479,9 @@ end [32]  H(every byte before)</pre>
 <tr>
 <td>14</td><td>Redacted</td><td><code>u64</code> stream, <code>u64</code> seq, <code>time</code> at, <code>u64</code> block</td>
 </tr>
+<tr>
+<td>15</td><td>Alias</td><td><code>str</code> prefix, <code>str</code> to</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -492,6 +520,7 @@ end [32]  H(every byte before)</pre>
 <li><strong>Filed</strong> says the stream's records written in segment <code>segment</code> are now in its history file for that segment, whose digest is <code>digest</code> (<a href="#history-files">History files</a>).</li>
 <li><strong>Signed</strong> would say the stream's chain through record <code>through</code> is signed with <code>signature</code> under <code>scheme</code>. A store holding one sets the SIGNED feature.</li>
 <li><strong>Redacted</strong> says record <code>seq</code> of the stream, of time <code>at</code>, in the block at log offset <code>block</code>, is redacted: hidden in place wherever that block lies. It says only that it was.</li>
+<li><strong>Alias</strong> says that from here on, a reader's name beginning with <code>prefix</code> stands for the same name with <code>to</code> in place of the prefix. Only reads follow an alias; a write names the stream it writes. A later Alias of the same prefix replaces it, and none removes it.</li>
 </ul>
 <h3 id="the-stream-declaration" class="sub-title">The stream declaration</h3>
 <p>A declaration is a sequence of tagged fields, each a <code>u8</code> field id and its value, in ascending id order, ended by a <code>0</code> byte. No length precedes it, so a reader decodes every field, a plan included, to find where it ends. A reader refuses a field id it does not know, rather than skip it, and refuses a declaration missing any of fields 1 to 10.</p>
@@ -594,10 +623,16 @@ end [32]  H(every byte before)</pre>
 <tr>
 <td>11</td><td>edges</td><td><code>str</code> source, <code>u16</code> from field, <code>u16</code> to field</td>
 </tr>
+<tr>
+<td>14</td><td>vectors</td><td><code>str</code> source, <code>u16</code> field, a <code>vec&lt;f32,N&gt;</code> or <code>vec&lt;f16,N&gt;</code> with N at most 65,536</td>
+</tr>
+<tr>
+<td>15</td><td>resolution</td><td><code>u32</code> count (1 to 16), then that many <code>str</code> sources; <code>u16</code> island and <code>u16</code> value field of one end, then of the other; <code>pred?</code></td>
+</tr>
 </tbody>
 </table>
 </div>
-<p>Plans 1 to 4, 12 and 13 are over typed state streams; 5 to 9 over typed history streams or history views; 10 and 11 over a typed history stream. A text search or edges view holds no rows: its index is derived, outside format 1, and only its declaration is in the store.</p>
+<p>Plans 1 to 4, 12 and 13 are over typed state streams; 5 to 9 over typed history streams or history views; 10 and 14 over a typed history stream; 11 over a typed history or state stream; 15 over typed state streams of one type, whose island fields are <code>text</code>. A text search, edges, vectors or resolution view holds no rows: its index is derived, outside format 1, and only its declaration is in the store. A text search's field is <code>text</code> or <code>span</code>; a span's bytes are searched as UTF-8, each sequence that is not read as U+FFFD.</p>
 <p>A <strong>predicate</strong> is a <code>u8</code> tag, nested at most 64 deep:</p>
 <div class="table-scroll">
 <table class="data">
@@ -641,7 +676,7 @@ key file
 3 epoch    u32
 7 size     u64
 9 disturl  text?</pre>
-<p>The types: <code>bool</code>, <code>i8</code>, <code>i16</code>, <code>i32</code>, <code>i64</code>, <code>u8</code>, <code>u16</code>, <code>u32</code>, <code>u64</code>, <code>f32</code>, <code>f64</code>, <code>text</code>, <code>bytes</code>, <code>time</code>, <code>blob</code>, <code>list&lt;T&gt;</code>, <code>map&lt;K,V&gt;</code> (K a scalar), and <code>vec&lt;f32,N&gt;</code> or <code>vec&lt;f16,N&gt;</code> (N at least 1). Lists and maps nest at most 32 deep. The scalars are every type but lists, maps and vectors.</p>
+<p>The types: <code>bool</code>, <code>i8</code>, <code>i16</code>, <code>i32</code>, <code>i64</code>, <code>u8</code>, <code>u16</code>, <code>u32</code>, <code>u64</code>, <code>f32</code>, <code>f64</code>, <code>text</code>, <code>bytes</code>, <code>time</code>, <code>blob</code>, <code>span</code>, <code>list&lt;T&gt;</code>, <code>map&lt;K,V&gt;</code> (K a scalar), and <code>vec&lt;f32,N&gt;</code> or <code>vec&lt;f16,N&gt;</code> (N at least 1). Lists and maps nest at most 32 deep. The scalars are every type but lists, maps, vectors and <code>span</code>. A <code>blob</code> is a content hash and nothing more; a <code>span</code> names bytes the store holds (<a href="#a-store">Blobs</a>).</p>
 <h3 id="typed-records" class="sub-title">Typed records</h3>
 <p>A typed record is its present fields in strictly ascending id order, each a <code>leb</code> field id (at most 65,535) and its value:</p>
 <div class="table-scroll">
@@ -676,6 +711,9 @@ key file
 </tr>
 <tr>
 <td><code>vec&lt;f32,N&gt;</code>, <code>vec&lt;f16,N&gt;</code></td><td>N values of 4 or 2 bytes, little-endian; no count</td>
+</tr>
+<tr>
+<td><code>span</code></td><td><code>[32]</code> a blob's hash, <code>u64</code> offset, <code>u32</code> length; offset plus length below 2^64</td>
 </tr>
 </tbody>
 </table>
@@ -718,7 +756,7 @@ key file
 </tr></thead>
 <tbody>
 <tr>
-<td>Declare</td><td><code>id</code> is the next id, and no stream has the name</td><td>the next id moves on; a new stream with head 0, head link and floor link its genesis, floor 1, and nothing else; a history view gets one fill per plan source, as below</td>
+<td>Declare</td><td><code>id</code> is the next id, no stream has the name, and the name begins with no aliased prefix</td><td>the next id moves on; a new stream with head 0, head link and floor link its genesis, floor 1, and nothing else; a history view gets one fill per plan source, as below</td>
 </tr>
 <tr>
 <td>Type</td><td>as in <a href="#types-and-schemas">Types and schemas</a></td><td>the type's latest version is this</td>
@@ -755,6 +793,9 @@ key file
 </tr>
 <tr>
 <td>Redacted</td><td>a history stream with floor <code>≤ seq ≤</code> head, or a state stream with <code>1 ≤ seq ≤</code> head; never a view; not already redacted</td><td>the redaction is added, in sequence order</td>
+</tr>
+<tr>
+<td>Alias</td><td><code>prefix</code> and <code>to</code> each end in <code>/</code> and are at least two bytes; they differ; <code>to</code> does not begin with <code>prefix</code>; no stream's name begins with <code>prefix</code>; no other aliased prefix begins <code>prefix</code> or is begun by it; <code>to</code> is not an aliased prefix and begins with none other than <code>prefix</code></td><td><code>prefix</code> is aliased to <code>to</code></td>
 </tr>
 </tbody>
 </table>
@@ -825,6 +866,7 @@ u64   batch: the number of the last batch before it
 time  when that batch was committed
 ...   the folded catalogue, below
 u32   block maps, then per map: u64 segment, u64 length of its valid bytes, u64 the log offset it maps to
+...   with ALIASES only: u32 aliases, in prefix order, then per alias: str prefix, str to
 [32]  H(every byte before)</pre>
 <p>A reader refuses a checkpoint whose magic is not <code>ENGRAM1C</code> (and names a pre-freeze one), whose checksum fails, whose revision is not 1, whose features have an incompatible bit it does not know, or with bytes after its end. The folded catalogue:</p>
 <pre class="term term__body" data-lang="text">u64   the id the next declaration takes
@@ -1035,8 +1077,17 @@ end  [4]   CRC-32C of the chunk before it</pre>
 </ol>
 <p>It reports the streams, the records at or above their floors and how many of them are redacted, the segments, the history files, and the log's end offset, batch count and commit digest: two stores that are copies of one agree on the last three. A torn tail is reported, not counted as damage.</p>
 <p><code>engram verify</code> does not read the table runs; each run is checked by its footer, its bloom hash and every page's checksum when it is read. A verifier that wants the tables checked too opens every run the checkpoint's root names and checks those, the fences, and every data page.</p>
+<h2 id="exports" class="section-title">Exports</h2>
+<p><code>magi export DIR</code> writes a store as plain files: JSON, one value per line, with each type's schema beside it.</p>
+<pre class="term term__body">DIR/store.json            the store: its id, its last commit, the boots it knows and their order
+DIR/types.jsonl           each type: name, version, whether a package installed it or a program declared it, its owner
+DIR/types/NAME.schema     its fields
+DIR/streams.jsonl         each stream: its name, its writer, the flags magi declare takes to declare it again,
+                          and what the store knew of it: its head, its floor, when its writer was attached, its source's marks
+DIR/records/N.jsonl       its records, or a state stream's keys, one a line</pre>
+<p>A record is <code>{"seq", "time": {"boot", "ns"}, "token"}</code> and then its fields by name under <code>"record"</code>, or its bytes as <code>"text"</code> or <code>"hex"</code>. A redacted record says <code>"redacted": true</code> and nothing of what it held. A key is <code>"key_text"</code> or <code>"key_hex"</code>, its <code>"version"</code>, and its value the same way. Integers and floats are numbers, written exactly; text is a string; bytes are hex; a time is <code>{"boot", "ns"}</code>; lists and vectors are arrays; a map is an array of pairs. A stream's history and state streams come first, then its views, whose rows are not written: they come back when the view is declared again.</p>
       </div>
-      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/reference/magi-limits/"><span>Previous</span>MAGI&#x27;s limits</a></nav>
+      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/reference/magi-limits/"><span>Previous</span>MAGI&#x27;s limits</a><a class="hb-pager__next" href="/handbook/machine/experiments/"><span>Next</span>Experiments</a></nav>
     </div>
   </div>
 </section>

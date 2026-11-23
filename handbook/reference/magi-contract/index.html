@@ -137,6 +137,8 @@
 </li>
 </ol>
 <p class="hb-nav__part">Reference</p><ol class="hb-nav__list">
+<li><a href="/handbook/reference/yui/">yui</a>
+</li>
 <li><a href="/handbook/reference/magi-contract/" aria-current="page">What MAGI promises</a>
 <ol class="hb-nav__sections">
 <li><a href="#a-batch">A batch</a></li>
@@ -145,6 +147,9 @@
 <li><a href="#tamper-evidence">Tamper evidence</a></li>
 <li><a href="#retention-and-what-a-stream-forgets">Retention and what a stream forgets</a></li>
 <li><a href="#views">Views</a></li>
+<li><a href="#files-taken-in">Files taken in</a></li>
+<li><a href="#aliases">Aliases</a></li>
+<li><a href="#identity">Identity</a></li>
 <li><a href="#redaction">Redaction</a></li>
 <li><a href="#backup">Backup</a></li>
 <li><a href="#export-and-import">Export and import</a></li>
@@ -155,6 +160,12 @@
 <li><a href="/handbook/reference/magi-limits/">MAGI&#x27;s limits</a>
 </li>
 <li><a href="/handbook/reference/magi-format/">The MAGI store format</a>
+</li>
+</ol>
+<p class="hb-nav__part">More</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/experiments/">Experiments</a>
+</li>
+<li><a href="/handbook/machine/the-journal/">The journal</a>
 </li>
 </ol>
 </details></nav>
@@ -209,6 +220,7 @@
 <li><strong>The last synced batch, damaged before a later one is written.</strong> A bit that flips in the last group of batches the disk holds, before anything after it is written, cannot be told from a write that never finished, and that group is dropped, durable or not.</li>
 <li><strong>A disk that lies about syncing</strong> can lose anything it claimed to keep. What is read is still never wrong.</li>
 </ul>
+<p><strong>How this is tested, and how it is not.</strong> Durability rests on the drive keeping what it said it flushed; MAGI cannot do better than the drive. The promises above are tested against a real kernel's block layer: every state a power cut could leave the disk in, on btrfs and on ext4, is rebuilt from a record of the writes and the flushes the kernel issued, and opened. They are not tested by cutting the power to a machine. A pull risks everything else on that machine, so no such test has been run, and what a particular drive does at a power cut is not something this page can promise.</p>
 <h2 id="tamper-evidence" class="section-title">Tamper evidence</h2>
 <p>Every record is chained by its hash to the one before it in its stream, and every batch to the batch before it.</p>
 <ul class="list">
@@ -234,10 +246,61 @@
 <li><strong>A view declared over records already written is filled from them</strong>, and answers as not yet known over what it has not reached.</li>
 <li><strong>A view built again holds what its sources hold now.</strong> What a view had kept of records its sources have since let go does not come back when it is declared again or filled again.</li>
 </ul>
+<h2 id="files-taken-in" class="section-title">Files taken in</h2>
+<p>A file taken in with <code>magi blob</code> is held whole, named by the hash of its bytes.</p>
+<ul class="list">
+<li><strong>A record names only what is held.</strong> A record naming bytes of a file the store does not hold, or past its end, is refused, so every passage a record names can be read.</li>
+<li><strong>Its bytes cost no space where they can be shared.</strong> On a filesystem that shares a file's bytes between copies, the store shares the original's, and <code>magi blob</code> says <code>shared</code>; elsewhere it says <code>copied</code>. Either way the store counts the whole length against its budget, since the original can be deleted.</li>
+<li><strong>Changing the original changes nothing in the store.</strong> The store holds the bytes as they were taken in. A record found from them says whether the file at its path still holds them.</li>
+<li><strong>A file nothing names is let go</strong> when the store is next opened, and magid logs it. One taken in and named by nothing yet is kept until then.</li>
+</ul>
+<h2 id="aliases" class="section-title">Aliases</h2>
+<p><code>magi alias PREFIX TO</code> makes every name beginning with PREFIX read as the same name beginning with TO, which is how a program rebuilds what it derived beside what you read and then switches you to it.</p>
+<ul class="list">
+<li><strong>One switch moves every stream under the prefix at once.</strong> A read before it sees the old streams and a read after it the new, never some of each.</li>
+<li><strong>Only reads follow an alias.</strong> A write through one is refused and names the stream to write.</li>
+<li><strong>A switch can say what it replaces.</strong> With <code>--expect NOW</code>, or <code>--new</code> for a prefix aliased to nothing, a switch whose prefix points elsewhere by then is refused and changes nothing.</li>
+<li><strong>A watch asked by an alias ends when the alias moves</strong>, after every change to what it watched up to then, and says so. Watched again, it follows the new streams.</li>
+<li><strong>An alias is moved by the streams' writer</strong>, on both sides of the switch, or by you through <code>magi alias</code>.</li>
+<li><strong>A store that holds an alias is refused by a MAGI that predates them</strong>, by name rather than misread.</li>
+</ul>
+<h2 id="identity" class="section-title">Identity</h2>
+<p>A program names what it reads in a namespace of its own, an island: <code>code/magi/</code> for one tree, <code>code/axon/</code> for another. The same name in two islands is two things until something says otherwise, so a reach over two islands' graphs never crosses from one to the other by itself.</p>
+<ul class="list">
+<li><strong>Two things become one only by a pair that counts.</strong> A resolution (<code>same</code>, such as <code>code.same/identity</code>) reads pairs from the streams it names, and nothing else joins two islands.</li>
+<li><strong>You decide what counts.</strong> A rule, <code>magi same NS rule NAME A B BY</code>, is yours, and <code>magi-code link</code> writes a pair for each name it joins, citing it. A pair a program guesses is a proposal, never read by a resolution, until you answer <code>yes</code>. <code>no</code> keeps a pair apart for good, whatever a rule says. A model's guess is only ever a proposal.</li>
+<li><strong>Your rules and answers are written by you.</strong> magid lets only <code>magi</code> write them, so no other program can join two islands in your name.</li>
+<li><strong>Joining reads nothing again.</strong> A rule added or taken back changes only the pairs; the facts of either tree are untouched, and the next reach answers by the pairs as they are.</li>
+<li><strong>A pair naming something no longer read joins nothing</strong>, and joins again when it is read again.</li>
+</ul>
+<p><code>magi-code link</code> knows four rules:</p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">BY</th><th scope="col">joins a name that is</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code>imported</code></td><td>defined in one tree, and used in the other only in files that import something only the first defines</td>
+</tr>
+<tr>
+<td><code>defined-once</code></td><td>defined in one tree, and only used in the other</td>
+</tr>
+<tr>
+<td><code>same-blob</code></td><td>defined in both, in files holding the same bytes</td>
+</tr>
+<tr>
+<td><code>same-path</code></td><td>defined in both, in files of the same path, by its last three parts</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A name both define with nothing else in common stays two things, and is not asked about. A name is matched as it is written, so a rule joins what the names say: a name the other tree also takes from a library, such as <code>clone</code>, is joined with the rest.</p>
 <h2 id="redaction" class="section-title">Redaction</h2>
 <p><a href="/handbook/machine/what-the-machine-remembers/#removing-something-recorded-by-accident">Removing something recorded by accident</a> says what <code>magi redact</code> removes, and that the views over the stream no longer know the redacted record's instant. What else it costs, and what it cannot reach:</p>
 <ul class="list">
 <li><strong>The record's batch-mates leave the views too.</strong> On a stream whose records take their time from their batch, the other records of that batch share the instant, so they are withdrawn from the views with it. They stay in the stream.</li>
+<li><strong>A file's bytes go with the last record that names them.</strong> Redacting every record that names bytes of a file taken in removes the file from the store before <code>magi redact</code> returns. While any other record still names it, it stays.</li>
 <li><strong>One place inside the store is not reached:</strong> if the redacted value was the key through which one view was being filled from another, the store's catalogue can still hold it as that fill's position.</li>
 <li><strong>Outside the store, nothing is reached:</strong> a backup taken before, an export, a copy someone else made, and the blocks the filesystem freed but has not yet reused.</li>
 <li><strong>A redaction is refused while a backup is being taken</strong>, and says so. Run it again when the backup returns.</li>
@@ -254,6 +317,7 @@
 <ul class="list">
 <li><strong>A view's rows.</strong> A view is declared again in the new store and built from the records the export holds, so what it had kept of records its sources had already let go is not in it. A view's id is new.</li>
 <li><strong>The catalogue's length.</strong> The new store's catalogue counts what the import itself wrote, one entry for each redaction repeated and each view declared again.</li>
+<li><strong>Files taken in come across whole</strong>, in the export's <code>blobs</code> directory. An import without them refuses the records that name them, and leaves no store.</li>
 <li><strong>Retention while importing.</strong> Nothing is evicted while the records go in; each stream's caps apply again from the store's next segment on.</li>
 </ul>
 <h2 id="updates-and-rollbacks" class="section-title">Updates and rollbacks</h2>
@@ -271,7 +335,7 @@
 <li><strong>Entries older than 1 GiB of journal</strong>, which retention drops oldest first, with a scar.</li>
 </ul>
       </div>
-      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/asking-why/"><span>Previous</span>Asking why</a><a class="hb-pager__next" href="/handbook/reference/magi-limits/"><span>Next</span>MAGI&#x27;s limits</a></nav>
+      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/reference/yui/"><span>Previous</span>yui</a><a class="hb-pager__next" href="/handbook/reference/magi-limits/"><span>Next</span>MAGI&#x27;s limits</a></nav>
     </div>
   </div>
 </section>

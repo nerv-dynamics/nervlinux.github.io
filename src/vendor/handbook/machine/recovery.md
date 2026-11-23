@@ -51,11 +51,13 @@ Go through these in order.
 
 **3. If the screen stays black**, or the same failure repeats, power off, hold **Space** as it starts, and choose an older slot from [the boot menu](#the-boot-menu). If none of those boots, choose the rescue slot.
 
-**4. Once it is up, ask why.** The journal of the boot that failed is the previous one:
+**4. Once it is up, ask why.** The journal of the boot that failed is the previous one, and MAGI keeps it:
 
 ```
-$ journalctl -b -1 -p err
+$ doas magi journal -b -1 -p err
 ```
+
+If magid itself will not start, the same journal is read from the store's files ([When magid is broken](the-journal.md#when-magid-is-broken)).
 
 ## A forgotten passphrase
 

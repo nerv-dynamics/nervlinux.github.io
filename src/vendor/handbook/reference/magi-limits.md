@@ -44,8 +44,10 @@ The sizes, counts and rates MAGI holds to, and everything it refuses, with what 
 | a range | at most 4,096 keys a call, and it says whether more follow. |
 | a history view by time | at most 4,096 rows a call, with a cursor to go on from. |
 | a search | at most 1,024 hits, and at most 64 values required and 64 excluded. |
+| a retrieval | at most 100 records, each ranking taken 100 deep; a vector of at most 65,536 dimensions. |
+| a file taken in | any length the store's budget holds, counted whole even where its bytes are shared. |
 | a column scan | at most 16 columns to group by, 64 aggregates, 2²⁰ groups, and conditions nested 64 deep. Floats are not summed. |
-| following a graph | at most 4,096 seeds and 2²⁰ rows answered. |
+| following a graph | at most 4,096 seeds and 2²⁰ rows answered; across islands, at most 64 graphs at once, joined by a resolution of at most 16 streams. |
 | an answer too large for one message | refused, never cut short. |
 | a watcher | is cut off once 8 MiB of changes wait unread for it. A store holds at most 128 MiB of the views watches started from for watchers that have not read them; a watch past that is refused. |
 | a backup | read 8 MiB at a time, at most 2²⁰ files. |

@@ -137,6 +137,8 @@
 </li>
 </ol>
 <p class="hb-nav__part">Reference</p><ol class="hb-nav__list">
+<li><a href="/handbook/reference/yui/">yui</a>
+</li>
 <li><a href="/handbook/reference/magi-contract/">What MAGI promises</a>
 </li>
 <li><a href="/handbook/reference/magi-limits/" aria-current="page">MAGI&#x27;s limits</a>
@@ -151,6 +153,12 @@
 </ol>
 </li>
 <li><a href="/handbook/reference/magi-format/">The MAGI store format</a>
+</li>
+</ol>
+<p class="hb-nav__part">More</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/experiments/">Experiments</a>
+</li>
+<li><a href="/handbook/machine/the-journal/">The journal</a>
 </li>
 </ol>
 </details></nav>
@@ -253,10 +261,16 @@
 <td>a search</td><td>at most 1,024 hits, and at most 64 values required and 64 excluded.</td>
 </tr>
 <tr>
+<td>a retrieval</td><td>at most 100 records, each ranking taken 100 deep; a vector of at most 65,536 dimensions.</td>
+</tr>
+<tr>
+<td>a file taken in</td><td>any length the store's budget holds, counted whole even where its bytes are shared.</td>
+</tr>
+<tr>
 <td>a column scan</td><td>at most 16 columns to group by, 64 aggregates, 2²⁰ groups, and conditions nested 64 deep. Floats are not summed.</td>
 </tr>
 <tr>
-<td>following a graph</td><td>at most 4,096 seeds and 2²⁰ rows answered.</td>
+<td>following a graph</td><td>at most 4,096 seeds and 2²⁰ rows answered; across islands, at most 64 graphs at once, joined by a resolution of at most 16 streams.</td>
 </tr>
 <tr>
 <td>an answer too large for one message</td><td>refused, never cut short.</td>

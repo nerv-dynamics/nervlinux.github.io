@@ -144,11 +144,19 @@
 </li>
 </ol>
 <p class="hb-nav__part">Reference</p><ol class="hb-nav__list">
+<li><a href="/handbook/reference/yui/">yui</a>
+</li>
 <li><a href="/handbook/reference/magi-contract/">What MAGI promises</a>
 </li>
 <li><a href="/handbook/reference/magi-limits/">MAGI&#x27;s limits</a>
 </li>
 <li><a href="/handbook/reference/magi-format/">The MAGI store format</a>
+</li>
+</ol>
+<p class="hb-nav__part">More</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/experiments/">Experiments</a>
+</li>
+<li><a href="/handbook/machine/the-journal/">The journal</a>
 </li>
 </ol>
 </details></nav>
@@ -157,7 +165,7 @@
 <h1 class="page-title">Asking why</h1>
 <p>From a symptom to a cause, using the machine's own record: a program that stopped, a service that will not start, something that was refused, and a machine that is slow.</p>
 <h2 id="the-journal-and-magi" class="section-title">The journal, and MAGI</h2>
-<p>The journal is where the machine says what happened, and this chapter reads it with <code>journalctl</code>. <a href="/handbook/machine/what-the-machine-remembers/">MAGI</a> takes the same journal into the machine's own record as it is written, and knows where it holds every entry and where entries are missing. The questions below are asked of MAGI directly as its questions over the journal arrive, answered with where the answer is complete; this chapter changes with them.</p>
+<p>The journal is where the machine says what happened. journald keeps the boot that is running, and <code>journalctl</code> reads it; <a href="/handbook/machine/the-journal/">MAGI</a> keeps every boot, this one included, and <code>doas magi journal</code> reads them, with the same <code>-b</code>, <code>-u</code>, <code>-p</code> and <code>-g</code>. A question about an earlier boot is MAGI's alone.</p>
 <h2 id="a-program-that-stopped" class="section-title">A program that stopped</h2>
 <p>What it said before it stopped, and anything the kernel said about it, is in this boot's journal:</p>
 <pre class="term term__body">$ journalctl -b -p warning</pre>
@@ -165,7 +173,7 @@
 <h2 id="a-service-that-will-not-start" class="section-title">A service that will not start</h2>
 <pre class="term term__body">$ systemctl status myservice
 $ journalctl -b -u myservice</pre>
-<p>The first shows its state and its last lines; the second, everything it logged this boot. A service that failed on the previous boot is in <code>journalctl -b -1 -u myservice</code>.</p>
+<p>The first shows its state and its last lines; the second, everything it logged this boot. A service that failed on the previous boot is in <code>doas magi journal -b -1 -u myservice</code>.</p>
 <h2 id="something-was-refused" class="section-title">Something was refused</h2>
 <p>Three things on the machine refuse by design, and each says so in its own place:</p>
 <ul class="list">
@@ -177,7 +185,7 @@ $ journalctl -b -u myservice</pre>
 <pre class="term term__body">$ btop</pre>
 <p>shows the processors, memory, disks, network and the GPU in one screen. <code>procs</code> sorts processes, <code>dust</code> shows where the disk went, and <code>axon</code> shows who is using the GPU, here and across the fleet. A program that is waiting on memory rather than computing shows as pressure: <code>cat /proc/pressure/memory</code>.</p>
       </div>
-      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/recovery/"><span>Previous</span>Recovery</a><a class="hb-pager__next" href="/handbook/reference/magi-contract/"><span>Next</span>What MAGI promises</a></nav>
+      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/recovery/"><span>Previous</span>Recovery</a><a class="hb-pager__next" href="/handbook/reference/yui/"><span>Next</span>yui</a></nav>
     </div>
   </div>
 </section>

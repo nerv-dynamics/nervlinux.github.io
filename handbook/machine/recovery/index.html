@@ -145,11 +145,19 @@
 </li>
 </ol>
 <p class="hb-nav__part">Reference</p><ol class="hb-nav__list">
+<li><a href="/handbook/reference/yui/">yui</a>
+</li>
 <li><a href="/handbook/reference/magi-contract/">What MAGI promises</a>
 </li>
 <li><a href="/handbook/reference/magi-limits/">MAGI&#x27;s limits</a>
 </li>
 <li><a href="/handbook/reference/magi-format/">The MAGI store format</a>
+</li>
+</ol>
+<p class="hb-nav__part">More</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/experiments/">Experiments</a>
+</li>
+<li><a href="/handbook/machine/the-journal/">The journal</a>
 </li>
 </ol>
 </details></nav>
@@ -181,8 +189,9 @@ $ doas reboot</pre>
 <p><strong>1. Wait five minutes.</strong> A slot that an update has just made the default boots on trial. If it hangs, or comes up with a failed unit, the machine restarts it, and after three tries it boots the slot you had before, by itself. It may take one restart or three, and then you are back where you were yesterday. <a href="/handbook/machine/generations/#the-first-boot-of-a-new-slot">The first boot of a new slot</a> has the details.</p>
 <p><strong>2. If it asks for a passphrase it never asked for before</strong>, the TPM has refused to unlock the disk. That happens after a firmware update, when the TPM has been reset, or when the board has been replaced. Type the disk's recovery passphrase, the one the installer showed you, and the machine boots as usual. To have the TPM unlock it again, see <a href="#a-forgotten-passphrase">A forgotten passphrase</a>.</p>
 <p><strong>3. If the screen stays black</strong>, or the same failure repeats, power off, hold <strong>Space</strong> as it starts, and choose an older slot from <a href="#the-boot-menu">the boot menu</a>. If none of those boots, choose the rescue slot.</p>
-<p><strong>4. Once it is up, ask why.</strong> The journal of the boot that failed is the previous one:</p>
-<pre class="term term__body">$ journalctl -b -1 -p err</pre>
+<p><strong>4. Once it is up, ask why.</strong> The journal of the boot that failed is the previous one, and MAGI keeps it:</p>
+<pre class="term term__body">$ doas magi journal -b -1 -p err</pre>
+<p>If magid itself will not start, the same journal is read from the store's files (<a href="/handbook/machine/the-journal/#when-magid-is-broken">When magid is broken</a>).</p>
 <h2 id="a-forgotten-passphrase" class="section-title">A forgotten passphrase</h2>
 <p>The disk is unlocked by the TPM, so you only meet its passphrase when the TPM refuses. The installer makes the passphrase, shows it twice on the console, and keeps no copy anywhere: write it down when you install.</p>
 <p><strong>With a fleet recovery key</strong>, a lost passphrase is not the end. Set one up while every machine still boots:</p>

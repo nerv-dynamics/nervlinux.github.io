@@ -4,7 +4,7 @@ From a symptom to a cause, using the machine's own record: a program that stoppe
 
 ## The journal, and MAGI
 
-The journal is where the machine says what happened, and this chapter reads it with `journalctl`. [MAGI](what-the-machine-remembers.md) takes the same journal into the machine's own record as it is written, and knows where it holds every entry and where entries are missing. The questions below are asked of MAGI directly as its questions over the journal arrive, answered with where the answer is complete; this chapter changes with them.
+The journal is where the machine says what happened. journald keeps the boot that is running, and `journalctl` reads it; [MAGI](the-journal.md) keeps every boot, this one included, and `doas magi journal` reads them, with the same `-b`, `-u`, `-p` and `-g`. A question about an earlier boot is MAGI's alone.
 
 ## A program that stopped
 
@@ -23,7 +23,7 @@ $ systemctl status myservice
 $ journalctl -b -u myservice
 ```
 
-The first shows its state and its last lines; the second, everything it logged this boot. A service that failed on the previous boot is in `journalctl -b -1 -u myservice`.
+The first shows its state and its last lines; the second, everything it logged this boot. A service that failed on the previous boot is in `doas magi journal -b -1 -u myservice`.
 
 ## Something was refused
 

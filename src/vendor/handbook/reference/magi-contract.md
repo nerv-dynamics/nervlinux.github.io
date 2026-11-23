@@ -40,6 +40,8 @@ What the store cannot keep, stated plainly:
 - **The last synced batch, damaged before a later one is written.** A bit that flips in the last group of batches the disk holds, before anything after it is written, cannot be told from a write that never finished, and that group is dropped, durable or not.
 - **A disk that lies about syncing** can lose anything it claimed to keep. What is read is still never wrong.
 
+**How this is tested, and how it is not.** Durability rests on the drive keeping what it said it flushed; MAGI cannot do better than the drive. The promises above are tested against a real kernel's block layer: every state a power cut could leave the disk in, on btrfs and on ext4, is rebuilt from a record of the writes and the flushes the kernel issued, and opened. They are not tested by cutting the power to a machine. A pull risks everything else on that machine, so no such test has been run, and what a particular drive does at a power cut is not something this page can promise.
+
 ## Tamper evidence
 
 Every record is chained by its hash to the one before it in its stream, and every batch to the batch before it.
@@ -68,11 +70,53 @@ A view changes in the same batch as what it reads, so it is never behind what it
 - **A view declared over records already written is filled from them**, and answers as not yet known over what it has not reached.
 - **A view built again holds what its sources hold now.** What a view had kept of records its sources have since let go does not come back when it is declared again or filled again.
 
+## Files taken in
+
+A file taken in with `magi blob` is held whole, named by the hash of its bytes.
+
+- **A record names only what is held.** A record naming bytes of a file the store does not hold, or past its end, is refused, so every passage a record names can be read.
+- **Its bytes cost no space where they can be shared.** On a filesystem that shares a file's bytes between copies, the store shares the original's, and `magi blob` says `shared`; elsewhere it says `copied`. Either way the store counts the whole length against its budget, since the original can be deleted.
+- **Changing the original changes nothing in the store.** The store holds the bytes as they were taken in. A record found from them says whether the file at its path still holds them.
+- **A file nothing names is let go** when the store is next opened, and magid logs it. One taken in and named by nothing yet is kept until then.
+
+## Aliases
+
+`magi alias PREFIX TO` makes every name beginning with PREFIX read as the same name beginning with TO, which is how a program rebuilds what it derived beside what you read and then switches you to it.
+
+- **One switch moves every stream under the prefix at once.** A read before it sees the old streams and a read after it the new, never some of each.
+- **Only reads follow an alias.** A write through one is refused and names the stream to write.
+- **A switch can say what it replaces.** With `--expect NOW`, or `--new` for a prefix aliased to nothing, a switch whose prefix points elsewhere by then is refused and changes nothing.
+- **A watch asked by an alias ends when the alias moves**, after every change to what it watched up to then, and says so. Watched again, it follows the new streams.
+- **An alias is moved by the streams' writer**, on both sides of the switch, or by you through `magi alias`.
+- **A store that holds an alias is refused by a MAGI that predates them**, by name rather than misread.
+
+## Identity
+
+A program names what it reads in a namespace of its own, an island: `code/magi/` for one tree, `code/axon/` for another. The same name in two islands is two things until something says otherwise, so a reach over two islands' graphs never crosses from one to the other by itself.
+
+- **Two things become one only by a pair that counts.** A resolution (`same`, such as `code.same/identity`) reads pairs from the streams it names, and nothing else joins two islands.
+- **You decide what counts.** A rule, `magi same NS rule NAME A B BY`, is yours, and `magi-code link` writes a pair for each name it joins, citing it. A pair a program guesses is a proposal, never read by a resolution, until you answer `yes`. `no` keeps a pair apart for good, whatever a rule says. A model's guess is only ever a proposal.
+- **Your rules and answers are written by you.** magid lets only `magi` write them, so no other program can join two islands in your name.
+- **Joining reads nothing again.** A rule added or taken back changes only the pairs; the facts of either tree are untouched, and the next reach answers by the pairs as they are.
+- **A pair naming something no longer read joins nothing**, and joins again when it is read again.
+
+`magi-code link` knows four rules:
+
+| BY | joins a name that is |
+| --- | --- |
+| `imported` | defined in one tree, and used in the other only in files that import something only the first defines |
+| `defined-once` | defined in one tree, and only used in the other |
+| `same-blob` | defined in both, in files holding the same bytes |
+| `same-path` | defined in both, in files of the same path, by its last three parts |
+
+A name both define with nothing else in common stays two things, and is not asked about. A name is matched as it is written, so a rule joins what the names say: a name the other tree also takes from a library, such as `clone`, is joined with the rest.
+
 ## Redaction
 
 [Removing something recorded by accident](../machine/what-the-machine-remembers.md#removing-something-recorded-by-accident) says what `magi redact` removes, and that the views over the stream no longer know the redacted record's instant. What else it costs, and what it cannot reach:
 
 - **The record's batch-mates leave the views too.** On a stream whose records take their time from their batch, the other records of that batch share the instant, so they are withdrawn from the views with it. They stay in the stream.
+- **A file's bytes go with the last record that names them.** Redacting every record that names bytes of a file taken in removes the file from the store before `magi redact` returns. While any other record still names it, it stays.
 - **One place inside the store is not reached:** if the redacted value was the key through which one view was being filled from another, the store's catalogue can still hold it as that fill's position.
 - **Outside the store, nothing is reached:** a backup taken before, an export, a copy someone else made, and the blocks the filesystem freed but has not yet reused.
 - **A redaction is refused while a backup is being taken**, and says so. Run it again when the backup returns.
@@ -91,6 +135,7 @@ A view changes in the same batch as what it reads, so it is never behind what it
 
 - **A view's rows.** A view is declared again in the new store and built from the records the export holds, so what it had kept of records its sources had already let go is not in it. A view's id is new.
 - **The catalogue's length.** The new store's catalogue counts what the import itself wrote, one entry for each redaction repeated and each view declared again.
+- **Files taken in come across whole**, in the export's `blobs` directory. An import without them refuses the records that name them, and leaves no store.
 - **Retention while importing.** Nothing is evicted while the records go in; each stream's caps apply again from the store's next segment on.
 
 ## Updates and rollbacks

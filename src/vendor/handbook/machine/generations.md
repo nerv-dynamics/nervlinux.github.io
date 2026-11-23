@@ -130,7 +130,7 @@ The repositories are asked a few minutes after boot and every six hours after th
 
 A promoted slot boots on trial, with three tries. It is blessed the first time it comes all the way up, to multi-user with no unit failed, and from then on it boots like any other.
 
-**If it never completes a boot** — a kernel that hangs, a system that never starts, a disk it cannot unlock, a unit that fails — every attempt spends a try. A boot on trial that is not blessed within five minutes restarts the machine, and a kernel that stops entirely is reset by the hardware watchdog, so a try is spent whether or not anyone is there. After three, the machine boots the default slot by itself. Nothing needs to be typed, and the failed slot is left on the disk with the journal of each attempt: `journalctl -b -1` from the slot you are back on.
+**If it never completes a boot** — a kernel that hangs, a system that never starts, a disk it cannot unlock, a unit that fails — every attempt spends a try. A boot on trial that is not blessed within five minutes restarts the machine, and a kernel that stops entirely is reset by the hardware watchdog, so a try is spent whether or not anyone is there. After three, the machine boots the default slot by itself. Nothing needs to be typed, and the failed slot is left on the disk with the journal of each attempt in its own store, which `doas magi journal --store` reads from the slot you are back on ([When magid is broken](the-journal.md#when-magid-is-broken)).
 
 The five minutes are for a boot on trial only; a blessed slot waits at the passphrase prompt for as long as it takes. To keep a failed trial boot running while you look at it, stop its deadline: `doas systemctl stop nerv-trial-deadline.timer`.
 

@@ -137,11 +137,19 @@
 </li>
 </ol>
 <p class="hb-nav__part">Reference</p><ol class="hb-nav__list">
+<li><a href="/handbook/reference/yui/">yui</a>
+</li>
 <li><a href="/handbook/reference/magi-contract/">What MAGI promises</a>
 </li>
 <li><a href="/handbook/reference/magi-limits/">MAGI&#x27;s limits</a>
 </li>
 <li><a href="/handbook/reference/magi-format/">The MAGI store format</a>
+</li>
+</ol>
+<p class="hb-nav__part">More</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/experiments/">Experiments</a>
+</li>
+<li><a href="/handbook/machine/the-journal/">The journal</a>
 </li>
 </ol>
 </details></nav>
@@ -186,9 +194,14 @@
 <li><a href="/handbook/machine/asking-why/">Asking why</a><p>From a symptom to a cause, using the machine&#x27;s own record: a program that stopped, a service that will not start, something that was refused, and a machine that is slow.</p></li>
 </ol>
 <h2 class="section-title">Reference</h2><ol class="hb-toc">
+<li><a href="/handbook/reference/yui/">yui</a><p>Everything yui does, for when Agents is not enough: the files it reads, its commands for scripts, the rules a machine can set, and the tools, plugins, servers and channels an agent can be given. The chapter is where to start; this page is where to look something up.</p></li>
 <li><a href="/handbook/reference/magi-contract/">What MAGI promises</a><p>What an answer from magid means for the record it was about: when it is kept, what a crash, a power cut, a redaction, a backup or a move to another store does to it, and every case in which something kept is lost or something less is known. What the machine remembers is the chapter on using MAGI; MAGI&#x27;s limits has the sizes and rates, and The MAGI store format the bytes on disk.</p></li>
 <li><a href="/handbook/reference/magi-limits/">MAGI&#x27;s limits</a><p>The sizes, counts and rates MAGI holds to, and everything it refuses, with what it says when it does. A limit here is a promise too: what is under it is taken, and what is over it is refused before anything is written, never cut short. What MAGI promises says what is kept; What the machine remembers is the chapter on using it.</p></li>
 <li><a href="/handbook/reference/magi-format/">The MAGI store format</a><p>This page specifies format 1 of a MAGI store, the files MAGI&#x27;s engine keeps on disk for each store, byte by byte: every file, every encoding, every hash with its exact key, every catalogue entry, and what a reader must refuse. Format 1 is frozen, and the page is written for someone building a reader or a verifier of a store without MAGI&#x27;s code. What MAGI promises says what the format guarantees a program, and MAGI&#x27;s limits has the sizes it holds to.</p></li>
+</ol>
+<h2 class="section-title">More</h2><ol class="hb-toc">
+<li><a href="/handbook/machine/experiments/">Experiments</a><p>How to measure a change on the machine so the result says what it was measured on, and how to keep a claim about the machine honest: nerv-run records a command with the machine it ran on, and balthasar keeps claims of a fixed set of shapes, each tried by the control its shape demands.</p></li>
+<li><a href="/handbook/machine/the-journal/">The journal</a><p>The machine&#x27;s journal: what every service, the kernel and the initrd said, kept for every boot in MAGI, read with journalctl for the boot that is running and with magi journal for any boot at all.</p></li>
 </ol>
       </div>
       

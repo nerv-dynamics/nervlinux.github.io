@@ -152,11 +152,19 @@
 </li>
 </ol>
 <p class="hb-nav__part">Reference</p><ol class="hb-nav__list">
+<li><a href="/handbook/reference/yui/">yui</a>
+</li>
 <li><a href="/handbook/reference/magi-contract/">What MAGI promises</a>
 </li>
 <li><a href="/handbook/reference/magi-limits/">MAGI&#x27;s limits</a>
 </li>
 <li><a href="/handbook/reference/magi-format/">The MAGI store format</a>
+</li>
+</ol>
+<p class="hb-nav__part">More</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/experiments/">Experiments</a>
+</li>
+<li><a href="/handbook/machine/the-journal/">The journal</a>
 </li>
 </ol>
 </details></nav>
@@ -291,7 +299,7 @@ $ doas reboot</pre>
 <p>The repositories are asked a few minutes after boot and every six hours after that. To ask now: <code>cage updates</code>.</p>
 <h2 id="the-first-boot-of-a-new-slot" class="section-title">The first boot of a new slot</h2>
 <p>A promoted slot boots on trial, with three tries. It is blessed the first time it comes all the way up, to multi-user with no unit failed, and from then on it boots like any other.</p>
-<p><strong>If it never completes a boot</strong> — a kernel that hangs, a system that never starts, a disk it cannot unlock, a unit that fails — every attempt spends a try. A boot on trial that is not blessed within five minutes restarts the machine, and a kernel that stops entirely is reset by the hardware watchdog, so a try is spent whether or not anyone is there. After three, the machine boots the default slot by itself. Nothing needs to be typed, and the failed slot is left on the disk with the journal of each attempt: <code>journalctl -b -1</code> from the slot you are back on.</p>
+<p><strong>If it never completes a boot</strong> — a kernel that hangs, a system that never starts, a disk it cannot unlock, a unit that fails — every attempt spends a try. A boot on trial that is not blessed within five minutes restarts the machine, and a kernel that stops entirely is reset by the hardware watchdog, so a try is spent whether or not anyone is there. After three, the machine boots the default slot by itself. Nothing needs to be typed, and the failed slot is left on the disk with the journal of each attempt in its own store, which <code>doas magi journal --store</code> reads from the slot you are back on (<a href="/handbook/machine/the-journal/#when-magid-is-broken">When magid is broken</a>).</p>
 <p>The five minutes are for a boot on trial only; a blessed slot waits at the passphrase prompt for as long as it takes. To keep a failed trial boot running while you look at it, stop its deadline: <code>doas systemctl stop nerv-trial-deadline.timer</code>.</p>
 <p>The slot you updated from stays the default until the next update proves its successor. That update makes today's slot the default, so the machine always has a slot that has booted to fall back to.</p>
 <h2 id="rolling-back" class="section-title">Rolling back</h2>

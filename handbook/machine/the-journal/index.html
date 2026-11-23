@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nerv Linux — The journal</title>
+<meta name="description" content="The machine's journal: what every service, the kernel and the initrd said, kept for every boot in MAGI, read with journalctl for the boot that is running and with magi journal for any boot at all.">
+<link rel="canonical" href="https://nervlinux.org/handbook/machine/the-journal/">
+<meta property="og:title" content="Nerv Linux — The journal">
+<meta property="og:description" content="The machine's journal: what every service, the kernel and the initrd said, kept for every boot in MAGI, read with journalctl for the boot that is running and with magi journal for any boot at all.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nervlinux.org/handbook/machine/the-journal/">
+<link rel="icon" href="/assets/favicon.png" sizes="32x32">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/nerv-square.png">
+<link rel="preload" href="/fonts/ashinoko-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/fonts.css">
+<link rel="stylesheet" href="/css/palette.css">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/site.css">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('nerv-theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="masthead__inner">
+    <a class="masthead__brand" href="/" aria-label="Nerv Linux — home">
+      <img class="logo" src="/assets/nerv-wordmark.png" alt="Nerv Linux" width="600" height="149">
+    </a>
+    <nav class="masthead__nav" aria-label="Primary">
+      <div class="masthead__links" id="primary-links">
+      <a href="/system/">System</a>
+      <a href="/desktop/">Desktop</a>
+      <a href="/enterprise/">Enterprise</a>
+      <a href="/community/">Community</a>
+      <a href="/handbook/" aria-current="page">Handbook</a>
+      <a href="/downloads/">Downloads</a>
+      <a href="/about/">About</a>
+      </div>
+      <button class="theme-toggle" id="theme-toggle" type="button"
+              aria-label="Switch to light theme" title="Switch theme">
+        <svg class="icon icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path fill="currentColor" d="M20.7 14.6A8.6 8.6 0 0 1 9.4 3.3a8.7 8.7 0 1 0 11.3 11.3Z"/>
+        </svg>
+        <svg class="icon icon--sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2" fill="currentColor"/>
+          <g stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+            <path d="M12 2.4v2.4M12 19.2v2.4M2.4 12h2.4M19.2 12h2.4"/>
+            <path d="M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/>
+          </g>
+        </svg>
+      </button>
+      <button class="menu-toggle" id="menu-toggle" type="button"
+              aria-label="Menu" aria-expanded="false" aria-controls="primary-links">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+          <path class="menu-toggle__open" d="M4 7h16M4 12h16M4 17h16"/>
+          <path class="menu-toggle__close" d="M6 6l12 12M18 6L6 18"/>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="section section--head">
+  <div class="wrap hb">
+    <nav class="hb-nav" aria-label="Handbook">
+<details class="hb-nav__box" open>
+<summary class="hb-nav__summary">Contents</summary>
+<a class="hb-nav__home" href="/handbook/">The Nerv Handbook</a>
+<p class="hb-nav__part">Preface</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/why-an-operating-system-still/">Why an operating system, still</a>
+</li>
+</ol>
+<p class="hb-nav__part">Getting started</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/what-nerv-is/">What Nerv is</a>
+</li>
+<li><a href="/handbook/machine/install/">Install</a>
+</li>
+<li><a href="/handbook/machine/the-first-hour/">The first hour</a>
+</li>
+<li><a href="/handbook/machine/software/">Software</a>
+</li>
+<li><a href="/handbook/machine/desktop/">The desktop</a>
+</li>
+</ol>
+<p class="hb-nav__part">Using the machine</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/compute-fabric/">The GPU</a>
+</li>
+<li><a href="/handbook/machine/ai-development/">AI development</a>
+</li>
+<li><a href="/handbook/machine/agents/">Agents</a>
+</li>
+<li><a href="/handbook/machine/containers/">Containers</a>
+</li>
+<li><a href="/handbook/machine/gaming/">Gaming</a>
+</li>
+<li><a href="/handbook/machine/building-your-own/">Building your own</a>
+</li>
+</ol>
+<p class="hb-nav__part">Keeping the machine</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/generations/">Updates and generations</a>
+</li>
+<li><a href="/handbook/machine/firmware/">Firmware</a>
+</li>
+<li><a href="/handbook/machine/power/">Power</a>
+</li>
+<li><a href="/handbook/machine/accounts-and-keys/">Accounts and keys</a>
+</li>
+<li><a href="/handbook/machine/chain-of-trust/">The chain of trust</a>
+</li>
+<li><a href="/handbook/machine/yours-and-not-yours/">Yours and not yours</a>
+</li>
+<li><a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a>
+</li>
+</ol>
+<p class="hb-nav__part">Many machines</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/networking/">Networking</a>
+</li>
+<li><a href="/handbook/machine/plexus/">Plexus</a>
+</li>
+<li><a href="/handbook/machine/offloading-and-fleets/">Offloading and fleets</a>
+</li>
+</ol>
+<p class="hb-nav__part">When it breaks</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/recovery/">Recovery</a>
+</li>
+<li><a href="/handbook/machine/asking-why/">Asking why</a>
+</li>
+</ol>
+<p class="hb-nav__part">Reference</p><ol class="hb-nav__list">
+<li><a href="/handbook/reference/yui/">yui</a>
+</li>
+<li><a href="/handbook/reference/magi-contract/">What MAGI promises</a>
+</li>
+<li><a href="/handbook/reference/magi-limits/">MAGI&#x27;s limits</a>
+</li>
+<li><a href="/handbook/reference/magi-format/">The MAGI store format</a>
+</li>
+</ol>
+<p class="hb-nav__part">More</p><ol class="hb-nav__list">
+<li><a href="/handbook/machine/experiments/">Experiments</a>
+</li>
+<li><a href="/handbook/machine/the-journal/" aria-current="page">The journal</a>
+<ol class="hb-nav__sections">
+<li><a href="#synopsis">Synopsis</a></li>
+<li><a href="#why-it-works-this-way">Why it works this way</a></li>
+<li><a href="#what-it-keeps">What it keeps</a></li>
+<li><a href="#reading-an-earlier-boot">Reading an earlier boot</a></li>
+<li><a href="#when-magid-is-broken">When magid is broken</a></li>
+<li><a href="#checking-the-journal-against-journald">Checking the journal against journald</a></li>
+<li><a href="#what-is-answered-differently">What is answered differently</a></li>
+<li><a href="#reference">Reference</a></li>
+</ol>
+</li>
+</ol>
+</details></nav>
+    <div class="hb__main">
+      <div class="essay">
+<h1 class="page-title">The journal</h1>
+<p>The machine's journal: what every service, the kernel and the initrd said, kept for every boot in MAGI, read with <code>journalctl</code> for the boot that is running and with <code>magi journal</code> for any boot at all.</p>
+<h2 id="synopsis" class="section-title">Synopsis</h2>
+<p>After reading this chapter, you will know:</p>
+<ul class="list">
+<li>what the journal keeps of a boot, from the initrd to the last line before the machine stops;</li>
+<li>how to read an earlier boot, by unit, by priority and by time, and when magid itself is broken;</li>
+<li>what a power cut can cost, and what is no longer answered the way it was.</li>
+</ul>
+<p>Before reading it, you should know:</p>
+<ul class="list">
+<li><a href="/handbook/machine/what-the-machine-remembers/">The machine's record</a>: MAGI, its stores, and reading them with <code>doas</code>.</li>
+</ul>
+<h2 id="why-it-works-this-way" class="section-title">Why it works this way</h2>
+<p>A log is worth most on the boot that went wrong, and that is the boot a log on disk is least likely to have whole: the end of a boot that hung, or the start of one that never got far enough to write anything.</p>
+<p>So the machine keeps one copy of its journal, in one place, written once. journald holds the boot that is running in memory, and <code>magi-journal</code> takes each entry into root's MAGI store as journald receives it, as the stream <code>journal/entries</code>. It starts before any service and stops after every other program, so the boot it keeps begins at the initrd's first line and ends after the last unit has stopped. When magid is not running, before it starts, after it stops, or because it is what broke, the journal goes to disk in <code>/var/lib/magi-journal</code>, and magid takes it in when it comes back. No boot's log depends on magid having worked during it.</p>
+<p>journald numbers every entry it receives, so the journal also knows where it is complete. A run with no number missing is marked complete, a gap is a hole with a count, and a boot held from its first entry is complete from the moment the boot began. A question asked of the journal is answered together with where the answer is complete, so a span the record does not cover is never mistaken for one in which nothing happened.</p>
+<h2 id="what-it-keeps" class="section-title">What it keeps</h2>
+<ul class="list">
+<li><strong>Every entry, whole,</strong> its message included: who logged it, from which unit and as which user, at what priority, when, and what it said. A single value over 64 KiB, such as a core dump carried in the journal, is left out and its length kept.</li>
+<li><strong>Every boot,</strong> in root's store, up to 1 GiB, the oldest dropped first. The spool on disk holds at most 256 MiB.</li>
+<li><strong>A power cut loses at most what magid took in its last second,</strong> and nothing logged at <code>crit</code> or worse: such an entry is on the disk before the next one is taken. journald's own files kept up to five minutes in memory.</li>
+<li><strong>This boot in memory as well:</strong> journald holds up to 128 MiB of it, which is what <code>journalctl</code> and <code>systemctl status</code> read.</li>
+</ul>
+<h2 id="reading-an-earlier-boot" class="section-title">Reading an earlier boot</h2>
+<pre class="term term__body">$ doas magi journal --list-boots
+$ doas magi journal -b -1 -p err
+$ doas magi journal -b -1 -u myservice
+$ doas magi journal -b -2 --since "2026-11-23 09:00" --until "2026-11-23 09:30"</pre>
+<p><code>--list-boots</code> prints each boot the journal holds, its offset, its id, its first and last entry's time and how many entries it has. <code>-b</code> counts boots as <code>journalctl</code> does: <code>-b</code> alone is the last, <code>-b -1</code> the one before, <code>-b 1</code> the first held, or a boot's id. <code>-u</code> is a unit's own lines and systemd's lines about it, <code>-p</code> a priority and worse, <code>-t</code> a syslog identifier, <code>-g</code> lines whose message holds a text, ignoring case when the text is all lower case, and <code>-n</code> the last lines only. Times are UTC: <code>YYYY-MM-DD HH:MM:SS</code>, <code>@SECONDS</code>, or <code>-1h</code> before now.</p>
+<p>What you see is one line an entry, the time, the host, the program and its process, and the message; a message of several lines is indented under its first.</p>
+<pre class="term term__body">$ doas magi journal --list-boots
+   0 35e9bc4aae5d44b1baf6e2a16ebf0bc5 2026-11-23T14:10:44.892455Z 2026-11-23T14:11:17.248117Z     10000 entries
+$ doas magi journal -n 1
+2026-11-23T14:11:17.248117Z nerv01 jcost1093178[1093633]: jcost1093178 run 2 line 5000</pre>
+<h2 id="when-magid-is-broken" class="section-title">When magid is broken</h2>
+<p>The store is read from its files, with no magid:</p>
+<pre class="term term__body">$ doas magi journal --store /var/lib/magi/stores/0 -b -1 -p err</pre>
+<p>Whatever magid did not take before it broke is in the spool, <code>/var/lib/magi-journal</code>, as journald's own export format, a text file <code>grep</code> reads; magid takes it in first when it runs again. A boot of another slot is in that slot's own store: <code>--store</code> names that slot's <code>var/lib/magi/stores/0</code>.</p>
+<h2 id="checking-the-journal-against-journald" class="section-title">Checking the journal against journald</h2>
+<p><code>--compare</code> takes entries in journald's export format and says which of them MAGI does not hold, or holds otherwise. For the boot that is running:</p>
+<pre class="term term__body">$ doas journalctl -D /run/log/journal -o export &gt; /tmp/now.export
+$ doas magi journal --compare /tmp/now.export
+boot 35e9bc4aae5d44b1baf6e2a16ebf0bc5: 10000 entries; MAGI holds 10000 of them, 0 otherwise
+every one of 10000 entries is in MAGI, as journald holds it</pre>
+<p>It exits 1 when any entry is missing, and names the first of them.</p>
+<h2 id="what-is-answered-differently" class="section-title">What is answered differently</h2>
+<ul class="list">
+<li><strong><code>journalctl -b -1</code>, and every earlier boot,</strong> answer nothing: journald no longer has them. <code>magi journal</code> does.</li>
+<li><strong><code>coredumpctl</code> lists only this boot's crashes.</strong> The cores stay in <code>/var/lib/systemd/coredump</code> as before, and each crash's entry is in the journal: <code>doas magi journal -b -1 -u systemd-coredump</code> names the program, its signal and the core's file. <code>magi journal -o export</code> writes journald's export format, which <code>systemd-journal-remote</code> turns back into a journal file for <code>coredumpctl --file</code> and <code>journalctl --file</code>.</li>
+<li><strong>An account that may not read the system journal no longer reads its own services' lines</strong> with <code>journalctl --user</code>: journald keeps one journal in memory, root's, and MAGI keeps it in root's store.</li>
+<li><strong>A failed slot's boots are in that slot's store,</strong> not in the store of the slot the machine went back to: <code>magi journal -b -1</code> there shows that slot's own last boot, and the failed attempts are read with <code>--store</code> (<a href="#when-magid-is-broken">When magid is broken</a>).</li>
+<li><strong>Journal files written before</strong> stay where they are: <code>journalctl -D /var/log/journal</code> still reads them, and journald no longer adds to them or removes them. An entry of theirs without a message ID was taken into MAGI without its text, so those files hold the only copy of that text.</li>
+</ul>
+<h2 id="reference" class="section-title">Reference</h2>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">command</th><th scope="col"></th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code>journalctl -b</code>, <code>systemctl status UNIT</code></td><td>this boot, from journald's memory</td>
+</tr>
+<tr>
+<td><code>magi journal [-b N] [-u UNIT] [-p PRIORITY] [-t ID] [-g TEXT]</code></td><td>any boot the journal holds</td>
+</tr>
+<tr>
+<td><code>magi journal [--since T] [--until T] [-n N]</code></td><td>a span of it, or its last lines</td>
+</tr>
+<tr>
+<td>`magi journal -o short\</td><td>short-monotonic\</td><td>cat\</td><td>export`</td><td>each line with the wall clock, seconds into its boot, the message alone, or journald's export format</td>
+</tr>
+<tr>
+<td><code>magi journal --list-boots</code></td><td>the boots it holds</td>
+</tr>
+<tr>
+<td><code>magi journal --store DIR</code></td><td>a store read from its files, with no magid</td>
+</tr>
+<tr>
+<td><code>magi journal --compare FILE</code></td><td>which entries of an export MAGI does not hold</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Every option is in <code>magi --help</code> and <code>tldr magi</code>.</p>
+      </div>
+      <nav class="hb-pager" aria-label="Chapters"><a class="hb-pager__prev" href="/handbook/machine/experiments/"><span>Previous</span>Experiments</a></nav>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__base">
+      <p>Copyright &copy; 2026 Nerv Dynamics AB. Nerv Linux is free software under the
+         Apache License 2.0. Software from other projects keeps its upstream licence. <a href="https://codeberg.org/nerv-dynamics/nerv-linux">Source on Codeberg</a>.</p>
+      <p class="footer__tm">NVIDIA, CUDA, DGX, Grace Blackwell, GB10 and GB300 are
+         trademarks of NVIDIA Corporation. Linux is a registered trademark of
+         Linus Torvalds. Nerv Linux is not affiliated with, endorsed by, or
+         sponsored by either.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var btn = document.getElementById('theme-toggle');
+    var root = document.documentElement;
+    function label() {
+      var dark = root.getAttribute('data-theme') !== 'light';
+      btn.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+    }
+    label();
+    btn.addEventListener('click', function () {
+      // Dark is the default, so anything that isn't explicitly light is dark.
+      var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('nerv-theme', next); } catch (e) {}
+      label();
+    });
+  })();
+  (function () {
+    // Phone menu: the nav links fold into a panel under the masthead.
+    var btn = document.getElementById('menu-toggle');
+    var head = btn.closest('.masthead');
+    btn.addEventListener('click', function () {
+      var open = head.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  })();
+  (function () {
+    // On phones a tapped diagram opens full screen, large, to pan and zoom.
+    var narrow = window.matchMedia('(max-width: 760px)');
+    function close(z) { z.remove(); document.body.classList.remove('has-zoom'); }
+    document.querySelectorAll('.diagram').forEach(function (fig) {
+      fig.addEventListener('click', function () {
+        var svg = fig.querySelector('svg');
+        if (!narrow.matches || !svg) return;
+        var z = document.createElement('div');
+        z.className = 'zoom'; z.setAttribute('role', 'dialog'); z.setAttribute('aria-label', svg.getAttribute('aria-label') || 'Diagram');
+        z.appendChild(svg.cloneNode(true));
+        var b = document.createElement('button');
+        b.className = 'zoom__close'; b.type = 'button'; b.setAttribute('aria-label', 'Close');
+        b.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+        b.addEventListener('click', function () { close(z); });
+        z.appendChild(b);
+        document.body.appendChild(z); document.body.classList.add('has-zoom');
+        document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { close(z); document.removeEventListener('keydown', esc); } });
+      });
+    });
+  })();
+  (function () {
+    // The handbook contents start folded on narrow screens, open on wide ones.
+    if (window.matchMedia('(max-width: 960px)').matches)
+      document.querySelectorAll('.hb-nav__box').forEach(function (d) { d.open = false; });
+  })();
+  (function () {
+    // Narrow tables read as stacked cards; each cell carries its column name.
+    document.querySelectorAll('table.data').forEach(function (t) {
+      var heads = Array.prototype.map.call(t.querySelectorAll('thead th'), function (th) { return th.textContent.trim(); });
+      t.querySelectorAll('tbody tr').forEach(function (tr) {
+        Array.prototype.forEach.call(tr.children, function (td, i) {
+          if (heads[i]) td.setAttribute('data-label', heads[i]);
+        });
+      });
+    });
+  })();
+</script>
+
+<script data-goatcounter="https://stats.nervlinux.org/count" async src="https://stats.nervlinux.org/count.js"></script>
+<script>
+  // Clicks worth counting, as GoatCounter events: downloads, mail to sales, links off the site, and copying the install command.
+  (function () {
+    function count(path, title) {
+      if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: path, title: title || path, event: true });
+    }
+    document.addEventListener('click', function (e) {
+      var copy = e.target.closest('[data-copy]');
+      if (copy) { count('copy/' + copy.dataset.copy); return; }
+      var a = e.target.closest('a[href]');
+      if (!a) return;
+      if (a.protocol === 'mailto:') { count('mail/' + a.pathname); return; }
+      if (a.host === location.host) return;
+      if (a.host === 'repo.nervlinux.org') { count('download' + a.pathname); return; }
+      count('out/' + a.host + a.pathname);
+    });
+  })();
+</script>
+
+</body>
+</html>

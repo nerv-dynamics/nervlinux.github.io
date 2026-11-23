@@ -49,12 +49,15 @@ A store is one flat directory. Every name below uses 16 lower-case hexadecimal d
 | `hist-<stream>-<segment>` | one history stream's blocks from one log segment, filed out of the log | needs it |
 | `hidden-<offset>.side` | what a block holding a redacted record needs beside it to verify, named for the block's log offset | needs it to verify that block |
 | `map-<segment>` | where each stream's blocks lie in one segment | may ignore it, and walk the segment |
+| `blob-<hash>` | a file taken in, its bytes as they were, named by their BLAKE3 hash in 64 hexadecimal digits | needs it to read the bytes a `span` names |
 | `checkpoint.tmp`, `hist-<stream>-<segment>.tmp` | a file being written when the writer stopped | ignores it; a writer removes it |
-| `text-*`, `cols-*`, `graph-*` | search, column and graph indexes | not part of format 1 |
+| `text-*`, `vec-*`, `cols-*`, `graph-*` | search, vector, column and graph indexes | not part of format 1 |
 
 **The log** is one sequence of bytes, addressed by a **log offset**, cut into segment files. A segment named `log-X.seg` begins with a 128-byte header, and the byte at position `p` of the file, for `p ≥ 128`, is at log offset `X + p − 128`: headers take no log offsets. Segments hold groups of batches, each group whole within one segment. The segments a store keeps are in log order, and a segment the writer reclaimed leaves a gap; after the checkpoint's offset, every segment begins exactly where the one before it ends.
 
-**What is derived.** The text, column and graph indexes (`text-*`, `cols-*`, `graph-*`) are built from the log and are not part of format 1: a reader may ignore them, and a writer may delete them at any time, which costs only the time to build them again. Block maps are part of format 1 but hold nothing the log does not; a reader may ignore them. Everything else is needed.
+**What is derived.** The text, vector, column and graph indexes (`text-*`, `vec-*`, `cols-*`, `graph-*`) are built from the log and are not part of format 1: a reader may ignore them, and a writer may delete them at any time, which costs only the time to build them again. Block maps are part of format 1 but hold nothing the log does not; a reader may ignore them. Everything else is needed.
+
+**Blobs.** A blob is written whole and never changed: its name is the BLAKE3 hash of every byte it holds, which a reader can check. A record's `span` field names bytes of a blob ([Typed records](#typed-records)), and a writer refuses a record whose span names a blob it does not hold or runs past its end. A writer removes a blob that no record names; a blob named by a redacted record only is removed by the redaction. A store with blobs uses the SPANS feature.
 
 **One writer.** A store has one writer, which appends groups to the last segment, writes the other files whole beside it, and replaces the checkpoint by writing `checkpoint.tmp`, syncing it, renaming it over `checkpoint` and syncing the directory. A reader never writes.
 
@@ -84,8 +87,12 @@ Features are sticky. Every segment header and every checkpoint carries every fea
 | bit | kind | name | meaning |
 | --- | --- | --- | --- |
 | `1 << 0` | read-compatible | SIGNED | the store holds signed stream heads (entry 13). Reserved: no writer of format 1 sets it yet. |
+| `1 << 0` | incompatible | SPANS | a type the store carries has a `span` field, and the store holds blobs |
+| `1 << 1` | incompatible | VECTORS | the store declares a vector view (plan 14) |
+| `1 << 2` | incompatible | ALIASES | the catalogue holds an alias (entry 15), and the checkpoint carries the aliases |
+| `1 << 3` | incompatible | RESOLUTIONS | the store declares a resolution (plan 15) |
 
-No other bit is defined; a store that uses no feature has four zero bytes.
+A writer sets SPANS, VECTORS, ALIASES and RESOLUTIONS when the catalogue first holds what they name, and writes a checkpoint carrying them before it answers. No other bit is defined; a store that uses no feature has four zero bytes.
 
 **A store from before the freeze.** A segment that begins `ENGRAM\0\0`, or a checkpoint that begins `ENGRAMCK`, belongs to a store written before format 1. A reader refuses it by name, giving the revision it holds at bytes 12..16, and does not treat it as damage. The way across is `magi export` with the MAGI that wrote the store and `magi import` with a MAGI of format 1 ([What MAGI promises](magi-contract.md#updates-and-rollbacks)).
 
@@ -241,6 +248,7 @@ Stream 0 is the **catalogue**: the store's own record of what streams exist, wha
 | 12 | Filed | `u64` stream, `u64` segment, `[32]` digest |
 | 13 | Signed | `u64` stream, `u64` through, `u8` scheme, `blob` signature. Reserved: no writer of format 1 writes it. |
 | 14 | Redacted | `u64` stream, `u64` seq, `time` at, `u64` block |
+| 15 | Alias | `str` prefix, `str` to |
 
 A one-byte boolean is true when it is not zero. The gap codes of a Close:
 
@@ -264,6 +272,7 @@ What each entry means:
 - **Filed** says the stream's records written in segment `segment` are now in its history file for that segment, whose digest is `digest` ([History files](#history-files)).
 - **Signed** would say the stream's chain through record `through` is signed with `signature` under `scheme`. A store holding one sets the SIGNED feature.
 - **Redacted** says record `seq` of the stream, of time `at`, in the block at log offset `block`, is redacted: hidden in place wherever that block lies. It says only that it was.
+- **Alias** says that from here on, a reader's name beginning with `prefix` stands for the same name with `to` in place of the prefix. Only reads follow an alias; a write names the stream it writes. A later Alias of the same prefix replaces it, and none removes it.
 
 ### The stream declaration
 
@@ -310,8 +319,10 @@ A plan is a `u8` tag and its fields. Within a plan:
 | 8 | count | `str` source, `ids` by, `u64` window width in nanoseconds, `pred?` |
 | 10 | text search | `str` source, `u32` count, then per field: `u16` field, `u8` weight; then `ids` key fields |
 | 11 | edges | `str` source, `u16` from field, `u16` to field |
+| 14 | vectors | `str` source, `u16` field, a `vec<f32,N>` or `vec<f16,N>` with N at most 65,536 |
+| 15 | resolution | `u32` count (1 to 16), then that many `str` sources; `u16` island and `u16` value field of one end, then of the other; `pred?` |
 
-Plans 1 to 4, 12 and 13 are over typed state streams; 5 to 9 over typed history streams or history views; 10 and 11 over a typed history stream. A text search or edges view holds no rows: its index is derived, outside format 1, and only its declaration is in the store.
+Plans 1 to 4, 12 and 13 are over typed state streams; 5 to 9 over typed history streams or history views; 10 and 14 over a typed history stream; 11 over a typed history or state stream; 15 over typed state streams of one type, whose island fields are `text`. A text search, edges, vectors or resolution view holds no rows: its index is derived, outside format 1, and only its declaration is in the store. A text search's field is `text` or `span`; a span's bytes are searched as UTF-8, each sequence that is not read as U+FFFD.
 
 A **predicate** is a `u8` tag, nested at most 64 deep:
 
@@ -352,7 +363,7 @@ key file
 9 disturl  text?
 ```
 
-The types: `bool`, `i8`, `i16`, `i32`, `i64`, `u8`, `u16`, `u32`, `u64`, `f32`, `f64`, `text`, `bytes`, `time`, `blob`, `list<T>`, `map<K,V>` (K a scalar), and `vec<f32,N>` or `vec<f16,N>` (N at least 1). Lists and maps nest at most 32 deep. The scalars are every type but lists, maps and vectors.
+The types: `bool`, `i8`, `i16`, `i32`, `i64`, `u8`, `u16`, `u32`, `u64`, `f32`, `f64`, `text`, `bytes`, `time`, `blob`, `span`, `list<T>`, `map<K,V>` (K a scalar), and `vec<f32,N>` or `vec<f16,N>` (N at least 1). Lists and maps nest at most 32 deep. The scalars are every type but lists, maps, vectors and `span`. A `blob` is a content hash and nothing more; a `span` names bytes the store holds ([Blobs](#a-store)).
 
 ### Typed records
 
@@ -369,6 +380,7 @@ A typed record is its present fields in strictly ascending id order, each a `leb
 | `list<T>` | `leb` count, then the items |
 | `map<K,V>` | `leb` count, then the pairs, keys strictly ascending |
 | `vec<f32,N>`, `vec<f16,N>` | N values of 4 or 2 bytes, little-endian; no count |
+| `span` | `[32]` a blob's hash, `u64` offset, `u32` length; offset plus length below 2^64 |
 
 The encoding is canonical, so equal records are equal bytes. A reader refuses a field id the schema does not have, a field out of order or repeated, a required field missing, a `bool` that is not 0 or 1, text that is not UTF-8, map keys out of order, and a number not in its shortest form.
 
@@ -389,7 +401,7 @@ A reader folds the catalogue entry by entry, in order, into the state the checkp
 
 | entry | accepted when | effect |
 | --- | --- | --- |
-| Declare | `id` is the next id, and no stream has the name | the next id moves on; a new stream with head 0, head link and floor link its genesis, floor 1, and nothing else; a history view gets one fill per plan source, as below |
+| Declare | `id` is the next id, no stream has the name, and the name begins with no aliased prefix | the next id moves on; a new stream with head 0, head link and floor link its genesis, floor 1, and nothing else; a history view gets one fill per plan source, as below |
 | Type | as in [Types and schemas](#types-and-schemas) | the type's latest version is this |
 | Boot | the boot has no rank yet, the rank is not 0, and no boot has the rank | the boot is ranked; boots are kept in rank order |
 | Open | the stream exists and its last interval is closed, or it has none | a new interval from `at`, opened at this entry's number, closed at 0 |
@@ -402,6 +414,7 @@ A reader folds the catalogue entry by entry, in order, into the state the checkp
 | Filed | the stream is a history stream with an unfiled segment use for `segment` | that use is filed, with `digest` |
 | Signed | `1 ≤ through ≤` head | nothing is kept |
 | Redacted | a history stream with floor `≤ seq ≤` head, or a state stream with `1 ≤ seq ≤` head; never a view; not already redacted | the redaction is added, in sequence order |
+| Alias | `prefix` and `to` each end in `/` and are at least two bytes; they differ; `to` does not begin with `prefix`; no stream's name begins with `prefix`; no other aliased prefix begins `prefix` or is begun by it; `to` is not an aliased prefix and begins with none other than `prefix` | `prefix` is aliased to `to` |
 
 Every entry about a stream refuses a stream that does not exist. Every accepted entry moves the catalogue's entry number on by one.
 
@@ -469,6 +482,7 @@ u64   batch: the number of the last batch before it
 time  when that batch was committed
 ...   the folded catalogue, below
 u32   block maps, then per map: u64 segment, u64 length of its valid bytes, u64 the log offset it maps to
+...   with ALIASES only: u32 aliases, in prefix order, then per alias: str prefix, str to
 [32]  H(every byte before)
 ```
 
@@ -716,3 +730,18 @@ In any segment but the last, an invalid or short group is damage, and the store 
 It reports the streams, the records at or above their floors and how many of them are redacted, the segments, the history files, and the log's end offset, batch count and commit digest: two stores that are copies of one agree on the last three. A torn tail is reported, not counted as damage.
 
 `engram verify` does not read the table runs; each run is checked by its footer, its bloom hash and every page's checksum when it is read. A verifier that wants the tables checked too opens every run the checkpoint's root names and checks those, the fences, and every data page.
+
+## Exports
+
+`magi export DIR` writes a store as plain files: JSON, one value per line, with each type's schema beside it.
+
+```
+DIR/store.json            the store: its id, its last commit, the boots it knows and their order
+DIR/types.jsonl           each type: name, version, whether a package installed it or a program declared it, its owner
+DIR/types/NAME.schema     its fields
+DIR/streams.jsonl         each stream: its name, its writer, the flags magi declare takes to declare it again,
+                          and what the store knew of it: its head, its floor, when its writer was attached, its source's marks
+DIR/records/N.jsonl       its records, or a state stream's keys, one a line
+```
+
+A record is `{"seq", "time": {"boot", "ns"}, "token"}` and then its fields by name under `"record"`, or its bytes as `"text"` or `"hex"`. A redacted record says `"redacted": true` and nothing of what it held. A key is `"key_text"` or `"key_hex"`, its `"version"`, and its value the same way. Integers and floats are numbers, written exactly; text is a string; bytes are hex; a time is `{"boot", "ns"}`; lists and vectors are arrays; a map is an array of pairs. A stream's history and state streams come first, then its views, whose rows are not written: they come back when the view is declared again.
