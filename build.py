@@ -101,15 +101,13 @@ PRODUCTS = [
      "Joins a computer to a Nerv organisation and keeps it connected: the owner app and member service for Windows, and the client for Linux systems that are not Nerv. On Nerv, install <code>plexus-client</code> with <code>dnf</code>."),
     ("plexus-edge", "Plexus edge",
      "The authority and the relay an organisation runs on its own servers, for Linux on x86-64. On Nerv, install <code>plexus-host</code> or <code>plexus-relay</code> with <code>dnf</code>."),
-    ("s2", "S2",
-     "Nerv's inference engine as static binaries, for a GB10 that runs another Linux, such as DGX OS. On Nerv, install <code>nerv-s2</code> with <code>dnf</code>."),
 ]
 # The files each product's section offers as buttons, with their labels; the
 # table under them lists everything the release holds.
 BUTTONS = {
-    "plexus": [("Plexus-*.msi", "Plexus {v} for Windows"), ("plexus-client-linux-x64.tar.gz", "Plexus {v} for Linux")],
-    "plexus-edge": [("plexus-host-linux-x64.tar.gz", "Host {v}"), ("plexus-relay-linux-x64.tar.gz", "Relay {v}")],
-    "s2": [("s2-linux-aarch64.tar.gz", "S2 {v} for Linux on Arm64")],
+    # Each pattern takes an archive named with its version, and one from before it was.
+    "plexus": [("Plexus-*.msi", "Plexus {v} for Windows"), ("plexus-client-*linux-x64.tar.gz", "Plexus {v} for Linux")],
+    "plexus-edge": [("plexus-host-*linux-x64.tar.gz", "Host {v}"), ("plexus-relay-*linux-x64.tar.gz", "Relay {v}")],
 }
 PLATFORMS = {"windows-x64": "Windows 11, x64", "linux-x64": "Linux, x86-64", "linux-aarch64": "Linux, Arm64"}
 KINDS = {"msi": "Installer", "zip": "Portable app", "tarball": "Archive", "rpm": "RPM package"}
@@ -260,6 +258,7 @@ HANDBOOK_TOC = [
         "machine/asking-why",
     ]),
     ("Reference", [
+        "reference/yui",
         "reference/magi-contract",
         "reference/magi-limits",
         "reference/magi-format",
