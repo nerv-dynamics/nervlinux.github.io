@@ -14,7 +14,7 @@ MAGI is that one place. It is a service, not a library: one daemon, `magid`, wri
 - **The kernel says who is writing.** magid asks the kernel for the user and the program at the other end of its socket, and never takes a program's word for its name.
 - **A program writes only the streams it declared as its own.** Nothing writes a record as another program: not another program of yours, not a script, not an agent.
 
-magid starts at boot. Idle, it sets no timer and wakes nothing, and a store nobody has used for five minutes is closed. Under the `saver` power profile it writes to the disk less often and closes stores sooner. Stopped, by `systemctl stop magid` or at shutdown, it finishes what it had begun and closes every store.
+magid starts at boot. Idle, it sets no timer and wakes nothing, and it closes a store nobody uses ([MAGI's limits](../reference/magi-limits.md#rates-and-times)). Stopped, by `systemctl stop magid` or at shutdown, it finishes what it had begun and closes every store.
 
 What an answer from magid promises, across a crash, a power cut, an update and a rollback, and every case in which something kept is lost, is [What MAGI promises](../reference/magi-contract.md); the sizes and rates it holds to are [MAGI's limits](../reference/magi-limits.md).
 
@@ -27,7 +27,7 @@ A store holds **streams**, each with one writer. A history stream is a sequence 
 - **Records are typed.** A package installs the types of the records its programs write in `/usr/share/magi/schemas`. A field is added in a new version of a type, never renamed or changed, so a reader written today still reads next year's records.
 - **Views are kept current.** A view is an index, a filter, a projection or a join over other streams, and it changes in the same batch as what it reads, so it is never behind. A program can watch one and be told when it changes.
 - **Records can be found by their words.** A text view ranks a history stream's records by the words in their text, best first, optionally within the values of fields it keys, such as a project. What a search returns is exact as of the moment it is asked, and a record that was redacted is never among the answers.
-- **Large searches can run on the GPU, and answer the same.** A search, or a retrieval by how near records lie to a vector, that reads enough to be faster on the GPU runs there once `doas /usr/libexec/magid profile` has measured, on this machine, from what size it is. Until then everything runs on the CPU. The answer is the same on either, to the last bit. Measure again after the GPU driver changes; a profile measured on another machine, or by another version of MAGI, is not used.
+- **Large searches can run on the GPU, and answer the same.** A search, or a retrieval by how near records lie to a vector, that reads enough to be faster on the GPU runs there once `doas /usr/libexec/magid profile` has measured, on this machine, from what size it is. Until then everything runs on the CPU. Measure again after the GPU driver changes; a profile measured on another machine, or by another version of MAGI, is not used.
 
 Today the machine's journal is kept here, and so are yui's conversations ([Agents](agents.md#conversations)), geofront's record of the packages in a repository it builds into ([Building your own](building-your-own.md#packaging-a-program)), and the runs and claims of [Experiments](experiments.md).
 
@@ -224,6 +224,17 @@ $ magi redact STREAM --key KEY
 - **A redacted key is deleted.** Every change ever made to it is a scar, its name included, and so is the deletion itself. The key can be written again afterwards, and is then a key like any other.
 
 What a redaction costs the views, and what it cannot reach, is [What MAGI promises](../reference/magi-contract.md#redaction).
+
+### Ending a stream
+
+A stream nothing writes any more keeps its space until `magi retire` ends it, whichever program wrote it:
+
+```
+$ magi retire yui/sessions/41 yui/sessions/42
+yui/sessions/41, yui/sessions/42 retired (batch 1873)
+```
+
+Their records and keys are gone, and their names are free ([What MAGI promises](../reference/magi-contract.md#retirement)).
 
 ### Backing up a store
 

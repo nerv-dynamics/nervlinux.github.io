@@ -1,6 +1,6 @@
 # What MAGI promises
 
-What an answer from magid means for the record it was about: when it is kept, what a crash, a power cut, a redaction, a backup or a move to another store does to it, and every case in which something kept is lost or something less is known. [What the machine remembers](../machine/what-the-machine-remembers.md) is the chapter on using MAGI; [MAGI's limits](magi-limits.md) has the sizes and rates, and [The MAGI store format](magi-format.md) the bytes on disk.
+What an answer from magid means for the record it was about: when it is kept, what a crash, a power cut, a redaction, a retirement, a backup or a move to another store does to it, and every case in which something kept is lost or something less is known. [What the machine remembers](../machine/what-the-machine-remembers.md) is the chapter on using MAGI; [MAGI's limits](magi-limits.md) has the sizes and rates, and [The MAGI store format](magi-format.md) the bytes on disk.
 
 ## A batch
 
@@ -54,8 +54,9 @@ Every record is chained by its hash to the one before it in its stream, and ever
 
 A stream keeps what its declaration says, and the store says what it forgot.
 
-- **A history stream** drops its oldest records once it holds more than its byte cap, or its record cap, without them. Records go a segment of the log at a time, so a stream holds up to one segment more than its cap until the next goes. What went leaves a **scar**: which records, and the time of the last. The stream answers from that time on, and a question about earlier says it is not known, not that nothing happened. The record of when its writer was attached goes with them: an attachment that ended before the scar is dropped.
-- **A state stream** keeps each key's present value. Its earlier values are not history: once the store has folded them into the key's value, they are gone. A change that would take it past its byte cap is refused; nothing is evicted.
+- **A history stream** drops its oldest records once it holds more than its byte cap, or its record cap, without them. Records go a segment of the log at a time, so a stream holds up to one segment more than its cap until the next goes. What went leaves a **scar**: which records, and the time of the last. The stream answers from that time on, and a question about earlier says it is not known, not that nothing happened. The record of when its writer was attached goes with them: an attachment that ended before the scar is dropped, and so is what its writer said of its source before it.
+- **A state stream** keeps each key's present value. Its earlier values are not history: once the store has folded them into the key's value, they are gone, and so is the record of a writer's attachment that ended before them. A change that would take it past its byte cap is refused; nothing is evicted.
+- **A stream nothing writes any more** keeps what it holds until it is retired ([Retirement](#retirement)).
 - **A history view** over its byte cap forgets its oldest rows, and below where it forgot it answers that it does not know.
 - **A store at its budget** refuses what would take it past ([MAGI's limits](magi-limits.md#a-store)); no stream's records are evicted for another's.
 - **Freed is not overwritten.** Records retention dropped, and earlier values of keys, leave the store's files; the filesystem may keep the blocks they were in until it reuses them.
@@ -121,6 +122,19 @@ A name both define with nothing else in common stays two things, and is not aske
 - **Outside the store, nothing is reached:** a backup taken before, an export, a copy someone else made, and the blocks the filesystem freed but has not yet reused.
 - **A redaction is refused while a backup is being taken**, and says so. Run it again when the backup returns.
 - **The store waits for it.** A redaction rewrites the store's tables, and batches that arrive meanwhile wait until it is done.
+
+## Retirement
+
+[Ending a stream](../machine/what-the-machine-remembers.md#ending-a-stream) says how. The streams named are retired together, or none is. A stream `magi retire` ends is no stream: a program writing to it is told no stream has that name, a writer attached to it is detached and the store says it was retired, and a stream declared under the name afterwards is a new one, empty. A view another view reads is retired after that view, or with it, named before it.
+
+- **The views over it know nothing of it from then on.** A view says it does not know wherever the retired stream was its source, rather than answer as if nothing had been there, and a view of a state stream loses the keys it took from it. Neither reads a new stream declared under the name. What a view of a history stream had already found stays in it, as when a stream's retention lets records go.
+
+- **Before it returns,** everything the stream held apart from the log is gone: its records filed out of the log, its searches, columns and connections, and every file taken in that only its records named, but for one taken in since magid last opened the store, which goes when magid next opens it.
+- **Its records in the log go with the log.** The stretch being written now goes when the store begins the next; an earlier stretch that another stream still holds records in goes when that stream's retention lets them go. Until then they are in the store's files, and no read answers them.
+- **It is not a redaction.** Nothing is zeroed. What must not be in the store's files at all is redacted first, then the stream retired.
+- **A store at its budget still retires**, which is how it gets room back.
+- **The store keeps a note of it** while any view reads it or any of the log may still hold its records: its name, when it was retired, and where its records ended. Then that goes too.
+- **Outside the store, nothing is reached:** a backup taken before keeps the stream, and an export taken after does not have it.
 
 ## Backup
 

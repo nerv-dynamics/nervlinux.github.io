@@ -72,7 +72,7 @@ A chapter marked *(stub)* is an outline, and the website skips it until it is wr
 | --- | --- |
 | [**yui**](reference/yui.md) | Everything yui does that the Agents chapter leaves out: scripts, the board, the sandbox in full, the approver, the machine's policy, secrets and brokers, plugins, MCP servers, Telegram. |
 | **The other programs** | One page for each of Nerv's own programs — cage, axon, plexus, S2, magi, geofront — with its screen, its keys and its commands. Planned; until then, `<tool> --help` lists every flag and `tldr <tool>` the commands you use most. |
-| [**What MAGI promises**](reference/magi-contract.md) | What an answer from magid means for a record: durability at each level, crashes and power cuts, redaction, backup, export, updates and rollbacks, and every case in which something kept is lost. |
+| [**What MAGI promises**](reference/magi-contract.md) | What an answer from magid means for a record: durability at each level, crashes and power cuts, redaction, retirement, backup, export, updates and rollbacks, and every case in which something kept is lost. |
 | [**MAGI's limits**](reference/magi-limits.md) | The sizes, counts and rates a store holds to, and what it refuses. |
 | [**The MAGI store format**](reference/magi-format.md) | Format 1, frozen: every byte of a store, enough to read and verify one without MAGI. |
 | **Glossary** | Slot, generation, grant, stream and the other words the handbook uses before the chapter that explains them. Planned. |

@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Nerv Linux — What MAGI promises</title>
-<meta name="description" content="What an answer from magid means for the record it was about: when it is kept, what a crash, a power cut, a redaction, a backup or a move to another store does to it, and every case in which something kept is lost or something less is known. What the machine remembers is the chapter on using MAGI; MAGI's limits has the sizes and rates, and The MAGI store format the bytes on disk.">
+<meta name="description" content="What an answer from magid means for the record it was about: when it is kept, what a crash, a power cut, a redaction, a retirement, a backup or a move to another store does to it, and every case in which something kept is lost or something less is known. What the machine remembers is the chapter on using MAGI; MAGI's limits has the sizes and rates, and The MAGI store format the bytes on disk.">
 <link rel="canonical" href="https://nervlinux.org/handbook/reference/magi-contract/">
 <meta property="og:title" content="Nerv Linux — What MAGI promises">
-<meta property="og:description" content="What an answer from magid means for the record it was about: when it is kept, what a crash, a power cut, a redaction, a backup or a move to another store does to it, and every case in which something kept is lost or something less is known. What the machine remembers is the chapter on using MAGI; MAGI's limits has the sizes and rates, and The MAGI store format the bytes on disk.">
+<meta property="og:description" content="What an answer from magid means for the record it was about: when it is kept, what a crash, a power cut, a redaction, a retirement, a backup or a move to another store does to it, and every case in which something kept is lost or something less is known. What the machine remembers is the chapter on using MAGI; MAGI's limits has the sizes and rates, and The MAGI store format the bytes on disk.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://nervlinux.org/handbook/reference/magi-contract/">
 <link rel="icon" href="/assets/favicon.png" sizes="32x32">
@@ -151,6 +151,7 @@
 <li><a href="#aliases">Aliases</a></li>
 <li><a href="#identity">Identity</a></li>
 <li><a href="#redaction">Redaction</a></li>
+<li><a href="#retirement">Retirement</a></li>
 <li><a href="#backup">Backup</a></li>
 <li><a href="#export-and-import">Export and import</a></li>
 <li><a href="#updates-and-rollbacks">Updates and rollbacks</a></li>
@@ -172,7 +173,7 @@
     <div class="hb__main">
       <div class="essay">
 <h1 class="page-title">What MAGI promises</h1>
-<p>What an answer from magid means for the record it was about: when it is kept, what a crash, a power cut, a redaction, a backup or a move to another store does to it, and every case in which something kept is lost or something less is known. <a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a> is the chapter on using MAGI; <a href="/handbook/reference/magi-limits/">MAGI's limits</a> has the sizes and rates, and <a href="/handbook/reference/magi-format/">The MAGI store format</a> the bytes on disk.</p>
+<p>What an answer from magid means for the record it was about: when it is kept, what a crash, a power cut, a redaction, a retirement, a backup or a move to another store does to it, and every case in which something kept is lost or something less is known. <a href="/handbook/machine/what-the-machine-remembers/">What the machine remembers</a> is the chapter on using MAGI; <a href="/handbook/reference/magi-limits/">MAGI's limits</a> has the sizes and rates, and <a href="/handbook/reference/magi-format/">The MAGI store format</a> the bytes on disk.</p>
 <h2 id="a-batch" class="section-title">A batch</h2>
 <p>A program writes a <strong>batch</strong>: any number of records, changes to keys, declarations and marks, sent together.</p>
 <ul class="list">
@@ -231,8 +232,9 @@
 <h2 id="retention-and-what-a-stream-forgets" class="section-title">Retention and what a stream forgets</h2>
 <p>A stream keeps what its declaration says, and the store says what it forgot.</p>
 <ul class="list">
-<li><strong>A history stream</strong> drops its oldest records once it holds more than its byte cap, or its record cap, without them. Records go a segment of the log at a time, so a stream holds up to one segment more than its cap until the next goes. What went leaves a <strong>scar</strong>: which records, and the time of the last. The stream answers from that time on, and a question about earlier says it is not known, not that nothing happened. The record of when its writer was attached goes with them: an attachment that ended before the scar is dropped.</li>
-<li><strong>A state stream</strong> keeps each key's present value. Its earlier values are not history: once the store has folded them into the key's value, they are gone. A change that would take it past its byte cap is refused; nothing is evicted.</li>
+<li><strong>A history stream</strong> drops its oldest records once it holds more than its byte cap, or its record cap, without them. Records go a segment of the log at a time, so a stream holds up to one segment more than its cap until the next goes. What went leaves a <strong>scar</strong>: which records, and the time of the last. The stream answers from that time on, and a question about earlier says it is not known, not that nothing happened. The record of when its writer was attached goes with them: an attachment that ended before the scar is dropped, and so is what its writer said of its source before it.</li>
+<li><strong>A state stream</strong> keeps each key's present value. Its earlier values are not history: once the store has folded them into the key's value, they are gone, and so is the record of a writer's attachment that ended before them. A change that would take it past its byte cap is refused; nothing is evicted.</li>
+<li><strong>A stream nothing writes any more</strong> keeps what it holds until it is retired (<a href="#retirement">Retirement</a>).</li>
 <li><strong>A history view</strong> over its byte cap forgets its oldest rows, and below where it forgot it answers that it does not know.</li>
 <li><strong>A store at its budget</strong> refuses what would take it past (<a href="/handbook/reference/magi-limits/#a-store">MAGI's limits</a>); no stream's records are evicted for another's.</li>
 <li><strong>Freed is not overwritten.</strong> Records retention dropped, and earlier values of keys, leave the store's files; the filesystem may keep the blocks they were in until it reuses them.</li>
@@ -305,6 +307,19 @@
 <li><strong>Outside the store, nothing is reached:</strong> a backup taken before, an export, a copy someone else made, and the blocks the filesystem freed but has not yet reused.</li>
 <li><strong>A redaction is refused while a backup is being taken</strong>, and says so. Run it again when the backup returns.</li>
 <li><strong>The store waits for it.</strong> A redaction rewrites the store's tables, and batches that arrive meanwhile wait until it is done.</li>
+</ul>
+<h2 id="retirement" class="section-title">Retirement</h2>
+<p><a href="/handbook/machine/what-the-machine-remembers/#ending-a-stream">Ending a stream</a> says how. The streams named are retired together, or none is. A stream <code>magi retire</code> ends is no stream: a program writing to it is told no stream has that name, a writer attached to it is detached and the store says it was retired, and a stream declared under the name afterwards is a new one, empty. A view another view reads is retired after that view, or with it, named before it.</p>
+<ul class="list">
+<li><strong>The views over it know nothing of it from then on.</strong> A view says it does not know wherever the retired stream was its source, rather than answer as if nothing had been there, and a view of a state stream loses the keys it took from it. Neither reads a new stream declared under the name. What a view of a history stream had already found stays in it, as when a stream's retention lets records go.</li>
+</ul>
+<ul class="list">
+<li><strong>Before it returns,</strong> everything the stream held apart from the log is gone: its records filed out of the log, its searches, columns and connections, and every file taken in that only its records named, but for one taken in since magid last opened the store, which goes when magid next opens it.</li>
+<li><strong>Its records in the log go with the log.</strong> The stretch being written now goes when the store begins the next; an earlier stretch that another stream still holds records in goes when that stream's retention lets them go. Until then they are in the store's files, and no read answers them.</li>
+<li><strong>It is not a redaction.</strong> Nothing is zeroed. What must not be in the store's files at all is redacted first, then the stream retired.</li>
+<li><strong>A store at its budget still retires</strong>, which is how it gets room back.</li>
+<li><strong>The store keeps a note of it</strong> while any view reads it or any of the log may still hold its records: its name, when it was retired, and where its records ended. Then that goes too.</li>
+<li><strong>Outside the store, nothing is reached:</strong> a backup taken before keeps the stream, and an export taken after does not have it.</li>
 </ul>
 <h2 id="backup" class="section-title">Backup</h2>
 <p><a href="/handbook/machine/what-the-machine-remembers/#backing-up-a-store">Backing up a store</a> says how. A backup is the store at one moment, every record and key of it, verified before <code>magi backup</code> returns.</p>

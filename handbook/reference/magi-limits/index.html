@@ -177,7 +177,7 @@
 <td>a store's budget</td><td>10% of the filesystem holding the stores, unless <code>/etc/magi/budgets</code> says otherwise: one <code>UID-or-user-or-* AMOUNT</code> a line, the amount in bytes with <code>K</code>, <code>M</code>, <code>G</code> or <code>T</code>, or a percentage. The file must be root's and writable by nobody else, or it is ignored.</td>
 </tr>
 <tr>
-<td>at its budget</td><td>a batch that would pass it is refused, naming the budget and where it came from, and a batch that only closes a writer's attachment is still taken. Nothing is evicted to make room. A new stream's byte cap is held to what the budget has left.</td>
+<td>at its budget</td><td>a batch that would pass it is refused, naming the budget and where it came from, and a batch that only closes a writer's attachment or only retires streams is still taken. Nothing is evicted to make room. A new stream's byte cap is held to what the budget has left.</td>
 </tr>
 <tr>
 <td>writers</td><td>one: magid. Stores are not shared across machines, and one store is one unit of atomicity: a batch spans streams of one store, never two stores.</td>
@@ -209,6 +209,9 @@
 </tr>
 <tr>
 <td>who writes it</td><td>only the program that declared it, as the kernel names it. A writer cannot send a state change of kind <code>redact</code>, which only a redaction writes.</td>
+</tr>
+<tr>
+<td>who retires it</td><td>the program that declared it, or the person whose store it is, through <code>magi retire</code>.</td>
 </tr>
 </tbody>
 </table>
@@ -327,6 +330,9 @@
 </tr>
 <tr>
 <td>a backup</td><td>holds the writer only for a checkpoint. A redaction is refused while one is being taken.</td>
+</tr>
+<tr>
+<td>a retirement</td><td>holds the store's writer while it checkpoints and removes the stream's files; batches that arrive meanwhile wait. A batch that retires streams does nothing else.</td>
 </tr>
 </tbody>
 </table>

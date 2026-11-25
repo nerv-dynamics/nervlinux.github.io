@@ -345,10 +345,13 @@
 <tr>
 <td><code>1 &lt;&lt; 3</code></td><td>incompatible</td><td>RESOLUTIONS</td><td>the store declares a resolution (plan 15)</td>
 </tr>
+<tr>
+<td><code>1 &lt;&lt; 4</code></td><td>incompatible</td><td>RETIRES</td><td>the store has retired a stream (entry 16, gap code 4), and the checkpoint carries what it keeps of each retired stream</td>
+</tr>
 </tbody>
 </table>
 </div>
-<p>A writer sets SPANS, VECTORS, ALIASES and RESOLUTIONS when the catalogue first holds what they name, and writes a checkpoint carrying them before it answers. No other bit is defined; a store that uses no feature has four zero bytes.</p>
+<p>A writer sets SPANS, VECTORS, ALIASES, RESOLUTIONS and RETIRES when the catalogue first holds what they name, and writes a checkpoint carrying them before it answers. No other bit is defined; a store that uses no feature has four zero bytes.</p>
 <p><strong>A store from before the freeze.</strong> A segment that begins <code>ENGRAM\0\0</code>, or a checkpoint that begins <code>ENGRAMCK</code>, belongs to a store written before format 1. A reader refuses it by name, giving the revision it holds at bytes 12..16, and does not treat it as damage. The way across is <code>magi export</code> with the MAGI that wrote the store and <code>magi import</code> with a MAGI of format 1 (<a href="/handbook/reference/magi-contract/#updates-and-rollbacks">What MAGI promises</a>).</p>
 <h2 id="log-segments" class="section-title">Log segments</h2>
 <p>A segment opens with a 128-byte header:</p>
@@ -482,6 +485,9 @@ end [32]  H(every byte before)</pre>
 <tr>
 <td>15</td><td>Alias</td><td><code>str</code> prefix, <code>str</code> to</td>
 </tr>
+<tr>
+<td>16</td><td>Retired</td><td><code>u64</code> stream, <code>str</code> name, <code>time</code> at</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -504,6 +510,9 @@ end [32]  H(every byte before)</pre>
 <tr>
 <td>3</td><td>the writer's connection ended without its saying it was stopping</td>
 </tr>
+<tr>
+<td>4</td><td>the stream was retired</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -511,7 +520,7 @@ end [32]  H(every byte before)</pre>
 <ul class="list">
 <li><strong>Declare</strong> creates stream <code>id</code>, as its declaration says. Ids are given in order from 1.</li>
 <li><strong>Open</strong> and <strong>Close</strong> begin and end a coverage interval: a span during which the stream's writer was attached and the engine witnessed everything it sent.</li>
-<li><strong>Scar</strong> says records <code>from..=to</code> of the stream are gone, by retention. <code>digest</code> is the link after record <code>to</code> (the last block holding it), from which the chain resumes, and <code>at</code> is that record's time, below which the stream no longer answers.</li>
+<li><strong>Scar</strong> says records <code>from..=to</code> of the stream are gone, by retention or by its retirement. <code>digest</code> is the link after record <code>to</code> (the last block holding it), from which the chain resumes, and <code>at</code> is that record's time, below which the stream no longer answers.</li>
 <li><strong>Type</strong> is a type, or a new version of one, that the store carries: every typed stream is read by its store's own types.</li>
 <li><strong>Mark</strong> is said by the writer of a source-witnessed stream: <code>[from, to)</code> on the source's clock is complete, or, with <code>hole</code>, a hole, holding <code>count</code> records if the source counted them. A <code>to</code> of <code>u64::MAX</code> nanoseconds is the end of its boot. On a view, a mark is the engine's own: a hole where the view dropped what it held.</li>
 <li><strong>Boot</strong> gives a boot its rank among the store's boots. Ranks order boots; a rank is never 0 and never changes.</li>
@@ -521,6 +530,7 @@ end [32]  H(every byte before)</pre>
 <li><strong>Signed</strong> would say the stream's chain through record <code>through</code> is signed with <code>signature</code> under <code>scheme</code>. A store holding one sets the SIGNED feature.</li>
 <li><strong>Redacted</strong> says record <code>seq</code> of the stream, of time <code>at</code>, in the block at log offset <code>block</code>, is redacted: hidden in place wherever that block lies. It says only that it was.</li>
 <li><strong>Alias</strong> says that from here on, a reader's name beginning with <code>prefix</code> stands for the same name with <code>to</code> in place of the prefix. Only reads follow an alias; a write names the stream it writes. A later Alias of the same prefix replaces it, and none removes it.</li>
+<li><strong>Retired</strong> says stream <code>stream</code>, named <code>name</code>, is retired at <code>at</code>: from here on it is no stream, its name is free, and a stream declared under the name later is another, with its own id. A retirement's batch holds, for each stream it retires, a Close with gap 4 if the stream's last interval is open, then for a history stream holding records a Scar from its floor to its head, then the Retired entry; and nothing but such entries, the boot entry a writer's first commit in a boot carries, and the entries a writer adds for history views over their caps.</li>
 </ul>
 <h3 id="the-stream-declaration" class="sub-title">The stream declaration</h3>
 <p>A declaration is a sequence of tagged fields, each a <code>u8</code> field id and its value, in ascending id order, ended by a <code>0</code> byte. No length precedes it, so a reader decodes every field, a plan included, to find where it ends. A reader refuses a field id it does not know, rather than skip it, and refuses a declaration missing any of fields 1 to 10.</p>
@@ -771,7 +781,7 @@ key file
 <td>Close</td><td>its last interval is open</td><td>that interval ends at <code>at</code> for the gap, closed at this entry's number</td>
 </tr>
 <tr>
-<td>Scar</td><td><code>from</code> is the stream's floor, <code>from ≤ to ≤</code> head</td><td>segment uses whose last record is at most <code>to</code> go from the front; the floor becomes <code>to + 1</code>, its link <code>digest</code> and its time <code>at</code>; redactions at or below <code>to</code> go; and a closed interval goes if it closed before <code>at</code> in <code>at</code>'s boot</td>
+<td>Scar</td><td><code>from</code> is the stream's floor, <code>from ≤ to ≤</code> head</td><td>segment uses whose last record is at most <code>to</code> go from the front; the floor becomes <code>to + 1</code>, its link <code>digest</code> and its time <code>at</code>; redactions at or below <code>to</code> go; a closed interval goes if it closed before <code>at</code> in <code>at</code>'s boot, and a mark goes if it ends before <code>at</code> in <code>at</code>'s boot</td>
 </tr>
 <tr>
 <td>Mark</td><td>the stream is a history stream witnessed by its source, <code>from</code> and <code>to</code> are in one boot with <code>from</code> before <code>to</code>, and only a hole has a count; or the stream is a view and the mark is a hole within one boot</td><td>see below</td>
@@ -783,7 +793,7 @@ key file
 <td>FillKey</td><td>the source's fill is by key and not done, and <code>after</code> is above where it stood, or equal to it with <code>done</code> set</td><td>the fill stands at <code>after</code>, done if <code>done</code></td>
 </tr>
 <tr>
-<td>Floor</td><td>the stream is a view</td><td>the stream's floor time becomes <code>at</code></td>
+<td>Floor</td><td>the stream is a view</td><td>the stream's floor time becomes <code>at</code>, and its intervals and marks below it go as for a Scar</td>
 </tr>
 <tr>
 <td>Filed</td><td>the stream is a history stream with an unfiled segment use for <code>segment</code></td><td>that use is filed, with <code>digest</code></td>
@@ -797,10 +807,14 @@ key file
 <tr>
 <td>Alias</td><td><code>prefix</code> and <code>to</code> each end in <code>/</code> and are at least two bytes; they differ; <code>to</code> does not begin with <code>prefix</code>; no stream's name begins with <code>prefix</code>; no other aliased prefix begins <code>prefix</code> or is begun by it; <code>to</code> is not an aliased prefix and begins with none other than <code>prefix</code></td><td><code>prefix</code> is aliased to <code>to</code></td>
 </tr>
+<tr>
+<td>Retired</td><td>the stream exists and is named <code>name</code>; its last interval is not open; a history stream's floor is above its head</td><td>the stream leaves the streams for the retired ones, as below</td>
+</tr>
 </tbody>
 </table>
 </div>
-<p>Every entry about a stream refuses a stream that does not exist. Every accepted entry moves the catalogue's entry number on by one.</p>
+<p>Every entry about a stream refuses a stream that does not exist, and a retired stream does not.</p>
+<p><strong>A retired stream</strong> is kept as the stream it was, with its floor its head plus one, its floor link its head link, its floor time its head time (if it has a head), no segment uses and no redactions, and with <code>at</code> and the segment the entry was written in. A view declared over it still reads it: a view's sources are the streams of their names that were declared before the view, retired or not, so a stream declared later under the same name is not one of them. A writer forgets a retired stream once the segment its Retired entry was written in is reclaimed and no stream's plan names it; ids are never given again, so none is mistaken for it. Every accepted entry moves the catalogue's entry number on by one.</p>
 <p><strong>A Mark</strong> that is complete, after a last mark that is complete too, in the same boot, with <code>from</code> within the last mark's span (<code>last.from ≤ from ≤ last.to</code>), extends the last mark: its <code>to</code> becomes the later of the two, and it is learned again at this entry's number. Any other mark is added, learned at this entry's number.</p>
 <p><strong>A history view's fills</strong>, made when it is declared, one per source in plan order: a source that is a view gets a fill by key, with <code>after</code> empty, done only if the same source appears earlier in the plan; any other source gets a fill by sequence ending at the source's head, standing at the head if the same source appears earlier in the plan and at its floor less one if not.</p>
 <p><strong>A record</strong> of stream <code>s</code> with sequence <code>q</code> and token <code>t</code>, in a segment starting at offset <code>g</code>, is accepted when <code>s</code> exists, is not 0, and <code>q</code> is its head plus one; when, for a stream declared without idempotency, <code>t</code> is 0; and when, for a stream with idempotency, <code>t</code> is 0 or above the stream's last token. Then the head becomes <code>q</code>, the head time the record's time, and the last token <code>t</code> if <code>t</code> is not 0. If the stream's last segment use is for segment <code>g</code>, its records go up by one, its bytes by the payload's length, and its last sequence and time become the record's; otherwise a new segment use for <code>g</code> is added with one record, the payload's bytes, and the record's sequence and time.</p>
@@ -867,6 +881,8 @@ time  when that batch was committed
 ...   the folded catalogue, below
 u32   block maps, then per map: u64 segment, u64 length of its valid bytes, u64 the log offset it maps to
 ...   with ALIASES only: u32 aliases, in prefix order, then per alias: str prefix, str to
+...   with RETIRES only: u32 retired streams, in ascending id, then per stream: the stream as
+      the folded catalogue lays one out below, time at, u64 the segment its retirement was written in
 [32]  H(every byte before)</pre>
 <p>A reader refuses a checkpoint whose magic is not <code>ENGRAM1C</code> (and names a pre-freeze one), whose checksum fails, whose revision is not 1, whose features have an incompatible bit it does not know, or with bytes after its end. The folded catalogue:</p>
 <pre class="term term__body" data-lang="text">u64   the id the next declaration takes
@@ -908,8 +924,8 @@ u32   streams, then per stream, in ascending id:
 u32   types, in name order, each at its latest version, as a Type entry holds one
 u32   boots, in rank order, then per boot: [16] boot id, u64 rank
 u8    0 with no tables yet; or 1, then blob: the tables' root</pre>
-<p>A reader refuses a checkpoint that names a segment use past its own offset; a block map that is not of the log before its offset or not in log order; a stream whose head is <code>u64::MAX</code>, whose floor is more than one past its head, whose segment uses are out of log or sequence order, or one of whose segment uses holds a record past its head; and a redaction list out of order, or naming a record above the head or below the floor (for a state stream, below 1). A segment-use, fill or table-root kind byte other than those above is refused.</p>
-<p><strong>At a checkpoint, state streams and views are folded.</strong> Every state stream's and view's table as of the checkpoint's offset is in the runs the root names, so each such stream's floor is its head plus one, its floor link its head link, its floor time its head time, and it has no segment uses: none of its records before the offset needs replay. A stream declared after the checkpoint has nothing in a run yet.</p>
+<p>A reader refuses a checkpoint that names a segment use past its own offset; a block map that is not of the log before its offset or not in log order; a stream whose head is <code>u64::MAX</code>, whose floor is more than one past its head, whose segment uses are out of log or sequence order, or one of whose segment uses holds a record past its head; and a redaction list out of order, or naming a record above the head or below the floor (for a state stream, below 1); and a retired stream whose id is not below the next id, or is a stream's. A segment-use, fill or table-root kind byte other than those above is refused.</p>
+<p><strong>At a checkpoint, state streams and views are folded.</strong> Every state stream's and view's table as of the checkpoint's offset is in the runs the root names, so each such stream's floor is its head plus one, its floor link its head link, its floor time its head time, and it has no segment uses: none of its records before the offset needs replay. A stream with a head forgets its intervals and marks below its floor time, as a Scar does. A stream declared after the checkpoint has nothing in a run yet.</p>
 <h2 id="tables" class="section-title">Tables</h2>
 <p>Every table of a store is in <strong>one keyed space</strong>: every state stream's table, every view's, and every history view's held table. The space is stored as a list of immutable sorted runs, newest first, that the checkpoint's table root names.</p>
 <p><strong>Keys and values.</strong> A table's key is stored as its table's id, <code>be64</code>, then the key; a stored key is at most 520 bytes, so a table's key is at most 512. A table's id is its stream's id, or, for a history view's held table, the view's id with bit 63 set. Every stored value is a <code>u64</code> version, then the value's bytes; a stored value is at most 64 KiB.</p>
@@ -1072,7 +1088,7 @@ end  [4]   CRC-32C of the chunk before it</pre>
 <ol class="list">
 <li><strong>Open the store</strong> as above.</li>
 <li><strong>Every segment against its chains.</strong> For every segment the store holds, including those before the checkpoint, check its header, then check every group in it from the header's anchor: it parses, closes the commit chain, its first batch follows the last, every block of stream 0 is a catalogue block and every catalogue block is stream 0, and each catalogue block's first entry number follows the last and links from the catalogue chain. Where one segment begins exactly where the one before it ends, the chains where the first ends must equal the second's anchor. The last segment must end where opening ended, at the same batch, commit digest, entry number and catalogue link.</li>
-<li><strong>Every stream's chain, through every copy on disk.</strong> Walk every record block, in log order: for each segment offset, held either as a segment or as history files, first the segment's blocks of every stream not filed for that segment, then each history file for that segment. Retained or not, every block still on disk is checked. For each stream, a block's first sequence must be one past the last block seen, unless a segment the store no longer has lies between them. Each block must link from the link before it, when that is known: the previous block's, when it is the very next sequence; the history file's <code>prev</code> for a file's first block, which must agree with the previous block's when both are known; the stream's genesis for record 1; the floor link for the floor's block, which must agree with the previous block's link when that is known. Hidden blocks verify through their sidecars. The one block that cannot be checked against the one before it is the first block still on disk of a stream whose earlier blocks are gone; the next block's link still pins it.</li>
+<li><strong>Every stream's chain, through every copy on disk.</strong> Walk every record block, in log order: for each segment offset, held either as a segment or as history files, first the segment's blocks of every stream not filed for that segment, then each history file for that segment. Retained or not, every block still on disk is checked, but a retired stream's, which no stream answers for. For each stream, a block's first sequence must be one past the last block seen, unless a segment the store no longer has lies between them. Each block must link from the link before it, when that is known: the previous block's, when it is the very next sequence; the history file's <code>prev</code> for a file's first block, which must agree with the previous block's when both are known; the stream's genesis for record 1; the floor link for the floor's block, which must agree with the previous block's link when that is known. Hidden blocks verify through their sidecars. The one block that cannot be checked against the one before it is the first block still on disk of a stream whose earlier blocks are gone; the next block's link still pins it.</li>
 <li><strong>Every head.</strong> For every stream whose head is at or above its floor, the last block on disk must end at the head, and its link must be the head link the catalogue holds.</li>
 </ol>
 <p>It reports the streams, the records at or above their floors and how many of them are redacted, the segments, the history files, and the log's end offset, batch count and commit digest: two stores that are copies of one agree on the last three. A torn tail is reported, not counted as damage.</p>

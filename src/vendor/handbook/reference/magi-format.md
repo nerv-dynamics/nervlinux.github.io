@@ -91,8 +91,9 @@ Features are sticky. Every segment header and every checkpoint carries every fea
 | `1 << 1` | incompatible | VECTORS | the store declares a vector view (plan 14) |
 | `1 << 2` | incompatible | ALIASES | the catalogue holds an alias (entry 15), and the checkpoint carries the aliases |
 | `1 << 3` | incompatible | RESOLUTIONS | the store declares a resolution (plan 15) |
+| `1 << 4` | incompatible | RETIRES | the store has retired a stream (entry 16, gap code 4), and the checkpoint carries what it keeps of each retired stream |
 
-A writer sets SPANS, VECTORS, ALIASES and RESOLUTIONS when the catalogue first holds what they name, and writes a checkpoint carrying them before it answers. No other bit is defined; a store that uses no feature has four zero bytes.
+A writer sets SPANS, VECTORS, ALIASES, RESOLUTIONS and RETIRES when the catalogue first holds what they name, and writes a checkpoint carrying them before it answers. No other bit is defined; a store that uses no feature has four zero bytes.
 
 **A store from before the freeze.** A segment that begins `ENGRAM\0\0`, or a checkpoint that begins `ENGRAMCK`, belongs to a store written before format 1. A reader refuses it by name, giving the revision it holds at bytes 12..16, and does not treat it as damage. The way across is `magi export` with the MAGI that wrote the store and `magi import` with a MAGI of format 1 ([What MAGI promises](magi-contract.md#updates-and-rollbacks)).
 
@@ -249,6 +250,7 @@ Stream 0 is the **catalogue**: the store's own record of what streams exist, wha
 | 13 | Signed | `u64` stream, `u64` through, `u8` scheme, `blob` signature. Reserved: no writer of format 1 writes it. |
 | 14 | Redacted | `u64` stream, `u64` seq, `time` at, `u64` block |
 | 15 | Alias | `str` prefix, `str` to |
+| 16 | Retired | `u64` stream, `str` name, `time` at |
 
 A one-byte boolean is true when it is not zero. The gap codes of a Close:
 
@@ -258,12 +260,13 @@ A one-byte boolean is true when it is not zero. The gap codes of a Close:
 | 1 | the writer was meant to start and did not |
 | 2 | the engine stopped with the interval open, and closed it when it came back |
 | 3 | the writer's connection ended without its saying it was stopping |
+| 4 | the stream was retired |
 
 What each entry means:
 
 - **Declare** creates stream `id`, as its declaration says. Ids are given in order from 1.
 - **Open** and **Close** begin and end a coverage interval: a span during which the stream's writer was attached and the engine witnessed everything it sent.
-- **Scar** says records `from..=to` of the stream are gone, by retention. `digest` is the link after record `to` (the last block holding it), from which the chain resumes, and `at` is that record's time, below which the stream no longer answers.
+- **Scar** says records `from..=to` of the stream are gone, by retention or by its retirement. `digest` is the link after record `to` (the last block holding it), from which the chain resumes, and `at` is that record's time, below which the stream no longer answers.
 - **Type** is a type, or a new version of one, that the store carries: every typed stream is read by its store's own types.
 - **Mark** is said by the writer of a source-witnessed stream: `[from, to)` on the source's clock is complete, or, with `hole`, a hole, holding `count` records if the source counted them. A `to` of `u64::MAX` nanoseconds is the end of its boot. On a view, a mark is the engine's own: a hole where the view dropped what it held.
 - **Boot** gives a boot its rank among the store's boots. Ranks order boots; a rank is never 0 and never changes.
@@ -273,6 +276,7 @@ What each entry means:
 - **Signed** would say the stream's chain through record `through` is signed with `signature` under `scheme`. A store holding one sets the SIGNED feature.
 - **Redacted** says record `seq` of the stream, of time `at`, in the block at log offset `block`, is redacted: hidden in place wherever that block lies. It says only that it was.
 - **Alias** says that from here on, a reader's name beginning with `prefix` stands for the same name with `to` in place of the prefix. Only reads follow an alias; a write names the stream it writes. A later Alias of the same prefix replaces it, and none removes it.
+- **Retired** says stream `stream`, named `name`, is retired at `at`: from here on it is no stream, its name is free, and a stream declared under the name later is another, with its own id. A retirement's batch holds, for each stream it retires, a Close with gap 4 if the stream's last interval is open, then for a history stream holding records a Scar from its floor to its head, then the Retired entry; and nothing but such entries, the boot entry a writer's first commit in a boot carries, and the entries a writer adds for history views over their caps.
 
 ### The stream declaration
 
@@ -406,17 +410,20 @@ A reader folds the catalogue entry by entry, in order, into the state the checkp
 | Boot | the boot has no rank yet, the rank is not 0, and no boot has the rank | the boot is ranked; boots are kept in rank order |
 | Open | the stream exists and its last interval is closed, or it has none | a new interval from `at`, opened at this entry's number, closed at 0 |
 | Close | its last interval is open | that interval ends at `at` for the gap, closed at this entry's number |
-| Scar | `from` is the stream's floor, `from ≤ to ≤` head | segment uses whose last record is at most `to` go from the front; the floor becomes `to + 1`, its link `digest` and its time `at`; redactions at or below `to` go; and a closed interval goes if it closed before `at` in `at`'s boot |
+| Scar | `from` is the stream's floor, `from ≤ to ≤` head | segment uses whose last record is at most `to` go from the front; the floor becomes `to + 1`, its link `digest` and its time `at`; redactions at or below `to` go; a closed interval goes if it closed before `at` in `at`'s boot, and a mark goes if it ends before `at` in `at`'s boot |
 | Mark | the stream is a history stream witnessed by its source, `from` and `to` are in one boot with `from` before `to`, and only a hole has a count; or the stream is a view and the mark is a hole within one boot | see below |
 | Fill | the source's fill is by sequence, and `through` is above where it stood and at most its end | the fill stands at `through` |
 | FillKey | the source's fill is by key and not done, and `after` is above where it stood, or equal to it with `done` set | the fill stands at `after`, done if `done` |
-| Floor | the stream is a view | the stream's floor time becomes `at` |
+| Floor | the stream is a view | the stream's floor time becomes `at`, and its intervals and marks below it go as for a Scar |
 | Filed | the stream is a history stream with an unfiled segment use for `segment` | that use is filed, with `digest` |
 | Signed | `1 ≤ through ≤` head | nothing is kept |
 | Redacted | a history stream with floor `≤ seq ≤` head, or a state stream with `1 ≤ seq ≤` head; never a view; not already redacted | the redaction is added, in sequence order |
 | Alias | `prefix` and `to` each end in `/` and are at least two bytes; they differ; `to` does not begin with `prefix`; no stream's name begins with `prefix`; no other aliased prefix begins `prefix` or is begun by it; `to` is not an aliased prefix and begins with none other than `prefix` | `prefix` is aliased to `to` |
+| Retired | the stream exists and is named `name`; its last interval is not open; a history stream's floor is above its head | the stream leaves the streams for the retired ones, as below |
 
-Every entry about a stream refuses a stream that does not exist. Every accepted entry moves the catalogue's entry number on by one.
+Every entry about a stream refuses a stream that does not exist, and a retired stream does not.
+
+**A retired stream** is kept as the stream it was, with its floor its head plus one, its floor link its head link, its floor time its head time (if it has a head), no segment uses and no redactions, and with `at` and the segment the entry was written in. A view declared over it still reads it: a view's sources are the streams of their names that were declared before the view, retired or not, so a stream declared later under the same name is not one of them. A writer forgets a retired stream once the segment its Retired entry was written in is reclaimed and no stream's plan names it; ids are never given again, so none is mistaken for it. Every accepted entry moves the catalogue's entry number on by one.
 
 **A Mark** that is complete, after a last mark that is complete too, in the same boot, with `from` within the last mark's span (`last.from ≤ from ≤ last.to`), extends the last mark: its `to` becomes the later of the two, and it is learned again at this entry's number. Any other mark is added, learned at this entry's number.
 
@@ -483,6 +490,8 @@ time  when that batch was committed
 ...   the folded catalogue, below
 u32   block maps, then per map: u64 segment, u64 length of its valid bytes, u64 the log offset it maps to
 ...   with ALIASES only: u32 aliases, in prefix order, then per alias: str prefix, str to
+...   with RETIRES only: u32 retired streams, in ascending id, then per stream: the stream as
+      the folded catalogue lays one out below, time at, u64 the segment its retirement was written in
 [32]  H(every byte before)
 ```
 
@@ -530,9 +539,9 @@ u32   boots, in rank order, then per boot: [16] boot id, u64 rank
 u8    0 with no tables yet; or 1, then blob: the tables' root
 ```
 
-A reader refuses a checkpoint that names a segment use past its own offset; a block map that is not of the log before its offset or not in log order; a stream whose head is `u64::MAX`, whose floor is more than one past its head, whose segment uses are out of log or sequence order, or one of whose segment uses holds a record past its head; and a redaction list out of order, or naming a record above the head or below the floor (for a state stream, below 1). A segment-use, fill or table-root kind byte other than those above is refused.
+A reader refuses a checkpoint that names a segment use past its own offset; a block map that is not of the log before its offset or not in log order; a stream whose head is `u64::MAX`, whose floor is more than one past its head, whose segment uses are out of log or sequence order, or one of whose segment uses holds a record past its head; and a redaction list out of order, or naming a record above the head or below the floor (for a state stream, below 1); and a retired stream whose id is not below the next id, or is a stream's. A segment-use, fill or table-root kind byte other than those above is refused.
 
-**At a checkpoint, state streams and views are folded.** Every state stream's and view's table as of the checkpoint's offset is in the runs the root names, so each such stream's floor is its head plus one, its floor link its head link, its floor time its head time, and it has no segment uses: none of its records before the offset needs replay. A stream declared after the checkpoint has nothing in a run yet.
+**At a checkpoint, state streams and views are folded.** Every state stream's and view's table as of the checkpoint's offset is in the runs the root names, so each such stream's floor is its head plus one, its floor link its head link, its floor time its head time, and it has no segment uses: none of its records before the offset needs replay. A stream with a head forgets its intervals and marks below its floor time, as a Scar does. A stream declared after the checkpoint has nothing in a run yet.
 
 ## Tables
 
@@ -724,7 +733,7 @@ In any segment but the last, an invalid or short group is damage, and the store 
 
 1. **Open the store** as above.
 2. **Every segment against its chains.** For every segment the store holds, including those before the checkpoint, check its header, then check every group in it from the header's anchor: it parses, closes the commit chain, its first batch follows the last, every block of stream 0 is a catalogue block and every catalogue block is stream 0, and each catalogue block's first entry number follows the last and links from the catalogue chain. Where one segment begins exactly where the one before it ends, the chains where the first ends must equal the second's anchor. The last segment must end where opening ended, at the same batch, commit digest, entry number and catalogue link.
-3. **Every stream's chain, through every copy on disk.** Walk every record block, in log order: for each segment offset, held either as a segment or as history files, first the segment's blocks of every stream not filed for that segment, then each history file for that segment. Retained or not, every block still on disk is checked. For each stream, a block's first sequence must be one past the last block seen, unless a segment the store no longer has lies between them. Each block must link from the link before it, when that is known: the previous block's, when it is the very next sequence; the history file's `prev` for a file's first block, which must agree with the previous block's when both are known; the stream's genesis for record 1; the floor link for the floor's block, which must agree with the previous block's link when that is known. Hidden blocks verify through their sidecars. The one block that cannot be checked against the one before it is the first block still on disk of a stream whose earlier blocks are gone; the next block's link still pins it.
+3. **Every stream's chain, through every copy on disk.** Walk every record block, in log order: for each segment offset, held either as a segment or as history files, first the segment's blocks of every stream not filed for that segment, then each history file for that segment. Retained or not, every block still on disk is checked, but a retired stream's, which no stream answers for. For each stream, a block's first sequence must be one past the last block seen, unless a segment the store no longer has lies between them. Each block must link from the link before it, when that is known: the previous block's, when it is the very next sequence; the history file's `prev` for a file's first block, which must agree with the previous block's when both are known; the stream's genesis for record 1; the floor link for the floor's block, which must agree with the previous block's link when that is known. Hidden blocks verify through their sidecars. The one block that cannot be checked against the one before it is the first block still on disk of a stream whose earlier blocks are gone; the next block's link still pins it.
 4. **Every head.** For every stream whose head is at or above its floor, the last block on disk must end at the head, and its link must be the head link the catalogue holds.
 
 It reports the streams, the records at or above their floors and how many of them are redacted, the segments, the history files, and the log's end offset, batch count and commit digest: two stores that are copies of one agree on the last three. A torn tail is reported, not counted as damage.

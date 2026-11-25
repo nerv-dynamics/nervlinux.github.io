@@ -8,7 +8,7 @@ The sizes, counts and rates MAGI holds to, and everything it refuses, with what 
 | --- | --- |
 | stores | one per account in `/etc/passwd`, at `/var/lib/magi/stores/UID`, and the system's at `/var/lib/magi/stores/system`. A uid with no account is refused: *uid N is no account in /etc/passwd, and only an account has a store*. |
 | a store's budget | 10% of the filesystem holding the stores, unless `/etc/magi/budgets` says otherwise: one `UID-or-user-or-* AMOUNT` a line, the amount in bytes with `K`, `M`, `G` or `T`, or a percentage. The file must be root's and writable by nobody else, or it is ignored. |
-| at its budget | a batch that would pass it is refused, naming the budget and where it came from, and a batch that only closes a writer's attachment is still taken. Nothing is evicted to make room. A new stream's byte cap is held to what the budget has left. |
+| at its budget | a batch that would pass it is refused, naming the budget and where it came from, and a batch that only closes a writer's attachment or only retires streams is still taken. Nothing is evicted to make room. A new stream's byte cap is held to what the budget has left. |
 | writers | one: magid. Stores are not shared across machines, and one store is one unit of atomicity: a batch spans streams of one store, never two stores. |
 | the format | format 1. A store from before the freeze is set aside, not read ([What MAGI promises](magi-contract.md#updates-and-rollbacks)). |
 
@@ -22,6 +22,7 @@ The sizes, counts and rates MAGI holds to, and everything it refuses, with what 
 | signing | only `unsigned` is taken; a key is refused until signing ships. |
 | retention | a byte cap, required; a history stream may add a record cap of at least one. A state stream has no record cap: its byte cap bounds its live keys and their values, and a change past it is refused. |
 | who writes it | only the program that declared it, as the kernel names it. A writer cannot send a state change of kind `redact`, which only a redaction writes. |
+| who retires it | the program that declared it, or the person whose store it is, through `magi retire`. |
 
 ## Records and keys
 
@@ -72,6 +73,7 @@ The sizes, counts and rates MAGI holds to, and everything it refuses, with what 
 | a reopened store | replays at most about the last 8 MiB of its log, whatever has been written. |
 | a redaction | holds the store's writer while it rewrites the store's tables; batches that arrive meanwhile wait. |
 | a backup | holds the writer only for a checkpoint. A redaction is refused while one is being taken. |
+| a retirement | holds the store's writer while it checkpoints and removes the stream's files; batches that arrive meanwhile wait. A batch that retires streams does nothing else. |
 
 ## What a store does not do
 

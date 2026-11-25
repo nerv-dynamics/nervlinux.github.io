@@ -35,7 +35,7 @@ A release is offered only when LVFS says it is for this exact machine: its vendo
 - **Secure Boot keys ready to go back in.** An update can reset the firmware's keys to the vendor's, and then the firmware refuses everything this machine signed. With Secure Boot on, the machine's own keys must be staged on the boot partition first, which takes one command:
 
 ```
-$ doas nerv-install secureboot --stage-auth /efi/loader/keys/nerv
+$ doas nerv-secureboot stage-auth /efi/loader/keys/nerv
 ```
 
 - **Mains power.** A machine with a battery must be plugged in and charged.

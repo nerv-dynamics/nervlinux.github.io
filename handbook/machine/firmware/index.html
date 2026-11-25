@@ -191,7 +191,7 @@ no update offered:
 <li><strong>One change per reboot.</strong> The running slot must have completed a boot, and no new slot may be waiting to boot. If something goes wrong after the reboot, it was the firmware. <a href="/handbook/machine/generations/">Updates and generations</a> explains slots and their first boot.</li>
 <li><strong>Secure Boot keys ready to go back in.</strong> An update can reset the firmware's keys to the vendor's, and then the firmware refuses everything this machine signed. With Secure Boot on, the machine's own keys must be staged on the boot partition first, which takes one command:</li>
 </ul>
-<pre class="term term__body">$ doas nerv-install secureboot --stage-auth /efi/loader/keys/nerv</pre>
+<pre class="term term__body">$ doas nerv-secureboot stage-auth /efi/loader/keys/nerv</pre>
 <ul class="list">
 <li><strong>Mains power.</strong> A machine with a battery must be plugged in and charged.</li>
 </ul>
