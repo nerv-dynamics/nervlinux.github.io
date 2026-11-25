@@ -116,11 +116,11 @@ The virtual machine needs `nerv-qemu` and `nerv-aavmf`, which the `workstation`,
 
 ## When an update is waiting
 
-The lower tmux bar watches the two things that change only with a reboot, the kernel and the NVIDIA driver:
+The upper tmux bar watches the two things that change only with a reboot, the kernel and the NVIDIA driver:
 
-| the bar's left end | |
+| the bar's right end | |
 | --- | --- |
-| the LAN address, in blue | the machine runs what it will keep running |
+| nothing after the temperature | the machine runs what it will keep running |
 | `↑ L 7.2.10  N 610.60`, in red | a newer kernel or driver is in the repositories |
 | `⟳ L 7.2.10`, in amber | one is installed in the next slot and waits for a reboot |
 

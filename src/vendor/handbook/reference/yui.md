@@ -37,6 +37,30 @@ Close the terminal while the agent works and it carries on. The next `yui` opens
 
 The same state shows in two more places, as a glyph: a yellow ◆ for *needs-you*, a cyan ● for *working*, a green ○ for *done-waiting* and a red ✕ for *blocked*. In `ctrl+s` it comes before each conversation, and a blocked one says why. Inside tmux, each window carries one glyph per agent open in it, so you see every agent from whichever window you are in, and the terminal bell rings when an agent comes to need you. An agent another yui holds shows the state its own yui gives it.
 
+## Settings from a script
+
+Everything `ctrl+p` changes is a command too, for a script, or an agent elsewhere, to change without a terminal to draw in. Each one given nothing more prints how things stand; given more, it changes them first and prints how they stand after. NAME is a conversation, as for `yui open`.
+
+| command | |
+| --- | --- |
+| `yui model NAME [MODEL] [--endpoint E] [--effort E]` | the model a conversation talks to, and how hard it thinks |
+| `yui sandbox NAME [grant PATH [--write] \| revoke PATH \| net on\|off]` | what its agent can reach |
+| `yui approver NAME` | make the conversation the approver, or stop it being one |
+| `yui decide NAME [allow \| always \| refuse [WHY] \| answer TEXT]` | the question it waits on, and your answer |
+| `yui cancel NAME` | stop the turn it is taking |
+| `yui standing [withdraw ID]` | your standing grants, and taking one back |
+| `yui policy` | the machine's policy |
+| `yui memory [on ID \| off ID \| delete ID \| edit ID \| auto on\|off]` | the memory for the project you are in; `edit` reads the title and then the text on its input |
+| `yui tools [--in NAME] [KEY on\|off\|default]` | the tools switched on or off, for the machine or one conversation |
+| `yui plugins [NAME [KEY=VALUE … \| reset KEY \| allow ID \| refuse ID]]` | each plugin's settings, and what its channel asks |
+| `yui context [summarize on\|off \| summarize at N% \| prune [STRATEGY …]]` | summarizing and pruning |
+| `yui fleet [DEVICE CARD allow \| DEVICE CARD refuse [WHY]]` | what waits on the other machines |
+| `yui stop-s2` | stop the S2 yui started |
+
+`KEY+=LINE` and `KEY-=LINE` add a line to a plugin's list and take one off it. `KEY=-` reads the value from standard input, which is the way to give a secret: nothing else on the machine sees it, as it could see a command's arguments. `yui send` exits 3 when a question waits; `yui decide NAME` then prints it, and `yui decide NAME allow` answers it.
+
+These are yours, as the TUI is. What keeps an agent of yui's from running them is its sandbox, not the program you happen to use: no sandbox holds yuid's socket or yui's files ([The sandbox](#the-sandbox)).
+
 ## The board
 
 `alt+0`, or `yui board`, shows every agent at once, one tile each: its state and since when, where it works and on which branch, the last lines of what it is doing, and the question it waits on, if one. `y` or `n` answers that question from the board; anything more, such as editing the call, opens the conversation with `enter`. On a narrow terminal the tiles become a list.
@@ -119,6 +143,8 @@ For anything more, a path elsewhere or the network, the agent asks, and the ques
 | `esc` | stop the agent |
 
 `ctrl+p`, then *Sandbox*, lists what the agent can reach. Enter on a path takes it back; enter on the network gives it or takes it back. What you give is kept with the conversation.
+
+yui's own files are never in the sandbox, whatever you grant: `~/.config/yui`, `~/.local/state/yui`, your runtime directory under `/run/user`, and magi's sockets. A grant of your home directory leaves them out, and a grant of one of them is refused. What reached them could change what holds the agent, or speak to yui as you, through its socket or the settings' commands. A conversation started inside one of them gets no default grant, as one started in your home directory does not.
 
 What you type is yours to act on; text that came from elsewhere is not. Once a conversation holds outside content, a command that could reach the network is asked for again, the card saying why. A paste of eight lines or more counts as outside content: it usually came from a log, a page or a message. Typing and short pastes are yours. So does what a command prints while the agent has the network, since it could have fetched it from anywhere.
 

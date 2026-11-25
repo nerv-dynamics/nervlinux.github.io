@@ -203,7 +203,7 @@ $ yui --endpoint claude --model opus</pre>
 <p><code>ctrl+s</code> lists every conversation, the most recently used first, with the last exchange of the one under the cursor. Choosing one moves yui into the directory it was held in.</p>
 <p>Close the terminal while the agent works and it carries on. The next <code>yui</code> opens on the conversation as it is, a question it asked you still waiting. Two terminals can open the same conversation: both show everything, and either can answer.</p>
 <p>Each conversation shows its state as a glyph: a yellow ◆ when a question waits for you, a cyan ● while it works, a green ○ when it has finished and waits for you, and a red ✕ when its turn failed. Inside tmux, every window carries one glyph per agent open in it, and the terminal bell rings when an agent comes to need you.</p>
-<p>From a script: <code>yui ps</code> prints every agent's state, <code>yui show NAME</code> prints a conversation as text, and <code>yui send NAME TEXT</code> asks it something and prints the answer (<a href="/handbook/reference/yui/#conversations-from-a-script">Conversations from a script</a>).</p>
+<p>From a script: <code>yui ps</code> prints every agent's state, <code>yui show NAME</code> prints a conversation as text, and <code>yui send NAME TEXT</code> asks it something and prints the answer (<a href="/handbook/reference/yui/#conversations-from-a-script">Conversations from a script</a>). Everything <code>ctrl+p</code> changes is a command too: <code>yui context summarize at 80%</code>, <code>yui decide NAME allow</code>, <code>yui plugins telegram approve=none</code> (<a href="/handbook/reference/yui/#settings-from-a-script">Settings from a script</a>).</p>
 <h2 id="running-several-agents" class="section-title">Running several agents</h2>
 <p>Several agents can work at once, each in a conversation of its own, and one terminal follows all of them.</p>
 <ol class="list">
@@ -239,7 +239,7 @@ $ yui --endpoint claude --model opus</pre>
 </tbody>
 </table>
 </div>
-<p><code>ctrl+p</code>, then <em>Sandbox</em>, lists what the agent can reach now, and enter on a line takes it back.</p>
+<p><code>ctrl+p</code>, then <em>Sandbox</em>, lists what the agent can reach now, and enter on a line takes it back. yui's own files, its configuration and state and the socket its commands speak through, are never in the sandbox, whatever you grant (<a href="/handbook/reference/yui/#the-sandbox">The sandbox</a>).</p>
 <p>Once a conversation holds outside content, a command that could reach the network is asked for again, and the card says why. A paste of eight lines or more counts as outside content, since it usually came from a log, a page or a message; typing and short pastes are yours. So does what a command prints while the agent has the network.</p>
 <p>A question the agent asks you, rather than a permission, comes on a card with up to nine choices: a number answers it, and anything you type is your answer instead. A question is always yours to answer.</p>
 <p>On a kernel that cannot make the sandbox, yui says so when the agent first acts, and asks before each write, each command and each read outside the directory. There, <code>a</code> on a card allows that tool from then on, and <code>ctrl+p</code>, then <em>Standing grants</em>, takes it back (<a href="/handbook/reference/yui/#the-sandbox">The sandbox</a>).</p>
@@ -353,6 +353,9 @@ $ yui --endpoint claude --model opus</pre>
 </tr>
 <tr>
 <td><code>yui send NAME TEXT</code></td><td>ask a conversation, and print the answer</td>
+</tr>
+<tr>
+<td><code>yui model</code>, <code>sandbox</code>, <code>decide</code>, <code>plugins</code>, <code>context</code>, …</td><td>what <code>ctrl+p</code> changes, as commands (<a href="/handbook/reference/yui/#settings-from-a-script">Settings from a script</a>)</td>
 </tr>
 <tr>
 <td><code>yui mcp login NAME</code>, <code>yui mcp logout NAME</code></td><td>sign in to an MCP server, and forget it</td>

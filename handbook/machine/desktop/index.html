@@ -281,6 +281,7 @@ desktop=off motion=running screensaver=waiting outputs=1</pre>
 </tbody>
 </table>
 </div>
+<p>The drift button on the bar shows the same state: a ripple while the background moves, a pause sign while it holds still, a struck-through ripple while it is off. Click it to pause or resume, right-click to turn the background off or on. It follows <code>drift</code> commands and the screensaver at once, and is dimmed while drift is not running.</p>
 <h2 id="light-and-dark" class="section-title">Light and dark</h2>
 <p>The desktop is dark, and the shell's dark or light mode is every program's. Programs ask the desktop which one it is, through the desktop portal, and are told when it changes, so Browser and GTK 4 programs already open turn with the shell, in Myelin's accent colour for that mode. Choosing light, dark or automatic is done in Noctalia's Settings panel or the control center, and stays chosen.</p>
 <p>Before the shell has said anything, at a first login or in a program started before it, everything is dark: the portal answers dark, and GTK's machine-wide settings in <code>/etc/xdg/gtk-3.0</code> and <code>/etc/xdg/gtk-4.0</code> choose the dark theme. The login screen, Luciole and foot start dark too. The shell writes the mode and the accent to <code>~/.local/state/nerv-portal-settings/appearance</code> whenever either changes.</p>
@@ -302,18 +303,22 @@ v u 1</pre>
 <td>middle</td><td>the date and time; what is playing, while something is</td>
 </tr>
 <tr>
-<td>right</td><td>CPU, memory and GPU use; the privacy indicator, lit while a microphone, camera or screen share is in use; the tray; caffeine, which keeps the screen awake; the clipboard history; a screenshot; network; Bluetooth; volume; the battery, on a machine with one; brightness, on a display whose brightness can be set; the displays; notifications; the control center</td>
+<td>right</td><td>CPU, memory and GPU use; the privacy indicator, lit while a microphone, camera or screen share is in use; the tray; caffeine, which keeps the screen awake; drift, the <a href="#the-live-background-and-the-screensaver">live background</a>; the clipboard history; a screenshot; network; Bluetooth; volume; the battery, on a machine with one; brightness, on a display whose brightness can be set; the displays; notifications; the control center</td>
 </tr>
 </tbody>
 </table>
 </div>
 <p>The GPU figure is the same one <code>axon</code> shows. Right-clicking an empty stretch of the bar opens the control center, and the shell's Settings changes what the bar holds.</p>
+<p>For OLED displays, the bar's icons and labels move one pixel every two minutes, at most three pixels from their place, so the same pixels are not lit for hours. Nothing moves while the pointer is on the bar or one of its panels is open, and the bar and the space windows leave for it stay put. To change it, in <code>~/.config/noctalia/config.toml</code>:</p>
+<pre class="term term__body" data-lang="toml">[bar.main]
+pixel_shift = 0             # pixels each way, 0 to 8; 0 keeps the bar still
+pixel_shift_interval = 120  # seconds between one-pixel moves, 10 to 3600</pre>
 <h2 id="the-tray" class="section-title">The tray</h2>
 <p>A program that keeps running without a window, such as Steam or a chat client, keeps an icon in the tray on the bar, in Myelin's colours. Closing its window leaves it there; click the icon to bring the program back, or right-click it for the program's menu.</p>
 <h2 id="displays" class="section-title">Displays</h2>
 <p>The displays button on the bar sets each display's resolution, refresh rate and scale, and turns one off; right-click it to arrange the displays by dragging them where they stand on your desk. A change applies at once and is already saved, to <code>~/.config/umbriel/outputs.toml</code>, which Umbriel's config includes. Keep <code>[output.*]</code> sections out of <code>~/.config/umbriel/config.toml</code>, where they would override that file.</p>
 <h2 id="plugins" class="section-title">Plugins</h2>
-<p>The layout and displays buttons are Noctalia plugins, and they come installed with the desktop. Noctalia's plugin store is off: Settings → Plugins lists its two sources, <em>official</em> and <em>community</em>, and turning one on lets you browse it and install from it. The shell downloads nothing else at start either: its community templates and the calculator's currency exchange rates are off until you turn them on in Settings.</p>
+<p>The layout, displays and drift buttons are Noctalia plugins, and they come installed with the desktop. Noctalia's plugin store is off: Settings → Plugins lists its two sources, <em>official</em> and <em>community</em>, and turning one on lets you browse it and install from it. The shell downloads nothing else at start either: its community templates and the calculator's currency exchange rates are off until you turn them on in Settings.</p>
 <h2 id="foot" class="section-title">foot</h2>
 <p><code>foot</code> is the terminal, <code>Mod+Return</code> away. The key runs <code>footclient</code>, which opens a window in a foot server that starts with your session, so the terminal is there at once. It comes in Myelin and Ashinoko from <code>/etc/xdg/foot/foot.ini</code>; a <code>~/.config/foot/foot.ini</code> of your own replaces that file entirely, and <code>include=/usr/share/foot/themes/myelin</code> in it keeps the colours.</p>
 <h2 id="browser" class="section-title">Browser</h2>

@@ -88,6 +88,8 @@ With the background off, the wallpaper is Noctalia's to change in its Settings l
 | `drift toggle` | pause if moving, resume if paused |
 | `drift status` | the state, as one line |
 
+The drift button on the bar shows the same state: a ripple while the background moves, a pause sign while it holds still, a struck-through ripple while it is off. Click it to pause or resume, right-click to turn the background off or on. It follows `drift` commands and the screensaver at once, and is dimmed while drift is not running.
+
 ## Light and dark
 
 The desktop is dark, and the shell's dark or light mode is every program's. Programs ask the desktop which one it is, through the desktop portal, and are told when it changes, so Browser and GTK 4 programs already open turn with the shell, in Myelin's accent colour for that mode. Choosing light, dark or automatic is done in Noctalia's Settings panel or the control center, and stays chosen.
@@ -109,9 +111,17 @@ The bar runs along the top of every display.
 | --- | --- |
 | left | the launcher; your workspaces, by number; the taskbar, one icon for each window on this display; the workspace's layout, which opens a panel to change it and act on the focused window |
 | middle | the date and time; what is playing, while something is |
-| right | CPU, memory and GPU use; the privacy indicator, lit while a microphone, camera or screen share is in use; the tray; caffeine, which keeps the screen awake; the clipboard history; a screenshot; network; Bluetooth; volume; the battery, on a machine with one; brightness, on a display whose brightness can be set; the displays; notifications; the control center |
+| right | CPU, memory and GPU use; the privacy indicator, lit while a microphone, camera or screen share is in use; the tray; caffeine, which keeps the screen awake; drift, the [live background](#the-live-background-and-the-screensaver); the clipboard history; a screenshot; network; Bluetooth; volume; the battery, on a machine with one; brightness, on a display whose brightness can be set; the displays; notifications; the control center |
 
 The GPU figure is the same one `axon` shows. Right-clicking an empty stretch of the bar opens the control center, and the shell's Settings changes what the bar holds.
+
+For OLED displays, the bar's icons and labels move one pixel every two minutes, at most three pixels from their place, so the same pixels are not lit for hours. Nothing moves while the pointer is on the bar or one of its panels is open, and the bar and the space windows leave for it stay put. To change it, in `~/.config/noctalia/config.toml`:
+
+```toml
+[bar.main]
+pixel_shift = 0             # pixels each way, 0 to 8; 0 keeps the bar still
+pixel_shift_interval = 120  # seconds between one-pixel moves, 10 to 3600
+```
 
 ## The tray
 
@@ -123,7 +133,7 @@ The displays button on the bar sets each display's resolution, refresh rate and 
 
 ## Plugins
 
-The layout and displays buttons are Noctalia plugins, and they come installed with the desktop. Noctalia's plugin store is off: Settings → Plugins lists its two sources, *official* and *community*, and turning one on lets you browse it and install from it. The shell downloads nothing else at start either: its community templates and the calculator's currency exchange rates are off until you turn them on in Settings.
+The layout, displays and drift buttons are Noctalia plugins, and they come installed with the desktop. Noctalia's plugin store is off: Settings → Plugins lists its two sources, *official* and *community*, and turning one on lets you browse it and install from it. The shell downloads nothing else at start either: its community templates and the calculator's currency exchange rates are off until you turn them on in Settings.
 
 ## foot
 

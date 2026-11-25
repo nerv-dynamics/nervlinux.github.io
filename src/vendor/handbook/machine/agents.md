@@ -63,7 +63,7 @@ Close the terminal while the agent works and it carries on. The next `yui` opens
 
 Each conversation shows its state as a glyph: a yellow ◆ when a question waits for you, a cyan ● while it works, a green ○ when it has finished and waits for you, and a red ✕ when its turn failed. Inside tmux, every window carries one glyph per agent open in it, and the terminal bell rings when an agent comes to need you.
 
-From a script: `yui ps` prints every agent's state, `yui show NAME` prints a conversation as text, and `yui send NAME TEXT` asks it something and prints the answer ([Conversations from a script](../reference/yui.md#conversations-from-a-script)).
+From a script: `yui ps` prints every agent's state, `yui show NAME` prints a conversation as text, and `yui send NAME TEXT` asks it something and prints the answer ([Conversations from a script](../reference/yui.md#conversations-from-a-script)). Everything `ctrl+p` changes is a command too: `yui context summarize at 80%`, `yui decide NAME allow`, `yui plugins telegram approve=none` ([Settings from a script](../reference/yui.md#settings-from-a-script)).
 
 ## Running several agents
 
@@ -93,7 +93,7 @@ Inside the sandbox the agent needs no permission: it reads, writes and runs comm
 | `e` | change what it would do, then press enter |
 | `esc` | stop the agent |
 
-`ctrl+p`, then *Sandbox*, lists what the agent can reach now, and enter on a line takes it back.
+`ctrl+p`, then *Sandbox*, lists what the agent can reach now, and enter on a line takes it back. yui's own files, its configuration and state and the socket its commands speak through, are never in the sandbox, whatever you grant ([The sandbox](../reference/yui.md#the-sandbox)).
 
 Once a conversation holds outside content, a command that could reach the network is asked for again, and the card says why. A paste of eight lines or more counts as outside content, since it usually came from a log, a page or a message; typing and short pastes are yours. So does what a command prints while the agent has the network.
 
@@ -163,6 +163,7 @@ A conversation can also be reached from a Telegram chat, through yui's `telegram
 | `yui board` | the board |
 | `yui show NAME [--full] [--follow]` | a conversation as plain text |
 | `yui send NAME TEXT` | ask a conversation, and print the answer |
+| `yui model`, `sandbox`, `decide`, `plugins`, `context`, … | what `ctrl+p` changes, as commands ([Settings from a script](../reference/yui.md#settings-from-a-script)) |
 | `yui mcp login NAME`, `yui mcp logout NAME` | sign in to an MCP server, and forget it |
 | `systemctl --user enable --now yui` | keep yui's daemon running from login, for a channel |
 

@@ -277,15 +277,15 @@
 $ doas reboot</pre>
 <p>The virtual machine needs <code>nerv-qemu</code> and <code>nerv-aavmf</code>, which the <code>workstation</code>, <code>workstation-gui</code> and <code>dev</code> profiles carry. A <code>core</code> machine says so, skips that step, and puts the slot on trial untested.</p>
 <h2 id="when-an-update-is-waiting" class="section-title">When an update is waiting</h2>
-<p>The lower tmux bar watches the two things that change only with a reboot, the kernel and the NVIDIA driver:</p>
+<p>The upper tmux bar watches the two things that change only with a reboot, the kernel and the NVIDIA driver:</p>
 <div class="table-scroll">
 <table class="data">
 <thead><tr>
-<th scope="col">the bar's left end</th><th scope="col"></th>
+<th scope="col">the bar's right end</th><th scope="col"></th>
 </tr></thead>
 <tbody>
 <tr>
-<td>the LAN address, in blue</td><td>the machine runs what it will keep running</td>
+<td>nothing after the temperature</td><td>the machine runs what it will keep running</td>
 </tr>
 <tr>
 <td><code>↑ L 7.2.10  N 610.60</code>, in red</td><td>a newer kernel or driver is in the repositories</td>

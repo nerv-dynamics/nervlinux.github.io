@@ -124,9 +124,9 @@ The prefix is the default `C-b`. What is different:
 
 There are two status bars.
 
-The **upper** one starts with the machine's hostname, so on a desk with several of these you always know which machine a terminal is on. The hostname block turns yellow while tmux waits for a command after the prefix, and pink in copy mode, where keys scroll the pane instead of reaching the program in it. Then come the windows, and at the right edge the machine's uptime, temperature and power draw. There is no clock; every screen already has one.
+The **upper** one starts with `Nerv` in red. That block turns yellow while tmux waits for a command after the prefix, and pink in copy mode, where keys scroll the pane instead of reaching the program in it. Then come the windows, and at the right edge the machine's uptime and temperature, followed by an alert when a kernel or driver update is waiting (see [Generations](generations.md#when-an-update-is-waiting)). There is no clock; every screen already has one.
 
-The **lower** one starts with the machine's LAN address, the one you would `ssh` to. Then come the sessions, which you can click: the one you are in sits on a grey block. At the right are `CPU`, `GPU` and memory.
+The **lower** one starts with who you are and which machine this is, `user ∵ host` in blue, so on a desk with several of these you always know where a terminal is. Then come the sessions, which you can click: the one you are in sits on a grey block. At the right are `CPU`, `GPU` and memory. So the prompt itself is just the directory and `❯`. It adds the user when you are root or someone else, and the user and host when you are logged in over `ssh`, which is when the bar, showing where tmux runs, would be wrong about the shell in front of you.
 
 Both right-hand groups come from `axon --format=tmux --fields=…`, which you can also ask for other fields:
 

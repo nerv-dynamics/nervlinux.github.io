@@ -141,6 +141,7 @@
 <ol class="hb-nav__sections">
 <li><a href="#endpoints-and-their-keys">Endpoints and their keys</a></li>
 <li><a href="#conversations-from-a-script">Conversations from a script</a></li>
+<li><a href="#settings-from-a-script">Settings from a script</a></li>
 <li><a href="#the-board">The board</a></li>
 <li><a href="#agents-talking-to-each-other">Agents talking to each other</a></li>
 <li><a href="#questions">Questions</a></li>
@@ -197,6 +198,58 @@ $ (umask 077; cat &gt; ~/.config/yui/keys/10.0.0.5:8000)</pre>
 <p>Close the terminal while the agent works and it carries on. The next <code>yui</code> opens on the conversation as it is, a question it asked you still waiting. Two terminals can open the same conversation: both show everything, and either can answer.</p>
 <p><code>yui ps</code> shows what every agent is doing: <em>working</em>, <em>needs-you</em> when a question waits for you, <em>done-waiting</em> when it has finished and waits for the next message, or <em>blocked</em> when its turn failed. With each comes since when, the machine, the directory and branch it works in, and what it waits on or what you asked it. An agent working when the machine stopped is shown blocked until you open its conversation again. <code>yui ps --follow</code> stays open and prints an agent's line again each time it changes.</p>
 <p>The same state shows in two more places, as a glyph: a yellow ◆ for <em>needs-you</em>, a cyan ● for <em>working</em>, a green ○ for <em>done-waiting</em> and a red ✕ for <em>blocked</em>. In <code>ctrl+s</code> it comes before each conversation, and a blocked one says why. Inside tmux, each window carries one glyph per agent open in it, so you see every agent from whichever window you are in, and the terminal bell rings when an agent comes to need you. An agent another yui holds shows the state its own yui gives it.</p>
+<h2 id="settings-from-a-script" class="section-title">Settings from a script</h2>
+<p>Everything <code>ctrl+p</code> changes is a command too, for a script, or an agent elsewhere, to change without a terminal to draw in. Each one given nothing more prints how things stand; given more, it changes them first and prints how they stand after. NAME is a conversation, as for <code>yui open</code>.</p>
+<div class="table-scroll">
+<table class="data">
+<thead><tr>
+<th scope="col">command</th><th scope="col"></th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code>yui model NAME [MODEL] [--endpoint E] [--effort E]</code></td><td>the model a conversation talks to, and how hard it thinks</td>
+</tr>
+<tr>
+<td>`yui sandbox NAME [grant PATH [--write] \</td><td>revoke PATH \</td><td>net on\</td><td>off]`</td><td>what its agent can reach</td>
+</tr>
+<tr>
+<td><code>yui approver NAME</code></td><td>make the conversation the approver, or stop it being one</td>
+</tr>
+<tr>
+<td>`yui decide NAME [allow \</td><td>always \</td><td>refuse [WHY] \</td><td>answer TEXT]`</td><td>the question it waits on, and your answer</td>
+</tr>
+<tr>
+<td><code>yui cancel NAME</code></td><td>stop the turn it is taking</td>
+</tr>
+<tr>
+<td><code>yui standing [withdraw ID]</code></td><td>your standing grants, and taking one back</td>
+</tr>
+<tr>
+<td><code>yui policy</code></td><td>the machine's policy</td>
+</tr>
+<tr>
+<td>`yui memory [on ID \</td><td>off ID \</td><td>delete ID \</td><td>edit ID \</td><td>auto on\</td><td>off]`</td><td>the memory for the project you are in; <code>edit</code> reads the title and then the text on its input</td>
+</tr>
+<tr>
+<td>`yui tools [--in NAME] [KEY on\</td><td>off\</td><td>default]`</td><td>the tools switched on or off, for the machine or one conversation</td>
+</tr>
+<tr>
+<td>`yui plugins [NAME [KEY=VALUE … \</td><td>reset KEY \</td><td>allow ID \</td><td>refuse ID]]`</td><td>each plugin's settings, and what its channel asks</td>
+</tr>
+<tr>
+<td>`yui context [summarize on\</td><td>off \</td><td>summarize at N% \</td><td>prune [STRATEGY …]]`</td><td>summarizing and pruning</td>
+</tr>
+<tr>
+<td>`yui fleet [DEVICE CARD allow \</td><td>DEVICE CARD refuse [WHY]]`</td><td>what waits on the other machines</td>
+</tr>
+<tr>
+<td><code>yui stop-s2</code></td><td>stop the S2 yui started</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code>KEY+=LINE</code> and <code>KEY-=LINE</code> add a line to a plugin's list and take one off it. <code>KEY=-</code> reads the value from standard input, which is the way to give a secret: nothing else on the machine sees it, as it could see a command's arguments. <code>yui send</code> exits 3 when a question waits; <code>yui decide NAME</code> then prints it, and <code>yui decide NAME allow</code> answers it.</p>
+<p>These are yours, as the TUI is. What keeps an agent of yui's from running them is its sandbox, not the program you happen to use: no sandbox holds yuid's socket or yui's files (<a href="#the-sandbox">The sandbox</a>).</p>
 <h2 id="the-board" class="section-title">The board</h2>
 <p><code>alt+0</code>, or <code>yui board</code>, shows every agent at once, one tile each: its state and since when, where it works and on which branch, the last lines of what it is doing, and the question it waits on, if one. <code>y</code> or <code>n</code> answers that question from the board; anything more, such as editing the call, opens the conversation with <code>enter</code>. On a narrow terminal the tiles become a list.</p>
 <p>The board is the same in every yui, on any terminal: <code>p</code> pins a tile first, <code>&lt;</code> and <code>&gt;</code> move it, and <code>x</code> takes it off until its agent next works or needs you. The order numbers the agents for the keys that move between them, from the board or from inside a conversation:</p>
@@ -276,6 +329,7 @@ $ (umask 077; cat &gt; ~/.config/yui/keys/10.0.0.5:8000)</pre>
 </table>
 </div>
 <p><code>ctrl+p</code>, then <em>Sandbox</em>, lists what the agent can reach. Enter on a path takes it back; enter on the network gives it or takes it back. What you give is kept with the conversation.</p>
+<p>yui's own files are never in the sandbox, whatever you grant: <code>~/.config/yui</code>, <code>~/.local/state/yui</code>, your runtime directory under <code>/run/user</code>, and magi's sockets. A grant of your home directory leaves them out, and a grant of one of them is refused. What reached them could change what holds the agent, or speak to yui as you, through its socket or the settings' commands. A conversation started inside one of them gets no default grant, as one started in your home directory does not.</p>
 <p>What you type is yours to act on; text that came from elsewhere is not. Once a conversation holds outside content, a command that could reach the network is asked for again, the card saying why. A paste of eight lines or more counts as outside content: it usually came from a log, a page or a message. Typing and short pastes are yours. So does what a command prints while the agent has the network, since it could have fetched it from anywhere.</p>
 <p>On a kernel that cannot make the sandbox, yui says so when the agent first acts, and asks before each write, each command and each read outside the directory. There, <code>a</code> on a card allows that tool in the conversation from then on, after a restart too, but never once outside content has arrived.</p>
 <p><code>ctrl+p</code>, then <em>Standing grants</em>, lists every <code>a</code> you have given and that still holds: the tool, the conversation it holds in (every conversation, for starting S2), who gave it and since when. Enter on one takes it back. The next such call is asked for again, in a turn already under way too.</p>
